@@ -963,7 +963,7 @@ class CollectionView extends React.Component {
             onClose={this.handleViewClose}
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
-            maxWidth={'lg'}
+            maxWidth={'sm'}
           >
             <DialogTitle id="alert-dialog-title">View Settings</DialogTitle>
             <DialogContent>
