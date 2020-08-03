@@ -31,7 +31,7 @@ These instructions will get Prometheus up and running on your local machine for 
 
 Run `npm install`
 
-Start development by running `npm run development`
+Start development by running `npm run dev`
 
 Build project by running `npm run build`
 

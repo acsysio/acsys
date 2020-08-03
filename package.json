@@ -4,7 +4,7 @@
   "private": true,
   "bin": "server/server.js",
   "scripts": {
-    "development": "concurrently \"react-scripts start\" \"nodemon server/server.js\"",
+    "dev": "concurrently \"react-scripts start\" \"nodemon server/server.js\"",
     "react": "react-scripts start",
     "test-react": "react-scripts test --env=jsdom",
     "build": "react-scripts build && (if exist server\\build rmdir /s /q server\\build) && move build server",

@@ -56,6 +56,7 @@ let tempDocument = [];
 let fileDoc = [];
 let fileRefs = [];
 let mode = '';
+let isRemovable = true;
 let quillRef = null;
 let quillIndex = 0;
 let quillURL = '';
@@ -471,6 +472,7 @@ class DocumentView extends React.Component {
       ]);
       try {
         mode = this.props.location.state.mode;
+        isRemovable = this.props.location.state.isRemovable;
         tableKeys = this.props.location.state.tableKeys;
       } catch (error) {
         mode = tempMode;
@@ -1501,7 +1503,7 @@ class DocumentView extends React.Component {
       <div style={{ minHeight: 600 }}>
         {Prom.getMode() !== 'Viewer' ? (
           <div>
-            {!this.props.location.state.routed ? (
+            {!this.props.location.state.routed && isRemovable ? (
               <Button
                 style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
                 variant="contained"
