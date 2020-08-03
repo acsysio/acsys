@@ -605,6 +605,7 @@ class CollectionView extends React.Component {
                   pathname: '/DocumentView',
                   state: {
                     mode: 'update',
+                    isRemovable: isRemovable,
                     tableKeys: tableKeys[rowIndex],
                     routed: false,
                     viewId: documentDetails[0].contentId,
