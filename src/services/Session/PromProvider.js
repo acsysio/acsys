@@ -14,6 +14,7 @@ class PromProvider extends React.Component {
     rowsPerPage: 0,
     order: '',
     direction: '',
+    pageDirection: '',
   };
   render() {
     return (
@@ -73,6 +74,14 @@ class PromProvider extends React.Component {
           },
           getDirection: () => {
             return this.state.direction;
+          },
+          setPageDirection: (pageDirection) => {
+            this.setState({
+              pageDirection: pageDirection,
+            });
+          },
+          getPageDirection: () => {
+            return this.state.pageDirection;
           },
           incrementPage: () => {
             this.setState({

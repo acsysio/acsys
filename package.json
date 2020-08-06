@@ -3,8 +3,8 @@
   "private": true,
   "scripts": {
     "build": "react-scripts build && (if exist server\\build rmdir /s /q server\\build) && move build server",
-    "build-linux": "react-scripts build && (if exist server\\build rmdir /s /q server\\build) && mv build server",
-    "development": "concurrently \"react-scripts start\" \"nodemon server/server.js\"",
+    "build-linux": "react-scripts build && (if exist server/build rm -rf server/build) && mv build server",
+    "dev": "concurrently \"react-scripts start\" \"nodemon server/server.js\"",
     "lint": "./node_modules/.bin/eslint app.js",
     "react": "react-scripts start",
     "start": "node server/server.js",
