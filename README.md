@@ -35,7 +35,7 @@ Start development by running `npm run dev`
 
 Build project by running `npm run build`
 
-Run project in production mode by running `npm run start` (after building)
+Run project in production mode by running `npm run start` (executing this after building will run the project at http://localhost)
 
 ## Configuration
 

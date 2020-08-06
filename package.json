@@ -1,16 +1,14 @@
 {
   "name": "prometheus",
-  "version": "0.1.0",
   "private": true,
-  "bin": "server/server.js",
   "scripts": {
-    "dev": "concurrently \"react-scripts start\" \"nodemon server/server.js\"",
-    "react": "react-scripts start",
-    "test-react": "react-scripts test --env=jsdom",
     "build": "react-scripts build && (if exist server\\build rmdir /s /q server\\build) && move build server",
+    "build-linux": "react-scripts build && (if exist server/build rm -rf server/build) && mv build server",
+    "dev": "concurrently \"react-scripts start\" \"nodemon server/server.js\"",
     "lint": "./node_modules/.bin/eslint app.js",
-    "package": "pkg package.json",
-    "start": "node server/server.js"
+    "react": "react-scripts start",
+    "start": "node server/server.js",
+    "test-react": "react-scripts test --env=jsdom"
   },
   "browserslist": {
     "production": [
@@ -84,9 +82,6 @@
     "eslint-plugin-react": "^7.20.3",
     "eslint-plugin-react-hooks": "^4.0.5",
     "nodemon": "^1.12.0"
-  },
-  "pkg": {
-    "assets": "server/build"
   },
   "proxy": "http://localhost:80"
 }
