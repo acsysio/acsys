@@ -1,13 +1,13 @@
 import {
-    Box,
-    Button,
-    CircularProgress,
-    Grid, Hidden,
-    Typography
+  Box,
+  Button,
+  CircularProgress,
+  Grid,
+  Hidden,
+  Typography,
 } from '@material-ui/core';
 import React, { Component } from 'react';
 import * as Prom from '../../services/Prometheus/Prom';
-
 
 const INITIAL_STATE = {
   username: '',
@@ -23,77 +23,32 @@ const INITIAL_STATE = {
 class PasswordReset extends Component {
   state = { ...INITIAL_STATE };
 
-  componentDidMount = async () => {
-    const installed = await Prom.hasAdmin();
+  constructor(props) {
+    super(props);
+  }
 
-    this.setState({
-      isInstalled: installed,
-    });
-  };
+  componentDidMount = async () => {};
 
   onKeyDownSI = (event) => {
-    const {
-      username,
-      email,
-      passwordOne,
-    } = this.state;
-    if (event.key === 'Enter' && !(passwordOne === '' || username === '')) {
+    const { passwordOne, passwordTwo } = this.state;
+    if (event.key === 'Enter' && passwordOne === passwordTwo) {
       event.preventDefault();
       event.stopPropagation();
       this.onSubmit();
     }
   };
 
-  onKeyDownRG = (event) => {
-    const {
-      username,
-      email,
-      passwordOne,
-      passwordTwo,
-    } = this.state;
-    if (event.key === 'Enter' && !(passwordOne !== passwordTwo || passwordOne === '' || email === '' || username === '')) {
-      event.preventDefault();
-      event.stopPropagation();
-      this.onSubmitInitial();
-    }
-  };
-
   onSubmit = async (event) => {
-    const { username, passwordOne } = this.state;
+    const { passwordOne } = this.state;
 
     this.setState({ loading: true });
 
-    await Prom.authenticate(username, passwordOne)
+    await Prom.resetPassword(this.props.match.params.id, passwordOne)
       .then((result) => {
-        if (result === true) {
-          window.location.reload(false);
-          event.preventDefault();
-        } else {
-          this.setState({
-            loading: false,
-            message: result,
-          });
-        }
-      })
-      .catch(() => {});
-  };
-
-  onSubmitInitial = async (event) => {
-    const { username, email, passwordOne } = this.state;
-
-    this.setState({ loading: true });
-
-    await Prom.register(username, email, passwordOne)
-      .then((result) => {
-        if (result === true) {
-          window.location.reload(false);
-          event.preventDefault();
-        } else {
-          this.setState({
-            loading: false,
-            message: result,
-          });
-        }
+        this.setState({
+          loading: false,
+          message: result,
+        });
       })
       .catch(() => {});
   };
@@ -113,13 +68,7 @@ class PasswordReset extends Component {
       error,
     } = this.state;
 
-    const isInvalidInitial =
-      passwordOne !== passwordTwo ||
-      passwordOne === '' ||
-      email === '' ||
-      username === '';
-
-    const isInvalid = passwordOne === '' || username === '';
+    const isInvalid = passwordOne !== passwordTwo;
 
     let initialComponent;
 
@@ -132,18 +81,11 @@ class PasswordReset extends Component {
         textAlign="center"
         padding="16px"
       >
-        <Typography
-          variant="h4"
-          color="primary"
-        >
+        <Typography variant="h4" color="primary">
           Reset your password
         </Typography>
 
-        <Typography
-          variant="h6"
-          color="#000000"
-          style={{ marginTop: '10px' }}
-        >
+        <Typography variant="h6" color="#000000" style={{ marginTop: '10px' }}>
           Enter the new password for your account.
         </Typography>
 
@@ -158,28 +100,28 @@ class PasswordReset extends Component {
         <input
           id="passwordOne"
           name="passwordOne"
-          placeholder="Password"
+          placeholder="New password"
           margin="normal"
           color="primary"
           variant="outlined"
           type="password"
           style={{ marginTop: '20px' }}
           value={passwordOne}
-          onKeyDown={this.onKeyDownRG}
+          onKeyDown={this.onKeyDownSI}
           onChange={this.onChange}
         />
 
         <input
           id="passwordTwo"
           name="passwordTwo"
-          placeholder="Confirm Password"
+          placeholder="Confirm new password"
           margin="normal"
           color="primary"
           variant="outlined"
           type="password"
           style={{ marginTop: '20px' }}
           value={passwordTwo}
-          onKeyDown={this.onKeyDownRG}
+          onKeyDown={this.onKeyDownSI}
           onChange={this.onChange}
         />
 
@@ -214,7 +156,12 @@ class PasswordReset extends Component {
         <Box boxShadow={3} style={{ margin: 'auto' }}>
           <Grid
             container
-            style={{ maxWidth: '80vw', width: 500, minHeight: 300, background: '#ffffff' }}
+            style={{
+              maxWidth: '80vw',
+              width: 500,
+              minHeight: 300,
+              background: '#ffffff',
+            }}
           >
             {initialComponent}
             <div style={{ marginBottom: '150px' }} />

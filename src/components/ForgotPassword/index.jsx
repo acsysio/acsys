@@ -24,11 +24,7 @@ class ForgotPassword extends Component {
   state = { ...INITIAL_STATE };
 
   componentDidMount = async () => {
-    const installed = await Prom.hasAdmin();
-
-    this.setState({
-      isInstalled: installed,
-    });
+    
   };
 
   onKeyDownSI = (event) => {
@@ -45,21 +41,16 @@ class ForgotPassword extends Component {
   };
 
   onSubmit = async (event) => {
-    const { username, passwordOne } = this.state;
+    const { email } = this.state;
 
     this.setState({ loading: true });
 
-    await Prom.authenticate(username, passwordOne)
+    await Prom.sendResetLink(email)
       .then((result) => {
-        if (result === true) {
-          window.location.reload(false);
-          event.preventDefault();
-        } else {
-          this.setState({
-            loading: false,
-            message: result,
-          });
-        }
+        this.setState({
+          loading: false,
+          message: result,
+        });
       })
       .catch(() => {});
   };
@@ -137,7 +128,6 @@ class ForgotPassword extends Component {
         />
 
         <Button
-          disabled={isInvalid || loading}
           type="submit"
           style={{ marginTop: '20px' }}
           onClick={this.onSubmit}

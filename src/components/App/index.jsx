@@ -14,7 +14,10 @@ function App() {
   return (
     <div className="App">
       <Router>
-        <Route path="/PasswordReset" render={() => <PasswordReset />} />
+        <Route
+          path="/PasswordReset/:id"
+          render={(props) => <PasswordReset {...props} />}
+        />
         <Route path="/ForgotPassword" render={() => <ForgotPassword />} />
         <Route exact path="/">
           <Redirect to="/SignIn" />
