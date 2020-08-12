@@ -5,12 +5,12 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  NativeSelect, 
+  NativeSelect,
   Table,
   TableBody,
   TableCell,
   TableHead,
-  TableRow
+  TableRow,
 } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
@@ -23,7 +23,7 @@ import {
   Create as CreateIcon,
   Delete as DeleteIcon,
   KeyboardArrowLeft,
-  KeyboardArrowRight
+  KeyboardArrowRight,
 } from '@material-ui/icons';
 import React from 'react';
 import { DndProvider } from 'react-dnd';
@@ -49,6 +49,7 @@ const INITIAL_STATE = {
   order: [],
   orderDir: '',
   locked: true,
+  reset: false,
   loading: false,
   setOpen: false,
   setDetailOpen: false,
@@ -59,6 +60,8 @@ const INITIAL_STATE = {
 };
 
 let published = true;
+let lockedValue = true;
+let isRemovable = true;
 let tableKeys = [];
 let tempDetails = [];
 let viewOrderField = 'none';
@@ -127,22 +130,21 @@ class CollectionView extends React.Component {
   };
 
   toggleTable = async (value) => {
-    this.setState({
-      loading: true,
-    });
     if (!value) {
       await Prom.unlockTable(this.state.documentDetails[0].collection);
       this.setState({
         locked: false,
-        loading: false,
       });
     } else {
       Prom.lockTable(this.state.documentDetails[0].collection);
       this.setState({
         locked: true,
-        loading: false,
       });
     }
+  };
+
+  setLockedValue = (value) => {
+    lockedValue = value;
   };
 
   setOrderField = (field) => {
@@ -153,7 +155,18 @@ class CollectionView extends React.Component {
     viewOrder = order;
   };
 
+  setEntriesPerPage = (value) => {
+    rowNum = value;
+  };
+
+  setUpdateOnly = (value) => {
+    isRemovable = value;
+  };
+
   saveViewSettings = async () => {
+    this.setState({
+      loading: true,
+    });
     let tempView = this.state.prmthsView;
     if (viewOrderField === 'none') {
       tempView['orderBy'] = '';
@@ -162,12 +175,18 @@ class CollectionView extends React.Component {
       tempView['orderBy'] = viewOrderField;
       tempView['order'] = viewOrder;
     }
+    tempView['isRemovable'] = isRemovable;
+    tempView['rowNum'] = rowNum;
+    this.toggleTable(lockedValue);
+    this.context.setHeld(false);
     await Prom.updateData('prmths_views', tempView, [['id', '=', tempView.id]]);
     this.setState({
       setViewOpen: false,
+      reset: true,
       totalRows: 0,
       page: 1,
     });
+    tableKeys = [];
     this.mount();
   };
 
@@ -202,10 +221,12 @@ class CollectionView extends React.Component {
           await Prom.deleteData(documentDetails[0].collection, keys);
         }
       })
-      .catch(async () => {
-
-      });
+      .catch(async () => {});
     this.handleClose();
+    this.setState({
+      reset: true,
+    });
+    tableKeys = [];
     this.mount();
     this.setState({ deleteLoading: false });
   };
@@ -240,6 +261,7 @@ class CollectionView extends React.Component {
       this.state.order,
       this.state.orderDir
     );
+    this.context.setPageDirection('prev');
     window.scrollTo(0, 0);
   };
 
@@ -277,6 +299,7 @@ class CollectionView extends React.Component {
       this.state.order,
       this.state.orderDir
     );
+    this.context.setPageDirection('next');
     window.scrollTo(0, 0);
   };
 
@@ -336,10 +359,14 @@ class CollectionView extends React.Component {
     let currentData;
     let order = [];
     let orderDir = 'asc';
+    lockedValue = true;
+    isRemovable = true;
     viewOrderField = 'none';
     viewOrder = 'asc';
     rowNum = 10;
-    tableKeys = this.props.location.state.tableKeys;
+    if (!this.state.reset) {
+      tableKeys = this.props.location.state.tableKeys;
+    }
     let id = '';
     if (published) {
       id = this.props.match.params.id;
@@ -353,10 +380,11 @@ class CollectionView extends React.Component {
 
     try {
       prmthsView = await Prom.getData('prmths_views', [['id', '=', contentId]]);
+      isRemovable = prmthsView[0].isRemovable;
+      rowNum = prmthsView[0].rowNum;
       if (prmthsView[0].orderBy.length > 0) {
         viewOrderField = prmthsView[0].orderBy;
         viewOrder = prmthsView[0].order;
-        rowNum = prmthsView[0].rowNum;
       }
 
       let keys = [];
@@ -389,7 +417,7 @@ class CollectionView extends React.Component {
             this.context.getRowsPerPage(),
             this.context.getOrder(),
             this.context.getDirection(),
-            'next'
+            this.context.getPageDirection()
           );
           page = this.context.getPage();
         } else {
@@ -434,11 +462,13 @@ class CollectionView extends React.Component {
       .then((result) => {
         if (result[0].table === id) {
           locked = false;
+          lockedValue = false;
         }
       })
       .catch(() => {});
 
     this.setState({
+      reset: false,
       view: this.props.location.state.view,
       loading: false,
       locked: locked,
@@ -575,6 +605,7 @@ class CollectionView extends React.Component {
                   pathname: '/DocumentView',
                   state: {
                     mode: 'update',
+                    isRemovable: isRemovable,
                     tableKeys: tableKeys[rowIndex],
                     routed: false,
                     viewId: documentDetails[0].contentId,
@@ -596,7 +627,7 @@ class CollectionView extends React.Component {
                 <CreateIcon />
               </IconButton>
             )}
-            {Prom.getMode() !== 'Viewer' ? (
+            {Prom.getMode() !== 'Viewer' && isRemovable ? (
               <IconButton
                 edge="start"
                 color="inherit"
@@ -670,14 +701,9 @@ class CollectionView extends React.Component {
     let tableDetails = '';
     try {
       tableDetails = tableData.details;
-    }
-    catch (error) {
-
-    }
+    } catch (error) {}
     if (tableDetails) {
-      return (
-        <div style={{ margin: 30, overflow: 'auto' }}>{tableDetails}</div>
-      );
+      return <div style={{ margin: 30, overflow: 'auto' }}>{tableDetails}</div>;
     } else {
       try {
         return (
@@ -693,10 +719,7 @@ class CollectionView extends React.Component {
             {this.renderPagination(paginate)}
           </div>
         );
-      }
-      catch (error) {
-
-      }
+      } catch (error) {}
     }
   }
   render() {
@@ -717,17 +740,12 @@ class CollectionView extends React.Component {
 
     try {
       projectId = prmthsView.id;
-    }
-    catch (error) {
+    } catch (error) {}
 
-    }
-    
     try {
       viewTable = tempDetails[0].collection;
-    }
-    catch (error) {
+    } catch (error) {}
 
-    }
     for (let i = 0; i < documentDetails.length; i++) {
       if (documentDetails[i].isKey) {
         let tempObj = {
@@ -806,7 +824,7 @@ class CollectionView extends React.Component {
                   <div />
                 )}
                 <Grid item>
-                  {Prom.getMode() !== 'Viewer' ? (
+                  {Prom.getMode() !== 'Viewer' && isRemovable ? (
                     <Button
                       to={{
                         pathname: '/DocumentView',
@@ -943,24 +961,34 @@ class CollectionView extends React.Component {
             onClose={this.handleViewClose}
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
-            maxWidth={'lg'}
+            maxWidth={'sm'}
           >
             <DialogTitle id="alert-dialog-title">View Settings</DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description"></DialogContentText>
               <div>
                 <Grid container spacing={0}>
-                  <Grid item xs={8}>
+                  <Grid item xs={3}>
                     <div>
                       <Typography>Order By Field</Typography>
                     </div>
                   </Grid>
-                  <Grid item xs={4}>
+                  <Grid item xs={3}>
                     <div>
                       <Typography>Order</Typography>
                     </div>
                   </Grid>
-                  <Grid item xs={8}>
+                  <Grid item xs={3}>
+                    <div>
+                      <Typography>Entries Per Page</Typography>
+                    </div>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <div>
+                      <Typography>Update Mode</Typography>
+                    </div>
+                  </Grid>
+                  <Grid item xs={3}>
                     <div>
                       <NativeSelect
                         defaultValue={viewOrderField}
@@ -977,7 +1005,7 @@ class CollectionView extends React.Component {
                       </NativeSelect>
                     </div>
                   </Grid>
-                  <Grid item xs={4}>
+                  <Grid item xs={3}>
                     <div>
                       <NativeSelect
                         defaultValue={viewOrder}
@@ -985,6 +1013,37 @@ class CollectionView extends React.Component {
                       >
                         <option value={'asc'}>asc</option>
                         <option value={'desc'}>desc</option>
+                      </NativeSelect>
+                    </div>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <div>
+                      <NativeSelect
+                        defaultValue={rowNum}
+                        onChange={(e) =>
+                          this.setEntriesPerPage(parseInt(e.target.value))
+                        }
+                      >
+                        <option value={5}>5</option>
+                        <option value={10}>10</option>
+                        <option value={15}>15</option>
+                        <option value={20}>20</option>
+                        <option value={50}>50</option>
+                        <option value={100}>100</option>
+                      </NativeSelect>
+                    </div>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <div>
+                      <NativeSelect
+                        defaultValue={isRemovable}
+                        onChange={(e) =>
+                          this.setUpdateOnly('true' == e.target.value)
+                        }
+                        style={{ width: '100%' }}
+                      >
+                        <option value={true}>Add/Remove</option>
+                        <option value={false}>Update Only</option>
                       </NativeSelect>
                     </div>
                   </Grid>
@@ -998,7 +1057,7 @@ class CollectionView extends React.Component {
                       <NativeSelect
                         defaultValue={locked}
                         onChange={(e) =>
-                          this.toggleTable('true' == e.target.value)
+                          this.setLockedValue('true' == e.target.value)
                         }
                         style={{ width: '100%' }}
                       >
@@ -1015,11 +1074,7 @@ class CollectionView extends React.Component {
                 {filterLoading && <CircularProgress size={24} />}
                 {!filterLoading && 'Save'}
               </Button>
-              <Button
-                onClick={this.handleViewClose}
-                color="primary"
-                autoFocus
-              >
+              <Button onClick={this.handleViewClose} color="primary" autoFocus>
                 Cancel
               </Button>
             </DialogActions>

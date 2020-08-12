@@ -1,5 +1,9 @@
 # Prometheus
 
+[![License](https://img.shields.io/github/license/aeon-software/prometheus)](LICENSE.md)
+[![Commit](https://img.shields.io/github/last-commit/aeon-software/prometheus)](https://github.com/aeon-software/prometheus/commits)
+[![Repo](https://img.shields.io/github/repo-size/aeon-software/prometheus)](https://github.com/aeon-software/prometheus)
+
 <p align="center">
   <img alt="Prometheus UI" src="https://user-images.githubusercontent.com/34227411/88206375-c46acd00-cc13-11ea-8f60-f8564ab6c185.png">
 </p>
@@ -27,11 +31,11 @@ These instructions will get Prometheus up and running on your local machine for 
 
 Run `npm install`
 
-Start development by running `npm run development`
+Start development by running `npm run dev`
 
 Build project by running `npm run build`
 
-Run project in production mode by running `npm run start` (after building)
+Run project in production mode by running `npm run start` (executing this after building will run the project at http://localhost)
 
 ## Configuration
 
