@@ -2,10 +2,11 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
+const uniquid = require('uniqid');
 const Config = require('../config/config.js');
 const DataDriver = require('../db.js');
 const StorageDriver = require('../storage.js');
-
+const nodemailer = require('nodemailer');
 const router = express.Router();
 
 const configKey = require('../config/config.json');
@@ -118,6 +119,192 @@ router.post('/verifyPassword', function (req, res) {
       }
     });
   });
+});
+
+router.post('/sendResetLink', function (req, res) {
+  data
+    .getDocs('prmths_email_settings', {})
+    .then((emailSettings) => {
+      const { email } = req.body;
+      const options = {
+        where: [['email', '=', email]],
+        limit: parseInt(1),
+      };
+      data
+        .getDocs('prmths_users', options)
+        .then((result, reject) => {
+          if (result.length > 0) {
+            const resetOptions = {
+              where: [['user_id', '=', result[0].id]],
+              limit: parseInt(1),
+            };
+            data
+              .getDocs('prmths_user_reset', resetOptions)
+              .then((userResult, reject) => {
+                if (userResult.length > 0) {
+                  const date = new Date();
+                  if (date.getTime() < userResult[0].expiration_date) {
+                    res.send({ message: 'Email has been sent.' });
+                  } else {
+                    const expDate = date.getTime() + 5 * 60000;
+                    const dataModel = {
+                      id: uniquid(),
+                      user_id: result[0].id,
+                      expiration_date: expDate,
+                    };
+                    data
+                      .update('prmths_user_reset', dataModel)
+                      .then((action) => {
+                        const transporter = nodemailer.createTransport({
+                          host: emailSettings[0].host,
+                          port: emailSettings[0].port,
+                          auth: {
+                            user: emailSettings[0].username,
+                            pass: emailSettings[0].password,
+                          },
+                        });
+
+                        const message = {
+                          to: email,
+                          subject: 'Credential update',
+                          html:
+                            '<p>Please follow the below link to reset your password.</p><a href="' +
+                            req.get('host') +
+                            '/PasswordReset/' +
+                            dataModel.id +
+                            '">reset password</a><p>This link will expire in 5 minutes.</p>',
+                        };
+
+                        transporter
+                          .sendMail(message)
+                          .then((info) => {
+                            res.send({ message: 'Email has been sent.' });
+                          })
+                          .catch((error) => {
+                            res.send({ message: 'Error sending email.' });
+                          });
+                      })
+                      .catch((action) => {
+                        res.send({ message: 'Error.' });
+                      });
+                  }
+                } else {
+                  const date = new Date();
+                  const expDate = date.getTime() + 5 * 60000;
+                  const dataModel = {
+                    id: uniquid(),
+                    user_id: result[0].id,
+                    expiration_date: expDate,
+                  };
+                  data
+                    .insert('prmths_user_reset', dataModel)
+                    .then((action) => {
+                      const transporter = nodemailer.createTransport({
+                        host: emailSettings[0].host,
+                        port: emailSettings[0].port,
+                        auth: {
+                          user: emailSettings[0].username,
+                          pass: emailSettings[0].password,
+                        },
+                      });
+
+                      const message = {
+                        to: email,
+                        subject: 'Credential update',
+                        html:
+                          '<p>Please follow the below link to reset your password.</p><a href="' +
+                          req.get('host') +
+                          '/PasswordReset/' +
+                          dataModel.id +
+                          '">reset password</a><p>This link will expire in 5 minutes.</p>',
+                      };
+
+                      transporter
+                        .sendMail(message)
+                        .then((info) => {
+                          res.send({ message: 'Email has been sent.' });
+                        })
+                        .catch((error) => {
+                          res.send({ message: 'Error sending email.' });
+                        });
+                    })
+                    .catch((action) => {
+                      res.send({ message: 'Error.' });
+                    });
+                }
+              })
+              .catch(() => {
+                res.send({ message: 'Email not found.' });
+              });
+          } else {
+            res.send({ message: 'Email not found.' });
+          }
+        })
+        .catch((error) => {});
+    })
+    .catch(() => {
+      res.send({ message: 'Email server is not configured' });
+    });
+});
+
+router.post('/resetPassword', function (req, res) {
+  const { id, password } = req.body;
+  const options = {
+    where: [['id', '=', id]],
+    limit: parseInt(1),
+  };
+  data
+    .getDocs('prmths_user_reset', options)
+    .then((result, reject) => {
+      if (result.length > 0) {
+        const date = new Date();
+        if (date.getTime() < result[0].expiration_date) {
+          const userOptions = {
+            where: [['id', '=', result[0].user_id]],
+            limit: parseInt(1),
+          };
+          data
+            .getDocs('prmths_users', userOptions)
+            .then((userResult, reject) => {
+              bcrypt.hash(password, 8, function (err, hash) {
+                const dataModel = {
+                  id: userResult[0].id,
+                  role: userResult[0].role,
+                  mode: userResult[0].mode,
+                  email: userResult[0].email,
+                  username: userResult[0].username,
+                  prmthsCd: hash,
+                };
+                data
+                  .update('prmths_users', dataModel)
+                  .then((action) => {
+                    data
+                      .deleteDocs('prmths_user_reset', result)
+                      .then((deleteResult) => {
+                        res.send({ message: 'Password has been reset.' });
+                      })
+                      .catch((error) => {
+                        res.send({ message: 'Password has been reset.' });
+                      });
+                  })
+                  .catch((action) => {
+                    res.send({ message: 'Error.' });
+                  });
+              });
+            })
+            .catch((error) => {
+              res.send({ message: 'Error.' });
+            });
+        } else {
+          res.send({ message: 'Error.' });
+        }
+      } else {
+        res.send({ message: 'Error.' });
+      }
+    })
+    .catch(() => {
+      res.send({ message: 'Error.' });
+    });
 });
 
 router.post('/createUser', function (req, res) {
@@ -580,6 +767,61 @@ router.post('/setInitialDatabaseConfig', async function (req, res) {
   } catch (error) {
     res.send(false);
   }
+});
+
+router.post('/setEmailConfig', async function (req, res) {
+  try {
+    const configData = {
+      host: req.body.host,
+      port: req.body.port,
+      username: req.body.username,
+      password: req.body.password,
+    };
+
+    data
+      .getDocs('prmths_email_settings', {})
+      .then((result, reject) => {
+        if (result.length > 0) {
+          data
+            .update('prmths_email_settings', configData, [
+              'host',
+              '=',
+              configData.host,
+            ])
+            .then((result) => {
+              res.send(true);
+            })
+            .catch((error) => {
+              res.send(false);
+            });
+        } else {
+          data
+            .insert('prmths_email_settings', configData)
+            .then((result) => {
+              res.send(true);
+            })
+            .catch((error) => {
+              res.send(false);
+            });
+        }
+      })
+      .catch((error) => {
+        res.send(false);
+      });
+  } catch (error) {
+    res.send(false);
+  }
+});
+
+router.get('/getEmailConfig', async function (req, res) {
+  data
+    .getDocs('prmths_email_settings', {})
+    .then((result, reject) => {
+      res.send(result[0]);
+    })
+    .catch(() => {
+      res.send(false);
+    });
 });
 
 router.post('/setDatabaseConfig', async function (req, res) {

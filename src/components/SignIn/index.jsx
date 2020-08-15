@@ -5,6 +5,7 @@ import {
     Grid, Hidden,
     Typography
 } from '@material-ui/core';
+import { Link } from 'react-router-dom';
 import React, { Component } from 'react';
 import * as Prom from '../../services/Prometheus/Prom';
 
@@ -138,7 +139,7 @@ class SignInPage extends Component {
             color="primary"
             style={{ marginTop: '20px' }}
           >
-            SIGN IN
+            Sign in to your account
           </Typography>
 
           <Typography
@@ -187,6 +188,10 @@ class SignInPage extends Component {
             {!loading && 'Sign In'}
           </Button>
 
+          <Typography variant='body2' color="primary" style={{marginTop: '20px'}} to={"/ForgotPassword"} component={Link}>
+            Forgot Password?
+          </Typography>
+
           {error && (
             <Typography variant="body1" color="error">
               {error.message}
@@ -209,7 +214,7 @@ class SignInPage extends Component {
             color="primary"
             style={{ marginTop: '20px' }}
           >
-            REGISTER
+            Register
           </Typography>
 
           <Typography

@@ -19,6 +19,10 @@ import React from 'react';
 import * as Prom from '../../services/Prometheus/Prom';
 
 const INITIAL_STATE = {
+  host: '',
+  port: '',
+  username: '',
+  password: '',
   apiKey: '',
   authDomain: '',
   databaseURL: '',
@@ -27,15 +31,10 @@ const INITIAL_STATE = {
   messagingSenderId: '',
   appId: '',
   measurementId: '',
+  updateEmail: false,
   updateDatabase: false,
   updateStorage: false,
-  passwordChange: false,
   userData: [],
-  username: '',
-  role: 'Administrator',
-  email: '',
-  passwordOne: '',
-  passwordTwo: '',
   page: 0,
   rowsPerPage: 15,
   loading: false,
@@ -71,10 +70,15 @@ class Settings extends React.Component {
 
   componentDidMount = async () => {
     this.props.setHeader('Settings');
+    const emailConfig = await Prom.getEmailConfig();
     const dataConfig = await Prom.getDatabaseConfig();
     const storageConfig = await Prom.getStorageConfig();
 
     this.setState({
+      host: emailConfig.host,
+      port: emailConfig.port,
+      username: emailConfig.username,
+      password: emailConfig.password,
       apiKey: dataConfig.apiKey,
       authDomain: dataConfig.authDomain,
       databaseURL: dataConfig.databaseURL,
@@ -94,6 +98,16 @@ class Settings extends React.Component {
       auth_provider_x509_cert_url: storageConfig.auth_provider_x509_cert_url,
       client_x509_cert_url: storageConfig.client_x509_cert_url,
     });
+  };
+
+  setEmail = async () => {
+    const config = {
+      host: this.state.host,
+      port: this.state.port,
+      username: this.state.username,
+      password: this.state.password,
+    };
+    await Prom.setEmailConfig(config);
   };
 
   setDatabase = async () => {
@@ -156,15 +170,19 @@ class Settings extends React.Component {
     this.setState({
       loading: true,
     });
+    if (this.state.updateEmail) {
+      this.setEmail();
+      await this.sleep(5000);
+    }
     if (this.state.updateDatabase) {
       this.setDatabase();
+      await this.sleep(5000);
     }
-    await this.sleep(5000);
     if (this.state.updateStorage) {
       this.setStorage();
+      await this.sleep(5000);
     }
     if (this.state.updateDatabase || this.state.updateStorage) {
-      await this.sleep(5000);
       await Prom.restart().then(async () => {
         await this.sleep(5000);
         window.location.reload();
@@ -185,6 +203,10 @@ class Settings extends React.Component {
 
   render() {
     const {
+      host,
+      port,
+      username,
+      password,
       apiKey,
       authDomain,
       databaseURL,
@@ -231,6 +253,68 @@ class Settings extends React.Component {
                 <Grid item xs={12}>
                   <Grid item xs={12}>
                     <h1 class="element-header">Configuration</h1>
+                  </Grid>
+                  <Grid item xs={12} style={{ marginBottom: 30 }}>
+                    <ExpansionPanel
+                      style={{ clear: 'both' }}
+                      onChange={(e) =>
+                        this.setState({
+                          updateEmail: !this.state.updateEmail,
+                        })
+                      }
+                    >
+                      <ExpansionPanelSummary
+                        expandIcon={<KeyboardArrowDown />}
+                        aria-controls="panel1a-content"
+                        id="panel1a-header"
+                      >
+                        <Typography>Email Configuration</Typography>
+                      </ExpansionPanelSummary>
+                      <ExpansionPanelDetails>
+                        <Box
+                          margin="auto"
+                          width="90%"
+                          display="flex"
+                          flexDirection="column"
+                          textAlign="center"
+                          padding="16px"
+                        >
+                          <input
+                            id="host"
+                            name="host"
+                            placeholder="Host"
+                            defaultValue={host}
+                            onChange={this.onChange}
+                            style={{ marginTop: '20px' }}
+                          />
+                          <input
+                            id="port"
+                            name="port"
+                            placeholder="Port"
+                            defaultValue={port}
+                            onChange={this.onChange}
+                            style={{ marginTop: '20px' }}
+                          />
+                          <input
+                            id="username"
+                            name="username"
+                            placeholder="Username"
+                            defaultValue={username}
+                            onChange={this.onChange}
+                            style={{ marginTop: '20px' }}
+                          />
+                          <input
+                            id="password"
+                            name="password"
+                            placeholder="Password"
+                            type="password"
+                            defaultValue={password}
+                            onChange={this.onChange}
+                            style={{ marginTop: '20px' }}
+                          />
+                        </Box>
+                      </ExpansionPanelDetails>
+                    </ExpansionPanel>
                   </Grid>
                   <Grid item xs={12} style={{ marginBottom: 30 }}>
                     <ExpansionPanel
