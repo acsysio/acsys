@@ -4,6 +4,7 @@ import {
   CircularProgress, 
   Container,
   Grid,
+  NativeSelect,
   Paper,
   Typography
 } from '@material-ui/core';
@@ -11,6 +12,7 @@ import React, { Component } from 'react';
 import * as Prom from '../../services/Prometheus/Prom';
 
 const INITIAL_STATE = {
+  databaseType: 'Local',
   apiKey: '',
   authDomain: '',
   databaseURL: '',
@@ -30,6 +32,12 @@ class Configuration extends Component {
     this.setState({ ...INITIAL_STATE });
   };
 
+  setDatabase = async (type) => {
+    this.setState({
+      databaseType: type
+    });
+  }
+
   onKeyDownSI = (event) => {
     if (event.key === 'Enter') {
       event.preventDefault();
@@ -40,6 +48,7 @@ class Configuration extends Component {
 
   onSubmit = async (event) => {
     const {
+      databaseType,
       apiKey,
       authDomain,
       databaseURL,
@@ -53,13 +62,14 @@ class Configuration extends Component {
     this.setState({ loading: true });
 
     const config = {
+      databaseType: databaseType,
       apiKey: apiKey,
       authDomain: authDomain,
       databaseURL: databaseURL,
       projectId: projectId,
-      storageBucket: storageBucket,
-      messagingSenderId: messagingSenderId,
-      appId: appId,
+      // storageBucket: storageBucket,
+      // messagingSenderId: messagingSenderId,
+      // appId: appId,
       measurementId: measurementId,
     };
 
@@ -80,8 +90,9 @@ class Configuration extends Component {
     this.setState({ [event.target.name]: event.target.value });
   };
 
-  render() {
+  renderConfig() {
     const {
+      databaseType,
       apiKey,
       authDomain,
       databaseURL,
@@ -89,7 +100,96 @@ class Configuration extends Component {
       storageBucket,
       messagingSenderId,
       appId,
-      measurementId,
+      measurementId
+     } = this.state;
+
+    if (databaseType === 'Local') {
+      return (
+        <div>When this option is selected Prometheus will use the internal database.</div>
+      );
+    }
+    else if (databaseType === 'Firestore') {
+      return (
+        <div>
+          <input
+            id="apiKey"
+            name="apiKey"
+            placeholder="API Key"
+            defaultValue={apiKey}
+            onKeyDown={this.onKeyDownSI}
+            onChange={this.onChange}
+            style={{ marginTop: '20px', width: '96%' }}
+          />
+          <input
+            id="authDomain"
+            name="authDomain"
+            placeholder="Auth Domain"
+            defaultValue={authDomain}
+            onKeyDown={this.onKeyDownSI}
+            onChange={this.onChange}
+            style={{ marginTop: '20px', width: '96%' }}
+          />
+          <input
+            id="databaseURL"
+            name="databaseURL"
+            placeholder="Database URL"
+            defaultValue={databaseURL}
+            onKeyDown={this.onKeyDownSI}
+            onChange={this.onChange}
+            style={{ marginTop: '20px', width: '96%' }}
+          />
+          <input
+            id="projectId"
+            name="projectId"
+            placeholder="Project ID"
+            defaultValue={projectId}
+            onKeyDown={this.onKeyDownSI}
+            onChange={this.onChange}
+            style={{ marginTop: '20px', width: '96%' }}
+          />
+          {/* <input
+            id="storageBucket"
+            name="storageBucket"
+            placeholder="Storage Bucket"
+            defaultValue={storageBucket}
+            onKeyDown={this.onKeyDownSI}
+            onChange={this.onChange}
+            style={{ marginTop: '20px', width: '96%' }}
+          />
+          <input
+            id="messagingSenderId"
+            name="messagingSenderId"
+            placeholder="Messaging Sender ID"
+            defaultValue={messagingSenderId}
+            onKeyDown={this.onKeyDownSI}
+            onChange={this.onChange}
+            style={{ marginTop: '20px', width: '96%' }}
+          />
+          <input
+            id="appId"
+            name="appId"
+            placeholder="App ID"
+            defaultValue={appId}
+            onKeyDown={this.onKeyDownSI}
+            onChange={this.onChange}
+            style={{ marginTop: '20px', width: '96%' }}
+          /> */}
+          <input
+            id="measurementId"
+            name="measurementId"
+            placeholder="Measurement ID"
+            defaultValue={measurementId}
+            onKeyDown={this.onKeyDownSI}
+            onChange={this.onChange}
+            style={{ marginTop: '20px', width: '96%' }}
+          />
+        </div>
+      );
+    }
+  }
+
+  render() {
+    const {
       loading,
       error,
     } = this.state;
@@ -113,81 +213,17 @@ class Configuration extends Component {
               padding="16px"
             >
               <Typography variant="h4" color="primary">
-                Configure Firestore
+                Configure Database
               </Typography>
-
-              <input
-                id="apiKey"
-                name="apiKey"
-                placeholder="API Key"
-                defaultValue={apiKey}
-                onKeyDown={this.onKeyDownSI}
-                onChange={this.onChange}
+              <NativeSelect
+                onChange={(e) => this.setDatabase(e.target.value)}
+                // className="select-css"
                 style={{ marginTop: '20px' }}
-              />
-              <input
-                id="authDomain"
-                name="authDomain"
-                placeholder="Auth Domain"
-                defaultValue={authDomain}
-                onKeyDown={this.onKeyDownSI}
-                onChange={this.onChange}
-                style={{ marginTop: '20px' }}
-              />
-              <input
-                id="databaseURL"
-                name="databaseURL"
-                placeholder="Database URL"
-                defaultValue={databaseURL}
-                onKeyDown={this.onKeyDownSI}
-                onChange={this.onChange}
-                style={{ marginTop: '20px' }}
-              />
-              <input
-                id="projectId"
-                name="projectId"
-                placeholder="Project ID"
-                defaultValue={projectId}
-                onKeyDown={this.onKeyDownSI}
-                onChange={this.onChange}
-                style={{ marginTop: '20px' }}
-              />
-              <input
-                id="storageBucket"
-                name="storageBucket"
-                placeholder="Storage Bucket"
-                defaultValue={storageBucket}
-                onKeyDown={this.onKeyDownSI}
-                onChange={this.onChange}
-                style={{ marginTop: '20px' }}
-              />
-              <input
-                id="messagingSenderId"
-                name="messagingSenderId"
-                placeholder="Messaging Sender ID"
-                defaultValue={messagingSenderId}
-                onKeyDown={this.onKeyDownSI}
-                onChange={this.onChange}
-                style={{ marginTop: '20px' }}
-              />
-              <input
-                id="appId"
-                name="appId"
-                placeholder="App ID"
-                defaultValue={appId}
-                onKeyDown={this.onKeyDownSI}
-                onChange={this.onChange}
-                style={{ marginTop: '20px' }}
-              />
-              <input
-                id="measurementId"
-                name="measurementId"
-                placeholder="Measurement ID"
-                defaultValue={measurementId}
-                onKeyDown={this.onKeyDownSI}
-                onChange={this.onChange}
-                style={{ marginTop: '20px' }}
-              />
+              >
+                <option value={'Local'}>Local</option>
+                <option value={'Firestore'}>Firestore</option>
+              </NativeSelect>
+              {this.renderConfig()}
             </Box>
             <Box
               margin="auto"

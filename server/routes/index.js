@@ -3,7 +3,8 @@ const bcrypt = require('bcrypt');
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const Config = require('../config/config.js');
-const DataDriver = require('../db.js');
+const SqliteDriver = require('../data-drivers/sqlitedb');
+const FirestoreDriver = require('../data-drivers/firestoredb.js');
 const StorageDriver = require('../storage.js');
 
 const router = express.Router();
@@ -11,16 +12,28 @@ const router = express.Router();
 const configKey = require('../config/config.json');
 
 const config = new Config();
-config.initialize();
 
+let dbType;
 let data;
-data = new DataDriver();
-
 let storage;
-storage = new StorageDriver();
 
-data.initialize(config);
-storage.initialize(data);
+async function initialize() {
+  await config.initialize();
+  dbType = await config.getDatabaseType();
+
+  if (dbType === 'firestore') {
+    data = new FirestoreDriver();
+  } else if (dbType === 'sqlite') {
+    data = new SqliteDriver();
+  }
+
+  storage = new StorageDriver();
+
+  await data.initialize(config);
+  await storage.initialize(data);
+}
+
+initialize();
 
 express().use(express.static('./config'));
 
@@ -556,17 +569,21 @@ router.post('/restart', function (req, res) {
 router.post('/setInitialDatabaseConfig', async function (req, res) {
   try {
     const configData = {
+      databaseType: req.body.databaseType,
       apiKey: req.body.apiKey,
       authDomain: req.body.authDomain,
       databaseURL: req.body.databaseURL,
       projectId: req.body.projectId,
-      storageBucket: req.body.storageBucket,
-      messagingSenderId: req.body.messagingSenderId,
-      appId: req.body.appId,
+      // storageBucket: req.body.storageBucket,
+      // messagingSenderId: req.body.messagingSenderId,
+      // appId: req.body.appId,
       measurementId: req.body.measurementId,
     };
 
-    if (!data.isConnected()) {
+    if (configData.databaseType === 'Local') {
+      data = new SqliteDriver();
+    } else if (configData.databaseType === 'Firestore') {
+      data = new FirestoreDriver();
       await config
         .setConfig(configData)
         .then(async () => {

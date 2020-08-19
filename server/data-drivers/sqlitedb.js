@@ -1,0 +1,499 @@
+const sqlite3 = require('sqlite3').verbose();
+
+let db;
+
+let connected = false;
+
+class SqliteDriver {
+  initialize(config) {
+    return new Promise(async (resolve, reject) => {
+      db = new sqlite3.Database('./dbase.db', (err) => {
+        if (err) {
+          connected = false;
+        }
+        connected = true;
+      });
+      resolve(false);
+    });
+  }
+
+  isConnected() {
+    return connected;
+  }
+
+  //   getBucket() {
+  //     return admin.storage().bucket();
+  //   }
+
+  getProjectName() {
+    return new Promise((resolve, reject) => {
+      if (db.projectId) {
+        resolve(db.projectId);
+      } else {
+        resolve('');
+      }
+    });
+  }
+
+  createUser(data) {
+    return new Promise((resolve, reject) => {
+      db.collection('prmths_users')
+        .add(data)
+        .then((docRef) => resolve(docRef))
+        .catch(reject);
+    });
+  }
+
+  collection(collectionName) {
+    db.collection(collectionName);
+  }
+
+  verifyPassword(id) {
+    return new Promise((resolve, reject) => {
+      let query;
+      query = db.collection('prmths_users');
+      query = query.where('id', '==', id);
+      query
+        .get()
+        .then((snapshot) => {
+          snapshot.forEach((doc) => {
+            const data = doc.data();
+            resolve(data.prmthsCd);
+          });
+          resolve(false);
+        })
+        .catch((error) => {
+          resolve(false);
+        });
+    });
+  }
+
+  getUsers(user) {
+    return new Promise((resolve, reject) => {
+      let query;
+      query = db.collection('prmths_users');
+      query
+        .get()
+        .then((snapshot) => {
+          const objects = [];
+          snapshot.forEach((doc) => {
+            const data = doc.data();
+            if (data.username !== user) {
+              objects.push(data);
+            }
+          });
+          resolve(objects);
+        })
+        .catch((error) => {
+          resolve(error);
+        });
+    });
+  }
+
+  getTableData() {
+    return new Promise((resolve, reject) => {
+      const collectionArr = [];
+      const expr = /prmths_/;
+      db.listCollections()
+        .then(async (collections) => {
+          for (const collection of collections) {
+            if (!expr.test(`${collection.id}`)) {
+              const count = await this.getTableSize(collection.id);
+              const row = {
+                table: collection.id,
+                rows: count,
+              };
+              collectionArr.push(row);
+            }
+            // collectionArr.push(collection.id);
+          }
+          resolve(collectionArr);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  }
+
+  listTables() {
+    return new Promise((resolve, reject) => {
+      const collectionArr = [];
+      const expr = /prmths_/;
+      db.listCollections()
+        .then((collections) => {
+          for (const collection of collections) {
+            if (!expr.test(`${collection.id}`)) {
+              collectionArr.push(collection.id);
+            }
+            // collectionArr.push(collection.id);
+          }
+          resolve(collectionArr);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  }
+
+  getTableSize(collectionName) {
+    return new Promise((resolve, reject) => {
+      let query;
+      query = db.collection(collectionName);
+      query
+        .get()
+        .then((snapshot) => {
+          resolve(snapshot.size);
+        })
+        .catch(reject);
+    });
+  }
+
+  increment(collectionName, field, start, num) {
+    return new Promise((resolve, reject) => {
+      let counter = num + 1;
+      const query = db.collection(collectionName);
+      query
+        .where(field, '>=', start)
+        .get()
+        .then((snapshot) => {
+          snapshot.forEach((doc) => {
+            const data = doc.data();
+            data[field] = counter;
+            db.collection(collectionName).doc(doc.id).update(data);
+            counter++;
+          });
+          resolve(true);
+        })
+        .catch(reject);
+    });
+  }
+
+  repositionViews(data, pos) {
+    return new Promise((resolve, reject) => {
+      let query;
+      query = db.collection('prmths_logical_content');
+      query = query.orderBy('position');
+      query
+        .get()
+        .then((snapshot) => {
+          let newPos = 1;
+          snapshot.forEach((doc) => {
+            if (pos === doc.data().position) {
+              if (pos === 1) {
+                newPos++;
+              }
+              if (doc.data().id === data.id) {
+                // newPos++;
+              } else {
+                const newEntry = doc.data();
+                newEntry.position = newPos;
+                db.collection('prmths_logical_content')
+                  .doc(doc.id)
+                  .update(newEntry);
+                newPos++;
+              }
+            }
+            if (doc.data().id === data.id) {
+              db.collection('prmths_logical_content').doc(doc.id).update(data);
+            } else {
+              const newEntry = doc.data();
+              newEntry.position = newPos;
+              db.collection('prmths_logical_content')
+                .doc(doc.id)
+                .update(newEntry);
+              newPos++;
+            }
+          });
+          resolve();
+        })
+        .catch((error) => {
+          resolve(error);
+        });
+    });
+  }
+
+  createTable(collectionName, data) {
+    return new Promise((resolve, reject) => {
+      db.collection(collectionName)
+        .add(data)
+        .then((docRef) => resolve(docRef))
+        .catch(reject);
+    });
+  }
+
+  unlockTable(data) {
+    return new Promise((resolve, reject) => {
+      let query;
+      query = db.collection('prmths_open_tables');
+      query = query.where('table', '==', data.table);
+      query
+        .get()
+        .then((snapshot) => {
+          const objects = [];
+          snapshot.forEach((doc) => {
+            objects.push(doc.data());
+          });
+          if (objects.length > 0) {
+            resolve(objects);
+          } else {
+            db.collection('prmths_open_tables')
+              .add(data)
+              .then((docRef) => resolve(docRef))
+              .catch(reject);
+          }
+        })
+        .catch((error) => {
+          resolve(error);
+        });
+    });
+  }
+
+  lockTable(table) {
+    return new Promise((resolve, reject) => {
+      let query;
+      // START -- construct collection reference
+      query = db.collection('prmths_open_tables');
+      query = query.where('table', '==', table);
+
+      // END -- construct collection reference
+      query
+        .get()
+        .then((snapshot) => {
+          const objects = [];
+
+          snapshot.forEach((doc) => {
+            db.collection('prmths_open_tables')
+              .doc(doc.id)
+              .delete()
+              .then(() => resolve(true))
+              .catch(() => reject(false));
+          });
+          resolve();
+        })
+        .catch(reject);
+    });
+  }
+
+  getPage(collectionName, condition) {
+    return new Promise(async (resolve, reject) => {
+      const options = JSON.parse(condition);
+      let query = db.collection(collectionName);
+      let pivot = db.collection(collectionName);
+
+      if (options) {
+        if (options.where !== undefined && options.where) {
+          options.where.forEach((tuple) => {
+            try {
+              if (tuple[1] == '=') {
+                tuple[1] = '==';
+              }
+              pivot = pivot.where(tuple[0], tuple[1], tuple[2]);
+            } catch (error) {}
+          });
+        }
+
+        if (options.orderBy !== undefined && options.orderBy) {
+          options.orderBy.forEach((orderBy) => {
+            if (orderBy !== undefined && orderBy.length > 0) {
+              if (options.order) {
+                query = query.orderBy(orderBy, options.order);
+              } else {
+                query = query.orderBy(orderBy);
+              }
+            }
+          });
+        }
+
+        if (options.direction === 'next') {
+          var tempDoc;
+          await pivot.get().then((snapshot) => {
+            snapshot.forEach((doc) => {
+              tempDoc = doc;
+            });
+          });
+          query = query.startAfter(tempDoc);
+          query = query.limit(options.limit);
+        }
+
+        if (options.direction === 'prev') {
+          var tempDoc;
+          await pivot.get().then((snapshot) => {
+            snapshot.forEach((doc) => {
+              tempDoc = doc;
+            });
+          });
+          query = query.endBefore(tempDoc);
+          query = query.limitToLast(options.limit);
+        }
+      }
+      query
+        .get()
+        .then((snapshot) => {
+          const objects = [];
+          snapshot.forEach((doc) => {
+            objects.push(doc.data());
+          });
+          resolve(objects);
+        })
+        .catch((error) => {
+          resolve(error);
+        });
+    });
+  }
+
+  getDocs(collectionName, options) {
+    return new Promise((resolve, reject) => {
+      let query;
+      query = db.collection(collectionName);
+
+      if (options) {
+        if (options.limit !== undefined && options.limit) {
+          query = query.limit(options.limit);
+        }
+        if (options.where !== undefined && options.where) {
+          options.where.forEach((tuple) => {
+            try {
+              if (tuple[1] == '=') {
+                tuple[1] = '==';
+              }
+              query = query.where(tuple[0], tuple[1], tuple[2]);
+            } catch (error) {}
+          });
+        }
+
+        if (options.orderBy !== undefined && options.orderBy) {
+          options.orderBy.forEach((orderBy) => {
+            if (orderBy !== undefined && orderBy.length > 0) {
+              if (options.order) {
+                query = query.orderBy(orderBy, options.order);
+              } else {
+                query = query.orderBy(orderBy);
+              }
+            }
+          });
+        }
+      }
+      query
+        .get()
+        .then((snapshot) => {
+          const objects = [];
+          snapshot.forEach((doc) => {
+            objects.push(doc.data());
+          });
+          resolve(objects);
+        })
+        .catch((error) => {
+          resolve(error);
+        });
+    });
+  }
+
+  insert(table, data) {
+    return new Promise((resolve, reject) => {
+      db.serialize(async function () {
+        const insertData = Object.values(data);
+        const placeholders = insertData.map((insert) => '(?)').join(',');
+        const sql = `INSERT INTO ${table} VALUES ${placeholders}`;
+
+        console.log(sql);
+
+        db.run(sql, insertData, function (err) {
+          if (err) {
+            return console.error(err.message);
+          }
+          console.log(`Rows inserted ${this.changes}`);
+        });
+        resolve(true);
+      });
+    });
+  }
+
+  update(collectionName, data, options) {
+    return new Promise((resolve, reject) => {
+      let query = db.collection(collectionName);
+      if (options) {
+        if (options[0][0]) {
+          options.forEach((tuple) => {
+            try {
+              if (tuple[1] == '=') {
+                tuple[1] = '==';
+              }
+              query = query.where(tuple[0], tuple[1], tuple[2]);
+            } catch (error) {}
+          });
+        }
+      }
+      query
+        .get()
+        .then((snapshot) => {
+          snapshot.forEach((doc) => {
+            db.collection(collectionName)
+              .doc(doc.id)
+              .update(data)
+              .then(() => resolve(true))
+              .catch(() => reject(false));
+          });
+          resolve();
+        })
+        .catch(reject);
+    });
+  }
+
+  deleteDocs(collectionName, options) {
+    return new Promise((resolve, reject) => {
+      let query;
+      // START -- construct collection reference
+      query = db.collection(collectionName);
+      if (options) {
+        if (options[0][0]) {
+          options.forEach((tuple) => {
+            try {
+              if (tuple[1] == '=') {
+                tuple[1] = '==';
+              }
+              query = query.where(tuple[0], tuple[1], tuple[2]);
+            } catch (error) {}
+          });
+        }
+      }
+
+      // END -- construct collection reference
+      query
+        .get()
+        .then((snapshot) => {
+          const objects = [];
+
+          snapshot.forEach((doc) => {
+            db.collection(collectionName)
+              .doc(doc.id)
+              .delete()
+              .then(() => resolve(true))
+              .catch(() => reject(false));
+          });
+          resolve();
+        })
+        .catch(reject);
+    });
+  }
+
+  checkOpenTable(collectionName) {
+    return new Promise((resolve, reject) => {
+      let query;
+      query = db.collection('prmths_open_tables');
+      query = query.where('table', '==', collectionName);
+      query
+        .get()
+        .then((snapshot) => {
+          snapshot.forEach((doc) => {
+            resolve(true);
+          });
+          resolve(false);
+        })
+        .catch((error) => {
+          resolve(false);
+        });
+    });
+  }
+}
+
+module.exports = SqliteDriver;
