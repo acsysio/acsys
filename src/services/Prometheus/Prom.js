@@ -295,8 +295,8 @@ export const register = (username, email, password) => {
 
     const userData = {
       id: uniqid(),
-      username,
       email,
+      username,
       role,
       mode: role,
       password,

@@ -13,6 +13,7 @@ import * as Prom from '../../services/Prometheus/Prom';
 
 const INITIAL_STATE = {
   databaseType: 'Local',
+  projectName: '',
   apiKey: '',
   authDomain: '',
   databaseURL: '',
@@ -49,13 +50,11 @@ class Configuration extends Component {
   onSubmit = async (event) => {
     const {
       databaseType,
+      projectName,
       apiKey,
       authDomain,
       databaseURL,
       projectId,
-      storageBucket,
-      messagingSenderId,
-      appId,
       measurementId,
     } = this.state;
 
@@ -63,13 +62,11 @@ class Configuration extends Component {
 
     const config = {
       databaseType: databaseType,
+      projectName: projectName,
       apiKey: apiKey,
       authDomain: authDomain,
       databaseURL: databaseURL,
       projectId: projectId,
-      // storageBucket: storageBucket,
-      // messagingSenderId: messagingSenderId,
-      // appId: appId,
       measurementId: measurementId,
     };
 
@@ -93,19 +90,28 @@ class Configuration extends Component {
   renderConfig() {
     const {
       databaseType,
+      projectName,
       apiKey,
       authDomain,
       databaseURL,
       projectId,
-      storageBucket,
-      messagingSenderId,
-      appId,
       measurementId
      } = this.state;
 
     if (databaseType === 'Local') {
       return (
-        <div>When this option is selected Prometheus will use the internal database.</div>
+        <div>
+          <input
+            id="projectName"
+            name="projectName"
+            placeholder="Project Name"
+            defaultValue={projectName}
+            onKeyDown={this.onKeyDownSI}
+            onChange={this.onChange}
+            style={{ marginTop: '20px', width: '96%' }}
+          />
+          <p>When this option is selected Prometheus will use the internal database.</p>
+        </div>
       );
     }
     else if (databaseType === 'Firestore') {
@@ -147,33 +153,6 @@ class Configuration extends Component {
             onChange={this.onChange}
             style={{ marginTop: '20px', width: '96%' }}
           />
-          {/* <input
-            id="storageBucket"
-            name="storageBucket"
-            placeholder="Storage Bucket"
-            defaultValue={storageBucket}
-            onKeyDown={this.onKeyDownSI}
-            onChange={this.onChange}
-            style={{ marginTop: '20px', width: '96%' }}
-          />
-          <input
-            id="messagingSenderId"
-            name="messagingSenderId"
-            placeholder="Messaging Sender ID"
-            defaultValue={messagingSenderId}
-            onKeyDown={this.onKeyDownSI}
-            onChange={this.onChange}
-            style={{ marginTop: '20px', width: '96%' }}
-          />
-          <input
-            id="appId"
-            name="appId"
-            placeholder="App ID"
-            defaultValue={appId}
-            onKeyDown={this.onKeyDownSI}
-            onChange={this.onChange}
-            style={{ marginTop: '20px', width: '96%' }}
-          /> */}
           <input
             id="measurementId"
             name="measurementId"
@@ -217,7 +196,6 @@ class Configuration extends Component {
               </Typography>
               <NativeSelect
                 onChange={(e) => this.setDatabase(e.target.value)}
-                // className="select-css"
                 style={{ marginTop: '20px' }}
               >
                 <option value={'Local'}>Local</option>

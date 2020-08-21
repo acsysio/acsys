@@ -19,17 +19,19 @@ let storage;
 
 async function initialize() {
   await config.initialize();
+
   dbType = await config.getDatabaseType();
 
   if (dbType === 'firestore') {
     data = new FirestoreDriver();
+    await data.initialize(config);
   } else if (dbType === 'sqlite') {
     data = new SqliteDriver();
+    await data.initialize();
   }
 
   storage = new StorageDriver();
 
-  await data.initialize(config);
   await storage.initialize(data);
 }
 
@@ -86,8 +88,8 @@ router.post('/register', function (req, res) {
         bcrypt.hash(userData.password, 8, function (err, hash) {
           const dataModel = {
             id: userData.id,
-            username: userData.username,
             email: userData.email,
+            username: userData.username,
             role: userData.role,
             mode: userData.mode,
             prmthsCd: hash,
@@ -162,10 +164,10 @@ router.post('/createUser', function (req, res) {
               bcrypt.hash(userData.password, 8, function (err, hash) {
                 const dataModel = {
                   id: userData.id,
-                  username: userData.username,
                   email: userData.email,
-                  mode: userData.mode,
+                  username: userData.username,
                   role: userData.role,
+                  mode: userData.mode,
                   prmthsCd: hash,
                 };
                 data
@@ -196,16 +198,16 @@ router.post('/updateUser', function (req, res) {
     if (userData.prmthsCd === undefined) {
       dataModel = {
         id: userData.id,
-        username: userData.username,
         email: userData.email,
+        username: userData.username,
         role: userData.role,
         mode: userData.mode,
       };
     } else {
       dataModel = {
         id: userData.id,
-        username: userData.username,
         email: userData.email,
+        username: userData.username,
         role: userData.role,
         mode: userData.mode,
         prmthsCd: hash,
@@ -568,24 +570,30 @@ router.post('/restart', function (req, res) {
 
 router.post('/setInitialDatabaseConfig', async function (req, res) {
   try {
+    const { databaseType } = req.body;
+    const { projectName } = req.body;
+
     const configData = {
-      databaseType: req.body.databaseType,
       apiKey: req.body.apiKey,
       authDomain: req.body.authDomain,
       databaseURL: req.body.databaseURL,
       projectId: req.body.projectId,
-      // storageBucket: req.body.storageBucket,
-      // messagingSenderId: req.body.messagingSenderId,
-      // appId: req.body.appId,
       measurementId: req.body.measurementId,
     };
 
-    if (configData.databaseType === 'Local') {
+    if (databaseType === 'Local') {
       data = new SqliteDriver();
-    } else if (configData.databaseType === 'Firestore') {
+      await config
+        .setConfig('sqlite', projectName, configData)
+        .then(async () => {
+          await data.initialize();
+          res.send(true);
+        })
+        .catch(() => {});
+    } else if (databaseType === 'Firestore') {
       data = new FirestoreDriver();
       await config
-        .setConfig(configData)
+        .setConfig('firestore', projectName, configData)
         .then(async () => {
           await data.initialize(config);
           res.send(true);
@@ -602,23 +610,37 @@ router.post('/setInitialDatabaseConfig', async function (req, res) {
 router.post('/setDatabaseConfig', async function (req, res) {
   try {
     const configData = {
+      databaseType: req.body.databaseType,
       apiKey: req.body.apiKey,
       authDomain: req.body.authDomain,
       databaseURL: req.body.databaseURL,
       projectId: req.body.projectId,
-      storageBucket: req.body.storageBucket,
-      messagingSenderId: req.body.messagingSenderId,
-      appId: req.body.appId,
+      // storageBucket: req.body.storageBucket,
+      // messagingSenderId: req.body.messagingSenderId,
+      // appId: req.body.appId,
       measurementId: req.body.measurementId,
     };
 
-    await config
-      .setConfig(configData)
-      .then(async () => {
-        await data.initialize(config);
-        res.send(true);
-      })
-      .catch(() => {});
+    if (configData.databaseType === 'Local') {
+      data = new SqliteDriver();
+      await config
+        .setConfig(configData.databaseType, configData)
+        .then(async () => {
+          res.send(true);
+        })
+        .catch(() => {});
+    } else if (configData.databaseType === 'Firestore') {
+      data = new FirestoreDriver();
+      await config
+        .setConfig(configData.databaseType, configData)
+        .then(async () => {
+          await data.initialize(config);
+          res.send(true);
+        })
+        .catch(() => {});
+    } else {
+      res.send(false);
+    }
   } catch (error) {
     res.send(false);
   }

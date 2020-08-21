@@ -5,13 +5,22 @@ let db;
 let connected = false;
 
 class SqliteDriver {
-  initialize(config) {
+  initialize() {
     return new Promise(async (resolve, reject) => {
       db = new sqlite3.Database('./dbase.db', (err) => {
         if (err) {
           connected = false;
         }
+        db.serialize(async function () {
+          await db.run(
+            'CREATE TABLE IF NOT EXISTS prmths_users (id TEXT, email TEXT, username TEXT, role TEXT, mode TEXT, prmthsCd TEXT)'
+          );
+          await db.run(
+            'CREATE TABLE IF NOT EXISTS prmths_logical_content (id TEXT, name TEXT, description TEXT, tableKeys TEXT, viewId TEXT, source_collection TEXT, position INT)'
+          );
+        });
         connected = true;
+        resolve(true);
       });
       resolve(false);
     });
@@ -21,31 +30,54 @@ class SqliteDriver {
     return connected;
   }
 
-  //   getBucket() {
-  //     return admin.storage().bucket();
-  //   }
-
   getProjectName() {
-    return new Promise((resolve, reject) => {
-      if (db.projectId) {
-        resolve(db.projectId);
-      } else {
-        resolve('');
-      }
+    return new Promise(async (resolve, reject) => {
+      const query = 'SELECT CONFIG FROM CONFIGURATION LIMIT 1';
+      await db.all(query, [], (error, rows) => {
+        if (rows === undefined) {
+          resolve('');
+        } else {
+          resolve(rows[0].config);
+        }
+      });
     });
   }
 
   createUser(data) {
     return new Promise((resolve, reject) => {
-      db.collection('prmths_users')
-        .add(data)
-        .then((docRef) => resolve(docRef))
-        .catch(reject);
-    });
-  }
+      db.serialize(async function () {
+        const insertData = Object.values(data);
 
-  collection(collectionName) {
-    db.collection(collectionName);
+        const values = [];
+
+        let placeholders = '';
+
+        for (let i = 0; i < insertData.length; i++) {
+          let insert = '';
+          if (typeof insertData[i] === 'string') {
+            insert = `'${insertData[i]}'`;
+          } else {
+            insert = insertData[i];
+          }
+          if (i === 0) {
+            placeholders += `${insert}`;
+          } else {
+            placeholders += `, ${insert}`;
+          }
+        }
+
+        const sql = `INSERT INTO PRMTHS_USERS VALUES (${placeholders})`;
+
+        console.log(sql);
+
+        db.run(sql, function (err) {
+          if (err) {
+            resolve(false);
+          }
+          resolve(true);
+        });
+      });
+    });
   }
 
   verifyPassword(id) {
@@ -69,24 +101,17 @@ class SqliteDriver {
   }
 
   getUsers(user) {
-    return new Promise((resolve, reject) => {
-      let query;
-      query = db.collection('prmths_users');
-      query
-        .get()
-        .then((snapshot) => {
-          const objects = [];
-          snapshot.forEach((doc) => {
-            const data = doc.data();
-            if (data.username !== user) {
-              objects.push(data);
-            }
-          });
-          resolve(objects);
-        })
-        .catch((error) => {
-          resolve(error);
-        });
+    return new Promise(async (resolve, reject) => {
+      const query = 'SELECT * FROM PRMTHS_USERS';
+      await db.all(query, [], (error, rows) => {
+        if (rows === undefined || error) {
+          console.log(error);
+          resolve([]);
+        } else {
+          console.log(rows);
+          resolve(rows);
+        }
+      });
     });
   }
 
@@ -341,22 +366,34 @@ class SqliteDriver {
     });
   }
 
-  getDocs(collectionName, options) {
-    return new Promise((resolve, reject) => {
-      let query;
-      query = db.collection(collectionName);
+  getDocs(table, options) {
+    return new Promise(async (resolve, reject) => {
+      let query = `SELECT * FROM ${table} `;
+      // query = db.collection(collectionName);
 
       if (options) {
-        if (options.limit !== undefined && options.limit) {
-          query = query.limit(options.limit);
-        }
-        if (options.where !== undefined && options.where) {
-          options.where.forEach((tuple) => {
+        if (
+          options.where !== undefined &&
+          options.where &&
+          options.where.length > 0
+        ) {
+          query += `WHERE `;
+          options.where.forEach((tuple, index) => {
             try {
-              if (tuple[1] == '=') {
-                tuple[1] = '==';
+              let value = '';
+              // if (tuple[1] == '=') {
+              //   tuple[1] = '==';
+              // }
+              if (typeof tuple[2] === 'string') {
+                value = `'${tuple[2]}'`;
+              } else {
+                value = tuple[2];
               }
-              query = query.where(tuple[0], tuple[1], tuple[2]);
+              if (index === 0) {
+                query += `${tuple[0]} ${tuple[1]} ${value} `;
+              } else {
+                query += `AND ${tuple[0]} ${tuple[1]} ${value} `;
+              }
             } catch (error) {}
           });
         }
@@ -365,26 +402,28 @@ class SqliteDriver {
           options.orderBy.forEach((orderBy) => {
             if (orderBy !== undefined && orderBy.length > 0) {
               if (options.order) {
-                query = query.orderBy(orderBy, options.order);
+                query += `ORDER BY ${orderBy} ${options.order} `;
               } else {
-                query = query.orderBy(orderBy);
+                query += `ORDER BY ${orderBy} `;
               }
             }
           });
         }
+
+        if (options.limit !== undefined && options.limit) {
+          query += `LIMIT ${options.limit}`;
+        }
       }
-      query
-        .get()
-        .then((snapshot) => {
-          const objects = [];
-          snapshot.forEach((doc) => {
-            objects.push(doc.data());
-          });
-          resolve(objects);
-        })
-        .catch((error) => {
-          resolve(error);
-        });
+      console.log(query);
+
+      await db.all(query, [], (error, rows) => {
+        if (rows === undefined || error) {
+          console.log(error);
+          resolve([]);
+        } else {
+          resolve(rows);
+        }
+      });
     });
   }
 
@@ -392,18 +431,35 @@ class SqliteDriver {
     return new Promise((resolve, reject) => {
       db.serialize(async function () {
         const insertData = Object.values(data);
-        const placeholders = insertData.map((insert) => '(?)').join(',');
-        const sql = `INSERT INTO ${table} VALUES ${placeholders}`;
+
+        const values = [];
+
+        let placeholders = '';
+
+        for (let i = 0; i < insertData.length; i++) {
+          let insert = '';
+          if (typeof insertData[i] === 'string') {
+            insert = `'${insertData[i]}'`;
+          } else {
+            insert = insertData[i];
+          }
+          if (i === 0) {
+            placeholders += `${insert}`;
+          } else {
+            placeholders += `, ${insert}`;
+          }
+        }
+
+        const sql = `INSERT INTO ${table} VALUES (${placeholders})`;
 
         console.log(sql);
 
-        db.run(sql, insertData, function (err) {
+        db.run(sql, function (err) {
           if (err) {
-            return console.error(err.message);
+            resolve(false);
           }
-          console.log(`Rows inserted ${this.changes}`);
+          resolve(true);
         });
-        resolve(true);
       });
     });
   }

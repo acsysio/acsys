@@ -24,17 +24,23 @@ class Config {
     });
   }
 
-  setConfig(config) {
+  setConfig(databaseType, projectName, config) {
     return new Promise((resolve, reject) => {
       db.serialize(async function () {
-        await db.run("DELETE FROM configuration WHERE type = 'firestore'");
+        await db.run('DELETE FROM configuration');
+
         const stmt = await db.prepare(
           'INSERT INTO configuration VALUES (?, ?)'
         );
-        stmt.run('firestore', JSON.stringify(config));
+
+        if (databaseType === 'sqlite') {
+          stmt.run('sqlite', projectName);
+        } else if (databaseType === 'firestore') {
+          stmt.run('firestore', JSON.stringify(config));
+        }
+
         stmt.finalize();
 
-        await db.each('SELECT * FROM configuration', function (err, row) {});
         resolve(true);
       });
     });
