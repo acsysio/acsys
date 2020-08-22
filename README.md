@@ -8,7 +8,7 @@
   <img alt="Prometheus UI" src="https://user-images.githubusercontent.com/34227411/88206375-c46acd00-cc13-11ea-8f60-f8564ab6c185.png">
 </p>
 
-Prometheus is a CMS built on NodeJS. This tool was created due to the lack of CMS options available for Cloud Firestore. Prometheus allows developers to configure a database through the Prometheus web app. Once this is done users can use Prometheus as a headless content management system that also configures restful apis (no coding involved). Prometheus serves as a simple interface for the Firestore database with the goal of more database support being added soon! Since this project is maintained and used by Aeon it will receive continuous updates.
+Prometheus is a CMS built on NodeJS. This tool was created due to the lack of CMS options available for Cloud Firestore. Prometheus allows developers to configure a database through the Prometheus web app. Once this is done users can use Prometheus as a headless content management system that also configures restful apis (no coding involved). Prometheus serves as a simple interface for the Firestore database with the goal of more database support being added soon! Since this project is maintained and used by Aeon it will receive continuous updates. Feel free to submit a feature request for any features you want implemented!
 
 ## Getting Started
 
@@ -61,7 +61,7 @@ There are many ways in which you can participate in the project, for example:
 - Review source code changes
 - Review the documentation
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+We encourage you to tell us what you want out of this project! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Authors
 
