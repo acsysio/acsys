@@ -437,7 +437,7 @@ class CollectionView extends React.Component {
               isVisibleOnTable: true,
               type: typeof currentData[0][value],
               isKey: false,
-              order: index,
+              viewOrder: index,
               width: 12,
             };
 
@@ -479,7 +479,7 @@ class CollectionView extends React.Component {
       page: page,
       documentDetails: details,
       totalRows: totalRows,
-      order: order,
+      viewOrder: order,
       orderDir: orderDir,
     });
   };

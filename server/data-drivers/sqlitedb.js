@@ -18,6 +18,9 @@ class SqliteDriver {
           await db.run(
             'CREATE TABLE IF NOT EXISTS prmths_logical_content (id TEXT, name TEXT, description TEXT, tableKeys TEXT, viewId TEXT, source_collection TEXT, position INT)'
           );
+          await db.run(
+            'CREATE TABLE IF NOT EXISTS prmths_views (id TEXT, isRemovable BOOLEAN, isTableMode BOOLEAN, linkTable TEXT, linkViewId TEXT, viewOrder TEXT, orderBy TEXT, rowNum INT)'
+          );
         });
         connected = true;
         resolve(true);
@@ -81,22 +84,15 @@ class SqliteDriver {
   }
 
   verifyPassword(id) {
-    return new Promise((resolve, reject) => {
-      let query;
-      query = db.collection('prmths_users');
-      query = query.where('id', '==', id);
-      query
-        .get()
-        .then((snapshot) => {
-          snapshot.forEach((doc) => {
-            const data = doc.data();
-            resolve(data.prmthsCd);
-          });
+    return new Promise(async (resolve, reject) => {
+      const query = `SELECT * FROM PRMTHS_USERS WHERE ID = '${id}'`;
+      await db.all(query, [], (error, rows) => {
+        if (rows === undefined || error) {
           resolve(false);
-        })
-        .catch((error) => {
-          resolve(false);
-        });
+        } else {
+          resolve(rows[0].prmthsCd);
+        }
+      });
     });
   }
 
@@ -105,71 +101,63 @@ class SqliteDriver {
       const query = 'SELECT * FROM PRMTHS_USERS';
       await db.all(query, [], (error, rows) => {
         if (rows === undefined || error) {
-          console.log(error);
           resolve([]);
         } else {
-          console.log(rows);
           resolve(rows);
         }
       });
     });
   }
 
-  getTableData() {
-    return new Promise((resolve, reject) => {
+  async getTableData() {
+    return new Promise(async (resolve, reject) => {
       const collectionArr = [];
-      const expr = /prmths_/;
-      db.listCollections()
-        .then(async (collections) => {
-          for (const collection of collections) {
-            if (!expr.test(`${collection.id}`)) {
-              const count = await this.getTableSize(collection.id);
-              const row = {
-                table: collection.id,
-                rows: count,
-              };
-              collectionArr.push(row);
-            }
-            // collectionArr.push(collection.id);
+      const query = `SELECT NAME FROM SQLITE_MASTER WHERE TYPE = 'table' AND NAME NOT LIKE 'sqlite_%' AND NAME NOT LIKE 'prmths_%'`;
+      await db.all(query, [], async (error, rows) => {
+        if (rows === undefined || error) {
+          resolve([]);
+        } else {
+          for (const row of rows) {
+            const count = await this.getTableSize(row.name);
+            const data = {
+              table: row.name,
+              rows: count,
+            };
+            collectionArr.push(data);
           }
           resolve(collectionArr);
-        })
-        .catch((error) => {
-          reject(error);
-        });
+        }
+      });
     });
   }
 
   listTables() {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       const collectionArr = [];
-      const expr = /prmths_/;
-      db.listCollections()
-        .then((collections) => {
-          for (const collection of collections) {
-            if (!expr.test(`${collection.id}`)) {
-              collectionArr.push(collection.id);
-            }
-            // collectionArr.push(collection.id);
-          }
+      const query = `SELECT NAME FROM SQLITE_MASTER WHERE TYPE = 'table' AND NAME NOT LIKE 'sqlite_%' AND NAME NOT LIKE 'prmths_%'`;
+      await db.all(query, [], (error, rows) => {
+        if (rows === undefined || error) {
+          resolve([]);
+        } else {
+          rows.forEach((row) => {
+            collectionArr.push(row.name);
+          });
           resolve(collectionArr);
-        })
-        .catch((error) => {
-          reject(error);
-        });
+        }
+      });
     });
   }
 
   getTableSize(collectionName) {
-    return new Promise((resolve, reject) => {
-      let query;
-      query = db.collection(collectionName);
-      query
-        .get()
-        .then((snapshot) => {
-          resolve(snapshot.size);
-        })
-        .catch(reject);
+    return new Promise(async (resolve, reject) => {
+      const query = `SELECT COUNT(*) AS NUM FROM '${collectionName}'`;
+      await db.all(query, [], (error, rows) => {
+        if (rows === undefined || error) {
+          resolve(0);
+        } else {
+          resolve(rows[0].NUM);
+        }
+      });
     });
   }
 
@@ -194,46 +182,74 @@ class SqliteDriver {
   }
 
   repositionViews(data, pos) {
-    return new Promise((resolve, reject) => {
-      let query;
-      query = db.collection('prmths_logical_content');
-      query = query.orderBy('position');
-      query
-        .get()
-        .then((snapshot) => {
-          let newPos = 1;
-          snapshot.forEach((doc) => {
-            if (pos === doc.data().position) {
+    return new Promise(async (resolve, reject) => {
+      const query = 'SELECT * FROM PRMTHS_LOGICAL_CONTENT ORDER BY POSITION';
+      await db.all(query, [], (error, rows) => {
+        if (rows === undefined || error) {
+          resolve();
+        } else {
+          for (const row of rows) {
+            if (pos === row.position) {
               if (pos === 1) {
                 newPos++;
               }
-              if (doc.data().id === data.id) {
-                // newPos++;
+              if (row.id === data.id) {
               } else {
-                const newEntry = doc.data();
-                newEntry.position = newPos;
-                db.collection('prmths_logical_content')
-                  .doc(doc.id)
-                  .update(newEntry);
+                const sql = `UPDATE PRMTHS_LOGICAL_CONTENT SET POSITION = '${newPos} WHERE ID = '${row.id}`;
+                db.run(sql, function (err) {});
                 newPos++;
               }
             }
-            if (doc.data().id === data.id) {
-              db.collection('prmths_logical_content').doc(doc.id).update(data);
+            if (row.id === data.id) {
+              // db.collection('prmths_logical_content').doc(doc.id).update(data);
             } else {
-              const newEntry = doc.data();
-              newEntry.position = newPos;
-              db.collection('prmths_logical_content')
-                .doc(doc.id)
-                .update(newEntry);
+              const sql = `UPDATE PRMTHS_LOGICAL_CONTENT SET POSITION = '${newPos} WHERE ID = '${row.id}`;
+              db.run(sql, function (err) {});
               newPos++;
             }
-          });
-          resolve();
-        })
-        .catch((error) => {
-          resolve(error);
-        });
+          }
+        }
+        resolve();
+      });
+      // let query;
+      // query = db.collection('prmths_logical_content');
+      // query = query.orderBy('position');
+      // query
+      //   .get()
+      //   .then((snapshot) => {
+      //     let newPos = 1;
+      //     snapshot.forEach((doc) => {
+      //       if (pos === doc.data().position) {
+      //         if (pos === 1) {
+      //           newPos++;
+      //         }
+      //         if (doc.data().id === data.id) {
+      //           // newPos++;
+      //         } else {
+      //           const newEntry = doc.data();
+      //           newEntry.position = newPos;
+      //           db.collection('prmths_logical_content')
+      //             .doc(doc.id)
+      //             .update(newEntry);
+      //           newPos++;
+      //         }
+      //       }
+      //       if (doc.data().id === data.id) {
+      //         db.collection('prmths_logical_content').doc(doc.id).update(data);
+      //       } else {
+      //         const newEntry = doc.data();
+      //         newEntry.position = newPos;
+      //         db.collection('prmths_logical_content')
+      //           .doc(doc.id)
+      //           .update(newEntry);
+      //         newPos++;
+      //       }
+      //     });
+      //     resolve();
+      //   })
+      //   .catch((error) => {
+      //     resolve(error);
+      //   });
     });
   }
 
@@ -414,8 +430,6 @@ class SqliteDriver {
           query += `LIMIT ${options.limit}`;
         }
       }
-      console.log(query);
-
       await db.all(query, [], (error, rows) => {
         if (rows === undefined || error) {
           console.log(error);
@@ -438,7 +452,10 @@ class SqliteDriver {
 
         for (let i = 0; i < insertData.length; i++) {
           let insert = '';
-          if (typeof insertData[i] === 'string') {
+          if (
+            typeof insertData[i] === 'string' ||
+            typeof insertData[i] === 'object'
+          ) {
             insert = `'${insertData[i]}'`;
           } else {
             insert = insertData[i];
@@ -456,6 +473,7 @@ class SqliteDriver {
 
         db.run(sql, function (err) {
           if (err) {
+            console.log(err);
             resolve(false);
           }
           resolve(true);
