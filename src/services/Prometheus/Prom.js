@@ -153,7 +153,7 @@ export const setInitialDatabaseConfig = async (config) => {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(config),
+      body: config,
     })
       .then((response) => {
         if (response.statusText !== 'Unauthorized') {

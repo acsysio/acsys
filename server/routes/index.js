@@ -19,7 +19,7 @@ data = new DataDriver();
 let storage;
 storage = new StorageDriver();
 
-data.initialize(config);
+data.initialize();
 storage.initialize(data);
 
 express().use(express.static('./config'));
@@ -555,25 +555,36 @@ router.post('/restart', function (req, res) {
 
 router.post('/setInitialDatabaseConfig', async function (req, res) {
   try {
-    const configData = {
-      apiKey: req.body.apiKey,
-      authDomain: req.body.authDomain,
-      databaseURL: req.body.databaseURL,
-      projectId: req.body.projectId,
-      storageBucket: req.body.storageBucket,
-      messagingSenderId: req.body.messagingSenderId,
-      appId: req.body.appId,
-      measurementId: req.body.measurementId,
-    };
-
     if (!data.isConnected()) {
-      await config
-        .setConfig(configData)
-        .then(async () => {
-          await data.initialize(config);
-          res.send(true);
-        })
-        .catch(() => {});
+      try {
+        await config
+          .setConfig(req.body)
+          .then(async () => {
+            config
+              .setStorageConfig(req.body)
+              .then(async () => {})
+              .catch(() => {
+                res.send(false);
+              });
+            fs.writeFile(
+              './prometheus.service.config.json',
+              JSON.stringify(req.body).replace(/\\\\/g, '\\'),
+              async function (err) {
+                if (err) {
+                  res.send(err);
+                } else {
+                  await data.initialize();
+                  res.send(true);
+                }
+              }
+            );
+          })
+          .catch(() => {
+            res.send(false);
+          });
+      } catch (error) {
+        res.send(false);
+      }
     } else {
       res.send(false);
     }
@@ -703,7 +714,7 @@ router.get('/getStorageConfig', function (req, res) {
 router.get('/loadStorageConfig', async function (req, res) {
   if ((await config.getStorageType()) === 'gcp') {
     try {
-      fs.readFile('./prometheus.storage.config.json', function (
+      fs.readFile('./prometheus.service.config.json', function (
         err,
         dataConfig
       ) {
