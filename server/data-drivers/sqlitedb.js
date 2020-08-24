@@ -16,10 +16,13 @@ class SqliteDriver {
             'CREATE TABLE IF NOT EXISTS prmths_users (id TEXT, email TEXT, username TEXT, role TEXT, mode TEXT, prmthsCd TEXT)'
           );
           await db.run(
-            'CREATE TABLE IF NOT EXISTS prmths_logical_content (id TEXT, name TEXT, description TEXT, tableKeys TEXT, viewId TEXT, source_collection TEXT, position INT)'
+            'CREATE TABLE IF NOT EXISTS prmths_logical_content (id TEXT, name TEXT, description TEXT, viewId TEXT, source_collection TEXT, position INT, tableKeys TEXT)'
           );
           await db.run(
             'CREATE TABLE IF NOT EXISTS prmths_views (id TEXT, isRemovable BOOLEAN, isTableMode BOOLEAN, linkTable TEXT, linkViewId TEXT, viewOrder TEXT, orderBy TEXT, rowNum INT)'
+          );
+          await db.run(
+            'CREATE TABLE IF NOT EXISTS prmths_document_details (id TEXT, contentId TEXT, collection TEXT, control TEXT, field_name TEXT, isVisibleOnPage BOOLEAN, isVisibleOnTable BOOLEAN, type TEXT, isKey BOOLEAN, viewOrder INT, width INT)'
           );
         });
         connected = true;
@@ -184,10 +187,11 @@ class SqliteDriver {
   repositionViews(data, pos) {
     return new Promise(async (resolve, reject) => {
       const query = 'SELECT * FROM PRMTHS_LOGICAL_CONTENT ORDER BY POSITION';
-      await db.all(query, [], (error, rows) => {
+      await db.all(query, [], async (error, rows) => {
         if (rows === undefined || error) {
           resolve();
         } else {
+          let newPos = 1;
           for (const row of rows) {
             if (pos === row.position) {
               if (pos === 1) {
@@ -195,61 +199,32 @@ class SqliteDriver {
               }
               if (row.id === data.id) {
               } else {
-                const sql = `UPDATE PRMTHS_LOGICAL_CONTENT SET POSITION = '${newPos} WHERE ID = '${row.id}`;
-                db.run(sql, function (err) {});
+                const sql = `UPDATE PRMTHS_LOGICAL_CONTENT SET POSITION = ${newPos} WHERE ID = '${row.id}'`;
+                db.serialize(async function () {
+                  await db.run(sql, function (err) {
+                    console.log(err);
+                  });
+                });
+                console.log(sql);
                 newPos++;
               }
             }
             if (row.id === data.id) {
               // db.collection('prmths_logical_content').doc(doc.id).update(data);
             } else {
-              const sql = `UPDATE PRMTHS_LOGICAL_CONTENT SET POSITION = '${newPos} WHERE ID = '${row.id}`;
-              db.run(sql, function (err) {});
+              const sql = `UPDATE PRMTHS_LOGICAL_CONTENT SET POSITION = ${newPos} WHERE ID = '${row.id}'`;
+              db.serialize(async function () {
+                await db.run(sql, function (err) {
+                  console.log(err);
+                });
+              });
+              console.log(sql);
               newPos++;
             }
           }
         }
         resolve();
       });
-      // let query;
-      // query = db.collection('prmths_logical_content');
-      // query = query.orderBy('position');
-      // query
-      //   .get()
-      //   .then((snapshot) => {
-      //     let newPos = 1;
-      //     snapshot.forEach((doc) => {
-      //       if (pos === doc.data().position) {
-      //         if (pos === 1) {
-      //           newPos++;
-      //         }
-      //         if (doc.data().id === data.id) {
-      //           // newPos++;
-      //         } else {
-      //           const newEntry = doc.data();
-      //           newEntry.position = newPos;
-      //           db.collection('prmths_logical_content')
-      //             .doc(doc.id)
-      //             .update(newEntry);
-      //           newPos++;
-      //         }
-      //       }
-      //       if (doc.data().id === data.id) {
-      //         db.collection('prmths_logical_content').doc(doc.id).update(data);
-      //       } else {
-      //         const newEntry = doc.data();
-      //         newEntry.position = newPos;
-      //         db.collection('prmths_logical_content')
-      //           .doc(doc.id)
-      //           .update(newEntry);
-      //         newPos++;
-      //       }
-      //     });
-      //     resolve();
-      //   })
-      //   .catch((error) => {
-      //     resolve(error);
-      //   });
     });
   }
 

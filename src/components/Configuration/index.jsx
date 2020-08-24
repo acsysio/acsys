@@ -70,11 +70,19 @@ class Configuration extends Component {
       measurementId: measurementId,
     };
 
-    await Prom.setInitialDatabaseConfig(config).then(async (json) => {
-      await this.sleep(5000);
-      await this.sleep(5000);
-      window.location.reload();
-    });
+    if (databaseType === 'Local' && projectName.length < 1) {
+      this.setState({
+        loading: false,
+        message: 'Please enter a project name.'
+      })
+    }
+    else {
+      await Prom.setInitialDatabaseConfig(config).then(async (json) => {
+        await this.sleep(5000);
+        await this.sleep(5000);
+        window.location.reload();
+      });
+    }
 
     event.preventDefault();
   };
@@ -90,6 +98,7 @@ class Configuration extends Component {
   renderConfig() {
     const {
       databaseType,
+      message,
       projectName,
       apiKey,
       authDomain,
@@ -110,6 +119,13 @@ class Configuration extends Component {
             onChange={this.onChange}
             style={{ marginTop: '20px', width: '96%' }}
           />
+          <Typography
+            variant="p"
+            color="secondary"
+            style={{ minHeight: 25}}
+          >
+            {message}
+          </Typography>
           <p>When this option is selected Prometheus will use the internal database.</p>
         </div>
       );
