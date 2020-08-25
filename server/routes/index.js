@@ -559,7 +559,9 @@ router.post('/setInitialDatabaseConfig', async function (req, res) {
       try {
         await config
           .setConfig(req.body)
-          .then(async () => {})
+          .then(async () => {
+            return new Promise((resolve) => setTimeout(resolve, 5000));
+          })
           .catch(() => {
             res.send(false);
           });
@@ -623,7 +625,9 @@ router.post('/setDatabaseConfig', async function (req, res) {
   try {
     await config
       .setConfig(configData)
-      .then(async () => {})
+      .then(async () => {
+        return new Promise((resolve) => setTimeout(resolve, 5000));
+      })
       .catch(() => {
         res.send(false);
       });
