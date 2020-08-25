@@ -675,7 +675,6 @@ router.get('/getDatabaseConfig', function (req, res) {
 });
 
 router.get('/loadStorageConfig', async function (req, res) {
-  console.log(await config.getStorageType());
   if ((await config.getStorageType()) === 'gcp') {
     try {
       fs.readFile('./prometheus.service.config.json', function (
