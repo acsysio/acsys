@@ -4,6 +4,7 @@ import {
   CircularProgress, 
   Container,
   Grid,
+  Link,
   Paper,
   Typography
 } from '@material-ui/core';
@@ -12,6 +13,7 @@ import * as Prom from '../../services/Prometheus/Prom';
 
 const INITIAL_STATE = {
   uploadFile: '',
+  fileName: '',
   measurementId: '',
   loading: false,
   error: null,
@@ -26,6 +28,7 @@ class Configuration extends Component {
 
   setRef = (ref) => {
     this.setState({
+      fileName: ref.target.files[0].name,
       uploadFile: ref.target.files[0],
     });
   };
@@ -72,6 +75,7 @@ class Configuration extends Component {
 
   render() {
     const {
+      fileName,
       loading,
       error,
     } = this.state;
@@ -97,22 +101,32 @@ class Configuration extends Component {
               <Typography variant="h4" color="primary">
                 Configure Firestore
               </Typography>
-              <Grid item style={{ minWidth: 20 }}>
-                <input
-                  id="contained-button-file"
-                  type="file"
-                  style={{ display: 'none' }}
-                  onChange={this.setRef}
-                />
-                <label htmlFor="contained-button-file">
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    component="span"
-                  >
-                    Upload Service Key
-                  </Button>
-                </label>
+              <p>Upload JSON service account key file. Instructions for creating this file can be found <Link href="https://cloud.google.com/iam/docs/creating-managing-service-account-keys" target="_blank" color="primary" rel="noreferrer">here</Link>.</p>
+              <Grid container>
+                <Grid item xs={3}>
+                  <input
+                    id="contained-button-file"
+                    type="file"
+                    style={{ display: 'none' }}
+                    onChange={this.setRef}
+                  />
+                  <label htmlFor="contained-button-file">
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      component="span"
+                      style={{ height: 28}}
+                    >
+                      Upload
+                    </Button>
+                  </label>
+                </Grid>
+                <Grid item xs={9}>
+                  <input
+                    defaultValue={fileName}
+                    style={{ height: 19}}
+                  />
+                </Grid>
               </Grid>
             </Box>
             <Box

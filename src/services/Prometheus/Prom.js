@@ -140,7 +140,13 @@ export const restart = async () => {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${Session.getToken()}`,
       },
-    });
+    })
+      .then(() => {
+        Session.logOut();
+      })
+      .catch(() => {
+        Session.logOut();
+      });
     resolve(true);
   });
 };
@@ -160,6 +166,7 @@ export const setInitialDatabaseConfig = async (config) => {
           response.json().then((json) => {
             resolve(json.value);
           });
+          resolve();
         } else {
           Session.logOut();
           reject();
@@ -186,6 +193,7 @@ export const setDatabaseConfig = async (config) => {
           response.json().then((json) => {
             resolve(json.value);
           });
+          resolve();
         } else {
           Session.logOut();
           reject();
