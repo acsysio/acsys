@@ -43,17 +43,22 @@ class Configuration extends Component {
       this.setState({
         loading: true,
       });
-      console.log(this.state.uploadFile)
       await Prom.setInitialDatabaseConfig(
         this.state.uploadFile
-      ).then(async () => {
-        await this.sleep(5000);
-        window.location.reload();
-      });
+      );
+      await this.sleep(5000);
+      window.location.reload();
       this.setState({
         loading: false,
       });
-    } catch (error) {}
+    } 
+    catch (error) {
+      await this.sleep(5000);
+      window.location.reload();
+      this.setState({
+        loading: false,
+      });
+    }
     event.preventDefault();
   };
 

@@ -5,7 +5,7 @@
 /.pnp
 .pnp.js
 /server/build
-prometheus.storage.config.json
+prometheus.service.config.json
 dbase.db
 
 # testing

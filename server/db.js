@@ -1,5 +1,4 @@
 const admin = require('firebase-admin');
-const serviceAccount = require('../prometheus.service.config.json');
 
 let auth;
 let db;
@@ -10,6 +9,7 @@ class DataDriver {
   initialize() {
     return new Promise(async (resolve, reject) => {
       try {
+        const serviceAccount = require('../prometheus.service.config.json');
         admin.initializeApp({
           credential: admin.credential.cert(serviceAccount),
         });
