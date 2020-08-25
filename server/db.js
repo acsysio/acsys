@@ -6,11 +6,13 @@ let db;
 let connected = false;
 
 class DataDriver {
-  initialize(config) {
+  initialize() {
     return new Promise(async (resolve, reject) => {
-      const dataConfig = await config.getConfig();
       try {
-        admin.initializeApp(JSON.parse(dataConfig));
+        const serviceAccount = require('../prometheus.service.config.json');
+        admin.initializeApp({
+          credential: admin.credential.cert(serviceAccount),
+        });
         auth = admin.auth();
         db = admin.firestore();
         if (db.projectId.length > 0) {

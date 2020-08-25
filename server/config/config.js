@@ -78,7 +78,7 @@ class Config {
       db.serialize(async function () {
         await db.run("DELETE FROM storeconfig WHERE type = 'gcp'");
         const stmt = await db.prepare('INSERT INTO storeconfig VALUES (?, ?)');
-        stmt.run('gcp', JSON.stringify(config));
+        stmt.run('gcp', 'gcp storage');
         stmt.finalize();
         resolve(true);
       });
