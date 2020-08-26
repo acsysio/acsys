@@ -33,7 +33,8 @@ const INITIAL_STATE = {
   measurementId: '',
   updateEmail: false,
   updateDatabase: false,
-  updateStorage: false,
+  updateDatabase: false,
+  passwordChange: false,
   userData: [],
   page: 0,
   rowsPerPage: 15,
@@ -71,32 +72,27 @@ class Settings extends React.Component {
   componentDidMount = async () => {
     this.props.setHeader('Settings');
     const emailConfig = await Prom.getEmailConfig();
-    const dataConfig = await Prom.getDatabaseConfig();
-    const storageConfig = await Prom.getStorageConfig();
+    if (emailConfig.length > 0) {
+      this.setState({
+        host: emailConfig[0].host,
+        port: emailConfig[0].port,
+        username: emailConfig[0].username,
+        password: emailConfig[0].password,
+      });
+    }
+    const databaseConfig = await Prom.getDatabaseConfig();
 
     this.setState({
-      host: emailConfig.host,
-      port: emailConfig.port,
-      username: emailConfig.username,
-      password: emailConfig.password,
-      apiKey: dataConfig.apiKey,
-      authDomain: dataConfig.authDomain,
-      databaseURL: dataConfig.databaseURL,
-      projectId: dataConfig.projectId,
-      storageBucket: dataConfig.storageBucket,
-      messagingSenderId: dataConfig.messagingSenderId,
-      appId: dataConfig.appId,
-      measurementId: dataConfig.measurementId,
-      type: storageConfig.type,
-      project_id: storageConfig.project_id,
-      private_key_id: storageConfig.private_key_id,
-      private_key: storageConfig.private_key,
-      client_email: storageConfig.client_email,
-      client_id: storageConfig.client_id,
-      auth_uri: storageConfig.auth_uri,
-      token_uri: storageConfig.token_uri,
-      auth_provider_x509_cert_url: storageConfig.auth_provider_x509_cert_url,
-      client_x509_cert_url: storageConfig.client_x509_cert_url,
+      type: databaseConfig.type,
+      project_id: databaseConfig.project_id,
+      private_key_id: databaseConfig.private_key_id,
+      private_key: databaseConfig.private_key,
+      client_email: databaseConfig.client_email,
+      client_id: databaseConfig.client_id,
+      auth_uri: databaseConfig.auth_uri,
+      token_uri: databaseConfig.token_uri,
+      auth_provider_x509_cert_url: databaseConfig.auth_provider_x509_cert_url,
+      client_x509_cert_url: databaseConfig.client_x509_cert_url,
     });
   };
 
@@ -111,32 +107,6 @@ class Settings extends React.Component {
   };
 
   setDatabase = async () => {
-    const {
-      apiKey,
-      authDomain,
-      databaseURL,
-      projectId,
-      storageBucket,
-      messagingSenderId,
-      appId,
-      measurementId,
-    } = this.state;
-
-    const config = {
-      apiKey: apiKey,
-      authDomain: authDomain,
-      databaseURL: databaseURL,
-      projectId: projectId,
-      storageBucket: storageBucket,
-      messagingSenderId: messagingSenderId,
-      appId: appId,
-      measurementId: measurementId,
-    };
-
-    await Prom.setDatabaseConfig(config);
-  };
-
-  setStorage = async () => {
     const {
       type,
       project_id,
@@ -163,7 +133,7 @@ class Settings extends React.Component {
       client_x509_cert_url: client_x509_cert_url,
     };
 
-    await Prom.setStorageConfig(config);
+    await Prom.setDatabaseConfig(config);
   };
 
   setConfig = async () => {
@@ -178,11 +148,8 @@ class Settings extends React.Component {
       this.setDatabase();
       await this.sleep(5000);
     }
-    if (this.state.updateStorage) {
-      this.setStorage();
+    if (this.state.updateDatabase || this.state.updateEmail) {
       await this.sleep(5000);
-    }
-    if (this.state.updateDatabase || this.state.updateStorage) {
       await Prom.restart().then(async () => {
         await this.sleep(5000);
         window.location.reload();
@@ -207,14 +174,6 @@ class Settings extends React.Component {
       port,
       username,
       password,
-      apiKey,
-      authDomain,
-      databaseURL,
-      projectId,
-      storageBucket,
-      messagingSenderId,
-      appId,
-      measurementId,
       type,
       project_id,
       private_key_id,
@@ -316,7 +275,7 @@ class Settings extends React.Component {
                       </ExpansionPanelDetails>
                     </ExpansionPanel>
                   </Grid>
-                  <Grid item xs={12} style={{ marginBottom: 30 }}>
+                  <Grid item xs={12}>
                     <ExpansionPanel
                       style={{ clear: 'both' }}
                       onChange={(e) =>
@@ -331,99 +290,6 @@ class Settings extends React.Component {
                         id="panel1a-header"
                       >
                         <Typography>Database Configuration</Typography>
-                      </ExpansionPanelSummary>
-                      <ExpansionPanelDetails>
-                        <Box
-                          margin="auto"
-                          width="90%"
-                          display="flex"
-                          flexDirection="column"
-                          textAlign="center"
-                          padding="16px"
-                        >
-                          <input
-                            id="apiKey"
-                            name="apiKey"
-                            placeholder="API Key"
-                            defaultValue={apiKey}
-                            onChange={this.onChange}
-                            style={{ marginTop: '20px' }}
-                          />
-                          <input
-                            id="authDomain"
-                            name="authDomain"
-                            placeholder="Auth Domain"
-                            defaultValue={authDomain}
-                            onChange={this.onChange}
-                            style={{ marginTop: '20px' }}
-                          />
-                          <input
-                            id="databaseURL"
-                            name="databaseURL"
-                            placeholder="Database URL"
-                            defaultValue={databaseURL}
-                            onChange={this.onChange}
-                            style={{ marginTop: '20px' }}
-                          />
-                          <input
-                            id="projectId"
-                            name="projectId"
-                            placeholder="Project ID"
-                            defaultValue={projectId}
-                            onChange={this.onChange}
-                            style={{ marginTop: '20px' }}
-                          />
-                          <input
-                            id="storageBucket"
-                            name="storageBucket"
-                            placeholder="Storage Bucket"
-                            defaultValue={storageBucket}
-                            onChange={this.onChange}
-                            style={{ marginTop: '20px' }}
-                          />
-                          <input
-                            id="messagingSenderId"
-                            name="messagingSenderId"
-                            placeholder="Messaging Sender ID"
-                            defaultValue={messagingSenderId}
-                            onChange={this.onChange}
-                            style={{ marginTop: '20px' }}
-                          />
-                          <input
-                            id="appId"
-                            name="appId"
-                            placeholder="App ID"
-                            defaultValue={appId}
-                            onChange={this.onChange}
-                            style={{ marginTop: '20px' }}
-                          />
-                          <input
-                            id="measurementId"
-                            name="measurementId"
-                            placeholder="Measurement ID"
-                            defaultValue={measurementId}
-                            onChange={this.onChange}
-                            style={{ marginTop: '20px' }}
-                          />
-                        </Box>
-                      </ExpansionPanelDetails>
-                    </ExpansionPanel>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <ExpansionPanel
-                      style={{ clear: 'both' }}
-                      onChange={(e) =>
-                        this.setState({
-                          updateStorage: !this.state.updateStorage,
-                        })
-                      }
-                    >
-                      <ExpansionPanelSummary
-                        expandIcon={<KeyboardArrowDown />}
-                        aria-controls="panel1a-content"
-                        id="panel1a-header"
-                      >
-                        <Typography>Storage Configuration</Typography>
                       </ExpansionPanelSummary>
                       <ExpansionPanelDetails>
                         <Box

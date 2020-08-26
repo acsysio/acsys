@@ -39,9 +39,7 @@ Run project in production mode by running `npm run start` (executing this after 
 
 ## Configuration
 
-To configure Prometheus you must first enter your Firebase configuration details. Instructions on how to do so can be found [here](https://firebase.google.com/docs/web/setup). Note that database must be created with appropriate security rules before Prometheus can be used (Default production rules are recommended).
-
-Once you have successfully connected Prometheus to your Firebase project you can then configure your storage by clicking the Settings tab. Afterwards enter your storage credentials under the storage configuration expansion panel. These credentials can be obtained from a json file. Instructions on how to get this file can be found [here](https://cloud.google.com/iam/docs/creating-managing-service-account-keys).
+To configure Prometheus you must first upload your service account JSON file. Instructions on how to get this file can be found [here](https://cloud.google.com/iam/docs/creating-managing-service-account-keys). Note that the database must be created with appropriate security rules before Prometheus can be used (Default production rules are recommended).
 
 ## Deployment Tips
 

@@ -20,7 +20,7 @@ data = new DataDriver();
 let storage;
 storage = new StorageDriver();
 
-data.initialize(config);
+data.initialize();
 storage.initialize(data);
 
 express().use(express.static('./config'));
@@ -742,25 +742,36 @@ router.post('/restart', function (req, res) {
 
 router.post('/setInitialDatabaseConfig', async function (req, res) {
   try {
-    const configData = {
-      apiKey: req.body.apiKey,
-      authDomain: req.body.authDomain,
-      databaseURL: req.body.databaseURL,
-      projectId: req.body.projectId,
-      storageBucket: req.body.storageBucket,
-      messagingSenderId: req.body.messagingSenderId,
-      appId: req.body.appId,
-      measurementId: req.body.measurementId,
-    };
-
     if (!data.isConnected()) {
-      await config
-        .setConfig(configData)
-        .then(async () => {
-          await data.initialize(config);
-          res.send(true);
-        })
-        .catch(() => {});
+      try {
+        await config
+          .setConfig(req.body)
+          .then(async () => {
+            return new Promise((resolve) => setTimeout(resolve, 5000));
+          })
+          .catch(() => {
+            res.send(false);
+          });
+        await config
+          .setStorageConfig(req.body)
+          .then(async () => {})
+          .catch(() => {
+            res.send(false);
+          });
+        fs.writeFile(
+          './prometheus.service.config.json',
+          JSON.stringify(req.body).replace(/\\\\/g, '\\'),
+          async function (err) {
+            if (err) {
+              res.send(err);
+            } else {
+              res.send(true);
+            }
+          }
+        );
+      } catch (error) {
+        res.send(false);
+      }
     } else {
       res.send(false);
     }
@@ -817,42 +828,6 @@ router.get('/getEmailConfig', async function (req, res) {
   data
     .getDocs('prmths_email_settings', {})
     .then((result, reject) => {
-      res.send(result[0]);
-    })
-    .catch(() => {
-      res.send(false);
-    });
-});
-
-router.post('/setDatabaseConfig', async function (req, res) {
-  try {
-    const configData = {
-      apiKey: req.body.apiKey,
-      authDomain: req.body.authDomain,
-      databaseURL: req.body.databaseURL,
-      projectId: req.body.projectId,
-      storageBucket: req.body.storageBucket,
-      messagingSenderId: req.body.messagingSenderId,
-      appId: req.body.appId,
-      measurementId: req.body.measurementId,
-    };
-
-    await config
-      .setConfig(configData)
-      .then(async () => {
-        await data.initialize(config);
-        res.send(true);
-      })
-      .catch(() => {});
-  } catch (error) {
-    res.send(false);
-  }
-});
-
-router.get('/getDatabaseConfig', async function (req, res) {
-  await config
-    .getConfig()
-    .then((result) => {
       res.send(result);
     })
     .catch(() => {
@@ -875,7 +850,7 @@ router.get('/loadDatabaseConfig', async function (req, res) {
     });
 });
 
-router.post('/setStorageConfig', function (req, res) {
+router.post('/setDatabaseConfig', async function (req, res) {
   const configData = {
     type: req.body.type,
     project_id: req.body.project_id,
@@ -889,51 +864,50 @@ router.post('/setStorageConfig', function (req, res) {
     client_x509_cert_url: req.body.client_x509_cert_url,
   };
 
-  config
-    .setStorageConfig(configData)
-    .then(() => {
-      try {
-        fs.writeFile(
-          './prometheus.storage.config.json',
-          JSON.stringify(configData).replace(/\\\\/g, '\\'),
-          async function (err) {
-            if (err) {
-              res.send(err);
-            } else {
-              await storage.initialize(data);
-              res.send(true);
-            }
-          }
-        );
-      } catch (error) {
+  try {
+    await config
+      .setConfig(configData)
+      .then(async () => {
+        return new Promise((resolve) => setTimeout(resolve, 5000));
+      })
+      .catch(() => {
         res.send(false);
+      });
+    await config
+      .setStorageConfig(configData)
+      .then(async () => {})
+      .catch(() => {
+        res.send(false);
+      });
+    fs.writeFile(
+      './prometheus.service.config.json',
+      JSON.stringify(configData).replace(/\\\\/g, '\\'),
+      async function (err) {
+        if (err) {
+          res.send(err);
+        } else {
+          res.send(true);
+        }
       }
-    })
-    .catch(() => {
-      res.send(false);
-    });
+    );
+  } catch (error) {
+    res.send(false);
+  }
 });
 
-router.get('/getStorageConfig', function (req, res) {
+router.get('/getDatabaseConfig', function (req, res) {
   config
     .getStorageType()
     .then((conf) => {
-      if (conf === 'gcp') {
-        try {
-          fs.readFile('./prometheus.storage.config.json', function (
-            err,
-            result
-          ) {
-            if (err) {
-              res.send((rData = { value: false }));
-            } else {
-              res.send(result);
-            }
-          });
-        } catch (error) {
-          res.send((rData = { value: false }));
-        }
-      } else {
+      try {
+        fs.readFile('./prometheus.service.config.json', function (err, result) {
+          if (err) {
+            res.send((rData = { value: false }));
+          } else {
+            res.send(result);
+          }
+        });
+      } catch (error) {
         res.send((rData = { value: false }));
       }
     })
@@ -945,7 +919,7 @@ router.get('/getStorageConfig', function (req, res) {
 router.get('/loadStorageConfig', async function (req, res) {
   if ((await config.getStorageType()) === 'gcp') {
     try {
-      fs.readFile('./prometheus.storage.config.json', function (
+      fs.readFile('./prometheus.service.config.json', function (
         err,
         dataConfig
       ) {
