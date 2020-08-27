@@ -176,6 +176,64 @@ export const setInitialDatabaseConfig = async (config) => {
   });
 };
 
+export const setEmailConfig = async (config) => {
+  await checkToken();
+  return new Promise((resolve, reject) => {
+    promFetch('/api/setEmailConfig', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Session.getToken()}`,
+      },
+      body: JSON.stringify(config),
+    })
+      .then((response) => {
+        if (response.statusText !== 'Unauthorized') {
+          response.json().then((json) => {
+            resolve(json.value);
+          });
+        } else {
+          Session.logOut();
+          reject();
+        }
+      })
+      .catch(reject);
+  });
+};
+
+export const getEmailConfig = async () => {
+  await checkToken();
+  return new Promise((resolve, reject) => {
+    promFetch('/api/getEmailConfig', {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Session.getToken()}`,
+      },
+    })
+      .then(async (response) => {
+        if (response.statusText !== 'Unauthorized') {
+          response
+            .json()
+            .then((json) => {
+              resolve(json);
+            })
+            .catch(() => {
+              resolve([]);
+            });
+        } else {
+          Session.logOut();
+          reject();
+        }
+      })
+      .catch(() => {
+        reject();
+      });
+  });
+};
+
 export const setDatabaseConfig = async (config) => {
   await checkToken();
   return new Promise((resolve, reject) => {
@@ -341,6 +399,55 @@ export const register = (username, email, password) => {
       .catch((response) => {
         resolve(false);
       });
+  });
+};
+
+export const sendResetLink = async (email) => {
+  return new Promise((resolve, reject) => {
+    promFetch('/api/sendResetLink', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    })
+      .then((response) => {
+        if (response.statusText !== 'Unauthorized') {
+          response.json().then((json) => {
+            resolve(json.message);
+          });
+        } else {
+          reject();
+        }
+      })
+      .catch(reject);
+  });
+};
+
+export const resetPassword = async (id, password) => {
+  return new Promise((resolve, reject) => {
+    promFetch('/api/resetPassword', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id,
+        password,
+      }),
+    })
+      .then((response) => {
+        if (response.statusText !== 'Unauthorized') {
+          response.json().then((json) => {
+            resolve(json.message);
+          });
+        } else {
+          reject();
+        }
+      })
+      .catch(reject);
   });
 };
 
