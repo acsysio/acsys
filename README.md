@@ -23,7 +23,7 @@ These instructions will get Prometheus up and running on your local machine for 
 
 - Cloud Firestore
 
-## Currently Supported Storage
+## Currently Supported Storage Services
 
 - Google Cloud Storage
 
