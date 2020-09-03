@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const Config = require('../config/config.js');
 const SqliteDriver = require('../data-drivers/sqlitedb');
 const FirestoreDriver = require('../data-drivers/firestoredb.js');
-const StorageDriver = require('../storage.js');
+const StorageDriver = require('../storage-drivers/storage.js');
 
 const router = express.Router();
 

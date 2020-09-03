@@ -251,7 +251,7 @@ class DataDriver {
     return new Promise((resolve, reject) => {
       let query;
       query = db.collection('prmths_open_tables');
-      query = query.where('table', '==', data.table);
+      query = query.where('table_name', '==', data.table);
       query
         .get()
         .then((snapshot) => {
@@ -279,7 +279,7 @@ class DataDriver {
       let query;
       // START -- construct collection reference
       query = db.collection('prmths_open_tables');
-      query = query.where('table', '==', table);
+      query = query.where('table_name', '==', table);
 
       // END -- construct collection reference
       query

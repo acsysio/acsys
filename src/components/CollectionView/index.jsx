@@ -307,7 +307,7 @@ class CollectionView extends React.Component {
     this.setState({ filterLoading: true });
     tableKeys = [];
     for (var i = 0; i < tempDetails.length; i++) {
-      tempDetails[i].order = i;
+      tempDetails[i].viewOrder = i;
       await Prom.updateData('prmths_document_details', tempDetails[i], [
         ['id', '=', tempDetails[i].id],
       ]);

@@ -55,6 +55,7 @@ const promFetch = (url, options = {}) => {
     const timer = setTimeout(() => {
       reject(new Error('Timeout for Promise'));
       controller.abort();
+      window.location.reload();
     }, timeout);
     fetch(url, { signal, ...rest })
       .finally(() => clearTimeout(timer))
@@ -1068,7 +1069,7 @@ export const deleteView = async (viewId) => {
   });
 };
 
-export const unlockTable = async (table) => {
+export const unlockTable = async (table_name) => {
   await checkToken();
   return new Promise((resolve, reject) => {
     promFetch('/api/unlockTable', {
@@ -1079,7 +1080,7 @@ export const unlockTable = async (table) => {
         Authorization: `Bearer ${Session.getToken()}`,
       },
       body: JSON.stringify({
-        table,
+        table_name,
       }),
     })
       .then(async (response) => {
@@ -1103,7 +1104,7 @@ export const unlockTable = async (table) => {
   });
 };
 
-export const lockTable = async (table) => {
+export const lockTable = async (table_name) => {
   await checkToken();
   return new Promise((resolve, reject) => {
     promFetch('/api/lockTable', {
@@ -1114,7 +1115,7 @@ export const lockTable = async (table) => {
         Authorization: `Bearer ${Session.getToken()}`,
       },
       body: JSON.stringify({
-        table,
+        table_name,
       }),
     })
       .then(async (response) => {
