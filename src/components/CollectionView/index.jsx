@@ -170,10 +170,10 @@ class CollectionView extends React.Component {
     let tempView = this.state.prmthsView;
     if (viewOrderField === 'none') {
       tempView['orderBy'] = '';
-      tempView['order'] = '';
+      tempView['viewOrder'] = '';
     } else {
       tempView['orderBy'] = viewOrderField;
-      tempView['order'] = viewOrder;
+      tempView['viewOrder'] = viewOrder;
     }
     tempView['isRemovable'] = isRemovable;
     tempView['rowNum'] = rowNum;
@@ -384,7 +384,7 @@ class CollectionView extends React.Component {
       rowNum = prmthsView[0].rowNum;
       if (prmthsView[0].orderBy.length > 0) {
         viewOrderField = prmthsView[0].orderBy;
-        viewOrder = prmthsView[0].order;
+        viewOrder = prmthsView[0].viewOrder;
       }
 
       let keys = [];
@@ -400,10 +400,10 @@ class CollectionView extends React.Component {
       ]);
 
       if (details.length > 0) {
-        details.sort((a, b) => (a.order > b.order ? 1 : -1));
+        details.sort((a, b) => (a.viewOrder > b.viewOrder ? 1 : -1));
         if (prmthsView[0].orderBy.length > 0) {
           order.push(prmthsView[0].orderBy);
-          orderDir = prmthsView[0].order;
+          orderDir = prmthsView[0].viewOrder;
         }
         for (let i = 0; i < details.length; i++) {
           if (details[i].isKey) {
@@ -449,7 +449,7 @@ class CollectionView extends React.Component {
             });
           })
         ).then(() => {
-          details.sort((a, b) => (a.order > b.order ? 1 : -1));
+          details.sort((a, b) => (a.viewOrder > b.viewOrder ? 1 : -1));
         });
       }
     } catch (error) {
@@ -458,9 +458,9 @@ class CollectionView extends React.Component {
 
     let locked = true;
 
-    await Prom.getData('prmths_open_tables', [['table', '=', id]])
+    await Prom.getData('prmths_open_tables', [['table_name', '=', id]])
       .then((result) => {
-        if (result[0].table === id) {
+        if (result[0].table_name === id) {
           locked = false;
           lockedValue = false;
         }

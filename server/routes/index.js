@@ -499,7 +499,7 @@ router.post('/unlockTable', function (req, res) {
 });
 
 router.post('/lockTable', function (req, res) {
-  data.lockTable(req.body.table).then((result, reject) => {
+  data.lockTable(req.body.table_name).then((result, reject) => {
     res.send(result);
   });
 });

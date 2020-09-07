@@ -403,55 +403,44 @@ class SqliteDriver {
   }
 
   unlockTable(data) {
-    return new Promise((resolve, reject) => {
-      let query;
-      query = db.collection('prmths_open_tables');
-      query = query.where('table', '==', data.table);
-      query
-        .get()
-        .then((snapshot) => {
-          const objects = [];
-          snapshot.forEach((doc) => {
-            objects.push(doc.data());
+    return new Promise(async (resolve, reject) => {
+      const query = `SELECT * FROM prmths_open_tables WHERE TABLE_NAME = ${data.table_name}`;
+      await db.all(query, [], (error, rows) => {
+        if (rows === undefined || error) {
+          const sql = `INSERT INTO prmths_open_tables VALUES ('${data.table_name}')`;
+          db.run(sql, function (err) {
+            if (err) {
+              console.log(err);
+              resolve(false);
+            }
+            resolve(true);
           });
-          if (objects.length > 0) {
-            resolve(objects);
-          } else {
-            db.collection('prmths_open_tables')
-              .add(data)
-              .then((docRef) => resolve(docRef))
-              .catch(reject);
-          }
-        })
-        .catch((error) => {
-          resolve(error);
-        });
+        } else {
+          const sql = `UPDATE prmths_open_tables SET TABLE_NAME = ${data.table_name}`;
+          db.run(sql, function (err) {
+            if (err) {
+              console.log(err);
+              resolve(false);
+            }
+            resolve(true);
+          });
+        }
+      });
     });
   }
 
   lockTable(table) {
-    return new Promise((resolve, reject) => {
-      let query;
-      // START -- construct collection reference
-      query = db.collection('prmths_open_tables');
-      query = query.where('table', '==', table);
-
-      // END -- construct collection reference
-      query
-        .get()
-        .then((snapshot) => {
-          const objects = [];
-
-          snapshot.forEach((doc) => {
-            db.collection('prmths_open_tables')
-              .doc(doc.id)
-              .delete()
-              .then(() => resolve(true))
-              .catch(() => reject(false));
-          });
-          resolve();
-        })
-        .catch(reject);
+    return new Promise(async (resolve, reject) => {
+      console.log(table, ' igloo');
+      const query = `DELETE FROM prmths_open_tables WHERE TABLE_NAME = '${table}'`;
+      await db.all(query, [], (error) => {
+        console.log('legror ', error);
+        if (error) {
+          resolve(false);
+        } else {
+          resolve(true);
+        }
+      });
     });
   }
 
