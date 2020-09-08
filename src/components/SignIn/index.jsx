@@ -137,7 +137,7 @@ class SignInPage extends Component {
           <Typography
             variant="h4"
             color="primary"
-            style={{ marginTop: '20px' }}
+            style={{ marginTop: '50px' }}
           >
             Sign in to your account
           </Typography>
@@ -325,16 +325,7 @@ class SignInPage extends Component {
                   flexDirection="column"
                   padding="16px"
                 >
-                  <Typography
-                    variant="h3"
-                    style={{
-                      textAlign: 'left',
-                      color: '#ffffff',
-                      marginTop: '20px',
-                    }}
-                  >
-                    Prometheus
-                  </Typography>
+                  <img src="/prometheus-banner.svg" alt="" />
                   <Typography
                     variant="h4"
                     style={{
@@ -343,7 +334,7 @@ class SignInPage extends Component {
                       marginTop: '20px',
                     }}
                   >
-                    Data Management System
+                    Prometheus CMS
                   </Typography>
                   <Typography
                     variant="p"
@@ -354,9 +345,9 @@ class SignInPage extends Component {
                     }}
                   >
                     Prometheus is a data management system that automates many
-                    of the backend processes found in web development.
+                    of the backend processes involved in web development.
                     Prometheus allows developers to configure a database through
-                    the Prometheus web app. Once this is done users can use
+                    the Prometheus web app. Once this is done users can then use
                     Prometheus as a headless content management system that also
                     configures restful apis (no coding involved).
                   </Typography>
