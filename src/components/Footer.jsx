@@ -5,7 +5,7 @@ function Footer() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
       {'Copyright © '}
-      Prometheus 2020
+      Aeon LLC
     </Typography>
   );
 }

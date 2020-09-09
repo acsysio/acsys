@@ -212,7 +212,7 @@ class SignInPage extends Component {
           <Typography
             variant="h4"
             color="primary"
-            style={{ marginTop: '20px' }}
+            style={{ marginTop: '50px' }}
           >
             Register
           </Typography>
