@@ -1,7 +1,7 @@
 # Prometheus
 
 <p align="center">
-  <img alt="Prometheus" src="https://storage.googleapis.com/aeon-262819.appspot.com/prometheus/Prometheus-01.png">
+  <img alt="Prometheus" src="https://storage.googleapis.com/aeon-262819.appspot.com/prometheus/Prometheus-01.svg">
 </p>
 
 [![License](https://img.shields.io/github/license/aeon-software/prometheus)](LICENSE.md)
