@@ -1,5 +1,9 @@
 # Prometheus
 
+<p align="center">
+  <img alt="Prometheus" src="https://storage.googleapis.com/aeon-262819.appspot.com/prometheus/Prometheus-01.png">
+</p>
+
 [![License](https://img.shields.io/github/license/aeon-software/prometheus)](LICENSE.md)
 [![Commit](https://img.shields.io/github/last-commit/aeon-software/prometheus)](https://github.com/aeon-software/prometheus/commits)
 [![Repo](https://img.shields.io/github/repo-size/aeon-software/prometheus)](https://github.com/aeon-software/prometheus)
