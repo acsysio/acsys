@@ -1,5 +1,3 @@
-# Prometheus
-
 <p align="center">
   <img alt="Prometheus" src="https://storage.googleapis.com/aeon-262819.appspot.com/prometheus/Prometheus-01.svg">
 </p>
@@ -65,10 +63,10 @@ There are many ways in which you can participate in the project, for example:
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
-## Authors
-
-- **Jalen Bridges** - _Initial work_ - [Prometheus](https://github.com/aeon-software/prometheus)
-
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+
+## Acknowledgements
+
+Special thanks to [Gardy Perez Ruiz](https://www.linkedin.com/in/gardy-perez-ruiz-44234b5b/).

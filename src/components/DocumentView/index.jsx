@@ -133,6 +133,7 @@ class DocumentView extends React.Component {
     });
     tempDocument[control] = '';
     fileRefs[control] = '';
+    fileDoc[control] = '';
     this.setState({
       loading: false,
     });

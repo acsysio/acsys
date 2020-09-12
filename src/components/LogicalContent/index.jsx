@@ -143,8 +143,9 @@ class LogicalContent extends React.Component {
         ['id', '=', tempView.id],
       ]);
     } else {
+      const oldPosition = tempView['position'];
       tempView['position'] = position;
-      await Prom.repositionViews(tempView, position);
+      await Prom.repositionViews(tempView, oldPosition, position);
       await this.sleep(1000);
     }
     const currentView = await Prom.getData('prmths_logical_content', [], '', [

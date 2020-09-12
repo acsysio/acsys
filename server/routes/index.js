@@ -494,9 +494,11 @@ router.post('/increment', function (req, res) {
 
 router.post('/repositionViews', function (req, res) {
   repoData = req.body;
-  data.repositionViews(repoData.entry, repoData.position).then((result) => {
-    res.send(result);
-  });
+  data
+    .repositionViews(repoData.entry, repoData.oldPosition, repoData.position)
+    .then((result) => {
+      res.send(result);
+    });
 });
 
 router.post('/createTable', function (req, res) {
@@ -639,7 +641,9 @@ router.post('/deleteView', function (req, res) {
               ['viewId', '=', deleteData.viewId],
             ])
             .then((result) => {
-              res.send(result);
+              data.reorgViews().then((result) => {
+                res.send(result);
+              });
             });
         });
     });
