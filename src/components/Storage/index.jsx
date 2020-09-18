@@ -551,121 +551,99 @@ class Storage extends React.Component {
   render() {
     const { error, files, rowsPerPage, page, currentDir, con } = this.state;
     if (con) {
-      return (
-        <div>
-          <Paper style={{ margin: 'auto', overflow: 'hidden', clear: 'both' }}>
-            <AppBar
-              position="static"
-              elevation={0}
-              style={{
-                backgroundColor: '#fafafa',
-                borderBottom: '1px solid #dcdcdc',
-              }}
-            >
-              <Toolbar style={{ margin: 4, paddingLeft: 12, paddingRight: 12 }}>
-                {Prom.getMode() !== 'Viewer' ? (
-                  <Grid container spacing={1}>
-                    <Grid item xs style={{ overflow: 'hidden' }}>
-                      <Typography
-                        align="left"
-                        variant="subtitle2"
-                        noWrap
-                        style={{ marginTop: 10, color: '#000000' }}
-                      >
-                        {currentDir}
-                      </Typography>
-                    </Grid>
-                    {this.getPrevButton()}
-                    <Grid item style={{ minWidth: 20 }}>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={this.syncFiles}
-                      >
-                        Scan
-                      </Button>
-                    </Grid>
-                    <Grid item style={{ minWidth: 20 }}>
-                      <input
-                        id="contained-button-file"
-                        type="file"
-                        style={{ display: 'none' }}
-                        ref={this.setRef}
-                        onChange={this.uploadFile}
-                      />
-                      <label htmlFor="contained-button-file">
+      try {
+        return (
+          <div>
+            <Paper style={{ margin: 'auto', overflow: 'hidden', clear: 'both' }}>
+              <AppBar
+                position="static"
+                elevation={0}
+                style={{
+                  backgroundColor: '#fafafa',
+                  borderBottom: '1px solid #dcdcdc',
+                }}
+              >
+                <Toolbar style={{ margin: 4, paddingLeft: 12, paddingRight: 12 }}>
+                  {Prom.getMode() !== 'Viewer' ? (
+                    <Grid container spacing={1}>
+                      <Grid item xs style={{ overflow: 'hidden' }}>
+                        <Typography
+                          align="left"
+                          variant="subtitle2"
+                          noWrap
+                          style={{ marginTop: 10, color: '#000000' }}
+                        >
+                          {currentDir}
+                        </Typography>
+                      </Grid>
+                      {this.getPrevButton()}
+                      <Grid item style={{ minWidth: 20 }}>
                         <Button
                           variant="contained"
                           color="primary"
-                          component="span"
+                          onClick={this.syncFiles}
                         >
-                          Upload
+                          Scan
                         </Button>
-                      </label>
+                      </Grid>
+                      <Grid item style={{ minWidth: 20 }}>
+                        <input
+                          id="contained-button-file"
+                          type="file"
+                          style={{ display: 'none' }}
+                          ref={this.setRef}
+                          onChange={this.uploadFile}
+                        />
+                        <label htmlFor="contained-button-file">
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            component="span"
+                          >
+                            Upload
+                          </Button>
+                        </label>
+                      </Grid>
+                      <Grid item style={{ minWidth: 20 }}>
+                        <Tooltip title="New Folder">
+                          <IconButton onClick={this.newFolderOpen}>
+                            <CreateNewFolder color="inherit" />
+                          </IconButton>
+                        </Tooltip>
+                      </Grid>
                     </Grid>
-                    <Grid item style={{ minWidth: 20 }}>
-                      <Tooltip title="New Folder">
-                        <IconButton onClick={this.newFolderOpen}>
-                          <CreateNewFolder color="inherit" />
-                        </IconButton>
-                      </Tooltip>
+                  ) : (
+                    <Grid container spacing={1}>
+                      <Grid item xs style={{ overflow: 'hidden' }}>
+                        <Typography
+                          align="left"
+                          variant="subtitle2"
+                          noWrap
+                          style={{ marginTop: 10, color: '#000000' }}
+                        >
+                          {currentDir}
+                        </Typography>
+                      </Grid>
+                      {this.getPrevButton()}
                     </Grid>
-                  </Grid>
-                ) : (
-                  <Grid container spacing={1}>
-                    <Grid item xs style={{ overflow: 'hidden' }}>
-                      <Typography
-                        align="left"
-                        variant="subtitle2"
-                        noWrap
-                        style={{ marginTop: 10, color: '#000000' }}
+                  )}
+                </Toolbar>
+              </AppBar>
+              <div style={{ margin: 'auto', overflow: 'auto' }}>
+                <Table>
+                  <TableHead style={{ backgroundColor: '#fafafa' }}>
+                    <TableRow>
+                      <TableCell
+                        colSpan={2}
+                        style={{
+                          paddingLeft: 16,
+                          paddingRight: 16,
+                          paddingTop: 5,
+                          paddingBottom: 5,
+                        }}
                       >
-                        {currentDir}
-                      </Typography>
-                    </Grid>
-                    {this.getPrevButton()}
-                  </Grid>
-                )}
-              </Toolbar>
-            </AppBar>
-            <div style={{ margin: 'auto', overflow: 'auto' }}>
-              <Table>
-                <TableHead style={{ backgroundColor: '#fafafa' }}>
-                  <TableRow>
-                    <TableCell
-                      colSpan={2}
-                      style={{
-                        paddingLeft: 16,
-                        paddingRight: 16,
-                        paddingTop: 5,
-                        paddingBottom: 5,
-                      }}
-                    >
-                      NAME
-                    </TableCell>
-                    <TableCell
-                      style={{
-                        paddingLeft: 16,
-                        paddingRight: 16,
-                        paddingTop: 5,
-                        paddingBottom: 5,
-                        width: 100,
-                      }}
-                    >
-                      TYPE
-                    </TableCell>
-                    <TableCell
-                      style={{
-                        paddingLeft: 16,
-                        paddingRight: 16,
-                        paddingTop: 5,
-                        paddingBottom: 5,
-                        width: 110,
-                      }}
-                    >
-                      LAST MODIFIED
-                    </TableCell>
-                    {Prom.getMode() !== 'Viewer' ? (
+                        NAME
+                      </TableCell>
                       <TableCell
                         style={{
                           paddingLeft: 16,
@@ -674,125 +652,160 @@ class Storage extends React.Component {
                           paddingBottom: 5,
                           width: 100,
                         }}
-                        align="right"
                       >
-                        ACTIONS
+                        TYPE
                       </TableCell>
-                    ) : (
-                      <div />
-                    )}
-                  </TableRow>
-                </TableHead>
-                <TableBody>{this.renderTableData()}</TableBody>
-              </Table>
-            </div>
-            <TablePagination
-              rowsPerPageOptions={[25]}
-              component="div"
-              count={files.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              backIconButtonProps={{
-                'aria-label': 'previous page',
-              }}
-              nextIconButtonProps={{
-                'aria-label': 'next page',
-              }}
-              onChangePage={this.handleChangePage}
-              onChangeRowsPerPage={this.handleChangeRowsPerPage}
-            />
-            <Dialog
-              open={this.state.loading}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-              maxWidth={'md'}
-            >
-              <DialogTitle id="alert-dialog-title" style={{ margin: 'auto' }}>
-                Loading
-              </DialogTitle>
-              <DialogContent
-                style={{
-                  minHeight: 150,
-                  minWidth: 400,
-                  margin: 'auto',
-                  overflow: 'hidden',
-                }}
-              >
-                <div style={{ width: 124, margin: 'auto' }}>
-                  <CircularProgress size={124} />
-                </div>
-              </DialogContent>
-            </Dialog>
-            <Dialog
-              open={this.state.openImg}
-              onClose={this.handleImgClose}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-              maxWidth={'lg'}
-            >
-              
-              <DialogContent
-                style={{
-                  
-                  margin: 'auto',
-                  overflow: 'hidden',
-                }}
-              >
-                <div class="image-container">
-                  <img
-                    src={this.state.imgUrl}
-                    style={{ height: '50vh', maxWidth: '50vw' }}
-                  />
-                </div>
-              </DialogContent>
-            </Dialog>
-            <Dialog
-              open={this.state.newFolder}
-              onClose={this.newFolderClose}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-              maxWidth={'md'}
-            >
-              <DialogTitle id="alert-dialog-title" style={{ margin: 'auto' }}>
-                New Folder
-              </DialogTitle>
-              <DialogContent>
-                <div style={{ width: 600, margin: 'auto' }}>
-                  <input
-                    placeholder="Enter folder name here"
-                    onChange={(e) => this.handleChange(e.target.value)}
-                    type="text"
-                    style={{ width: '100%', marginBottom: 10 }}
-                  />
-                  <Grid container spacing={1}>
-                    <Grid item xs></Grid>
-                    <Grid item>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        component="span"
-                        onClick={this.createNewFolder}
+                      <TableCell
+                        style={{
+                          paddingLeft: 16,
+                          paddingRight: 16,
+                          paddingTop: 5,
+                          paddingBottom: 5,
+                          width: 110,
+                        }}
                       >
-                        Save
-                      </Button>
+                        LAST MODIFIED
+                      </TableCell>
+                      {Prom.getMode() !== 'Viewer' ? (
+                        <TableCell
+                          style={{
+                            paddingLeft: 16,
+                            paddingRight: 16,
+                            paddingTop: 5,
+                            paddingBottom: 5,
+                            width: 100,
+                          }}
+                          align="right"
+                        >
+                          ACTIONS
+                        </TableCell>
+                      ) : (
+                        <div />
+                      )}
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>{this.renderTableData()}</TableBody>
+                </Table>
+              </div>
+              <TablePagination
+                rowsPerPageOptions={[25]}
+                component="div"
+                count={files.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                backIconButtonProps={{
+                  'aria-label': 'previous page',
+                }}
+                nextIconButtonProps={{
+                  'aria-label': 'next page',
+                }}
+                onChangePage={this.handleChangePage}
+                onChangeRowsPerPage={this.handleChangeRowsPerPage}
+              />
+              <Dialog
+                open={this.state.loading}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+                maxWidth={'md'}
+              >
+                <DialogTitle id="alert-dialog-title" style={{ margin: 'auto' }}>
+                  Loading
+                </DialogTitle>
+                <DialogContent
+                  style={{
+                    minHeight: 150,
+                    minWidth: 400,
+                    margin: 'auto',
+                    overflow: 'hidden',
+                  }}
+                >
+                  <div style={{ width: 124, margin: 'auto' }}>
+                    <CircularProgress size={124} />
+                  </div>
+                </DialogContent>
+              </Dialog>
+              <Dialog
+                open={this.state.openImg}
+                onClose={this.handleImgClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+                maxWidth={'lg'}
+              >
+                
+                <DialogContent
+                  style={{
+                    
+                    margin: 'auto',
+                    overflow: 'hidden',
+                  }}
+                >
+                  <div class="image-container">
+                    <img
+                      src={this.state.imgUrl}
+                      style={{ height: '50vh', maxWidth: '50vw' }}
+                    />
+                  </div>
+                </DialogContent>
+              </Dialog>
+              <Dialog
+                open={this.state.newFolder}
+                onClose={this.newFolderClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+                maxWidth={'md'}
+              >
+                <DialogTitle id="alert-dialog-title" style={{ margin: 'auto' }}>
+                  New Folder
+                </DialogTitle>
+                <DialogContent>
+                  <div style={{ width: 600, margin: 'auto' }}>
+                    <input
+                      placeholder="Enter folder name here"
+                      onChange={(e) => this.handleChange(e.target.value)}
+                      type="text"
+                      style={{ width: '100%', marginBottom: 10 }}
+                    />
+                    <Grid container spacing={1}>
+                      <Grid item xs></Grid>
+                      <Grid item>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          component="span"
+                          onClick={this.createNewFolder}
+                        >
+                          Save
+                        </Button>
+                      </Grid>
+                      <Grid item>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          component="span"
+                          onClick={this.newFolderClose}
+                        >
+                          Cancel
+                        </Button>
+                      </Grid>
                     </Grid>
-                    <Grid item>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        component="span"
-                        onClick={this.newFolderClose}
-                      >
-                        Cancel
-                      </Button>
-                    </Grid>
-                  </Grid>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </Paper>
-        </div>
-      );
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </Paper>
+          </div>
+        );
+      }
+      catch (error) {
+        return (
+          <div style={{ maxWidth: 1236, margin: 'auto' }}>
+            <Paper style={{ height: 40 }}>
+              <div style={{ padding: 10, margin: 'auto' }}>
+                Please make sure database has been created.
+              </div>
+            </Paper>
+          </div>
+        );
+      }
     } else {
       return (
         <div style={{ maxWidth: 1236, margin: 'auto' }}>

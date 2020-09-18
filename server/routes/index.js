@@ -69,7 +69,10 @@ router.post('/register', function (req, res) {
       } else {
         try {
           if (result.details.length > 0) {
-            res.json({ message: result.details });
+            res.json({
+              message:
+                'Please make sure that Cloud Firestore database exists for this project.',
+            });
           }
         } catch (error) {}
         bcrypt.hash(userData.password, 8, function (err, hash) {

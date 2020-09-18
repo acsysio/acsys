@@ -162,13 +162,13 @@ export const setInitialDatabaseConfig = async (config) => {
       body: config,
     })
       .then((response) => {
+        Session.logOut();
         if (response.statusText !== 'Unauthorized') {
           response.json().then((json) => {
             resolve(json.value);
           });
           resolve();
         } else {
-          Session.logOut();
           reject();
         }
       })
