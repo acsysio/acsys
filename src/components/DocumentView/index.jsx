@@ -8,7 +8,8 @@ import {
   Hidden,
   MenuItem,
   NativeSelect,
-  Select
+  Select,
+  Tooltip,
 } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
@@ -1505,58 +1506,68 @@ class DocumentView extends React.Component {
         {Prom.getMode() !== 'Viewer' ? (
           <div>
             {!this.props.location.state.routed && isRemovable ? (
-              <Button
-                style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
-                variant="contained"
-                color="primary"
-                onClick={this.handleDeleteOpen}
-              >
-                Delete
-              </Button>
+              <Tooltip title="Delete Entry">
+                <Button
+                  style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
+                  variant="contained"
+                  color="primary"
+                  onClick={this.handleDeleteOpen}
+                >
+                  Delete
+                </Button>
+              </Tooltip>
             ) : (
               <div />
             )}
-            <Button
-              style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
-              variant="contained"
-              color="primary"
-              onClick={this.publishDocument}
-            >
-              Publish
-            </Button>
-            {draft ? (
+            <Tooltip title="Publish Entry">
               <Button
                 style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
                 variant="contained"
                 color="primary"
-                onClick={this.saveDocument}
+                onClick={this.publishDocument}
               >
-                Save Draft
+                Publish
               </Button>
+            </Tooltip>
+            {draft ? (
+              <Tooltip title="Save Entry As Draft">
+                <Button
+                  style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
+                  variant="contained"
+                  color="primary"
+                  onClick={this.saveDocument}
+                >
+                  Save Draft
+                </Button>
+              </Tooltip>
             ) : (
               <div></div>
             )}
             {Prom.getMode() === 'Administrator' ? (
-              <Button
-                style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
-                variant="contained"
-                color="primary"
-                onClick={this.handleClickOpen}
-              >
-                Field Controls
-              </Button>
+              <Tooltip title="Change How Data Is Presented">
+                <Button
+                  style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
+                  variant="contained"
+                  color="primary"
+                  onClick={this.handleClickOpen}
+                >
+                  Field Controls
+                </Button>
+              </Tooltip>
             ) : (
               <div />
             )}
             {Prom.getMode() === 'Administrator' ? (
-              <Select
-                defaultValue={this.props.location.state.routed}
-                onChange={(e) => this.saveView(e.target.value)}
-                style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
-              >
-                <MenuItem value={false}>Single View</MenuItem>
-                <MenuItem value={true}>Route Document Directly</MenuItem>
-              </Select>
+              <Tooltip title="Determines If Entry Is Accessed Directly From View Or Table">
+                <Select
+                  defaultValue={this.props.location.state.routed}
+                  onChange={(e) => this.saveView(e.target.value)}
+                  style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
+                >
+                  <MenuItem value={false}>Accessed From Table</MenuItem>
+                  <MenuItem value={true}>Accessed From View</MenuItem>
+                </Select>
+              </Tooltip>
             ) : (
               <div />
             )}
@@ -1658,7 +1669,7 @@ class DocumentView extends React.Component {
             onClose={this.handleSelectClose}
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
-            maxWidth={'lg'}
+            maxWidth={'md'}
             fullWidth={true}
           >
             <Storage

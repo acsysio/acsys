@@ -11,6 +11,7 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  Tooltip,
 } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
@@ -241,14 +242,16 @@ class LogicalContent extends React.Component {
             <TableCell>{table}</TableCell>
             <TableCell style={{ width: 50 }}>{rows}</TableCell>
             <TableCell style={{ width: 100 }} align="right">
-              <IconButton
-                edge="start"
-                color="inherit"
-                aria-label="delete"
-                onClick={() => this.handleDeleteOpen(table)}
-              >
-                <DeleteIcon />
-              </IconButton>
+              <Tooltip title="Delete Table">
+                <IconButton
+                  edge="start"
+                  color="inherit"
+                  aria-label="delete"
+                  onClick={() => this.handleDeleteOpen(table)}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </Tooltip>
             </TableCell>
           </TableRow>
         );
@@ -298,13 +301,15 @@ class LogicalContent extends React.Component {
                     </Typography>
                   </Grid>
                   <Grid item>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={this.handleClickOpen}
-                    >
-                      Add Table
-                    </Button>
+                    <Tooltip title="Create New Table">
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={this.handleClickOpen}
+                      >
+                        Add Table
+                      </Button>
+                    </Tooltip>
                   </Grid>
                 </Grid>
               </Toolbar>

@@ -2,7 +2,9 @@ import {
     AppBar,
     CircularProgress,
     Dialog,
+    DialogActions,
     DialogContent,
+    DialogContentText,
     DialogTitle,
     Table,
     TableBody,
@@ -58,6 +60,7 @@ const INITIAL_STATE = {
   page: 0,
   rowsPerPage: 15,
   loading: false,
+  syncing: false,
   newFolder: false,
   setOpen: false,
   setDetailOpen: false,
@@ -65,6 +68,7 @@ const INITIAL_STATE = {
   filterLoading: false,
   error: '',
   deleteLoading: false,
+  deleteing: false,
 };
 
 let tempUrl = '';
@@ -183,6 +187,7 @@ class Storage extends React.Component {
   };
 
   syncFiles = async () => {
+    this.handleSyncClose();
     this.setState({
       loading: true,
     });
@@ -201,6 +206,18 @@ class Storage extends React.Component {
     this.setState({
       loading: false,
       files: files,
+    });
+  };
+
+  handleSyncOpen = () => {
+    this.setState({
+      syncing: true,
+    });
+  };
+
+  handleSyncClose = () => {
+    this.setState({
+      syncing: false,
     });
   };
 
@@ -273,17 +290,27 @@ class Storage extends React.Component {
     });
   };
 
-  deleteFile = async (fileName) => {
-    this.setState({
-      loading: true,
-    });
-    await Prom.deleteFile(fileName)
+  deleteFile = async () => {
+    this.setState({ deleteLoading: true });
+    await Prom.deleteFile(this.state.fileName)
       .then(async () => {
         await this.loadFiles();
       })
       .catch((error) => this.setState(error));
+    this.handleDeleteClose();
+  };
+
+  handleDeleteOpen = async (fileName) => {
     this.setState({
-      loading: false,
+      deleting: true,
+      fileName: fileName,
+    });
+  };
+
+  handleDeleteClose = () => {
+    this.setState({
+      deleting: false,
+      deleteLoading: false,
     });
   };
 
@@ -425,7 +452,7 @@ class Storage extends React.Component {
       <div></div>
     );
   }
-  renderIcon(contentType, url, name) {
+  renderIcon(contentType, url) {
     if (contentType === 'Folder') {
       return (
         <TableCell style={{ width: 40, paddingRight: 0 }}>
@@ -445,7 +472,10 @@ class Storage extends React.Component {
     } else {
       return (
         <TableCell style={{ width: 40, paddingRight: 0 }}>
-          <Description />
+          <Description 
+            style={{ cursor: 'pointer', height: 40, width: 40, margin: 0 }}
+            onClick={() => window.open(url, '_blank')}
+          />
         </TableCell>
       );
     }
@@ -509,34 +539,40 @@ class Storage extends React.Component {
               {Prom.getMode() !== 'Viewer' ? (
                 <TableCell style={{ minWidth: 100 }} align="right">
                   {isPublic ? (
-                    <IconButton
-                      edge="start"
-                      color="inherit"
-                      aria-label="make private"
-                      onClick={() => this.makeFilePrivate(id)}
-                      style={{ marginRight: 10 }}
-                    >
-                      <LockOpen />
-                    </IconButton>
+                    <Tooltip title="Public To Internet">
+                      <IconButton
+                        edge="start"
+                        color="inherit"
+                        aria-label="make private"
+                        onClick={() => this.makeFilePrivate(id)}
+                        style={{ marginRight: 10 }}
+                      >
+                        <LockOpen />
+                      </IconButton>
+                    </Tooltip>
                   ) : (
+                    <Tooltip title="Not Public">
+                      <IconButton
+                        edge="start"
+                        color="inherit"
+                        aria-label="make public"
+                        onClick={() => this.makeFilePublic(id)}
+                        style={{ marginRight: 10 }}
+                      >
+                        <Lock />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                  <Tooltip title="Delete File">
                     <IconButton
                       edge="start"
                       color="inherit"
-                      aria-label="make public"
-                      onClick={() => this.makeFilePublic(id)}
-                      style={{ marginRight: 10 }}
+                      aria-label="delete"
+                      onClick={() => this.handleDeleteOpen(id)}
                     >
-                      <Lock />
+                      <Delete />
                     </IconButton>
-                  )}
-                  <IconButton
-                    edge="start"
-                    color="inherit"
-                    aria-label="delete"
-                    onClick={() => this.deleteFile(id)}
-                  >
-                    <Delete />
-                  </IconButton>
+                  </Tooltip>
                 </TableCell>
               ) : (
                 <div />
@@ -549,7 +585,7 @@ class Storage extends React.Component {
       });
   }
   render() {
-    const { error, files, rowsPerPage, page, currentDir, con } = this.state;
+    const { deleteLoading, files, rowsPerPage, page, currentDir, con } = this.state;
     if (con) {
       try {
         return (
@@ -578,13 +614,15 @@ class Storage extends React.Component {
                       </Grid>
                       {this.getPrevButton()}
                       <Grid item style={{ minWidth: 20 }}>
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          onClick={this.syncFiles}
-                        >
-                          Scan
-                        </Button>
+                        <Tooltip title="Scan For File Updates">
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={this.handleSyncOpen}
+                          >
+                            Scan
+                          </Button>
+                        </Tooltip>
                       </Grid>
                       <Grid item style={{ minWidth: 20 }}>
                         <input
@@ -595,20 +633,26 @@ class Storage extends React.Component {
                           onChange={this.uploadFile}
                         />
                         <label htmlFor="contained-button-file">
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            component="span"
-                          >
-                            Upload
-                          </Button>
+                          <Tooltip title="Upload File">
+                            <Button
+                              variant="contained"
+                              color="primary"
+                              component="span"
+                            >
+                              Upload
+                            </Button>
+                          </Tooltip>
                         </label>
                       </Grid>
                       <Grid item style={{ minWidth: 20 }}>
                         <Tooltip title="New Folder">
-                          <IconButton onClick={this.newFolderOpen}>
-                            <CreateNewFolder color="inherit" />
-                          </IconButton>
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={this.newFolderOpen}
+                          >
+                            New Folder
+                          </Button>
                         </Tooltip>
                       </Grid>
                     </Grid>
@@ -725,6 +769,31 @@ class Storage extends React.Component {
                 </DialogContent>
               </Dialog>
               <Dialog
+                open={this.state.syncing}
+                onClose={this.handleSyncClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+              >
+                <DialogTitle id="alert-dialog-title">{'Sync files?'}</DialogTitle>
+                <DialogContent>
+                  <DialogContentText id="alert-dialog-description">
+                    Are you sure you want to resync files? This operation can require multiple writes.
+                  </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={this.handleSyncClose} color="primary">
+                    No
+                  </Button>
+                  <Button
+                    onClick={this.syncFiles}
+                    color="primary"
+                    autoFocus
+                  >
+                    Yes
+                  </Button>
+                </DialogActions>
+              </Dialog>
+              <Dialog
                 open={this.state.openImg}
                 onClose={this.handleImgClose}
                 aria-labelledby="alert-dialog-title"
@@ -769,7 +838,6 @@ class Storage extends React.Component {
                       <Grid item xs></Grid>
                       <Grid item>
                         <Button
-                          variant="contained"
                           color="primary"
                           component="span"
                           onClick={this.createNewFolder}
@@ -779,7 +847,6 @@ class Storage extends React.Component {
                       </Grid>
                       <Grid item>
                         <Button
-                          variant="contained"
                           color="primary"
                           component="span"
                           onClick={this.newFolderClose}
@@ -790,6 +857,33 @@ class Storage extends React.Component {
                     </Grid>
                   </div>
                 </DialogContent>
+              </Dialog>
+              <Dialog
+                open={this.state.deleting}
+                onClose={this.handleDeleteClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+              >
+                <DialogTitle id="alert-dialog-title">{'Delete file?'}</DialogTitle>
+                <DialogContent>
+                  <DialogContentText id="alert-dialog-description">
+                    Are you sure you want to delete this file?
+                  </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={this.handleDeleteClose} color="primary">
+                    No
+                  </Button>
+                  <Button
+                    onClick={this.deleteFile}
+                    color="primary"
+                    disabled={deleteLoading}
+                    autoFocus
+                  >
+                    {deleteLoading && <CircularProgress size={24} />}
+                    {!deleteLoading && 'Yes'}
+                  </Button>
+                </DialogActions>
               </Dialog>
             </Paper>
           </div>

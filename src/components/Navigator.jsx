@@ -86,7 +86,10 @@ function Navigator(props) {
     // },
   ];
 
-  if (Prom.getRole() === 'Administrator') {
+  if (
+    Prom.getRole() === 'Administrator' &&
+    Prom.getMode() === 'Administrator'
+  ) {
     categories = [
       {
         id: 'Content',
