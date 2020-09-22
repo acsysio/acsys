@@ -13,7 +13,7 @@ import PeopleIcon from '@material-ui/icons/People';
 import PermMediaOutlinedIcon from '@material-ui/icons/PhotoSizeSelectActual';
 import SettingsIcon from '@material-ui/icons/Settings';
 import DataBaseIcon from '@material-ui/icons/ViewAgenda';
-import HelpIcon from '@material-ui/icons/Help';
+import InfoIcon from '@material-ui/icons/Info';
 import clsx from 'clsx';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -79,12 +79,6 @@ function Navigator(props) {
         },
       ],
     },
-    // {
-    //   id: 'General',
-    //   children: [
-    //       { id: 'Help', icon: <HelpIcon />, route: ROUTES.Help },
-    //   ],
-    // },
   ];
 
   if (
@@ -111,16 +105,6 @@ function Navigator(props) {
           { id: 'Settings', icon: <SettingsIcon />, route: ROUTES.Settings },
         ],
       },
-      // {
-      //   id: 'General',
-      //   children: [
-      //     {
-      //       id: 'Help',
-      //       icon: <HelpIcon />,
-      //       route: 'https://prometheuscms.com/',
-      //     },
-      //   ],
-      // },
     ];
   }
 
@@ -171,16 +155,16 @@ function Navigator(props) {
         target="_blank"
         style={{ textDecoration: 'none' }}
       >
-        <ListItem key="Help" button className={clsx(classes.item)}>
+        <ListItem key="Info" button className={clsx(classes.item)}>
           <ListItemIcon className={classes.itemIcon}>
-            <HelpIcon />
+            <InfoIcon />
           </ListItemIcon>
           <ListItemText
             classes={{
               primary: classes.itemPrimary,
             }}
           >
-            Help
+            Info
           </ListItemText>
         </ListItem>
       </a>
@@ -237,16 +221,16 @@ function Navigator(props) {
         target="_blank"
         style={{ textDecoration: 'none' }}
       >
-        <ListItem key="Help" button className={clsx(classes.item)}>
+        <ListItem key="Info" button className={clsx(classes.item)}>
           <ListItemIcon className={classes.itemIcon}>
-            <HelpIcon />
+            <InfoIcon />
           </ListItemIcon>
           <ListItemText
             classes={{
               primary: classes.itemPrimary,
             }}
           >
-            Help
+            Info
           </ListItemText>
         </ListItem>
       </a>
