@@ -162,13 +162,13 @@ export const setInitialDatabaseConfig = async (config) => {
       body: config,
     })
       .then((response) => {
+        Session.logOut();
         if (response.statusText !== 'Unauthorized') {
           response.json().then((json) => {
             resolve(json.value);
           });
           resolve();
         } else {
-          Session.logOut();
           reject();
         }
       })
@@ -791,7 +791,7 @@ export const increment = async (table, field, start, num) => {
   });
 };
 
-export const repositionViews = async (entry, position) => {
+export const repositionViews = async (entry, oldPosition, position) => {
   await checkToken();
   return new Promise((resolve, reject) => {
     promFetch('/api/repositionViews', {
@@ -803,6 +803,7 @@ export const repositionViews = async (entry, position) => {
       },
       body: JSON.stringify({
         entry,
+        oldPosition,
         position,
       }),
     })

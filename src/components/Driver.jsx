@@ -3,21 +3,21 @@ import Grid from '@material-ui/core/Grid';
 import Hidden from '@material-ui/core/Hidden';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import React from 'react';
-import { BrowserRouter as Router, Redirect, Route } from 'react-router-dom';
-import * as ROUTES from '../constants/routes';
 import * as Prom from '../services/Prometheus/Prom';
-import Account from './Account';
-import CollectionView from './CollectionView';
 import Footer from './Footer';
-import Database from './Database';
-import DocumentView from './DocumentView';
 import Header from './Header';
-import LogicalContent from './LogicalContent';
 import Navigator from './Navigator';
-import Settings from './Settings';
-import Storage from './Storage';
-import Users from './Users';
+import React, { Suspense, lazy } from 'react';
+import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
+import * as ROUTES from '../constants/routes';
+const Account = lazy(() => import('./Account'));
+const CollectionView = lazy(() => import('./CollectionView'));
+const Database = lazy(() => import('./Database'));
+const DocumentView = lazy(() => import('./DocumentView'));
+const LogicalContent = lazy(() => import('./LogicalContent'));
+const Settings = lazy(() => import('./Settings'));
+const Storage = lazy(() => import('./Storage'));
+const Users = lazy(() => import('./Users'));
 
 const INITIAL_STATE = {
   header: '',
@@ -134,60 +134,64 @@ class Driver extends React.Component {
               <div style={{ maxWidth: '80vw', margin: 'auto' }}>
                 <div style={{ flex: 1, maxWidth: 1236, margin: 'auto' }}>
                   <Redirect from="/" to={ROUTES.LogicalContent} />
-                  <Route
-                    path={ROUTES.LogicalContent}
-                    render={(props) => (
-                      <LogicalContent {...props} setHeader={this.setHeader} />
-                    )}
-                  />
-                  <Route
-                    path={ROUTES.CollectionView}
-                    render={(props) => (
-                      <CollectionView {...props} setHeader={this.setHeader} />
-                    )}
-                  />
-                  <Route
-                    path={ROUTES.DocumentView}
-                    render={(props) => (
-                      <DocumentView {...props} setHeader={this.setHeader} />
-                    )}
-                  />
-                  <Route
-                    path={ROUTES.Storage}
-                    render={(props) => (
-                      <Storage {...props} setHeader={this.setHeader} />
-                    )}
-                  />
-                  <Route
-                    path={ROUTES.Account}
-                    render={(props) => (
-                      <Account {...props} setHeader={this.setHeader} />
-                    )}
-                  />
-                  {Prom.getRole() === 'Administrator' ? (
-                    <div>
+                  <Suspense fallback={<div/>}>
+                    <Switch>
                       <Route
-                        path={ROUTES.Database}
+                        path={ROUTES.LogicalContent}
                         render={(props) => (
-                          <Database {...props} setHeader={this.setHeader} />
+                          <LogicalContent {...props} setHeader={this.setHeader} />
                         )}
                       />
                       <Route
-                        path={ROUTES.Users}
+                        path={ROUTES.CollectionView}
                         render={(props) => (
-                          <Users {...props} setHeader={this.setHeader} />
+                          <CollectionView {...props} setHeader={this.setHeader} />
                         )}
                       />
                       <Route
-                        path={ROUTES.Settings}
+                        path={ROUTES.DocumentView}
                         render={(props) => (
-                          <Settings {...props} setHeader={this.setHeader} />
+                          <DocumentView {...props} setHeader={this.setHeader} />
                         )}
                       />
-                    </div>
-                  ) : (
-                    <div />
-                  )}
+                      <Route
+                        path={ROUTES.Storage}
+                        render={(props) => (
+                          <Storage {...props} setHeader={this.setHeader} />
+                        )}
+                      />
+                      <Route
+                        path={ROUTES.Account}
+                        render={(props) => (
+                          <Account {...props} setHeader={this.setHeader} />
+                        )}
+                      />
+                      {Prom.getRole() === 'Administrator' ? (
+                        <div>
+                          <Route
+                            path={ROUTES.Database}
+                            render={(props) => (
+                              <Database {...props} setHeader={this.setHeader} />
+                            )}
+                          />
+                          <Route
+                            path={ROUTES.Users}
+                            render={(props) => (
+                              <Users {...props} setHeader={this.setHeader} />
+                            )}
+                          />
+                          <Route
+                            path={ROUTES.Settings}
+                            render={(props) => (
+                              <Settings {...props} setHeader={this.setHeader} />
+                            )}
+                          />
+                        </div>
+                      ) : (
+                        <div />
+                      )}
+                    </Switch>
+                  </Suspense>
                 </div>
               </div>
             </main>
