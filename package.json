@@ -35,7 +35,7 @@
     "@testing-library/react": "^9.4.0",
     "@testing-library/user-event": "^7.2.1",
     "@types/recompose": "^0.30.7",
-    "bcrypt": "^4.0.1",
+    "bcrypt": "5.0.0",
     "body-parser": "^1.17.2",
     "clsx": "^1.1.1",
     "cookie-parser": "^1.4.3",
