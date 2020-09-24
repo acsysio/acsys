@@ -13,6 +13,7 @@ import PeopleIcon from '@material-ui/icons/People';
 import PermMediaOutlinedIcon from '@material-ui/icons/PhotoSizeSelectActual';
 import SettingsIcon from '@material-ui/icons/Settings';
 import DataBaseIcon from '@material-ui/icons/ViewAgenda';
+import InfoIcon from '@material-ui/icons/Info';
 import clsx from 'clsx';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -78,15 +79,12 @@ function Navigator(props) {
         },
       ],
     },
-    // {
-    //   id: 'General',
-    //   children: [
-    //       { id: 'Help', icon: <HelpIcon />, route: ROUTES.Help },
-    //   ],
-    // },
   ];
 
-  if (Prom.getRole() === 'Administrator') {
+  if (
+    Prom.getRole() === 'Administrator' &&
+    Prom.getMode() === 'Administrator'
+  ) {
     categories = [
       {
         id: 'Content',
@@ -107,12 +105,6 @@ function Navigator(props) {
           { id: 'Settings', icon: <SettingsIcon />, route: ROUTES.Settings },
         ],
       },
-      // {
-      //   id: 'General',
-      //   children: [
-      //       { id: 'Help', icon: <HelpIcon />, route: ROUTES.Help },
-      //   ],
-      // },
     ];
   }
 
@@ -149,6 +141,34 @@ function Navigator(props) {
           <Divider className={classes.divider} />
         </React.Fragment>
       ))}
+      <ListItem className={classes.categoryHeader}>
+        <ListItemText
+          classes={{
+            primary: classes.categoryHeaderPrimary,
+          }}
+        >
+          General
+        </ListItemText>
+      </ListItem>
+      <a
+        href="https://prometheuscms.com/"
+        target="_blank"
+        style={{ textDecoration: 'none' }}
+      >
+        <ListItem key="Info" button className={clsx(classes.item)}>
+          <ListItemIcon className={classes.itemIcon}>
+            <InfoIcon />
+          </ListItemIcon>
+          <ListItemText
+            classes={{
+              primary: classes.itemPrimary,
+            }}
+          >
+            Info
+          </ListItemText>
+        </ListItem>
+      </a>
+      <Divider className={classes.divider} />
     </List>
   );
 
@@ -187,6 +207,34 @@ function Navigator(props) {
           <Divider className={classes.divider} />
         </React.Fragment>
       ))}
+      <ListItem className={classes.categoryHeader}>
+        <ListItemText
+          classes={{
+            primary: classes.categoryHeaderPrimary,
+          }}
+        >
+          General
+        </ListItemText>
+      </ListItem>
+      <a
+        href="https://prometheuscms.com/"
+        target="_blank"
+        style={{ textDecoration: 'none' }}
+      >
+        <ListItem key="Info" button className={clsx(classes.item)}>
+          <ListItemIcon className={classes.itemIcon}>
+            <InfoIcon />
+          </ListItemIcon>
+          <ListItemText
+            classes={{
+              primary: classes.itemPrimary,
+            }}
+          >
+            Info
+          </ListItemText>
+        </ListItem>
+      </a>
+      <Divider className={classes.divider} />
     </List>
   );
 

@@ -7,7 +7,8 @@ import {
     DialogTitle,
     ExpansionPanel,
     ExpansionPanelDetails,
-    ExpansionPanelSummary
+    ExpansionPanelSummary,
+    Tooltip,
 } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
@@ -132,14 +133,16 @@ class Account extends React.Component {
     const { message, passwordChange, userData, saveLoading } = this.state;
     return (
       <div>
-        <Button
-          style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
-          variant="contained"
-          color="primary"
-          onClick={this.handleClickOpen}
-        >
-          Save
-        </Button>
+        <Tooltip title="Save Account Settings">
+          <Button
+            style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
+            variant="contained"
+            color="primary"
+            onClick={this.handleClickOpen}
+          >
+            Save
+          </Button>
+        </Tooltip>
         <Paper
           style={{
             margin: 'auto',

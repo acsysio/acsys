@@ -10,7 +10,8 @@ import {
   TableCell,
   TableHead,
   TablePagination,
-  TableRow
+  TableRow,
+  Tooltip,
 } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
@@ -162,14 +163,16 @@ class Users extends React.Component {
             <TableCell>{role}</TableCell>
             <TableCell>{email}</TableCell>
             <TableCell align="right">
-              <IconButton
-                edge="start"
-                color="inherit"
-                aria-label="delete"
-                onClick={() => this.handleDeleteOpen(id)}
-              >
-                <DeleteIcon />
-              </IconButton>
+              <Tooltip title="Remove User">
+                <IconButton
+                  edge="start"
+                  color="inherit"
+                  aria-label="delete"
+                  onClick={() => this.handleDeleteOpen(id)}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </Tooltip>
             </TableCell>
           </TableRow>
         );
@@ -222,13 +225,15 @@ class Users extends React.Component {
                     </Typography>
                   </Grid>
                   <Grid item>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={this.handleClickOpen}
-                    >
-                      Add User
-                    </Button>
+                    <Tooltip title="Add New User">
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={this.handleClickOpen}
+                      >
+                        Add User
+                      </Button>
+                    </Tooltip>
                   </Grid>
                 </Grid>
               </Toolbar>

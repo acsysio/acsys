@@ -295,9 +295,12 @@ class StorageDriver {
           `https://storage.googleapis.com/${projectId}.appspot.com/${referenceName}`
         );
       } else {
+        const today = new Date();
+        const expires = new Date();
+        expires.setDate(today.getDate() + 1);
         url = await file.getSignedUrl({
           action: 'read',
-          expires: Date.now() * 999,
+          expires: expires.getTime(),
         });
         resolve(url[0]);
       }
