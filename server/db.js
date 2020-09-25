@@ -47,19 +47,15 @@ class DataDriver {
   doCreateInitialUserWithEmailAndPassword(username, email, password) {
     auth
       .createUserWithEmailAndPassword(email, password)
-      .then(
-        (
-          authUser // Create a user in firestore to allow for additional configuration
-        ) => {
-          if (authUser.user)
-            return setDoc('prmths_users', {
-              uid: authUser.user.uid,
-              role: 'Administrator',
-              username,
-              email,
-            });
-        }
-      )
+      .then((authUser) => {
+        if (authUser.user)
+          return setDoc('prmths_users', {
+            uid: authUser.user.uid,
+            role: 'Administrator',
+            username,
+            email,
+          });
+      })
       .catch(console.log);
   }
 
@@ -133,7 +129,6 @@ class DataDriver {
               };
               collectionArr.push(row);
             }
-            // collectionArr.push(collection.id);
           }
           resolve(collectionArr);
         })
@@ -153,7 +148,6 @@ class DataDriver {
             if (!expr.test(`${collection.id}`)) {
               collectionArr.push(collection.id);
             }
-            // collectionArr.push(collection.id);
           }
           resolve(collectionArr);
         })
