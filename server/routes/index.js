@@ -69,7 +69,10 @@ router.post('/register', function (req, res) {
       } else {
         try {
           if (result.details.length > 0) {
-            res.json({ message: result.details });
+            res.json({
+              message:
+                'Please make sure that Cloud Firestore database exists for this project.',
+            });
           }
         } catch (error) {}
         bcrypt.hash(userData.password, 8, function (err, hash) {
@@ -494,9 +497,11 @@ router.post('/increment', function (req, res) {
 
 router.post('/repositionViews', function (req, res) {
   repoData = req.body;
-  data.repositionViews(repoData.entry, repoData.position).then((result) => {
-    res.send(result);
-  });
+  data
+    .repositionViews(repoData.entry, repoData.oldPosition, repoData.position)
+    .then((result) => {
+      res.send(result);
+    });
 });
 
 router.post('/createTable', function (req, res) {
@@ -639,7 +644,9 @@ router.post('/deleteView', function (req, res) {
               ['viewId', '=', deleteData.viewId],
             ])
             .then((result) => {
-              res.send(result);
+              data.reorgViews().then((result) => {
+                res.send(result);
+              });
             });
         });
     });

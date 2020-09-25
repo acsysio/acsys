@@ -196,28 +196,20 @@ class DataDriver {
     });
   }
 
-  repositionViews(data, pos) {
+  repositionViews(data, old, pos) {
     return new Promise((resolve, reject) => {
+      let newPos = 1;
+      const posFound = false;
+      const entryFound = false;
       let query;
       query = db.collection('prmths_logical_content');
       query = query.orderBy('position');
       query
         .get()
         .then((snapshot) => {
-          let newPos = 1;
           snapshot.forEach((doc) => {
-            if (pos === doc.data().position) {
-              if (pos === 1) {
-                newPos++;
-              }
-              if (doc.data().id === data.id) {
-                // newPos++;
-              } else {
-                const newEntry = doc.data();
-                newEntry.position = newPos;
-                db.collection('prmths_logical_content')
-                  .doc(doc.id)
-                  .update(newEntry);
+            if (old > pos) {
+              if (pos === doc.data().position) {
                 newPos++;
               }
             }
@@ -231,6 +223,36 @@ class DataDriver {
                 .update(newEntry);
               newPos++;
             }
+            if (pos > old) {
+              if (pos === doc.data().position) {
+                newPos++;
+              }
+            }
+          });
+          resolve();
+        })
+        .catch((error) => {
+          resolve(error);
+        });
+    });
+  }
+
+  reorgViews() {
+    return new Promise((resolve, reject) => {
+      let newPos = 1;
+      let query;
+      query = db.collection('prmths_logical_content');
+      query = query.orderBy('position');
+      query
+        .get()
+        .then((snapshot) => {
+          snapshot.forEach((doc) => {
+            const newEntry = doc.data();
+            newEntry.position = newPos;
+            db.collection('prmths_logical_content')
+              .doc(doc.id)
+              .update(newEntry);
+            newPos++;
           });
           resolve();
         })

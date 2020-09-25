@@ -37,16 +37,7 @@ class Header extends React.Component {
         >
           <Grid container spacing={1} alignItems="center">
             <Hidden smDown implementation="css">
-              <Grid item style={{ width: 256 }}>
-                <Typography
-                  style={{ paddingLeft: 12, textAlign: 'left' }}
-                  color="inherit"
-                  variant="h5"
-                  component="h1"
-                >
-                  Prometheus
-                </Typography>
-              </Grid>
+              <img src="/prometheus-header.svg" alt="" style={{height: 45}} />
             </Hidden>
             <Hidden mdUp implementation="css">
               <Grid item>

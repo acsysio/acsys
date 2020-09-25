@@ -9,6 +9,7 @@ import {
   ExpansionPanel,
   ExpansionPanelDetails,
   ExpansionPanelSummary,
+  Tooltip,
 } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
@@ -190,14 +191,16 @@ class Settings extends React.Component {
 
     return (
       <div>
-        <Button
-          style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
-          variant="contained"
-          color="primary"
-          onClick={this.setConfig}
-        >
-          Save
-        </Button>
+        <Tooltip title="Save Server Settings">
+          <Button
+            style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
+            variant="contained"
+            color="primary"
+            onClick={this.setConfig}
+          >
+            Save
+          </Button>
+        </Tooltip>
         <Paper
           style={{
             margin: 'auto',
