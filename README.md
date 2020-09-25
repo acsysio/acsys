@@ -1,14 +1,20 @@
-# Prometheus
+<p align="center">
+  <a href="https://prometheuscms.com">
+    <img alt="Prometheus" src="https://storage.googleapis.com/aeon-262819.appspot.com/prometheus/Prometheus-01.svg">
+  </a>
+</p>
 
 [![License](https://img.shields.io/github/license/aeon-software/prometheus)](LICENSE.md)
 [![Commit](https://img.shields.io/github/last-commit/aeon-software/prometheus)](https://github.com/aeon-software/prometheus/commits)
 [![Repo](https://img.shields.io/github/repo-size/aeon-software/prometheus)](https://github.com/aeon-software/prometheus)
 
 <p align="center">
-  <img alt="Prometheus UI" src="https://user-images.githubusercontent.com/34227411/88206375-c46acd00-cc13-11ea-8f60-f8564ab6c185.png">
+  <img alt="Prometheus UI" src="https://storage.googleapis.com/aeon-262819.appspot.com/prometheus/prmths_scrnsht.png">
 </p>
 
-Prometheus is a CMS built on NodeJS. This tool was created due to the lack of CMS options available for Cloud Firestore. Prometheus allows developers to configure a database through the Prometheus web app. Once this is done users can use Prometheus as a headless content management system that also configures restful apis (no coding involved). Prometheus serves as a simple interface for the Firestore database with the goal of more database support being added soon! Since this project is maintained and used by Aeon it will receive continuous updates.
+## Prometheus [Live Demo](https://demo.prometheuscms.com/)
+
+Prometheus is a CMS built on NodeJS. This tool was created to fulfill the need for a frontend interface for Cloud Firestore. Prometheus allows developers to configure a database through the Prometheus web app. Once this is done users can use Prometheus as a headless content management system that also configures RESTful APIs (no coding involved). Prometheus serves as a simple interface for the Firestore database with the goal of more database support being added soon! Since this project is maintained and used by Aeon it will receive continuous updates.
 
 ## Getting Started
 
@@ -61,10 +67,10 @@ There are many ways in which you can participate in the project, for example:
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
-## Authors
-
-- **Jalen Bridges** - _Initial work_ - [Prometheus](https://github.com/aeon-software/prometheus)
-
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+
+## Acknowledgements
+
+Special thanks to [Gardy Perez Ruiz](https://www.linkedin.com/in/gardy-perez-ruiz-44234b5b/).
