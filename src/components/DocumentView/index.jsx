@@ -21,6 +21,17 @@ import Backend from 'react-dnd-html5-backend';
 import ReactQuill from 'react-quill';
 import uniqid from 'uniqid';
 import * as Prom from '../../services/Prometheus/Prom';
+import AutoGen from '../Controls/AutoGen';
+import TextField from '../Controls/TextField';
+import DateTimePicker from '../Controls/DateTimePicker';
+import NumberEditor from '../Controls/NumberEditor';
+import RichTextEditor from '../Controls/RichTextEditor';
+import BooleanSelect from '../Controls/BooleanSelect';
+import Position from '../Controls/Position';
+import ImageReference from '../Controls/ImageReference';
+import ImageURL from '../Controls/ImageURL';
+import VideoReference from '../Controls/VideoReference';
+import VideoURL from '../Controls/VideoURL';
 import Example from '../FieldControl/FieldDef';
 import Storage from '../Storage';
 
@@ -109,6 +120,18 @@ class DocumentView extends React.Component {
       fileSelect: true,
       control: control,
     });
+  };
+
+  setQuillRef = (ref) => {
+    quillRef = ref;
+  };
+
+  setQuillIndex = (index) => {
+    quillIndex = index;
+  };
+
+  setQuillURL = (url) => {
+    quillURL = url;
   };
 
   setReference = async (name, reference) => {
@@ -621,219 +644,38 @@ class DocumentView extends React.Component {
               if (currentKey == details.field_name && details.isVisibleOnPage) {
                 if (details.control == 'autoGen') {
                   return (
-                    <Grid item xs={details.width}>
-                      <h3 class="element-header">
-                        {details.field_name.toUpperCase()}
-                      </h3>
-                      <input
-                        placeholder="Enter value here"
-                        defaultValue={tempDocument[currentKey]}
-                        readOnly
-                        type="text"
-                        style={{ width: '100%' }}
-                      />
-                    </Grid>
+                    <AutoGen width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} />
                   );
                 } else if (details.control == 'textEditor') {
                   return (
-                    <Grid item xs={details.width}>
-                      <h3 class="element-header">
-                        {details.field_name.toUpperCase()}
-                      </h3>
-                      <input
-                        placeholder="Enter value here"
-                        defaultValue={tempDocument[currentKey]}
-                        onChange={(e) =>
-                          this.handleChange(currentKey, e.target.value)
-                        }
-                        type="text"
-                        style={{ width: '100%' }}
-                      />
-                    </Grid>
+                    <TextField width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} />
                   );
                 } else if (details.control == 'dateTimePicker') {
                   let tempStr = value._seconds + '.' + value._nanoseconds;
                   const date = new Date(value);
                   return (
-                    <Grid item xs={details.width}>
-                      <Grid container spacing={0}>
-                        <Grid item xs={4}>
-                          <h3 class="element-header">
-                            {details.field_name.toUpperCase()}
-                          </h3>
-                        </Grid>
-                        <Grid item xs={12}>
-                          <Datetime
-                            margin="normal"
-                            defaultValue={date}
-                            onChange={(e) =>
-                              this.handleChange(currentKey, e.toDate())
-                            }
-                            style={{ width: '100%' }}
-                          />
-                        </Grid>
-                      </Grid>
-                    </Grid>
+                    <DateTimePicker width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} />
                   );
                 } else if (details.control == 'numberEditor') {
                   return (
-                    <Grid item xs={details.width}>
-                      <h3 class="element-header">
-                        {details.field_name.toUpperCase()}
-                      </h3>
-                      <input
-                        placeholder="Enter value here"
-                        defaultValue={tempDocument[currentKey]}
-                        onChange={(e) =>
-                          this.handleChange(
-                            currentKey,
-                            parseInt(e.target.value)
-                          )
-                        }
-                        type="number"
-                        style={{ width: '100%' }}
-                      />
-                    </Grid>
+                    <NumberEditor width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} />
                   );
                 } else if (details.control == 'richTextEditor') {
-                  const modules = {
-                    toolbar: {
-                      container: [
-                        [{ font: [] }, { size: [] }],
-                        ['bold', 'italic', 'underline', 'strike'],
-                        [{ color: [] }, { background: [] }],
-                        [{ script: 'super' }, { script: 'sub' }],
-                        [
-                          { header: '1' },
-                          { header: '2' },
-                          'blockquote',
-                          'code-block',
-                        ],
-                        [
-                          { list: 'ordered' },
-                          { list: 'bullet' },
-                          { indent: '-1' },
-                          { indent: '+1' },
-                        ],
-                        ['direction', { align: [] }],
-                        ['link', 'image', 'video', 'formula'],
-                        ['clean'],
-                      ],
-                      handlers: {
-                        image: this.imageHandler,
-                      },
-                    },
-                    clipboard: {
-                      matchVisual: false,
-                    },
-                  };
-                  if (quillURL.length > 0) {
-                    const quill = quillRef.getEditor();
-                    quill.insertEmbed(quillIndex, 'image', quillURL);
-                    quillURL = '';
-                  }
                   return (
-                    <Grid item xs={details.width}>
-                      <h3 class="element-header">
-                        {details.field_name.toUpperCase()}
-                      </h3>
-                      <div class="quill-container">
-                        <ReactQuill
-                          ref={(el) => {
-                            quillRef = el;
-                          }}
-                          value={tempDocument[currentKey]}
-                          modules={modules}
-                          onChange={(e) => this.handleChange(currentKey, e)}
-                          style={{
-                            clear: 'both',
-                            height: 400,
-                            marginBottom: 40,
-                          }}
-                        />
-                      </div>
-                      <Hidden mdUp implementation="css">
-                        <div style={{ height: 50 }} />
-                      </Hidden>
-                      <Hidden smUp implementation="css">
-                        <div style={{ height: 20 }} />
-                      </Hidden>
-                    </Grid>
+                    <RichTextEditor width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} imageHandler = {this.imageHandler} setQuillRef = {this.setQuillRef} setQuillIndex = {this.setQuillIndex} setQuillURL = {this.setQuillURL} index = {quillIndex} quillRef = {quillRef} url = {quillURL} />
                   );
                 } else if (details.control == 'booleanSelect') {
                   return (
-                    <Grid item xs={details.width}>
-                      <h3 class="element-header">
-                        {details.field_name.toUpperCase()}
-                      </h3>
-                      <NativeSelect
-                        defaultValue={tempDocument[currentKey]}
-                        onChange={(e) =>
-                          this.handleChange(
-                            currentKey,
-                            'true' == e.target.value
-                          )
-                        }
-                        inputProps={{
-                          name: currentKey,
-                        }}
-                        style={{ width: '100%' }}
-                      >
-                        <option value={true}>True</option>
-                        <option value={false}>False</option>
-                      </NativeSelect>
-                    </Grid>
+                    <BooleanSelect width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} />
                   );
                 } else if (details.control == 'position') {
                   if (initLoad) {
                     initPos = tempDocument[currentKey];
                     posArr[details.field_name] = tempDocument[currentKey];
                   }
-                  if (this.state.draft) {
-                    return (
-                      <Grid item xs={details.width}>
-                        <h3 class="element-header">
-                          {details.field_name.toUpperCase()}
-                        </h3>
-                        <input
-                          value="Auto generated on publish"
-                          readonly
-                          style={{ width: '100%' }}
-                        />
-                      </Grid>
-                    );
-                  } else {
-                    return (
-                      <Grid item xs={details.width}>
-                        <h3 class="element-header">
-                          {details.field_name.toUpperCase()}
-                        </h3>
-                        <Select
-                          defaultValue={tempDocument[currentKey]}
-                          onChange={(e) =>
-                            this.handleChange(
-                              currentKey,
-                              parseInt(e.target.value)
-                            )
-                          }
-                          inputProps={{
-                            name: currentKey,
-                          }}
-                          style={{ width: '100%', textAlign: 'left' }}
-                        >
-                          {Object.values(this.state.position).map(
-                            (pos, index) => {
-                              return (
-                                <MenuItem value={pos[details.field_name]}>
-                                  {index + 1}
-                                </MenuItem>
-                              );
-                            }
-                          )}
-                        </Select>
-                      </Grid>
-                    );
-                  }
+                  return (
+                    <Position width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} draft = {this.state.draft} position = {this.state.position} />
+                  );
                 } else if (details.control == 'imageReference') {
                   const url = fileRefs[details.field_name];
                   if (url === undefined || url === '') {
