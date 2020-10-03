@@ -654,7 +654,7 @@ class DocumentView extends React.Component {
                   let tempStr = value._seconds + '.' + value._nanoseconds;
                   const date = new Date(value);
                   return (
-                    <DateTimePicker width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} />
+                    <DateTimePicker width = {details.width} field_name = {details.field_name} defaultValue = {date} handleChange = {this.handleChange} currentKey = {currentKey} />
                   );
                 } else if (details.control == 'numberEditor') {
                   return (
@@ -678,230 +678,24 @@ class DocumentView extends React.Component {
                   );
                 } else if (details.control == 'imageReference') {
                   const url = fileRefs[details.field_name];
-                  if (url === undefined || url === '') {
-                    return (
-                      <Grid item xs={details.width}>
-                        <h3 class="element-header">
-                          {details.field_name.toUpperCase()}
-                        </h3>
-                        <Button
-                          style={{ width: '100%' }}
-                          variant="contained"
-                          color="primary"
-                          onClick={(e) =>
-                            this.openSelector('ref', details.field_name)
-                          }
-                        >
-                          Select File
-                        </Button>
-                      </Grid>
-                    );
-                  } else {
-                    return (
-                      <Grid item xs={details.width}>
-                        <h3 class="element-header">
-                          {details.field_name.toUpperCase()}
-                        </h3>
-                        <div class="image-container">
-                          <img
-                            src={url}
-                            style={{ maxHeight: 500, maxWidth: '100%' }}
-                          />
-                        </div>
-                        <div>
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            style={{ minWidth: 100, marginRight: 20 }}
-                            onClick={(e) =>
-                              this.openSelector('ref', details.field_name)
-                            }
-                          >
-                            Select
-                          </Button>
-                          <Button
-                            variant="contained"
-                            color="secondary"
-                            style={{ minWidth: 100, marginLeft: 20 }}
-                            onClick={(e) => this.removeFile(details.field_name)}
-                          >
-                            Remove
-                          </Button>
-                        </div>
-                      </Grid>
-                    );
-                  }
+                  return (
+                    <ImageReference width = {details.width} field_name = {details.field_name} url = {url} openSelector = {this.openSelector} removeFile = {this.removeFile} />
+                  );
                 } else if (details.control == 'imageURL') {
                   const url = fileRefs[details.field_name];
-                  if (url === undefined || url === '') {
-                    return (
-                      <Grid item xs={details.width}>
-                        <h3 class="element-header">
-                          {details.field_name.toUpperCase()}
-                        </h3>
-                        <Button
-                          style={{ width: '100%' }}
-                          variant="contained"
-                          color="primary"
-                          onClick={(e) =>
-                            this.openSelector('url', details.field_name)
-                          }
-                        >
-                          Select File
-                        </Button>
-                      </Grid>
-                    );
-                  } else {
-                    return (
-                      <Grid item xs={details.width}>
-                        <h3 class="element-header">
-                          {details.field_name.toUpperCase()}
-                        </h3>
-                        <div class="image-container">
-                          <img
-                            src={url}
-                            style={{ maxHeight: 500, maxWidth: '100%' }}
-                          />
-                        </div>
-                        <div>
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            style={{ minWidth: 100, marginRight: 20 }}
-                            onClick={(e) =>
-                              this.openSelector('url', details.field_name)
-                            }
-                          >
-                            Select
-                          </Button>
-                          <Button
-                            variant="contained"
-                            color="secondary"
-                            style={{ minWidth: 100, marginLeft: 20 }}
-                            onClick={(e) => this.removeFile(details.field_name)}
-                          >
-                            Remove
-                          </Button>
-                        </div>
-                      </Grid>
-                    );
-                  }
+                  return (
+                    <ImageURL width = {details.width} field_name = {details.field_name} url = {url} openSelector = {this.openSelector} removeFile = {this.removeFile} />
+                  );
                 } else if (details.control == 'videoReference') {
                   const url = fileRefs[details.field_name];
-                  if (url === undefined || url === '') {
-                    return (
-                      <Grid item xs={details.width}>
-                        <h3 class="element-header">
-                          {details.field_name.toUpperCase()}
-                        </h3>
-                        <Button
-                          style={{ width: '100%' }}
-                          variant="contained"
-                          color="primary"
-                          onClick={(e) =>
-                            this.openSelector('ref', details.field_name)
-                          }
-                        >
-                          Select File
-                        </Button>
-                      </Grid>
-                    );
-                  } else {
-                    return (
-                      <Grid item xs={details.width}>
-                        <h3 class="element-header">
-                          {details.field_name.toUpperCase()}
-                        </h3>
-                        <video
-                          style={{ width: '100%', marginBottom: 15 }}
-                          id="background-video"
-                          loop
-                          autoPlay
-                        >
-                          <source src={url} type="video/mp4" />
-                          Your browser does not support the video tag.
-                        </video>
-                        <div>
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            style={{ minWidth: 100, marginRight: 20 }}
-                            onClick={(e) =>
-                              this.openSelector('ref', details.field_name)
-                            }
-                          >
-                            Select
-                          </Button>
-                          <Button
-                            variant="contained"
-                            color="secondary"
-                            style={{ minWidth: 100, marginLeft: 20 }}
-                            onClick={(e) => this.removeFile(details.field_name)}
-                          >
-                            Remove
-                          </Button>
-                        </div>
-                      </Grid>
-                    );
-                  }
+                  return (
+                    <VideoReference width = {details.width} field_name = {details.field_name} url = {url} openSelector = {this.openSelector} removeFile = {this.removeFile} />
+                  );
                 } else if (details.control == 'videoURL') {
                   const url = fileRefs[details.field_name];
-                  if (url === undefined || url === '') {
-                    return (
-                      <Grid item xs={details.width}>
-                        <h3 class="element-header">
-                          {details.field_name.toUpperCase()}
-                        </h3>
-                        <Button
-                          style={{ width: '100%' }}
-                          variant="contained"
-                          color="primary"
-                          onClick={(e) =>
-                            this.openSelector('url', details.field_name)
-                          }
-                        >
-                          Select File
-                        </Button>
-                      </Grid>
-                    );
-                  } else {
-                    return (
-                      <Grid item xs={details.width}>
-                        <h3 class="element-header">
-                          {details.field_name.toUpperCase()}
-                        </h3>
-                        <video
-                          style={{ width: '100%', marginBottom: 15 }}
-                          id="background-video"
-                          loop
-                          autoPlay
-                        >
-                          <source src={url} type="video/mp4" />
-                          Your browser does not support the video tag.
-                        </video>
-                        <div>
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            style={{ minWidth: 100, marginRight: 20 }}
-                            onClick={(e) =>
-                              this.openSelector('url', details.field_name)
-                            }
-                          >
-                            Select
-                          </Button>
-                          <Button
-                            variant="contained"
-                            color="secondary"
-                            style={{ minWidth: 100, marginLeft: 20 }}
-                            onClick={(e) => this.removeFile(details.field_name)}
-                          >
-                            Remove
-                          </Button>
-                        </div>
-                      </Grid>
-                    );
-                  }
+                  return (
+                    <VideoURL width = {details.width} field_name = {details.field_name} url = {url} openSelector = {this.openSelector} removeFile = {this.removeFile} />
+                  );
                 }
               }
             });
@@ -921,43 +715,13 @@ class DocumentView extends React.Component {
             if (details.isVisibleOnPage) {
               if (details.control == 'autoGen') {
                 return (
-                  <Grid item xs={details.width}>
-                    <h3 class="element-header">
-                      {details.field_name.toUpperCase()}
-                    </h3>
-                    <input
-                      placeholder="Value is autogenerated"
-                      value="Value is autogenerated"
-                      readonly
-                      type="text"
-                      style={{ width: '100%' }}
-                    />
-                  </Grid>
+                  <AutoGen width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} new = {true} />
                 );
-              }
-              if (details.control == 'booleanSelect') {
+              } else if (details.control == 'textEditor') {
                 return (
-                  <Grid item xs={details.width}>
-                    <h3 class="element-header">
-                      {details.field_name.toUpperCase()}
-                    </h3>
-                    <NativeSelect
-                      defaultValue={false}
-                      onChange={(e) =>
-                        this.handleChange(currentKey, 'true' == e.target.value)
-                      }
-                      inputProps={{
-                        name: currentKey,
-                      }}
-                      style={{ width: '100%' }}
-                    >
-                      <option value={true}>True</option>
-                      <option value={false}>False</option>
-                    </NativeSelect>
-                  </Grid>
+                  <TextField width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} />
                 );
-              }
-              if (details.control == 'dateTimePicker') {
+              } else if (details.control == 'dateTimePicker') {
                 if (initLoad) {
                   this.handleChange(currentKey, new Date());
                   if (documentDetails.length - 1 === dindex) {
@@ -965,373 +729,47 @@ class DocumentView extends React.Component {
                   }
                 }
                 return (
-                  <Grid item xs={details.width}>
-                    <Grid container spacing={0}>
-                      <Grid item xs={4}>
-                        <h3 class="element-header">
-                          {details.field_name.toUpperCase()}
-                        </h3>
-                      </Grid>
-                      <Grid item xs={12}>
-                        <Datetime
-                          margin="normal"
-                          defaultValue={new Date()}
-                          onChange={(e) =>
-                            this.handleChange(currentKey, e.toDate())
-                          }
-                          style={{ width: '100%' }}
-                        />
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                );
-              }
-              if (details.control == 'textEditor') {
-                return (
-                  <Grid item xs={details.width}>
-                    <h3 class="element-header">
-                      {details.field_name.toUpperCase()}
-                    </h3>
-                    <input
-                      placeholder="Enter value here"
-                      onChange={(e) =>
-                        this.handleChange(currentKey, e.target.value)
-                      }
-                      type="text"
-                      style={{ width: '100%' }}
-                    />
-                  </Grid>
-                );
-              } else if (details.control == 'richTextEditor') {
-                const modules = {
-                  toolbar: {
-                    container: [
-                      [{ font: [] }, { size: [] }],
-                      ['bold', 'italic', 'underline', 'strike'],
-                      [{ color: [] }, { background: [] }],
-                      [{ script: 'super' }, { script: 'sub' }],
-                      [
-                        { header: '1' },
-                        { header: '2' },
-                        'blockquote',
-                        'code-block',
-                      ],
-                      [
-                        { list: 'ordered' },
-                        { list: 'bullet' },
-                        { indent: '-1' },
-                        { indent: '+1' },
-                      ],
-                      ['direction', { align: [] }],
-                      ['link', 'image', 'video', 'formula'],
-                      ['clean'],
-                    ],
-                    handlers: {
-                      image: this.imageHandler,
-                    },
-                  },
-                  clipboard: {
-                    matchVisual: false,
-                  },
-                };
-                if (quillURL.length > 0) {
-                  const quill = quillRef.getEditor();
-                  quill.insertEmbed(quillIndex, 'image', quillURL);
-                  quillURL = '';
-                }
-                return (
-                  <Grid item xs={details.width}>
-                    <h3 class="element-header">
-                      {details.field_name.toUpperCase()}
-                    </h3>
-                    <div class="quill-container">
-                      <ReactQuill
-                        ref={(el) => {
-                          quillRef = el;
-                        }}
-                        modules={modules}
-                        onChange={(e) => this.handleChange(currentKey, e)}
-                        style={{ clear: 'both', height: 400, marginBottom: 40 }}
-                      />
-                    </div>
-                    <Hidden mdUp implementation="css">
-                      <div style={{ height: 50 }} />
-                    </Hidden>
-                    <Hidden smUp implementation="css">
-                      <div style={{ height: 20 }} />
-                    </Hidden>
-                  </Grid>
+                  <DateTimePicker width = {details.width} field_name = {details.field_name} defaultValue = {new Date} handleChange = {this.handleChange} currentKey = {currentKey} />
                 );
               } else if (details.control == 'numberEditor') {
                 return (
-                  <Grid item xs={details.width}>
-                    <h3 class="element-header">
-                      {details.field_name.toUpperCase()}
-                    </h3>
-                    <input
-                      placeholder="Enter value here"
-                      onChange={(e) =>
-                        this.handleChange(currentKey, parseInt(e.target.value))
-                      }
-                      type="number"
-                      style={{ width: '100%' }}
-                    />
-                  </Grid>
+                  <NumberEditor width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} />
+                );
+              } else if (details.control == 'richTextEditor') {
+                return (
+                  <RichTextEditor width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} imageHandler = {this.imageHandler} setQuillRef = {this.setQuillRef} setQuillIndex = {this.setQuillIndex} setQuillURL = {this.setQuillURL} index = {quillIndex} quillRef = {quillRef} url = {quillURL} />
+                );
+              } else if (details.control == 'booleanSelect') {
+                return (
+                  <BooleanSelect width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} />
                 );
               } else if (details.control == 'position') {
+                if (initLoad) {
+                  initPos = tempDocument[currentKey];
+                  posArr[details.field_name] = tempDocument[currentKey];
+                }
                 return (
-                  <Grid item xs={details.width}>
-                    <h3 class="element-header">
-                      {details.field_name.toUpperCase()}
-                    </h3>
-                    <input
-                      value="Auto generated on publish"
-                      readonly
-                      style={{ width: '100%' }}
-                    />
-                  </Grid>
+                  <Position width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} draft = {this.state.draft} position = {this.state.position} />
                 );
               } else if (details.control == 'imageReference') {
                 const url = fileRefs[details.field_name];
-                if (url === undefined || url === '') {
-                  return (
-                    <Grid item xs={details.width}>
-                      <h3 class="element-header">
-                        {details.field_name.toUpperCase()}
-                      </h3>
-                      <Button
-                        style={{ width: '100%' }}
-                        variant="contained"
-                        color="primary"
-                        onClick={(e) =>
-                          this.openSelector('ref', details.field_name)
-                        }
-                      >
-                        Select File
-                      </Button>
-                    </Grid>
-                  );
-                } else {
-                  return (
-                    <Grid item xs={details.width}>
-                      <h3 class="element-header">
-                        {details.field_name.toUpperCase()}
-                      </h3>
-                      <div class="image-container">
-                        <img
-                          src={url}
-                          style={{ maxHeight: 500, maxWidth: '100%' }}
-                        />
-                      </div>
-                      <div>
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          style={{ minWidth: 100, marginRight: 20 }}
-                          onClick={(e) =>
-                            this.openSelector('ref', details.field_name)
-                          }
-                        >
-                          Select
-                        </Button>
-                        <Button
-                          variant="contained"
-                          color="secondary"
-                          style={{ minWidth: 100, marginLeft: 20 }}
-                          onClick={(e) => this.removeFile(details.field_name)}
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                    </Grid>
-                  );
-                }
+                return (
+                  <ImageReference width = {details.width} field_name = {details.field_name} url = {url} openSelector = {this.openSelector} removeFile = {this.removeFile} />
+                );
               } else if (details.control == 'imageURL') {
                 const url = fileRefs[details.field_name];
-                if (url === undefined || url === '') {
-                  return (
-                    <Grid item xs={details.width}>
-                      <h3 class="element-header">
-                        {details.field_name.toUpperCase()}
-                      </h3>
-                      <Button
-                        style={{ width: '100%' }}
-                        variant="contained"
-                        color="primary"
-                        onClick={(e) =>
-                          this.openSelector('url', details.field_name)
-                        }
-                      >
-                        Select File
-                      </Button>
-                    </Grid>
-                  );
-                } else {
-                  return (
-                    <Grid item xs={details.width}>
-                      <h3 class="element-header">
-                        {details.field_name.toUpperCase()}
-                      </h3>
-                      <div class="image-container">
-                        <img
-                          src={url}
-                          style={{ maxHeight: 500, maxWidth: '100%' }}
-                        />
-                      </div>
-                      <div>
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          style={{ minWidth: 100, marginRight: 20 }}
-                          onClick={(e) =>
-                            this.openSelector('url', details.field_name)
-                          }
-                        >
-                          Select
-                        </Button>
-                        <Button
-                          variant="contained"
-                          color="secondary"
-                          style={{ minWidth: 100, marginLeft: 20 }}
-                          onClick={(e) => this.removeFile(details.field_name)}
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                    </Grid>
-                  );
-                }
+                return (
+                  <ImageURL width = {details.width} field_name = {details.field_name} url = {url} openSelector = {this.openSelector} removeFile = {this.removeFile} />
+                );
               } else if (details.control == 'videoReference') {
                 const url = fileRefs[details.field_name];
-                if (url === undefined || url === '') {
-                  return (
-                    <Grid item xs={details.width}>
-                      <h3 class="element-header">
-                        {details.field_name.toUpperCase()}
-                      </h3>
-                      <Button
-                        style={{ width: '100%' }}
-                        variant="contained"
-                        color="primary"
-                        onClick={(e) =>
-                          this.openSelector('ref', details.field_name)
-                        }
-                      >
-                        Select File
-                      </Button>
-                    </Grid>
-                  );
-                } else {
-                  return (
-                    <Grid item xs={details.width}>
-                      <h3 class="element-header">
-                        {details.field_name.toUpperCase()}
-                      </h3>
-                      <video
-                        style={{ width: '100%', marginBottom: 15 }}
-                        id="background-video"
-                        loop
-                        autoPlay
-                      >
-                        <source src={url} type="video/mp4" />
-                        Your browser does not support the video tag.
-                      </video>
-                      <div>
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          style={{ minWidth: 100, marginRight: 20 }}
-                          onClick={(e) =>
-                            this.openSelector('ref', details.field_name)
-                          }
-                        >
-                          Select
-                        </Button>
-                        <Button
-                          variant="contained"
-                          color="secondary"
-                          style={{ minWidth: 100, marginLeft: 20 }}
-                          onClick={(e) => this.removeFile(details.field_name)}
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                    </Grid>
-                  );
-                }
+                return (
+                  <VideoReference width = {details.width} field_name = {details.field_name} url = {url} openSelector = {this.openSelector} removeFile = {this.removeFile} />
+                );
               } else if (details.control == 'videoURL') {
                 const url = fileRefs[details.field_name];
-                if (url === undefined || url === '') {
-                  return (
-                    <Grid item xs={details.width}>
-                      <h3 class="element-header">
-                        {details.field_name.toUpperCase()}
-                      </h3>
-                      <Button
-                        style={{ width: '100%' }}
-                        variant="contained"
-                        color="primary"
-                        onClick={(e) =>
-                          this.openSelector('url', details.field_name)
-                        }
-                      >
-                        Select File
-                      </Button>
-                    </Grid>
-                  );
-                } else {
-                  return (
-                    <Grid item xs={details.width}>
-                      <h3 class="element-header">
-                        {details.field_name.toUpperCase()}
-                      </h3>
-                      <video
-                        style={{ width: '100%', marginBottom: 15 }}
-                        id="background-video"
-                        loop
-                        autoPlay
-                      >
-                        <source src={url} type="video/mp4" />
-                        Your browser does not support the video tag.
-                      </video>
-                      <div>
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          style={{ minWidth: 100, marginRight: 20 }}
-                          onClick={(e) =>
-                            this.openSelector('url', details.field_name)
-                          }
-                        >
-                          Select
-                        </Button>
-                        <Button
-                          variant="contained"
-                          color="secondary"
-                          style={{ minWidth: 100, marginLeft: 20 }}
-                          onClick={(e) => this.removeFile(details.field_name)}
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                    </Grid>
-                  );
-                }
-              } else {
                 return (
-                  <Grid item xs={details.width}>
-                    <h3 class="element-header">
-                      {details.field_name.toUpperCase()}
-                    </h3>
-                    <input
-                      placeholder="Enter value here"
-                      onChange={(e) =>
-                        this.handleChange(currentKey, e.target.value)
-                      }
-                      type="text"
-                      style={{ width: '100%' }}
-                    />
-                  </Grid>
+                  <VideoURL width = {details.width} field_name = {details.field_name} url = {url} openSelector = {this.openSelector} removeFile = {this.removeFile} />
                 );
               }
             }
@@ -1553,5 +991,4 @@ class DocumentView extends React.Component {
     );
   }
 }
-const condition = (authUser) => authUser != null;
 export default DocumentView;
