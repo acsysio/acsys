@@ -14,10 +14,10 @@ class Config {
 
       db.serialize(async function () {
         await db.run(
-          'CREATE TABLE IF NOT EXISTS configuration (type TEXT, config TEXT)'
+          'CREATE TABLE IF NOT EXISTS prmths_configuration (type TEXT, config TEXT)'
         );
         await db.run(
-          'CREATE TABLE IF NOT EXISTS storeconfig (type TEXT, config TEXT)'
+          'CREATE TABLE IF NOT EXISTS prmths_storeconfig (type TEXT, config TEXT)'
         );
       });
       resolve(true);
@@ -27,10 +27,10 @@ class Config {
   setConfig(databaseType, projectName, config) {
     return new Promise((resolve, reject) => {
       db.serialize(async function () {
-        await db.run('DELETE FROM configuration');
+        await db.run('DELETE FROM prmths_configuration');
 
         const stmt = await db.prepare(
-          'INSERT INTO configuration VALUES (?, ?)'
+          'INSERT INTO prmths_configuration VALUES (?, ?)'
         );
 
         if (databaseType === 'sqlite') {
@@ -49,7 +49,7 @@ class Config {
   getConfig() {
     return new Promise((resolve, reject) => {
       db.serialize(async function () {
-        const sql = 'SELECT * FROM configuration';
+        const sql = 'SELECT * FROM prmths_configuration';
         await db.all(sql, [], (err, rows) => {
           if (rows.length > 0) {
             if (rows[0].config.length > 0) {
@@ -68,7 +68,10 @@ class Config {
   getDatabaseType() {
     return new Promise((resolve, reject) => {
       db.serialize(async function () {
-        await db.each('SELECT * FROM configuration', function (err, row) {
+        await db.each('SELECT * FROM prmths_configuration', function (
+          err,
+          row
+        ) {
           if (row.config.length > 0) {
             resolve(row.type);
           } else {
@@ -82,8 +85,10 @@ class Config {
   setStorageConfig(config) {
     return new Promise((resolve, reject) => {
       db.serialize(async function () {
-        await db.run("DELETE FROM storeconfig WHERE type = 'gcp'");
-        const stmt = await db.prepare('INSERT INTO storeconfig VALUES (?, ?)');
+        await db.run("DELETE FROM prmths_storeconfig WHERE type = 'gcp'");
+        const stmt = await db.prepare(
+          'INSERT INTO prmths_storeconfig VALUES (?, ?)'
+        );
         stmt.run('gcp', JSON.stringify(config));
         stmt.finalize();
         resolve(true);
@@ -94,7 +99,7 @@ class Config {
   loadStorageConfig() {
     return new Promise((resolve, reject) => {
       db.serialize(async function () {
-        await db.each('SELECT * FROM storeconfig', function (err, row) {
+        await db.each('SELECT * FROM prmths_storeconfig', function (err, row) {
           if (row.config.length > 0) {
             resolve(row.config);
           } else {
@@ -108,7 +113,7 @@ class Config {
   getStorageType() {
     return new Promise((resolve, reject) => {
       db.serialize(async function () {
-        const sql = 'SELECT * FROM storeconfig';
+        const sql = 'SELECT * FROM prmths_storeconfig';
         await db.all(sql, [], (err, rows) => {
           if (rows.length > 0) {
             if (rows[0].config.length > 0) {

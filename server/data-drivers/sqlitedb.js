@@ -50,7 +50,7 @@ class SqliteDriver {
 
   getProjectName() {
     return new Promise(async (resolve, reject) => {
-      const query = 'SELECT CONFIG FROM CONFIGURATION LIMIT 1';
+      const query = 'SELECT CONFIG FROM PRMTHS_CONFIGURATION LIMIT 1';
       await db.all(query, [], (error, rows) => {
         if (rows === undefined) {
           resolve('');
@@ -85,8 +85,6 @@ class SqliteDriver {
         }
 
         const sql = `INSERT INTO PRMTHS_USERS VALUES (${placeholders})`;
-
-        console.log(sql);
 
         db.run(sql, function (err) {
           if (err) {
@@ -265,22 +263,6 @@ class SqliteDriver {
         }
         resolve();
       });
-
-      // let counter = num + 1;
-      // const query = db.collection(collectionName);
-      // query
-      //   .where(field, '>=', start)
-      //   .get()
-      //   .then((snapshot) => {
-      //     snapshot.forEach((doc) => {
-      //       const data = doc.data();
-      //       data[field] = counter;
-      //       db.collection(collectionName).doc(doc.id).update(data);
-      //       counter++;
-      //     });
-      //     resolve(true);
-      //   })
-      //   .catch(reject);
     });
   }
 
@@ -305,7 +287,6 @@ class SqliteDriver {
                     console.log(err);
                   });
                 });
-                console.log(sql);
                 newPos++;
               }
             }
@@ -318,7 +299,6 @@ class SqliteDriver {
                   console.log(err);
                 });
               });
-              console.log(sql);
               newPos++;
             }
           }
@@ -360,8 +340,6 @@ class SqliteDriver {
 
       let sql = `CREATE TABLE ${tableName} (${placeholders})`;
 
-      console.log(sql);
-
       db.run(sql, function (err) {
         if (err) {
           console.log(err);
@@ -388,8 +366,6 @@ class SqliteDriver {
         }
 
         sql = `INSERT INTO ${tableName} VALUES (${placeholders})`;
-
-        console.log(sql);
 
         db.run(sql, function (err) {
           if (err) {
@@ -431,7 +407,6 @@ class SqliteDriver {
 
   lockTable(table) {
     return new Promise(async (resolve, reject) => {
-      console.log(table, ' igloo');
       const query = `DELETE FROM prmths_open_tables WHERE TABLE_NAME = '${table}'`;
       await db.all(query, [], (error) => {
         console.log('legror ', error);
@@ -444,70 +419,42 @@ class SqliteDriver {
     });
   }
 
-  getPage(collectionName, condition) {
+  getPage(table, condition) {
     return new Promise(async (resolve, reject) => {
       const options = JSON.parse(condition);
-      let query = db.collection(collectionName);
-      let pivot = db.collection(collectionName);
+      let query = `SELECT * FROM ${table} `;
 
       if (options) {
-        if (options.where !== undefined && options.where) {
-          options.where.forEach((tuple) => {
-            try {
-              if (tuple[1] == '=') {
-                tuple[1] = '==';
-              }
-              pivot = pivot.where(tuple[0], tuple[1], tuple[2]);
-            } catch (error) {}
-          });
-        }
-
         if (options.orderBy !== undefined && options.orderBy) {
           options.orderBy.forEach((orderBy) => {
             if (orderBy !== undefined && orderBy.length > 0) {
               if (options.order) {
-                query = query.orderBy(orderBy, options.order);
+                query += `ORDER BY ${orderBy} ${options.order} `;
               } else {
-                query = query.orderBy(orderBy);
+                query += `ORDER BY ${orderBy} `;
               }
             }
           });
         }
 
         if (options.direction === 'next') {
-          var tempDoc;
-          await pivot.get().then((snapshot) => {
-            snapshot.forEach((doc) => {
-              tempDoc = doc;
-            });
-          });
-          query = query.startAfter(tempDoc);
-          query = query.limit(options.limit);
+          const offset = options.currentPage * options.limit;
+          query += `LIMIT ${offset},${options.limit}`;
         }
 
         if (options.direction === 'prev') {
-          var tempDoc;
-          await pivot.get().then((snapshot) => {
-            snapshot.forEach((doc) => {
-              tempDoc = doc;
-            });
-          });
-          query = query.endBefore(tempDoc);
-          query = query.limitToLast(options.limit);
+          const offset = (options.currentPage - 2) * options.limit + 1;
+          query += `LIMIT ${offset},${options.limit}`;
         }
       }
-      query
-        .get()
-        .then((snapshot) => {
-          const objects = [];
-          snapshot.forEach((doc) => {
-            objects.push(doc.data());
-          });
-          resolve(objects);
-        })
-        .catch((error) => {
-          resolve(error);
-        });
+      await db.all(query, [], (error, rows) => {
+        if (rows === undefined || error) {
+          console.log(error);
+          resolve([]);
+        } else {
+          resolve(rows);
+        }
+      });
     });
   }
 
@@ -556,7 +503,7 @@ class SqliteDriver {
         }
 
         if (options.limit !== undefined && options.limit) {
-          query += `LIMIT ${options.limit}`;
+          query += `LIMIT 0,${options.limit}`;
         }
       }
       await db.all(query, [], (error, rows) => {
@@ -598,8 +545,6 @@ class SqliteDriver {
 
         const sql = `INSERT INTO ${table} VALUES (${placeholders})`;
 
-        console.log(sql);
-
         db.run(sql, function (err) {
           if (err) {
             console.log(err);
@@ -613,7 +558,6 @@ class SqliteDriver {
 
   update(collectionName, data, options) {
     return new Promise((resolve, reject) => {
-      console.log(data);
       db.serialize(async function () {
         const updateData = Object.values(data);
 
@@ -658,8 +602,6 @@ class SqliteDriver {
             } catch (error) {}
           });
         }
-
-        console.log(query);
 
         db.run(query, function (err) {
           if (err) {

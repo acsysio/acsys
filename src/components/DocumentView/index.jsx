@@ -410,7 +410,7 @@ class DocumentView extends React.Component {
     this.setState({ filterLoading: true });
 
     for (var i = 0; i < tempDetails.length; i++) {
-      tempDetails[i].order = i;
+      tempDetails[i].viewOrder = i;
       const result = await Prom.updateData(
         'prmths_document_details',
         { ...tempDetails[i] },
@@ -509,7 +509,7 @@ class DocumentView extends React.Component {
     let keys = [];
     let position = 0;
     try {
-      documentDetails.sort((a, b) => (a.order > b.order ? 1 : -1));
+      documentDetails.sort((a, b) => (a.viewOrder > b.viewOrder ? 1 : -1));
       tempDetails = documentDetails;
 
       if (mode === 'update') {

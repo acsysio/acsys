@@ -803,7 +803,8 @@ export const getPage = async (
   limit,
   orderBy,
   order,
-  direction
+  direction,
+  currentPage
 ) => {
   await checkToken();
   return new Promise((resolve, reject) => {
@@ -813,6 +814,7 @@ export const getPage = async (
       orderBy,
       order,
       direction,
+      currentPage,
     })}`;
     promFetch(apiString, {
       method: 'GET',

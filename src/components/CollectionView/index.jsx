@@ -243,9 +243,10 @@ class CollectionView extends React.Component {
       tempDetails[0].collection,
       keys,
       rowNum,
-      this.state.order,
+      this.state.viewOrder,
       this.state.orderDir,
-      'prev'
+      'prev',
+      this.state.page,
     );
     this.setState({
       loading: false,
@@ -258,7 +259,7 @@ class CollectionView extends React.Component {
       tempDetails[0].collection,
       keys,
       rowNum,
-      this.state.order,
+      this.state.viewOrder,
       this.state.orderDir
     );
     this.context.setPageDirection('prev');
@@ -281,9 +282,10 @@ class CollectionView extends React.Component {
       tempDetails[0].collection,
       keys,
       rowNum,
-      this.state.order,
+      this.state.viewOrder,
       this.state.orderDir,
-      'next'
+      'next',
+      this.state.page,
     );
     this.setState({
       loading: false,
@@ -296,7 +298,7 @@ class CollectionView extends React.Component {
       tempDetails[0].collection,
       keys,
       rowNum,
-      this.state.order,
+      this.state.viewOrder,
       this.state.orderDir
     );
     this.context.setPageDirection('next');
@@ -417,7 +419,8 @@ class CollectionView extends React.Component {
             this.context.getRowsPerPage(),
             this.context.getOrder(),
             this.context.getDirection(),
-            this.context.getPageDirection()
+            this.context.getPageDirection(),
+            this.context.getPage()
           );
           page = this.context.getPage();
         } else {
