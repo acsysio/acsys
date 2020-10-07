@@ -291,7 +291,6 @@ class SqliteDriver {
               }
             }
             if (row.id === data.id) {
-              // db.collection('prmths_logical_content').doc(doc.id).update(data);
             } else {
               const sql = `UPDATE PRMTHS_LOGICAL_CONTENT SET POSITION = ${newPos} WHERE ID = '${row.id}'`;
               db.serialize(async function () {
@@ -386,7 +385,6 @@ class SqliteDriver {
           const sql = `INSERT INTO prmths_open_tables VALUES ('${data.table_name}')`;
           db.run(sql, function (err) {
             if (err) {
-              console.log(err);
               resolve(false);
             }
             resolve(true);
@@ -395,7 +393,6 @@ class SqliteDriver {
           const sql = `UPDATE prmths_open_tables SET TABLE_NAME = ${data.table_name}`;
           db.run(sql, function (err) {
             if (err) {
-              console.log(err);
               resolve(false);
             }
             resolve(true);
@@ -409,7 +406,6 @@ class SqliteDriver {
     return new Promise(async (resolve, reject) => {
       const query = `DELETE FROM prmths_open_tables WHERE TABLE_NAME = '${table}'`;
       await db.all(query, [], (error) => {
-        console.log('legror ', error);
         if (error) {
           resolve(false);
         } else {
@@ -615,58 +611,46 @@ class SqliteDriver {
   }
 
   deleteDocs(collectionName, options) {
-    return new Promise((resolve, reject) => {
-      let query;
-      // START -- construct collection reference
-      query = db.collection(collectionName);
+    return new Promise(async (resolve, reject) => {
+      let query = `DELETE FROM ${collectionName} `;
       if (options) {
-        if (options[0][0]) {
-          options.forEach((tuple) => {
-            try {
-              if (tuple[1] == '=') {
-                tuple[1] = '==';
-              }
-              query = query.where(tuple[0], tuple[1], tuple[2]);
-            } catch (error) {}
-          });
-        }
+        query += `WHERE `;
+        options.forEach((tuple, index) => {
+          try {
+            let value = '';
+            if (typeof tuple[2] === 'string') {
+              value = `'${tuple[2]}'`;
+            } else {
+              value = tuple[2];
+            }
+            if (index === 0) {
+              query += `${tuple[0]} ${tuple[1]} ${value} `;
+            } else {
+              query += `AND ${tuple[0]} ${tuple[1]} ${value} `;
+            }
+          } catch (error) {}
+        });
       }
-
-      // END -- construct collection reference
-      query
-        .get()
-        .then((snapshot) => {
-          const objects = [];
-
-          snapshot.forEach((doc) => {
-            db.collection(collectionName)
-              .doc(doc.id)
-              .delete()
-              .then(() => resolve(true))
-              .catch(() => reject(false));
-          });
-          resolve();
-        })
-        .catch(reject);
+      await db.all(query, [], (error) => {
+        if (error) {
+          resolve(false);
+        } else {
+          resolve(true);
+        }
+      });
     });
   }
 
   checkOpenTable(collectionName) {
-    return new Promise((resolve, reject) => {
-      let query;
-      query = db.collection('prmths_open_tables');
-      query = query.where('table', '==', collectionName);
-      query
-        .get()
-        .then((snapshot) => {
-          snapshot.forEach((doc) => {
-            resolve(true);
-          });
+    return new Promise(async (resolve, reject) => {
+      const query = `SELECT * FROM prmths_open_tables WHERE TABLE_NAME = '${collectionName}'`;
+      await db.all(query, [], (error, rows) => {
+        if (rows === undefined || error) {
           resolve(false);
-        })
-        .catch((error) => {
-          resolve(false);
-        });
+        } else {
+          resolve(true);
+        }
+      });
     });
   }
 }
