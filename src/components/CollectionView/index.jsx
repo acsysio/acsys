@@ -11,6 +11,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  Tooltip,
 } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
@@ -600,48 +601,54 @@ class CollectionView extends React.Component {
           })}
           <TableCell align="right" style={{ minWidth: 100 }}>
             {tableKeys.length > 0 ? (
-              <IconButton
-                edge="start"
-                color="inherit"
-                aria-label="edit"
-                to={{
-                  pathname: '/DocumentView',
-                  state: {
-                    mode: 'update',
-                    isRemovable: isRemovable,
-                    tableKeys: tableKeys[rowIndex],
-                    routed: false,
-                    viewId: documentDetails[0].contentId,
-                  },
-                }}
-                component={Link}
-                style={{ marginRight: 10 }}
-              >
-                <CreateIcon />
-              </IconButton>
+              <Tooltip title="Edit Entry">
+                <IconButton
+                  edge="start"
+                  color="inherit"
+                  aria-label="edit"
+                  to={{
+                    pathname: '/DocumentView',
+                    state: {
+                      mode: 'update',
+                      isRemovable: isRemovable,
+                      tableKeys: tableKeys[rowIndex],
+                      routed: false,
+                      viewId: documentDetails[0].contentId,
+                    },
+                  }}
+                  component={Link}
+                  style={{ marginRight: 10 }}
+                >
+                  <CreateIcon />
+                </IconButton>
+              </Tooltip>
             ) : (
-              <IconButton
-                edge="start"
-                color="inherit"
-                aria-label="edit"
-                onClick={() => this.openKeyMessage()}
-                style={{ marginRight: 10 }}
-              >
-                <CreateIcon />
-              </IconButton>
+              <Tooltip title="Edit Entry">
+                <IconButton
+                  edge="start"
+                  color="inherit"
+                  aria-label="edit"
+                  onClick={() => this.openKeyMessage()}
+                  style={{ marginRight: 10 }}
+                >
+                  <CreateIcon />
+                </IconButton>
+              </Tooltip>
             )}
             {Prom.getMode() !== 'Viewer' && isRemovable ? (
-              <IconButton
-                edge="start"
-                color="inherit"
-                aria-label="delete"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  this.handleClickOpen(rowIndex);
-                }}
-              >
-                <DeleteIcon />
-              </IconButton>
+              <Tooltip title="Delete Entry">
+                <IconButton
+                  edge="start"
+                  color="inherit"
+                  aria-label="delete"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    this.handleClickOpen(rowIndex);
+                  }}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </Tooltip>
             ) : (
               <div />
             )}
@@ -790,60 +797,68 @@ class CollectionView extends React.Component {
                   </Typography>
                 </Grid>
                 <Grid item>
-                  <NativeSelect
-                    onChange={(e) =>
-                      this.handleViewChange('true' == e.target.value)
-                    }
-                  >
-                    <option value={true}>Published</option>
-                    <option value={false}>Draft</option>
-                  </NativeSelect>
+                  <Tooltip title="Choose Between Published Or Draft Rows">
+                    <NativeSelect
+                      onChange={(e) =>
+                        this.handleViewChange('true' == e.target.value)
+                      }
+                    >
+                      <option value={true}>Published</option>
+                      <option value={false}>Draft</option>
+                    </NativeSelect>
+                  </Tooltip>
                 </Grid>
 
                 {Prom.getMode() === 'Administrator' ? (
                   <Grid item>
-                    <Button
-                      onClick={this.handleDetailOpen}
-                      variant="contained"
-                      color="primary"
-                    >
-                      Field Controls
-                    </Button>
+                    <Tooltip title="Change How Data Is Presented">
+                      <Button
+                        onClick={this.handleDetailOpen}
+                        variant="contained"
+                        color="primary"
+                      >
+                        Field Controls
+                      </Button>
+                    </Tooltip>
                   </Grid>
                 ) : (
                   <div />
                 )}
                 {Prom.getMode() === 'Administrator' ? (
                   <Grid item>
-                    <Button
-                      onClick={this.handleViewOpen}
-                      variant="contained"
-                      color="primary"
-                    >
-                      View Settings
-                    </Button>
+                    <Tooltip title="Change How Data Is Organized">
+                      <Button
+                        onClick={this.handleViewOpen}
+                        variant="contained"
+                        color="primary"
+                      >
+                        View Settings
+                      </Button>
+                    </Tooltip>
                   </Grid>
                 ) : (
                   <div />
                 )}
                 <Grid item>
                   {Prom.getMode() !== 'Viewer' && isRemovable ? (
-                    <Button
-                      to={{
-                        pathname: '/DocumentView',
-                        state: {
-                          mode: 'add',
-                          tableKeys: tempKeys[0],
-                          routed: false,
-                          viewId: projectId,
-                        },
-                      }}
-                      component={Link}
-                      variant="contained"
-                      color="primary"
-                    >
-                      New Entry
-                    </Button>
+                    <Tooltip title="Add New Entry To Table">
+                      <Button
+                        to={{
+                          pathname: '/DocumentView',
+                          state: {
+                            mode: 'add',
+                            tableKeys: tempKeys[0],
+                            routed: false,
+                            viewId: projectId,
+                          },
+                        }}
+                        component={Link}
+                        variant="contained"
+                        color="primary"
+                      >
+                        New Entry
+                      </Button>
+                    </Tooltip>
                   ) : (
                     <div />
                   )}

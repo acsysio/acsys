@@ -24,7 +24,7 @@ class Config {
     });
   }
 
-  setConfig(databaseType, projectName, config) {
+  setConfig(databaseType, projectName) {
     return new Promise((resolve, reject) => {
       db.serialize(async function () {
         await db.run('DELETE FROM prmths_configuration');
@@ -36,7 +36,7 @@ class Config {
         if (databaseType === 'sqlite') {
           stmt.run('sqlite', projectName);
         } else if (databaseType === 'firestore') {
-          stmt.run('firestore', JSON.stringify(config));
+          stmt.run('firestore', projectName);
         }
 
         stmt.finalize();
@@ -89,7 +89,7 @@ class Config {
         const stmt = await db.prepare(
           'INSERT INTO prmths_storeconfig VALUES (?, ?)'
         );
-        stmt.run('gcp', JSON.stringify(config));
+        stmt.run('gcp', 'gcp storage');
         stmt.finalize();
         resolve(true);
       });

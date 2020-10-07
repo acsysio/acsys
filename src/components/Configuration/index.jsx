@@ -5,6 +5,7 @@ import {
   Container,
   Grid,
   NativeSelect,
+  Link,
   Paper,
   Typography
 } from '@material-ui/core';
@@ -14,13 +15,8 @@ import * as Prom from '../../services/Prometheus/Prom';
 const INITIAL_STATE = {
   databaseType: 'Local',
   projectName: '',
-  apiKey: '',
-  authDomain: '',
-  databaseURL: '',
-  projectId: '',
-  storageBucket: '',
-  messagingSenderId: '',
-  appId: '',
+  uploadFile: '',
+  fileName: '',
   measurementId: '',
   loading: false,
   error: null,
@@ -38,6 +34,12 @@ class Configuration extends Component {
       databaseType: type
     });
   }
+  setRef = (ref) => {
+    this.setState({
+      fileName: ref.target.files[0].name,
+      uploadFile: ref.target.files[0],
+    });
+  };
 
   onKeyDownSI = (event) => {
     if (event.key === 'Enter') {
@@ -48,42 +50,48 @@ class Configuration extends Component {
   };
 
   onSubmit = async (event) => {
-    const {
-      databaseType,
-      projectName,
-      apiKey,
-      authDomain,
-      databaseURL,
-      projectId,
-      measurementId,
-    } = this.state;
+    try {
+      const {
+        databaseType,
+        projectName,
+      } = this.state;
 
-    this.setState({ loading: true });
-
-    const config = {
-      databaseType: databaseType,
-      projectName: projectName,
-      apiKey: apiKey,
-      authDomain: authDomain,
-      databaseURL: databaseURL,
-      projectId: projectId,
-      measurementId: measurementId,
-    };
-
-    if (databaseType === 'Local' && projectName.length < 1) {
       this.setState({
-        loading: false,
-        message: 'Please enter a project name.'
-      })
-    }
-    else {
-      await Prom.setInitialDatabaseConfig(config).then(async (json) => {
-        await this.sleep(5000);
+        loading: true,
+      });
+
+      if (databaseType === 'Local' && projectName.length < 1) {
+        this.setState({
+          loading: false,
+          message: 'Please enter a project name.'
+        })
+      }
+      else {
+        if (databaseType === 'Firestore') {
+          await Prom.setInitialFirestoreConfig(
+            this.state.uploadFile
+          );
+        }
+        else {
+          await Prom.setInitialLocalDatabaseConfig(
+            databaseType,
+            projectName
+          );
+        }
         await this.sleep(5000);
         window.location.reload();
+        this.setState({
+          loading: false,
+        });
+      }
+    } 
+    catch (error) {
+      await this.sleep(5000);
+      window.location.reload();
+      this.setState({
+        loading: false,
       });
     }
-
     event.preventDefault();
   };
 
@@ -97,14 +105,10 @@ class Configuration extends Component {
 
   renderConfig() {
     const {
+      fileName,
       databaseType,
       message,
       projectName,
-      apiKey,
-      authDomain,
-      databaseURL,
-      projectId,
-      measurementId
      } = this.state;
 
     if (databaseType === 'Local') {
@@ -133,51 +137,33 @@ class Configuration extends Component {
     else if (databaseType === 'Firestore') {
       return (
         <div>
-          <input
-            id="apiKey"
-            name="apiKey"
-            placeholder="API Key"
-            defaultValue={apiKey}
-            onKeyDown={this.onKeyDownSI}
-            onChange={this.onChange}
-            style={{ marginTop: '20px', width: '96%' }}
-          />
-          <input
-            id="authDomain"
-            name="authDomain"
-            placeholder="Auth Domain"
-            defaultValue={authDomain}
-            onKeyDown={this.onKeyDownSI}
-            onChange={this.onChange}
-            style={{ marginTop: '20px', width: '96%' }}
-          />
-          <input
-            id="databaseURL"
-            name="databaseURL"
-            placeholder="Database URL"
-            defaultValue={databaseURL}
-            onKeyDown={this.onKeyDownSI}
-            onChange={this.onChange}
-            style={{ marginTop: '20px', width: '96%' }}
-          />
-          <input
-            id="projectId"
-            name="projectId"
-            placeholder="Project ID"
-            defaultValue={projectId}
-            onKeyDown={this.onKeyDownSI}
-            onChange={this.onChange}
-            style={{ marginTop: '20px', width: '96%' }}
-          />
-          <input
-            id="measurementId"
-            name="measurementId"
-            placeholder="Measurement ID"
-            defaultValue={measurementId}
-            onKeyDown={this.onKeyDownSI}
-            onChange={this.onChange}
-            style={{ marginTop: '20px', width: '96%' }}
-          />
+          <p>Upload JSON service account key file. Instructions for creating this file can be found <Link href="https://cloud.google.com/iam/docs/creating-managing-service-account-keys" target="_blank" color="primary" rel="noreferrer">here</Link>.</p>
+            <Grid container>
+              <Grid item xs={3}>
+                <input
+                  id="contained-button-file"
+                  type="file"
+                  style={{ display: 'none' }}
+                  onChange={this.setRef}
+                />
+                <label htmlFor="contained-button-file">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    component="span"
+                    style={{ height: 28}}
+                  >
+                    Upload
+                  </Button>
+                </label>
+              </Grid>
+              <Grid item xs={9}>
+                <input
+                  defaultValue={fileName}
+                  style={{ height: 19}}
+                />
+              </Grid>
+            </Grid>
         </div>
       );
     }

@@ -8,6 +8,8 @@ function jwt() {
       // public routes that don't require authentication
       '/api/hasAdmin',
       '/api/register',
+      '/api/sendResetLink',
+      '/api/resetPassword',
       '/api/authenticate',
       '/api/isConnected',
       '/api/setInitialDatabaseConfig',

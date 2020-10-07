@@ -13,6 +13,7 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  Tooltip,
 } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
@@ -143,8 +144,9 @@ class LogicalContent extends React.Component {
         ['id', '=', tempView.id],
       ]);
     } else {
+      const oldPosition = tempView['position'];
       tempView['position'] = position;
-      await Prom.repositionViews(tempView, position);
+      await Prom.repositionViews(tempView, oldPosition, position);
       await this.sleep(1000);
     }
     const currentView = await Prom.getData('prmths_logical_content', [], '', [
@@ -317,23 +319,27 @@ class LogicalContent extends React.Component {
             )}
             {Prom.getMode() === 'Administrator' ? (
               <TableCell style={{ minWidth: 100 }} align="right">
-                <IconButton
-                  edge="start"
-                  color="inherit"
-                  aria-label="edit"
-                  onClick={() => this.handleEditOpen(views)}
-                  style={{ marginRight: 10 }}
-                >
-                  <CreateIcon />
-                </IconButton>
-                <IconButton
-                  edge="start"
-                  color="inherit"
-                  aria-label="delete"
-                  onClick={() => this.handleDeleteOpen(viewId)}
-                >
-                  <DeleteIcon />
-                </IconButton>
+                <Tooltip title="Edit View">
+                  <IconButton
+                    edge="start"
+                    color="inherit"
+                    aria-label="edit"
+                    onClick={() => this.handleEditOpen(views)}
+                    style={{ marginRight: 10 }}
+                  >
+                    <CreateIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Delete View">
+                  <IconButton
+                    edge="start"
+                    color="inherit"
+                    aria-label="delete"
+                    onClick={() => this.handleDeleteOpen(viewId)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Tooltip>
               </TableCell>
             ) : (
               <div />
@@ -386,13 +392,15 @@ class LogicalContent extends React.Component {
                       </Typography>
                     </Grid>
                     <Grid item>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={this.handleClickOpen}
-                      >
-                        Add View
-                      </Button>
+                      <Tooltip title="Add New View For Table">
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={this.handleClickOpen}
+                        >
+                          Add View
+                        </Button>
+                      </Tooltip>
                     </Grid>
                   </Grid>
                 ) : (

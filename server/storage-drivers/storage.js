@@ -12,14 +12,14 @@ class StorageDriver {
   initialize(database) {
     return new Promise((resolve) => {
       try {
-        fs.readFile('./prometheus.storage.config.json', 'utf8', function (
+        fs.readFile('./prometheus.service.config.json', 'utf8', function (
           err,
           data
         ) {
           if (err) {
             console.log(err);
           } else {
-            fs.realpath('./prometheus.storage.config.json', 'utf8', function (
+            fs.realpath('./prometheus.service.config.json', 'utf8', function (
               _error,
               path
             ) {
@@ -295,9 +295,12 @@ class StorageDriver {
           `https://storage.googleapis.com/${projectId}.appspot.com/${referenceName}`
         );
       } else {
+        const today = new Date();
+        const expires = new Date();
+        expires.setDate(today.getDate() + 1);
         url = await file.getSignedUrl({
           action: 'read',
-          expires: Date.now() * 999,
+          expires: expires.getTime(),
         });
         resolve(url[0]);
       }

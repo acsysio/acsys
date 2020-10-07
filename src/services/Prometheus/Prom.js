@@ -141,7 +141,13 @@ export const restart = async () => {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${Session.getToken()}`,
       },
-    });
+    })
+      .then(() => {
+        Session.logOut();
+      })
+      .catch(() => {
+        Session.logOut();
+      });
     resolve(true);
   });
 };
@@ -153,6 +159,33 @@ export const setInitialDatabaseConfig = async (config) => {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+      },
+      body: config,
+    })
+      .then((response) => {
+        Session.logOut();
+        if (response.statusText !== 'Unauthorized') {
+          response.json().then((json) => {
+            resolve(json.value);
+          });
+          resolve();
+        } else {
+          reject();
+        }
+      })
+      .catch(reject);
+  });
+};
+
+export const setEmailConfig = async (config) => {
+  await checkToken();
+  return new Promise((resolve, reject) => {
+    promFetch('/api/setEmailConfig', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Session.getToken()}`,
       },
       body: JSON.stringify(config),
     })
@@ -167,6 +200,38 @@ export const setInitialDatabaseConfig = async (config) => {
         }
       })
       .catch(reject);
+  });
+};
+
+export const getEmailConfig = async () => {
+  await checkToken();
+  return new Promise((resolve, reject) => {
+    promFetch('/api/getEmailConfig', {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Session.getToken()}`,
+      },
+    })
+      .then(async (response) => {
+        if (response.statusText !== 'Unauthorized') {
+          response
+            .json()
+            .then((json) => {
+              resolve(json);
+            })
+            .catch(() => {
+              resolve([]);
+            });
+        } else {
+          Session.logOut();
+          reject();
+        }
+      })
+      .catch(() => {
+        reject();
+      });
   });
 };
 
@@ -187,6 +252,7 @@ export const setDatabaseConfig = async (config) => {
           response.json().then((json) => {
             resolve(json.value);
           });
+          resolve();
         } else {
           Session.logOut();
           reject();
@@ -334,6 +400,55 @@ export const register = (username, email, password) => {
       .catch((response) => {
         resolve(false);
       });
+  });
+};
+
+export const sendResetLink = async (email) => {
+  return new Promise((resolve, reject) => {
+    promFetch('/api/sendResetLink', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    })
+      .then((response) => {
+        if (response.statusText !== 'Unauthorized') {
+          response.json().then((json) => {
+            resolve(json.message);
+          });
+        } else {
+          reject();
+        }
+      })
+      .catch(reject);
+  });
+};
+
+export const resetPassword = async (id, password) => {
+  return new Promise((resolve, reject) => {
+    promFetch('/api/resetPassword', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id,
+        password,
+      }),
+    })
+      .then((response) => {
+        if (response.statusText !== 'Unauthorized') {
+          response.json().then((json) => {
+            resolve(json.message);
+          });
+        } else {
+          reject();
+        }
+      })
+      .catch(reject);
   });
 };
 
@@ -677,7 +792,7 @@ export const increment = async (table, field, start, num) => {
   });
 };
 
-export const repositionViews = async (entry, position) => {
+export const repositionViews = async (entry, oldPosition, position) => {
   await checkToken();
   return new Promise((resolve, reject) => {
     promFetch('/api/repositionViews', {
@@ -689,6 +804,7 @@ export const repositionViews = async (entry, position) => {
       },
       body: JSON.stringify({
         entry,
+        oldPosition,
         position,
       }),
     })
