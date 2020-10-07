@@ -33,11 +33,7 @@ class Config {
           'INSERT INTO prmths_configuration VALUES (?, ?)'
         );
 
-        if (databaseType === 'sqlite') {
-          stmt.run('sqlite', projectName);
-        } else if (databaseType === 'firestore') {
-          stmt.run('firestore', projectName);
-        }
+        stmt.run(databaseType, projectName);
 
         stmt.finalize();
 

@@ -58,7 +58,6 @@ router.get('/hasAdmin', function (req, res) {
   data
     .getDocs('prmths_users', options)
     .then((result, reject) => {
-      console.log('maaaaaaaaaaaaaaaaaaaaaaaaarker');
       if (result.length > 0) {
         res.send((rData = { value: true }));
       } else {
