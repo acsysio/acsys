@@ -152,9 +152,40 @@ export const restart = async () => {
   });
 };
 
-export const setInitialDatabaseConfig = async (config) => {
+export const setInitialLocalDatabaseConfig = async (
+  databaseType,
+  projectName
+) => {
   return new Promise((resolve, reject) => {
-    promFetch('/api/setInitialDatabaseConfig', {
+    promFetch('/api/setInitialLocalDatabaseConfig', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        databaseType,
+        projectName,
+      }),
+    })
+      .then((response) => {
+        Session.logOut();
+        if (response.statusText !== 'Unauthorized') {
+          response.json().then((json) => {
+            resolve(json.value);
+          });
+          resolve();
+        } else {
+          reject();
+        }
+      })
+      .catch(reject);
+  });
+};
+
+export const setInitialFirestoreConfig = async (config) => {
+  return new Promise((resolve, reject) => {
+    promFetch('/api/setInitialFirestoreConfig', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
