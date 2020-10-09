@@ -81,9 +81,10 @@ class Settings extends React.Component {
         password: emailConfig[0].password,
       });
     }
+    const databaseType = await Prom.getDatabaseType();
     const databaseConfig = await Prom.getDatabaseConfig();
-
     this.setState({
+      databaseType: databaseType,
       type: databaseConfig.type,
       project_id: databaseConfig.project_id,
       private_key_id: databaseConfig.private_key_id,
@@ -171,6 +172,7 @@ class Settings extends React.Component {
 
   render() {
     const {
+      databaseType,
       host,
       port,
       username,
@@ -292,7 +294,7 @@ class Settings extends React.Component {
                         aria-controls="panel1a-content"
                         id="panel1a-header"
                       >
-                        <Typography>Database Configuration</Typography>
+                        <Typography>Database Configuration: {databaseType}</Typography>
                       </ExpansionPanelSummary>
                       <ExpansionPanelDetails>
                         <Box

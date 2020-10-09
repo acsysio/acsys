@@ -636,6 +636,28 @@ export const isConnected = () => {
   });
 };
 
+export const getDatabaseType = async () => {
+  await checkToken();
+  return new Promise((resolve, reject) => {
+    promFetch('/api/getDatabaseType', {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Session.getToken()}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        console.log(result);
+        resolve(result);
+      })
+      .catch((error) => {
+        resolve(false);
+      });
+  });
+};
+
 export const isStorageConnected = async () => {
   await checkToken();
   return new Promise((resolve, reject) => {

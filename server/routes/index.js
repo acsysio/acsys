@@ -49,6 +49,10 @@ router.get('/isConnected', function (req, res) {
   }
 });
 
+router.get('/getDatabaseType', function (req, res) {
+  res.json(dbType);
+});
+
 router.get('/hasAdmin', function (req, res) {
   const options = {
     where: [['role', '=', 'Administrator']],
