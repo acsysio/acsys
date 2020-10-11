@@ -13,7 +13,7 @@ import React, { Component } from 'react';
 import * as Prom from '../../services/Prometheus/Prom';
 
 const INITIAL_STATE = {
-  databaseType: 'Local',
+  databaseType: 'local',
   projectName: '',
   uploadFile: '',
   fileName: '',
@@ -60,21 +60,20 @@ class Configuration extends Component {
         loading: true,
       });
 
-      if (databaseType === 'Local' && projectName.length < 1) {
+      if (databaseType === 'local' && projectName.length < 1) {
         this.setState({
           loading: false,
           message: 'Please enter a project name.'
         })
       }
       else {
-        if (databaseType === 'Firestore') {
+        if (databaseType === 'firestore') {
           await Prom.setInitialFirestoreConfig(
             this.state.uploadFile
           );
         }
         else {
           await Prom.setInitialLocalDatabaseConfig(
-            databaseType,
             projectName
           );
         }
@@ -111,7 +110,7 @@ class Configuration extends Component {
       projectName,
      } = this.state;
 
-    if (databaseType === 'Local') {
+    if (databaseType === 'local') {
       return (
         <div>
           <input
@@ -134,7 +133,7 @@ class Configuration extends Component {
         </div>
       );
     }
-    else if (databaseType === 'Firestore') {
+    else if (databaseType === 'firestore') {
       return (
         <div>
           <p>Upload JSON service account key file. Instructions for creating this file can be found <Link href="https://cloud.google.com/iam/docs/creating-managing-service-account-keys" target="_blank" color="primary" rel="noreferrer">here</Link>.</p>
@@ -200,8 +199,8 @@ class Configuration extends Component {
                 onChange={(e) => this.setDatabase(e.target.value)}
                 style={{ marginTop: '20px' }}
               >
-                <option value={'Local'}>Local</option>
-                <option value={'Firestore'}>Firestore</option>
+                <option value={'local'}>Local</option>
+                <option value={'firestore'}>Firestore</option>
               </NativeSelect>
               {this.renderConfig()}
             </Box>

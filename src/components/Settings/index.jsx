@@ -88,6 +88,7 @@ class Settings extends React.Component {
     }
     const databaseType = await Prom.getDatabaseType();
     const databaseConfig = await Prom.getDatabaseConfig();
+    console.log(databaseConfig)
     if (databaseType === 'local') {
       this.setState({
         databaseType: databaseType,
@@ -129,6 +130,8 @@ class Settings extends React.Component {
 
   setDatabase = async () => {
     const {
+      databaseType,
+      project_name,
       type,
       project_id,
       private_key_id,
@@ -140,21 +143,31 @@ class Settings extends React.Component {
       auth_provider_x509_cert_url,
       client_x509_cert_url,
     } = this.state;
-
-    const config = {
-      type: type,
-      project_id: project_id,
-      private_key_id: private_key_id,
-      private_key: private_key,
-      client_email: client_email,
-      client_id: client_id,
-      auth_uri: auth_uri,
-      token_uri: token_uri,
-      auth_provider_x509_cert_url: auth_provider_x509_cert_url,
-      client_x509_cert_url: client_x509_cert_url,
-    };
-
-    await Prom.setDatabaseConfig(config);
+    if (databaseType === 'local' && project_name.length < 1) {
+    
+    }
+    else {
+      if (databaseType === 'firestore') {
+        const config = {
+          type: type,
+          project_id: project_id,
+          private_key_id: private_key_id,
+          private_key: private_key,
+          client_email: client_email,
+          client_id: client_id,
+          auth_uri: auth_uri,
+          token_uri: token_uri,
+          auth_provider_x509_cert_url: auth_provider_x509_cert_url,
+          client_x509_cert_url: client_x509_cert_url,
+        };
+        await Prom.setFirestoreConfig(config);
+      }
+      else {
+        await Prom.setLocalDatabaseConfig(
+          project_name
+        );
+      }
+    }
   };
 
   setConfig = async () => {
@@ -204,7 +217,7 @@ class Settings extends React.Component {
       auth_provider_x509_cert_url,
       client_x509_cert_url,
     } = this.state;
-    
+    console.log('muthafuffin type ', project_name)
     if(databaseType === 'local') {
       return (
         <ExpansionPanel

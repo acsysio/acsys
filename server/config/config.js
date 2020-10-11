@@ -24,6 +24,25 @@ class Config {
     });
   }
 
+  format() {
+    return new Promise(async (resolve, reject) => {
+      const query = `SELECT NAME FROM SQLITE_MASTER WHERE TYPE = 'table' AND NAME NOT LIKE 'sqlite_%' AND NAME NOT LIKE 'prmths_configuration' AND NAME NOT LIKE 'prmths_storeconfig'`;
+      await db.all(query, [], async (error, rows) => {
+        if (rows === undefined || error) {
+          resolve([]);
+        } else {
+          for (const row of rows) {
+            console.log(row.name)
+            await db.run(
+              `DROP TABLE IF EXISTS ${row.name}`
+            );
+          }
+        }
+      });
+      resolve(true);
+    });
+  }
+
   setConfig(databaseType, projectName) {
     return new Promise((resolve, reject) => {
       db.serialize(async function () {

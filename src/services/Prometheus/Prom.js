@@ -153,7 +153,6 @@ export const restart = async () => {
 };
 
 export const setInitialLocalDatabaseConfig = async (
-  databaseType,
   projectName
 ) => {
   return new Promise((resolve, reject) => {
@@ -164,7 +163,37 @@ export const setInitialLocalDatabaseConfig = async (
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        databaseType,
+        projectName,
+      }),
+    })
+      .then((response) => {
+        Session.logOut();
+        if (response.statusText !== 'Unauthorized') {
+          response.json().then((json) => {
+            resolve(json.value);
+          });
+          resolve();
+        } else {
+          reject();
+        }
+      })
+      .catch(reject);
+  });
+};
+
+export const setLocalDatabaseConfig = async (
+  projectName
+) => {
+  await checkToken();
+  return new Promise((resolve, reject) => {
+    promFetch('/api/setLocalDatabaseConfig', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Session.getToken()}`,
+      },
+      body: JSON.stringify({
         projectName,
       }),
     })
@@ -192,6 +221,33 @@ export const setInitialFirestoreConfig = async (config) => {
         'Content-Type': 'application/json',
       },
       body: config,
+    })
+      .then((response) => {
+        Session.logOut();
+        if (response.statusText !== 'Unauthorized') {
+          response.json().then((json) => {
+            resolve(json.value);
+          });
+          resolve();
+        } else {
+          reject();
+        }
+      })
+      .catch(reject);
+  });
+};
+
+export const setFirestoreConfig = async (config) => {
+  await checkToken();
+  return new Promise((resolve, reject) => {
+    promFetch('/api/setFirestoreConfig', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Session.getToken()}`,
+      },
+      body: JSON.stringify(config),
     })
       .then((response) => {
         Session.logOut();
@@ -263,33 +319,6 @@ export const getEmailConfig = async () => {
       .catch(() => {
         reject();
       });
-  });
-};
-
-export const setDatabaseConfig = async (config) => {
-  await checkToken();
-  return new Promise((resolve, reject) => {
-    promFetch('/api/setDatabaseConfig', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${Session.getToken()}`,
-      },
-      body: JSON.stringify(config),
-    })
-      .then((response) => {
-        if (response.statusText !== 'Unauthorized') {
-          response.json().then((json) => {
-            resolve(json.value);
-          });
-          resolve();
-        } else {
-          Session.logOut();
-          reject();
-        }
-      })
-      .catch(reject);
   });
 };
 

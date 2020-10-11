@@ -27,7 +27,7 @@ async function initialize() {
   if (dbType === 'firestore') {
     data = new FirestoreDriver();
     await data.initialize(config);
-  } else if (dbType === 'sqlite') {
+  } else if (dbType === 'local') {
     data = new SqliteDriver();
     await data.initialize();
   }
@@ -768,10 +768,41 @@ router.post('/restart', function (req, res) {
 router.post('/setInitialLocalDatabaseConfig', async function (req, res) {
   try {
     const { projectName } = req.body;
-
+    try {
+      await config.format();
+      await config.initialize();
+      fs.unlinkSync('./prometheus.service.config.json');
+    } catch(err) {
+      console.error(err);
+    }
     data = new SqliteDriver();
     await config
-      .setConfig('sqlite', projectName)
+      .setConfig('local', projectName)
+      .then(async () => {
+        await data.initialize();
+        res.send(true);
+      })
+      .catch(() => {
+        res.send(false);
+      });
+  } catch (error) {
+    res.send(false);
+  }
+});
+
+router.post('/setLocalDatabaseConfig', async function (req, res) {
+  try {
+    const { projectName } = req.body;
+    try {
+      await config.format();
+      await config.initialize();
+      fs.unlinkSync('./prometheus.service.config.json');
+    } catch(err) {
+      console.error(err);
+    }
+    data = new SqliteDriver();
+    await config
+      .setConfig('local', projectName)
       .then(async () => {
         await data.initialize();
         res.send(true);
@@ -801,9 +832,70 @@ router.post('/setInitialFirestoreConfig', async function (req, res) {
       .catch(() => {
         res.send(false);
       });
+    try {
+      await config.format();
+      await config.initialize();
+      fs.unlinkSync('./prometheus.service.config.json');
+    } catch(err) {
+      console.error(err);
+    }
     fs.writeFile(
       './prometheus.service.config.json',
       JSON.stringify(req.body).replace(/\\\\/g, '\\'),
+      async function (err) {
+        if (err) {
+          res.send(err);
+        } else {
+          data.initialize();
+          storage.initialize(data);
+          res.send(true);
+        }
+      }
+    );
+  } catch (error) {
+    res.send(false);
+  }
+});
+
+router.post('/setFirestoreConfig', async function (req, res) {
+  const configData = {
+    type: req.body.type,
+    project_id: req.body.project_id,
+    private_key_id: req.body.private_key_id,
+    private_key: req.body.private_key,
+    client_email: req.body.client_email,
+    client_id: req.body.client_id,
+    auth_uri: req.body.auth_uri,
+    token_uri: req.body.token_uri,
+    auth_provider_x509_cert_url: req.body.auth_provider_x509_cert_url,
+    client_x509_cert_url: req.body.client_x509_cert_url,
+  };
+  try {
+    data = new FirestoreDriver();
+    await config
+      .setConfig('firestore', 'firestore')
+      .then(async () => {
+        return new Promise((resolve) => setTimeout(resolve, 5000));
+      })
+      .catch(() => {
+        res.send(false);
+      });
+    await config
+      .setStorageConfig('gcp')
+      .then(async () => {})
+      .catch(() => {
+        res.send(false);
+      });
+    try {
+      await config.format();
+      await config.initialize();
+      fs.unlinkSync('./prometheus.service.config.json');
+    } catch(err) {
+      console.error(err);
+    }
+    fs.writeFile(
+      './prometheus.service.config.json',
+      JSON.stringify(configData).replace(/\\\\/g, '\\'),
       async function (err) {
         if (err) {
           res.send(err);
@@ -834,74 +926,12 @@ router.get('/loadDatabaseConfig', async function (req, res) {
     });
 });
 
-router.post('/setDatabaseConfig', async function (req, res) {
-  const { databaseType } = req.body;
-  const { projectName } = req.body;
-  const configData = {
-    type: req.body.type,
-    project_id: req.body.project_id,
-    private_key_id: req.body.private_key_id,
-    private_key: req.body.private_key,
-    client_email: req.body.client_email,
-    client_id: req.body.client_id,
-    auth_uri: req.body.auth_uri,
-    token_uri: req.body.token_uri,
-    auth_provider_x509_cert_url: req.body.auth_provider_x509_cert_url,
-    client_x509_cert_url: req.body.client_x509_cert_url,
-  };
-
-  try {
-    if (databaseType === 'Local') {
-      data = new SqliteDriver();
-      await config
-        .setConfig(databaseType, configData, projectName)
-        .then(async () => {
-          res.send(true);
-        })
-        .catch(() => {});
-    } else if (databaseType === 'Firestore') {
-      data = new FirestoreDriver();
-      await config
-        .setConfig('firestore', configData)
-        .then(async () => {
-          return new Promise((resolve) => setTimeout(resolve, 5000));
-        })
-        .catch(() => {
-          res.send(false);
-        });
-      await config
-        .setStorageConfig('gcp')
-        .then(async () => {})
-        .catch(() => {
-          res.send(false);
-        });
-      fs.writeFile(
-        './prometheus.service.config.json',
-        JSON.stringify(configData).replace(/\\\\/g, '\\'),
-        async function (err) {
-          if (err) {
-            res.send(err);
-          } else {
-            data.initialize();
-            storage.initialize(data);
-            res.send(true);
-          }
-        }
-      );
-    } else {
-      res.send(false);
-    }
-  } catch (error) {
-    res.send(false);
-  }
-});
-
 router.get('/getDatabaseConfig', async function (req, res) {
-  if (dbType === 'sqlite') {
+  if (dbType === 'local') {
     await config
       .getConfig()
       .then((result) => {
-        res.send(result);
+        res.send((rData = { project_name: result }));
       })
       .catch(() => {
         res.send((rData = { value: false }));
