@@ -18,6 +18,7 @@ const configKey = require('../config/config.json');
 const config = new Config();
 
 let dbType;
+let storageType;
 let data;
 let storage;
 
@@ -25,6 +26,7 @@ async function initialize() {
   await config.initialize();
 
   dbType = await config.getDatabaseType();
+  storageType = await config.getStorageType();
 
   if (dbType === 'firestore') {
     data = new FirestoreDriver();
@@ -42,13 +44,6 @@ async function initialize() {
 initialize();
 
 express().use(express.static('./config'));
-
-router.get('/getFile', function (req, res) {
-  
-  const file = path.resolve('files/Prometheus Draft Logo.png');
-  console.log(file);
-  res.sendFile(file);
-});
 
 router.get('/isConnected', function (req, res) {
   if (data.isConnected()) {
@@ -733,13 +728,18 @@ router.post('/uploadFile', function (req, res) {
 });
 
 router.get('/getStorageURL', function (req, res) {
-  storage.getStorageURL(req.query.url).then((result, reject) => {
+  storage.getStorageURL(req).then((result, reject) => {
     res.send(
       JSON.stringify({
         data: result,
       })
     );
   });
+});
+
+router.get('/getFile', function (req, res) {
+  const file = path.resolve('files/' + req.query.file);
+  res.sendFile(file);
 });
 
 router.post('/makeFilePublic', function (req, res) {
@@ -979,7 +979,7 @@ router.get('/getDatabaseConfig', async function (req, res) {
 });
 
 router.get('/loadStorageConfig', async function (req, res) {
-  if ((await config.getStorageType()) === 'gcp') {
+  if ((storageType) === 'gcp') {
     try {
       fs.readFile('./prometheus.service.config.json', function (
         err,
@@ -1002,7 +1002,7 @@ router.get('/loadStorageConfig', async function (req, res) {
       res.send((rData = { value: false }));
     }
   } 
-  else if((await config.getStorageType()) === 'local') {
+  else if((storageType) === 'local') {
     res.send((rData = { value: true }));
   }
   else {

@@ -18,6 +18,7 @@ function jwt() {
       '/api/insertOpenData',
       '/api/updateOpenData',
       '/api/deleteOpenData',
+      '/api/getFile',
     ],
   });
 }

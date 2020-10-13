@@ -284,7 +284,8 @@ class StorageDriver {
     });
   }
 
-  getStorageURL(referenceName) {
+  getStorageURL(req) {
+    const referenceName = req.query.url;
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
       const file = storage.file(referenceName.replace(/ /g, '_'));
