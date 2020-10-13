@@ -13,6 +13,7 @@ dbase.db
 
 # production
 /build
+/files
 
 # misc
 .DS_Store

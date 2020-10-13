@@ -100,11 +100,11 @@ class Config {
   setStorageConfig(config) {
     return new Promise((resolve, reject) => {
       db.serialize(async function () {
-        await db.run("DELETE FROM prmths_storeconfig WHERE type = 'gcp'");
+        await db.run('DELETE FROM prmths_storeconfig');
         const stmt = await db.prepare(
           'INSERT INTO prmths_storeconfig VALUES (?, ?)'
         );
-        stmt.run('gcp', 'gcp storage');
+        stmt.run(`${config}`, `${config} storage`);
         stmt.finalize();
         resolve(true);
       });
@@ -131,11 +131,7 @@ class Config {
         const sql = 'SELECT * FROM prmths_storeconfig';
         await db.all(sql, [], (err, rows) => {
           if (rows.length > 0) {
-            if (rows[0].config.length > 0) {
-              resolve(rows[0].type);
-            } else {
-              resolve(err);
-            }
+            resolve(rows[0].type);
           } else {
             resolve(err);
           }

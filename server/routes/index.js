@@ -4,10 +4,12 @@ const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const uniquid = require('uniqid');
 const nodemailer = require('nodemailer');
-const Config = require('../config/config.js');
+const path = require('path');
+const Config = require('../config/config');
 const SqliteDriver = require('../data-drivers/sqlitedb');
-const FirestoreDriver = require('../data-drivers/firestoredb.js');
-const StorageDriver = require('../storage-drivers/storage.js');
+const FirestoreDriver = require('../data-drivers/firestoredb');
+const StorageDriver = require('../storage-drivers/gcpstorage');
+const LocalStorage = require('../storage-drivers/localstorage');
 
 const router = express.Router();
 
@@ -27,19 +29,26 @@ async function initialize() {
   if (dbType === 'firestore') {
     data = new FirestoreDriver();
     await data.initialize(config);
+    storage = new StorageDriver();
+    await storage.initialize(data);
   } else if (dbType === 'local') {
     data = new SqliteDriver();
     await data.initialize();
+    storage = new LocalStorage();
+    await storage.initialize(data);
   }
-
-  storage = new StorageDriver();
-
-  await storage.initialize(data);
 }
 
 initialize();
 
 express().use(express.static('./config'));
+
+router.get('/getFile', function (req, res) {
+  
+  const file = path.resolve('files/Prometheus Draft Logo.png');
+  console.log(file);
+  res.sendFile(file);
+});
 
 router.get('/isConnected', function (req, res) {
   if (data.isConnected()) {
@@ -780,11 +789,19 @@ router.post('/setInitialLocalDatabaseConfig', async function (req, res) {
       .setConfig('local', projectName)
       .then(async () => {
         await data.initialize();
-        res.send(true);
       })
       .catch(() => {
         res.send(false);
       });
+      await config
+      .setStorageConfig('local')
+      .then(async () => {
+        storage.initialize(data);
+      })
+      .catch(() => {
+        res.send(false);
+      });
+      res.send(true);
   } catch (error) {
     res.send(false);
   }
@@ -804,12 +821,20 @@ router.post('/setLocalDatabaseConfig', async function (req, res) {
     await config
       .setConfig('local', projectName)
       .then(async () => {
-        await data.initialize();
-        res.send(true);
+        await data.initialize()
       })
       .catch(() => {
         res.send(false);
       });
+      await config
+      .setStorageConfig('local')
+      .then(async () => {
+        storage.initialize(data);
+      })
+      .catch(() => {
+        res.send(false);
+      });
+      res.send(true);
   } catch (error) {
     res.send(false);
   }
@@ -976,7 +1001,11 @@ router.get('/loadStorageConfig', async function (req, res) {
     } catch (error) {
       res.send((rData = { value: false }));
     }
-  } else {
+  } 
+  else if((await config.getStorageType()) === 'local') {
+    res.send((rData = { value: true }));
+  }
+  else {
     res.send((rData = { value: false }));
   }
 });
