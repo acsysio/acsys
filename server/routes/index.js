@@ -491,6 +491,16 @@ router.get('/getProjectName', function (req, res) {
     });
 });
 
+router.get('/getUrl', function (req, res) {
+  const url = req.protocol + '://' + req.get('host') + '/api/readData?table=' + req.query.table + '&options=' + req.query.options;
+  res.send((rdata = {url: url}));
+});
+
+router.get('/getOpenUrl', function (req, res) {
+  const url = req.protocol + '://' + req.get('host') + '/api/readOpenData?table=' + req.query.table + '&options=' + req.query.options;
+  res.send((rdata = {url: url}));
+});
+
 router.get('/getAll', function (req, res) {
   userService
     .getAll()

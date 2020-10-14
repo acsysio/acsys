@@ -34,6 +34,7 @@ const INITIAL_STATE = {
   draft: false,
   document: [],
   views: [],
+  apiCall: '',
   keys: [],
   prmthsView: [],
   routed: false,
@@ -509,6 +510,7 @@ class DocumentView extends React.Component {
     let table = documentDetails[0].collection;
     let draft = false;
     let keys = [];
+    let apiCall;
     let position = 0;
     try {
       documentDetails.sort((a, b) => (a.viewOrder > b.viewOrder ? 1 : -1));
@@ -532,6 +534,16 @@ class DocumentView extends React.Component {
             draft = true;
           });
         }
+        await Prom.getData('prmths_open_tables', [['table_name', '=', table]])
+        .then(async (result) => {
+          if (result[0].table_name === table) {
+            apiCall = await Prom.getOpenUrl(table, keys);
+          }
+          else {
+            apiCall = await Prom.getUrl(table, keys);
+          }
+        })
+        .catch(() => {});
 
         let currentView;
 
@@ -585,6 +597,7 @@ class DocumentView extends React.Component {
         saving: false,
         documentDetails: documentDetails,
         collection: table,
+        apiCall: apiCall,
         keys: keys,
         position: position,
       });
@@ -1070,7 +1083,7 @@ class DocumentView extends React.Component {
   }
 
   renderNoId() {
-    const { views, documentDetails, rowsPerPage, page } = this.state;
+    const { documentDetails } = this.state;
     return (
       <div class="element-container">
         <Grid container spacing={3}>
@@ -1500,7 +1513,7 @@ class DocumentView extends React.Component {
   }
 
   render() {
-    const { filterLoading, draft, deleteLoading, routed } = this.state;
+    const { filterLoading, draft, deleteLoading, apiCall } = this.state;
     return (
       <div style={{ minHeight: 600 }}>
         {Prom.getMode() !== 'Viewer' ? (
@@ -1558,16 +1571,14 @@ class DocumentView extends React.Component {
               <div />
             )}
             {Prom.getMode() === 'Administrator' ? (
-              <Tooltip title="Determines If Entry Is Accessed Directly From View Or Table">
-                <Select
-                  defaultValue={this.props.location.state.routed}
-                  onChange={(e) => this.saveView(e.target.value)}
-                  style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
-                >
-                  <MenuItem value={false}>Accessed From Table</MenuItem>
-                  <MenuItem value={true}>Accessed From View</MenuItem>
-                </Select>
-              </Tooltip>
+              <Select
+                defaultValue={this.props.location.state.routed}
+                onChange={(e) => this.saveView(e.target.value)}
+                style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
+              >
+                <MenuItem value={false}>Accessed From Table</MenuItem>
+                <MenuItem value={true}>Accessed From View</MenuItem>
+              </Select>
             ) : (
               <div />
             )}
@@ -1707,6 +1718,7 @@ class DocumentView extends React.Component {
             </DialogActions>
           </Dialog>
         </Paper>
+        <div style={{clear: 'both'}}>API Call: {apiCall}</div>
       </div>
     );
   }

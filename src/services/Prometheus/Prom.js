@@ -131,6 +131,82 @@ export const getProjectName = async () => {
   });
 };
 
+export const getUrl = async (table, where, limit, orderBy, order) => {
+  await checkToken();
+  return new Promise((resolve, reject) => {
+    const apiString = `/api/getUrl?table=${table}&options=${JSON.stringify({
+      where,
+      limit,
+      orderBy,
+      order,
+    })}`;
+    promFetch(apiString, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Session.getToken()}`,
+      },
+    })
+      .then(async (response) => {
+        if (response.statusText !== 'Unauthorized') {
+          response
+            .json()
+            .then((json) => {
+              resolve(json.url);
+            })
+            .catch(() => {
+              reject();
+            });
+        } else {
+          Session.logOut();
+          reject();
+        }
+      })
+      .catch(() => {
+        resolve([]);
+      });
+  });
+};
+
+export const getOpenUrl = async (table, where, limit, orderBy, order) => {
+  await checkToken();
+  return new Promise((resolve, reject) => {
+    const apiString = `/api/getOpenUrl?table=${table}&options=${JSON.stringify({
+      where,
+      limit,
+      orderBy,
+      order,
+    })}`;
+    promFetch(apiString, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Session.getToken()}`,
+      },
+    })
+      .then(async (response) => {
+        if (response.statusText !== 'Unauthorized') {
+          response
+            .json()
+            .then((json) => {
+              resolve(json.url);
+            })
+            .catch(() => {
+              reject();
+            });
+        } else {
+          Session.logOut();
+          reject();
+        }
+      })
+      .catch(() => {
+        resolve([]);
+      });
+  });
+};
+
 export const restart = async () => {
   await checkToken();
   return new Promise((resolve, reject) => {

@@ -44,6 +44,7 @@ const INITIAL_STATE = {
   collectionValues: [],
   prmthsView: [],
   tableData: [],
+  apiCall: '',
   draftViews: [],
   totalRows: 0,
   page: 1,
@@ -358,8 +359,10 @@ class CollectionView extends React.Component {
   mount = async () => {
     let page = this.state.page;
     let prmthsView;
+    let locked = true;
     let details = [];
     let currentData;
+    let apiCall;
     let order = [];
     let orderDir = 'asc';
     lockedValue = true;
@@ -402,6 +405,15 @@ class CollectionView extends React.Component {
         ['contentId', '=', contentId],
       ]);
 
+      await Prom.getData('prmths_open_tables', [['table_name', '=', id]])
+        .then((result) => {
+          if (result[0].table_name === id) {
+            locked = false;
+            lockedValue = false;
+          }
+        })
+        .catch(() => {});
+
       if (details.length > 0) {
         details.sort((a, b) => (a.viewOrder > b.viewOrder ? 1 : -1));
         if (prmthsView[0].orderBy.length > 0) {
@@ -426,9 +438,21 @@ class CollectionView extends React.Component {
           page = this.context.getPage();
         } else {
           currentData = await Prom.getData(id, [], rowNum, order, orderDir);
+          if(locked) {
+            apiCall = await Prom.getUrl(id, [], rowNum, order, orderDir);
+          }
+          else {
+            apiCall = await Prom.getOpenUrl(id, [], rowNum, order, orderDir);
+          }
         }
       } else {
         currentData = await Prom.getData(id, keys, rowNum);
+        if(locked) {
+          apiCall = await Prom.getUrl(id, keys, rowNum);
+        }
+        else {
+          apiCall = await Prom.getOpenUrl(id, keys, rowNum);
+        }
         await Promise.all(
           Object.keys(currentData[0]).map(async (value, index) => {
             let collectionDetails = {
@@ -460,17 +484,6 @@ class CollectionView extends React.Component {
       console.log(error);
     }
 
-    let locked = true;
-
-    await Prom.getData('prmths_open_tables', [['table_name', '=', id]])
-      .then((result) => {
-        if (result[0].table_name === id) {
-          locked = false;
-          lockedValue = false;
-        }
-      })
-      .catch(() => {});
-
     this.setState({
       reset: false,
       view: this.props.location.state.view,
@@ -479,6 +492,7 @@ class CollectionView extends React.Component {
       contentId: contentId,
       initialViews: currentData,
       tableData: currentData,
+      apiCall: apiCall,
       prmthsView: prmthsView[0],
       page: page,
       documentDetails: details,
@@ -735,6 +749,7 @@ class CollectionView extends React.Component {
   render() {
     const {
       locked,
+      apiCall,
       view,
       deleteLoading,
       prmthsView,
@@ -1098,6 +1113,7 @@ class CollectionView extends React.Component {
             </DialogActions>
           </Dialog>
         </Paper>
+        <div style={{clear: 'both'}}>API Call: {apiCall}</div>
       </div>
     );
   }
