@@ -7,7 +7,94 @@ const mime = require('mime-types');
 
 let storage;
 let db;
-let projectId;
+const searchDir = function (dir) {
+  fs.readdir(dir, async function (err, files) {
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    for (let i = 0; i < files.length; i += 1) {
+      const parent = dir.substring(8) + '/';
+      let tempFileName;
+      let parentName;
+      let fileName = files[i];
+      if (dir === './files') {
+        parentName = '/';
+        tempFileName = files[i];
+      }
+      else {
+        parentName = parent;
+        tempFileName = parent + files[i];
+      }
+      
+      if (
+        !tempFileName.includes('/') ||
+        (tempFileName.indexOf('/') ===
+          tempFileName.lastIndexOf('/') &&
+          tempFileName.charAt(tempFileName.length - 1) === '/')
+      ) {
+        parentName = '/';
+      } else if (
+        tempFileName.indexOf('/') !== tempFileName.lastIndexOf('/') &&
+        tempFileName.charAt(tempFileName.length - 1) === '/'
+      ) {
+        const tempName = tempFileName.substring(
+          0,
+          tempFileName.lastIndexOf('/')
+        );
+        parentName = tempName.substring(
+          0,
+          tempName.lastIndexOf('/') + 1
+        );
+      }
+
+      if (fileName !== 'undefined') {
+        let order = 1;
+        let type = mime.contentType(files[i]);
+        if (type === false) {
+          tempFileName += '/';
+          fileName += '/';
+          type = 'Folder';
+          order = 0;
+        }
+        if (fileName.substring(fileName.length - 1) === '/') {
+          type = 'Folder';
+          order = 0;
+        }
+        const dateCreated = await fs.lstatSync(dir + '/' + files[i]).birthtime;
+        const dateUpdated = await fs.lstatSync(dir + '/' + files[i]).mtime;
+        const object = {
+          id: tempFileName,
+          fileOrder: order,
+          parent: parentName,
+          name: fileName,
+          contentType: type,
+          isPublic: false,
+          timeCreated: `${
+            monthNames[dateCreated.getMonth()]
+          } ${dateCreated.getDate()}, ${dateCreated.getFullYear()}`,
+          updated: `${
+            monthNames[dateUpdated.getMonth()]
+          } ${dateUpdated.getDate()}, ${dateUpdated.getFullYear()}`,
+        };
+        await db.insert('prmths_storage_items', object);
+        if (type === 'Folder') {
+          searchDir(dir + '/' + files[i]);
+        }
+      }
+    }
+  });
+}
 
 class LocalStorageDriver {
   initialize(database) {
@@ -21,89 +108,8 @@ class LocalStorageDriver {
     return new Promise((resolve) => {
       db.deleteDocs('prmths_storage_items')
         .then(() => {
-          fs.readdir('./files', async function (err, files) {
-            const monthNames = [
-              'Jan',
-              'Feb',
-              'Mar',
-              'Apr',
-              'May',
-              'Jun',
-              'Jul',
-              'Aug',
-              'Sep',
-              'Oct',
-              'Nov',
-              'Dec',
-            ];
-
-            for (let i = 0; i < files.length; i += 1) {
-              const tempFileName = files[i];
-              let parentName = tempFileName.substring(
-                0,
-                tempFileName.lastIndexOf('/') + 1
-              );
-              if (
-                !tempFileName.includes('/') ||
-                (tempFileName.indexOf('/') ===
-                  tempFileName.lastIndexOf('/') &&
-                  tempFileName.charAt(tempFileName.length - 1) === '/')
-              ) {
-                parentName = '/';
-              } else if (
-                tempFileName.indexOf('/') !== tempFileName.lastIndexOf('/') &&
-                tempFileName.charAt(tempFileName.length - 1) === '/'
-              ) {
-                const tempName = tempFileName.substring(
-                  0,
-                  tempFileName.lastIndexOf('/')
-                );
-                parentName = tempName.substring(
-                  0,
-                  tempName.lastIndexOf('/') + 1
-                );
-              }
-              let fileName;
-              if (parentName !== '/') {
-                fileName = tempFileName.substring(
-                  parentName.length,
-                  tempFileName.length
-                );
-              } else {
-                fileName = tempFileName.substring(0, tempFileName.length);
-              }
-              if (fileName !== 'undefined') {
-                let order = 1;
-                let type = mime.contentType(files[i]);
-                if (type === false) {
-                  type = 'Folder';
-                }
-                if (fileName.substring(fileName.length - 1) === '/') {
-                  type = 'Folder';
-                  order = 0;
-                }
-                const dateCreated = await fs.lstatSync('./files/' + files[i]).birthtime;
-                const dateUpdated = await fs.lstatSync('./files/' + files[i]).mtime;
-                const object = {
-                  id: tempFileName,
-                  fileOrder: order,
-                  parent: parentName,
-                  name: fileName,
-                  contentType: type,
-                  isPublic: false,
-                  timeCreated: `${
-                    monthNames[dateCreated.getMonth()]
-                  } ${dateCreated.getDate()}, ${dateCreated.getFullYear()}`,
-                  updated: `${
-                    monthNames[dateUpdated.getMonth()]
-                  } ${dateUpdated.getDate()}, ${dateUpdated.getFullYear()}`,
-                };
-
-                db.insert('prmths_storage_items', object);
-              }
-            }
-            resolve(true);
-          });
+          searchDir('./files');
+          resolve(true);
         })
         .catch(() => {
           resolve(false);
