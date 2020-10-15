@@ -512,6 +512,7 @@ class DocumentView extends React.Component {
     let keys = [];
     let apiCall;
     let position = 0;
+    let open = false;
     try {
       documentDetails.sort((a, b) => (a.viewOrder > b.viewOrder ? 1 : -1));
       tempDetails = documentDetails;
@@ -537,13 +538,17 @@ class DocumentView extends React.Component {
         await Prom.getData('prmths_open_tables', [['table_name', '=', table]])
         .then(async (result) => {
           if (result[0].table_name === table) {
-            apiCall = await Prom.getOpenUrl(table, keys);
-          }
-          else {
-            apiCall = await Prom.getUrl(table, keys);
+            open = true;
           }
         })
         .catch(() => {});
+
+        if (open) {
+          apiCall = await Prom.getOpenUrl(table, keys);
+        }
+        else {
+          apiCall = await Prom.getUrl(table, keys);
+        }
 
         let currentView;
 
