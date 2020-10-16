@@ -9,7 +9,7 @@ let db;
 let projectId;
 
 class StorageDriver {
-  initialize(database) {
+  initialize(config, database) {
     return new Promise((resolve) => {
       try {
         fs.readFile('./prometheus.service.config.json', 'utf8', function (

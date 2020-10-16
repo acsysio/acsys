@@ -2,10 +2,10 @@
 /* eslint-disable class-methods-use-this */
 const path = require('path');
 const fs = require('fs');
-const temp = require('temp').track();
 const mime = require('mime-types');
+const jwt = require('jsonwebtoken');
 
-let storage;
+let config;
 let db;
 const searchDir = function (dir) {
   fs.readdir(dir, async function (err, files) {
@@ -124,8 +124,9 @@ const removeDir = function (path) {
 }
 
 class LocalStorageDriver {
-  initialize(database) {
+  initialize(configuration, database) {
     return new Promise((resolve) => {
+        config = configuration;
         db = database;
         fs.mkdir('./files', async function (err) {});
         resolve(true);
@@ -265,8 +266,23 @@ class LocalStorageDriver {
   getStorageURL(req) {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
-      const url = req.protocol + '://' + req.get('host') + '/api/getFile?file=' + req.query.url;
-      resolve(url);
+      const options = {
+        where: [['id', '=', req.query.url]],
+      };
+      await db.getDocs('prmths_storage_items', options)
+        .then(async (result) => {
+          if (Boolean(result.length > 0 && result[0].isPublic)) {
+            const url = req.protocol + '://' + req.get('host') + '/api/getFile?file=' + req.query.url;
+            resolve(url);
+          }
+          else {
+            const token = jwt.sign({ sub: req.query.url }, await config.getSecret(), {
+              expiresIn: '1d',
+            });
+            const url = req.protocol + '://' + req.get('host') + '/api/getFile?file=' + req.query.url + '&token=' + token;
+            resolve(url);
+          }
+        });
     });
   }
 

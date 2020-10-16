@@ -13,8 +13,6 @@ const LocalStorage = require('../storage-drivers/localstorage');
 
 const router = express.Router();
 
-const configKey = require('../config/config.json');
-
 const config = new Config();
 
 let data;
@@ -50,7 +48,7 @@ async function initialize() {
     storage = new LocalStorage();
   }
   await data.initialize();
-  await storage.initialize(data);
+  await storage.initialize(config, data);
 }
 
 initialize();
@@ -122,11 +120,11 @@ router.post('/register', function (req, res) {
           };
           data
             .insert('prmths_users', dataModel)
-            .then((action) => {
-              const token = jwt.sign({ sub: hash }, configKey.secret, {
+            .then(async (action) => {
+              const token = jwt.sign({ sub: hash }, await config.getSecret(), {
                 expiresIn: '1d',
               });
-              const refreshToken = jwt.sign({ sub: hash }, configKey.secret, {
+              const refreshToken = jwt.sign({ sub: hash }, await config.getSecret(), {
                 expiresIn: '3d',
               });
               res.json({
@@ -444,18 +442,18 @@ router.post('/authenticate', function (req, res) {
   data
     .getDocs('prmths_users', options)
     .then((result) => {
-      bcrypt.compare(cPassword, result[0].prmthsCd, function (err, outcome) {
+      bcrypt.compare(cPassword, result[0].prmthsCd, async function (err, outcome) {
         if (outcome) {
           const token = jwt.sign(
             { sub: result[0].prmthsCd },
-            configKey.secret,
+            await config.getSecret(),
             {
               expiresIn: '1d',
             }
           );
           const refreshToken = jwt.sign(
             { sub: result[0].prmthsCd },
-            configKey.secret,
+            await config.getSecret(),
             {
               expiresIn: '3d',
             }
@@ -483,11 +481,11 @@ router.post('/authenticate', function (req, res) {
     });
 });
 
-router.post('/refresh', function (req, res) {
-  const token = jwt.sign({ sub: configKey.secret }, configKey.secret, {
+router.post('/refresh', async function (req, res) {
+  const token = jwt.sign({ sub: await config.getSecret() }, await config.getSecret(), {
     expiresIn: '1d',
   });
-  const refreshToken = jwt.sign({ sub: configKey.secret }, configKey.secret, {
+  const refreshToken = jwt.sign({ sub: await config.getSecret() }, await config.getSecret(), {
     expiresIn: '3d',
   });
   res.json({ token, refreshToken });
@@ -760,9 +758,30 @@ router.get('/getStorageURL', function (req, res) {
   });
 });
 
-router.get('/getFile', function (req, res) {
+router.get('/getFile', async function (req, res) {
   const file = path.resolve('files/' + req.query.file);
-  res.sendFile(file);
+  if(req.query.token !== undefined) {
+    const token = req.query.token;
+    try {
+      const decoded = jwt.verify(token, await config.getSecret());
+      if (decoded) {
+        const today = parseInt(new Date().getTime().toString().substr(0, 10));
+        const difference = decoded.exp - today;
+        if (difference <= 0) {
+          res.send('Link has expired.');
+        }
+        res.sendFile(file);
+      }
+      else {
+        res.send('File could not be retrieved.');
+      }
+    } catch (error) {
+      res.send('File could not be retrieved.');
+    }
+  }
+  else {
+    res.sendFile(file);
+  }
 });
 
 router.post('/makeFilePublic', function (req, res) {
@@ -817,7 +836,7 @@ router.post('/setInitialLocalDatabaseConfig', async function (req, res) {
       await config
       .setStorageConfig('local')
       .then(async () => {
-        storage.initialize(data);
+        storage.initialize(config, data);
       })
       .catch(() => {
         res.send(false);
@@ -848,7 +867,7 @@ router.post('/setLocalDatabaseConfig', async function (req, res) {
       await config
       .setStorageConfig('local')
       .then(async () => {
-        storage.initialize(data);
+        storage.initialize(config, data);
       })
       .catch(() => {
         res.send(false);
@@ -889,7 +908,7 @@ router.post('/setInitialFirestoreConfig', async function (req, res) {
           res.send(err);
         } else {
           data.initialize();
-          storage.initialize(data);
+          storage.initialize(config, data);
           res.send(true);
         }
       }
@@ -929,7 +948,7 @@ router.post('/setFirestoreConfig', async function (req, res) {
           res.send(err);
         } else {
           data.initialize();
-          storage.initialize(data);
+          storage.initialize(config, data);
           res.send(true);
         }
       }

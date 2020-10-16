@@ -1,5 +1,5 @@
+const fs = require('fs');
 const sqlite3 = require('sqlite3').verbose();
-
 let db;
 
 class Config {
@@ -136,6 +136,21 @@ class Config {
             resolve(err);
           }
         });
+      });
+    });
+  }
+
+  getSecret() {
+    return new Promise((resolve, reject) => {
+      fs.readFile('server/config/config.json', {encoding:'utf8', flag:'r'}, (err, data) => {
+        if (err) {
+          resolve('default-key');
+        }
+        else {
+          const key = JSON.parse(data);
+          console.log(key.secret)
+          resolve(key.secret);
+        }
       });
     });
   }
