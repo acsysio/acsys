@@ -42,6 +42,8 @@ const INITIAL_STATE = {
   updateDatabase: false,
   passwordChange: false,
   userData: [],
+  uploadFile: '',
+  fileName: '',
   page: 0,
   rowsPerPage: 15,
   loading: false,
@@ -58,9 +60,11 @@ class Settings extends React.Component {
   };
 
   handleClickOpen = () => {
-    this.setState({
-      setOpen: true,
-    });
+    if (this.state.updateDatabase || this.state.updateEmail) {
+      this.setState({
+        setOpen: true,
+      });
+    }
   };
 
   handleClose = () => {
@@ -88,7 +92,6 @@ class Settings extends React.Component {
     }
     const databaseType = await Prom.getDatabaseType();
     const databaseConfig = await Prom.getDatabaseConfig();
-    console.log(databaseConfig)
     if (databaseType === 'local') {
       this.setState({
         databaseType: databaseType,
@@ -133,6 +136,7 @@ class Settings extends React.Component {
       databaseType,
       project_name,
       type,
+      fileName,
       project_id,
       private_key_id,
       private_key,
@@ -160,7 +164,7 @@ class Settings extends React.Component {
           auth_provider_x509_cert_url: auth_provider_x509_cert_url,
           client_x509_cert_url: client_x509_cert_url,
         };
-        await Prom.setFirestoreConfig(config);
+        await Prom.setFirestoreConfig(this.state.uploadFile);
       }
       else {
         await Prom.setLocalDatabaseConfig(
@@ -172,6 +176,7 @@ class Settings extends React.Component {
 
   setConfig = async () => {
     this.setState({
+      setOpen: false,
       loading: true,
     });
     if (this.state.updateEmail) {
@@ -184,15 +189,52 @@ class Settings extends React.Component {
     }
     if (this.state.updateDatabase || this.state.updateEmail) {
       await this.sleep(5000);
-      await Prom.restart().then(async () => {
-        await this.sleep(5000);
-        window.location.reload();
-      });
+      // await Prom.restart().then(async () => {
+      //   await this.sleep(5000);
+      //   window.location.reload();
+      // });
+      window.location.reload();
     }
     this.setState({
       loading: false,
     });
   };
+
+  setRef = (ref) => {
+    const fileReader = new FileReader();
+    fileReader.onload = (event) => this.loadFields(event);
+    try {
+      fileReader.readAsText(ref.target.files[0]);
+    }
+    catch (error) {
+
+    }
+    this.setState({
+      fileName: ref.target.files[0].name,
+      uploadFile: ref.target.files[0],
+    });
+  };
+
+  loadFields (event) {
+    try {
+      const settings = JSON.parse(event.target.result);
+      this.setState({
+        type: settings.type,
+        project_id: settings.project_id,
+        private_key_id: settings.private_key_id,
+        private_key: settings.private_key,
+        client_email: settings.client_email,
+        client_id: settings.client_id,
+        auth_uri: settings.auth_uri,
+        token_uri: settings.token_uri,
+        auth_provider_x509_cert_url: settings.auth_provider_x509_cert_url,
+        client_x509_cert_url: settings.client_x509_cert_url,
+      });
+    }
+    catch (error) {
+
+    }
+  }
 
   sleep(time) {
     return new Promise((resolve) => setTimeout(resolve, time));
@@ -206,6 +248,7 @@ class Settings extends React.Component {
     const {
       databaseType,
       project_name,
+      fileName,
       type,
       project_id,
       private_key_id,
@@ -217,7 +260,6 @@ class Settings extends React.Component {
       auth_provider_x509_cert_url,
       client_x509_cert_url,
     } = this.state;
-    console.log('muthafuffin type ', project_name)
     if(databaseType === 'local') {
       return (
         <ExpansionPanel
@@ -288,7 +330,6 @@ class Settings extends React.Component {
                 name="type"
                 placeholder="Type"
                 value={type}
-                onChange={this.onChange}
                 style={{ marginTop: '20px' }}
               />
               <input
@@ -296,7 +337,6 @@ class Settings extends React.Component {
                 name="project_id"
                 placeholder="Project ID"
                 value={project_id}
-                onChange={this.onChange}
                 style={{ marginTop: '20px' }}
               />
               <input
@@ -304,7 +344,6 @@ class Settings extends React.Component {
                 name="private_key_id"
                 placeholder="Private Key ID"
                 value={private_key_id}
-                onChange={this.onChange}
                 style={{ marginTop: '20px' }}
               />
               <input
@@ -312,7 +351,6 @@ class Settings extends React.Component {
                 name="private_key"
                 placeholder="Private Key"
                 value={private_key}
-                onChange={this.onChange}
                 style={{ marginTop: '20px' }}
               />
               <input
@@ -320,7 +358,6 @@ class Settings extends React.Component {
                 name="client_email"
                 placeholder="Client Email"
                 value={client_email}
-                onChange={this.onChange}
                 style={{ marginTop: '20px' }}
               />
               <input
@@ -328,7 +365,6 @@ class Settings extends React.Component {
                 name="client_id"
                 placeholder="Client ID"
                 value={client_id}
-                onChange={this.onChange}
                 style={{ marginTop: '20px' }}
               />
               <input
@@ -336,7 +372,6 @@ class Settings extends React.Component {
                 name="auth_uri"
                 placeholder="Auth URI"
                 value={auth_uri}
-                onChange={this.onChange}
                 style={{ marginTop: '20px' }}
               />
               <input
@@ -344,7 +379,6 @@ class Settings extends React.Component {
                 name="token_uri"
                 placeholder="Token URI"
                 value={token_uri}
-                onChange={this.onChange}
                 style={{ marginTop: '20px' }}
               />
               <input
@@ -352,7 +386,6 @@ class Settings extends React.Component {
                 name="auth_provider_x509_cert_url"
                 placeholder="Auth Provider x509 Cert URL"
                 value={auth_provider_x509_cert_url}
-                onChange={this.onChange}
                 style={{ marginTop: '20px' }}
               />
               <input
@@ -360,9 +393,34 @@ class Settings extends React.Component {
                 name="client_x509_cert_url"
                 placeholder="Client x509 Cert URL"
                 value={client_x509_cert_url}
-                onChange={this.onChange}
                 style={{ marginTop: '20px' }}
               />
+              <Grid container style={{ marginTop: '20px' }}>
+                <Grid item xs>
+                  <input
+                    defaultValue={fileName}
+                    style={{ width: '100%'}}
+                  />
+                </Grid>
+                <Grid item>
+                  <input
+                    id="contained-button-file"
+                    type="file"
+                    style={{ display: 'none' }}
+                    onChange={this.setRef}
+                  />
+                  <label htmlFor="contained-button-file">
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      component="span"
+                      style={{marginLeft: 28, height: 32}}
+                    >
+                      New Config
+                    </Button>
+                  </label>
+                </Grid>
+              </Grid>
             </Box>
           </ExpansionPanelDetails>
         </ExpansionPanel>
@@ -387,9 +445,9 @@ class Settings extends React.Component {
             style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
             variant="contained"
             color="primary"
-            onClick={this.setConfig}
+            onClick={this.handleClickOpen}
           >
-            Save
+            Configure
           </Button>
         </Tooltip>
         <Paper
@@ -524,11 +582,11 @@ class Settings extends React.Component {
             aria-describedby="alert-dialog-description"
           >
             <DialogTitle id="alert-dialog-title">
-              {'Update profile?'}
+              {'Update configuration?'}
             </DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description">
-                Are you sure you want to update this data?
+              Are you sure you want to update the configuration? Doing so will overwrite current settings.
               </DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -536,7 +594,7 @@ class Settings extends React.Component {
                 No
               </Button>
               <Button
-                onClick={this.updateCredentials}
+                onClick={this.setConfig}
                 color="primary"
                 disabled={loading}
                 autoFocus

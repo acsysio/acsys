@@ -323,7 +323,7 @@ export const setFirestoreConfig = async (config) => {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${Session.getToken()}`,
       },
-      body: JSON.stringify(config),
+      body: config,
     })
       .then((response) => {
         Session.logOut();
@@ -754,7 +754,6 @@ export const getDatabaseType = async () => {
     })
       .then((response) => response.json())
       .then((result) => {
-        console.log(result);
         resolve(result);
       })
       .catch((error) => {

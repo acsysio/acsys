@@ -421,7 +421,7 @@ class CollectionView extends React.Component {
           orderDir = prmthsView[0].viewOrder;
         }
         for (let i = 0; i < details.length; i++) {
-          if (details[i].isKey) {
+          if (Boolean(details[i].isKey)) {
             order.push(details[i].field_name);
           }
         }
@@ -468,6 +468,7 @@ class CollectionView extends React.Component {
               viewOrder: index,
               width: 12,
             };
+            console.log(currentData[0][value])
 
             await Prom.insertData(
               'prmths_document_details',
@@ -555,7 +556,7 @@ class CollectionView extends React.Component {
             let returnValue = '';
             Object.values(tableData).map((value, index) => {
               if (Object.keys(tableData)[index] == details.field_name) {
-                if (details.isKey && value !== undefined) {
+                if (Boolean(details.isKey) && value !== undefined) {
                   let tempObj = {
                     field: details.field_name,
                     value: value,
@@ -573,6 +574,15 @@ class CollectionView extends React.Component {
                       '/' +
                       date.getFullYear();
                     returnValue = printDate;
+                  } else if (details.control == 'booleanSelect') {
+                    const tmpElement = document.createElement('DIV');
+                    tmpElement.innerHTML = Boolean(value);
+                    const stringLimit = 100;
+                    let valueString = tmpElement.innerText;
+                    if (valueString.length >= stringLimit) {
+                      valueString = valueString.substr(0, stringLimit) + '...';
+                    }
+                    returnValue = valueString;
                   } else {
                     const tmpElement = document.createElement('DIV');
                     tmpElement.innerHTML = value;
@@ -772,7 +782,7 @@ class CollectionView extends React.Component {
     } catch (error) {}
 
     for (let i = 0; i < documentDetails.length; i++) {
-      if (documentDetails[i].isKey) {
+      if (Boolean(documentDetails[i].isKey)) {
         let tempObj = {
           field: documentDetails[i].field_name,
         };

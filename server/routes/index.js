@@ -17,28 +17,40 @@ const configKey = require('../config/config.json');
 
 const config = new Config();
 
-let dbType;
-let storageType;
 let data;
 let storage;
+
+function removeDir (path) {
+  if (fs.existsSync(path)) {
+    const files = fs.readdirSync(path);
+
+    files.forEach(function(filename) {
+      if (fs.statSync(path + "/" + filename).isDirectory()) {
+        removeDir(path + "/" + filename);
+      } else {
+        fs.unlinkSync(path + "/" + filename);
+      }
+    });
+    fs.rmdirSync(path);
+  } else {
+    console.log("Directory path not found.")
+  }
+}
 
 async function initialize() {
   await config.initialize();
 
-  dbType = await config.getDatabaseType();
-  storageType = await config.getStorageType();
+  const dbType = await config.getDatabaseType();
 
   if (dbType === 'firestore') {
     data = new FirestoreDriver();
-    await data.initialize(config);
     storage = new StorageDriver();
-    await storage.initialize(data);
   } else if (dbType === 'local') {
     data = new SqliteDriver();
-    await data.initialize();
     storage = new LocalStorage();
-    await storage.initialize(data);
   }
+  await data.initialize();
+  await storage.initialize(data);
 }
 
 initialize();
@@ -53,8 +65,9 @@ router.get('/isConnected', function (req, res) {
   }
 });
 
-router.get('/getDatabaseType', function (req, res) {
-  res.json(dbType);
+router.get('/getDatabaseType', async function (req, res) {
+  const type = await config.getDatabaseType();
+  res.json(type);
 });
 
 router.get('/hasAdmin', function (req, res) {
@@ -787,14 +800,12 @@ router.post('/restart', function (req, res) {
 router.post('/setInitialLocalDatabaseConfig', async function (req, res) {
   try {
     const { projectName } = req.body;
-    try {
-      await config.format();
-      await config.initialize();
-      fs.unlinkSync('./prometheus.service.config.json');
-    } catch(err) {
-      console.error(err);
-    }
+    await config.format();
+    await config.initialize();
+    fs.unlink('./prometheus.service.config.json', function (err) {});
+    removeDir('./files');
     data = new SqliteDriver();
+    storage = new LocalStorage();
     await config
       .setConfig('local', projectName)
       .then(async () => {
@@ -820,18 +831,16 @@ router.post('/setInitialLocalDatabaseConfig', async function (req, res) {
 router.post('/setLocalDatabaseConfig', async function (req, res) {
   try {
     const { projectName } = req.body;
-    try {
-      await config.format();
-      await config.initialize();
-      fs.unlinkSync('./prometheus.service.config.json');
-    } catch(err) {
-      console.error(err);
-    }
+    await config.format();
+    await config.initialize();
+    fs.unlink('./prometheus.service.config.json', function (err) {});
+    removeDir('./files');
     data = new SqliteDriver();
+    storage = new LocalStorage();
     await config
       .setConfig('local', projectName)
       .then(async () => {
-        await data.initialize()
+        await data.initialize();
       })
       .catch(() => {
         res.send(false);
@@ -852,7 +861,12 @@ router.post('/setLocalDatabaseConfig', async function (req, res) {
 
 router.post('/setInitialFirestoreConfig', async function (req, res) {
   try {
+    await config.format();
+    await config.initialize();
+    fs.unlink('./prometheus.service.config.json', function (err) {});
+    removeDir('./files');
     data = new FirestoreDriver();
+    storage = new StorageDriver();
     await config
       .setConfig('firestore', 'firestore')
       .then(async () => {
@@ -867,13 +881,6 @@ router.post('/setInitialFirestoreConfig', async function (req, res) {
       .catch(() => {
         res.send(false);
       });
-    try {
-      await config.format();
-      await config.initialize();
-      fs.unlinkSync('./prometheus.service.config.json');
-    } catch(err) {
-      console.error(err);
-    }
     fs.writeFile(
       './prometheus.service.config.json',
       JSON.stringify(req.body).replace(/\\\\/g, '\\'),
@@ -893,20 +900,13 @@ router.post('/setInitialFirestoreConfig', async function (req, res) {
 });
 
 router.post('/setFirestoreConfig', async function (req, res) {
-  const configData = {
-    type: req.body.type,
-    project_id: req.body.project_id,
-    private_key_id: req.body.private_key_id,
-    private_key: req.body.private_key,
-    client_email: req.body.client_email,
-    client_id: req.body.client_id,
-    auth_uri: req.body.auth_uri,
-    token_uri: req.body.token_uri,
-    auth_provider_x509_cert_url: req.body.auth_provider_x509_cert_url,
-    client_x509_cert_url: req.body.client_x509_cert_url,
-  };
   try {
+    await config.format();
+    await config.initialize();
+    fs.unlink('./prometheus.service.config.json', function (err) {});
+    removeDir('./files');
     data = new FirestoreDriver();
+    storage = new StorageDriver();
     await config
       .setConfig('firestore', 'firestore')
       .then(async () => {
@@ -921,16 +921,9 @@ router.post('/setFirestoreConfig', async function (req, res) {
       .catch(() => {
         res.send(false);
       });
-    try {
-      await config.format();
-      await config.initialize();
-      fs.unlinkSync('./prometheus.service.config.json');
-    } catch(err) {
-      console.error(err);
-    }
     fs.writeFile(
       './prometheus.service.config.json',
-      JSON.stringify(configData).replace(/\\\\/g, '\\'),
+      JSON.stringify(req.body).replace(/\\\\/g, '\\'),
       async function (err) {
         if (err) {
           res.send(err);
@@ -962,7 +955,8 @@ router.get('/loadDatabaseConfig', async function (req, res) {
 });
 
 router.get('/getDatabaseConfig', async function (req, res) {
-  if (dbType === 'local') {
+  const type = await config.getDatabaseType();
+  if (type === 'local') {
     await config
       .getConfig()
       .then((result) => {
@@ -971,7 +965,7 @@ router.get('/getDatabaseConfig', async function (req, res) {
       .catch(() => {
         res.send((rData = { value: false }));
       });
-  } else if (dbType === 'firestore') {
+  } else if (type === 'firestore') {
     try {
       fs.readFile('./prometheus.service.config.json', function (err, result) {
         if (err) {
@@ -989,7 +983,8 @@ router.get('/getDatabaseConfig', async function (req, res) {
 });
 
 router.get('/loadStorageConfig', async function (req, res) {
-  if ((storageType) === 'gcp') {
+  const type = await config.getStorageType();
+  if ((type) === 'gcp') {
     try {
       fs.readFile('./prometheus.service.config.json', function (
         err,
@@ -1012,7 +1007,7 @@ router.get('/loadStorageConfig', async function (req, res) {
       res.send((rData = { value: false }));
     }
   } 
-  else if((storageType) === 'local') {
+  else if((type) === 'local') {
     res.send((rData = { value: true }));
   }
   else {

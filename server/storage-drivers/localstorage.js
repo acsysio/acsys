@@ -96,10 +96,38 @@ const searchDir = function (dir) {
   });
 }
 
+const removeDir = function (path) {
+  if (fs.existsSync(path)) {
+    const files = fs.readdirSync(path);
+
+    files.forEach(function(filename) {
+      if (fs.statSync(path + "/" + filename).isDirectory()) {
+        removeDir(path + filename + "/");
+      } else {
+        fs.unlink(path + "/" + filename,
+        async function (err) {
+            if (!err) {
+                await db
+                .deleteDocs('prmths_storage_items', [['id', '=', path.substring(8) + filename]]);
+            }
+        });
+      }
+    });
+    fs.rmdir(path,
+      async function (err) {
+          if (!err) {
+              await db
+              .deleteDocs('prmths_storage_items', [['id', '=', path.substring(8)]]);
+          }
+      });
+  }
+}
+
 class LocalStorageDriver {
   initialize(database) {
     return new Promise((resolve) => {
         db = database;
+        fs.mkdir('./files', async function (err) {});
         resolve(true);
     });
   }
@@ -277,6 +305,11 @@ class LocalStorageDriver {
   deleteFile(referenceName) {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
+      if (referenceName.charAt(referenceName.length - 1) === '/') {
+        removeDir('./files/' + referenceName);
+        resolve(true);
+      }
+      else {
         fs.unlink('./files/' + referenceName,
         async function (err) {
             if (err) {
@@ -292,6 +325,7 @@ class LocalStorageDriver {
                 });
             }
         });
+      }
     });
   }
 }

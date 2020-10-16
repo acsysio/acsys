@@ -62,6 +62,7 @@ const Card = memo(({ id, details, moveCard }) => {
   if (details.type === 'number') {
     data.push(<option value="numberEditor">numberEditor</option>);
     data.push(<option value="position">position</option>);
+    data.push(<option value="booleanSelect">boolean</option>);
   }
 
   const width = [];
@@ -138,7 +139,7 @@ const Card = memo(({ id, details, moveCard }) => {
           <Grid item xs={2}>
             <div>
               <NativeSelect
-                defaultValue={details.isKey}
+                defaultValue={Boolean(details.isKey)}
                 onChange={(e) => setKey(e.target.value == 'true')}
               >
                 <option value={true}>True</option>

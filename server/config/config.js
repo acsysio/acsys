@@ -20,6 +20,7 @@ class Config {
           'CREATE TABLE IF NOT EXISTS prmths_storeconfig (type TEXT, config TEXT)'
         );
       });
+      
       resolve(true);
     });
   }
@@ -32,7 +33,6 @@ class Config {
           resolve([]);
         } else {
           for (const row of rows) {
-            console.log(row.name)
             await db.run(
               `DROP TABLE IF EXISTS ${row.name}`
             );
