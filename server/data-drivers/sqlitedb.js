@@ -111,7 +111,7 @@ class SqliteDriver {
 
   getUsers(user) {
     return new Promise(async (resolve, reject) => {
-      const query = 'SELECT * FROM PRMTHS_USERS';
+      const query = `SELECT * FROM PRMTHS_USERS WHERE USERNAME != '${user}'`;
       await db.all(query, [], (error, rows) => {
         if (rows === undefined || error) {
           resolve([]);
