@@ -148,7 +148,6 @@ class Config {
         }
         else {
           const key = JSON.parse(data);
-          console.log(key.secret)
           resolve(key.secret);
         }
       });

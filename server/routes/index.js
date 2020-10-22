@@ -609,7 +609,7 @@ router.get('/readOpenData', function (req, res) {
           res.send(result);
         });
       } else {
-        res.send(false);
+        res.send('Error: Table must be unlocked before it can be accessed.');
       }
     })
     .catch(() => {
@@ -627,7 +627,7 @@ router.post('/insertOpenData', function (req, res) {
           res.send(result);
         });
       } else {
-        res.send(false);
+        res.send('Error: Table must be unlocked before it can be accessed.');
       }
     })
     .catch(() => {
@@ -647,7 +647,7 @@ router.post('/updateOpenData', function (req, res) {
             res.send(result);
           });
       } else {
-        res.send(false);
+        res.send('Error: Table must be unlocked before it can be accessed.');
       }
     })
     .catch(() => {
@@ -665,7 +665,7 @@ router.post('/deleteOpenData', function (req, res) {
           res.send(result);
         });
       } else {
-        res.send(false);
+        res.send('Error: Table must be unlocked before it can be accessed.');
       }
     })
     .catch(() => {

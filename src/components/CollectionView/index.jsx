@@ -22,6 +22,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import {
   Create as CreateIcon,
+  FileCopyOutlined as CopyIcon,
   Delete as DeleteIcon,
   KeyboardArrowLeft,
   KeyboardArrowRight,
@@ -76,6 +77,15 @@ class CollectionView extends React.Component {
   constructor(props) {
     super(props);
   }
+
+  copy = () => {
+    const el = document.createElement('textarea');
+    el.value = this.state.apiCall;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+  };
 
   openKeyMessage = () => {
     this.setState({
@@ -1123,7 +1133,24 @@ class CollectionView extends React.Component {
             </DialogActions>
           </Dialog>
         </Paper>
-        <div style={{clear: 'both'}}>API Call: {apiCall}</div>
+        {!this.state.locked ?
+        <div style={{clear: 'both'}}>
+          API Call: <a className='api-url' href={apiCall} target="_blank">{apiCall}</a>
+          <Tooltip title="Copy To Clipboard">
+            <IconButton
+              edge="start"
+              color="inherit"
+              aria-label="edit"
+              onClick={this.copy}
+              style={{ marginLeft: 5 }}
+            >
+              <CopyIcon style={{ height: 15 }}/>
+            </IconButton>
+          </Tooltip>
+        </div>
+        :
+        <div/>
+        }
       </div>
     );
   }

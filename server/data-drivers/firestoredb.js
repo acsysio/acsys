@@ -298,7 +298,7 @@ class DataDriver {
     });
   }
 
-  lockTable(table) {
+  lockTable(table_name) {
     return new Promise((resolve, reject) => {
       let query;
       // START -- construct collection reference

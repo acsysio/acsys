@@ -6,11 +6,15 @@ import {
   DialogContentText,
   DialogTitle,
   Hidden,
+  IconButton,
   MenuItem,
   NativeSelect,
   Select,
   Tooltip,
 } from '@material-ui/core';
+import {
+  FileCopyOutlined as CopyIcon,
+} from '@material-ui/icons';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
@@ -72,6 +76,15 @@ class DocumentView extends React.Component {
   constructor(props) {
     super(props);
   }
+
+  copy = () => {
+    const el = document.createElement('textarea');
+    el.value = this.state.apiCall;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+  };
 
   imageHandler = async () => {
     const quill = quillRef.getEditor();
@@ -601,6 +614,7 @@ class DocumentView extends React.Component {
         draft: draft,
         saving: false,
         documentDetails: documentDetails,
+        locked: !open,
         collection: table,
         apiCall: apiCall,
         keys: keys,
@@ -1723,7 +1737,24 @@ class DocumentView extends React.Component {
             </DialogActions>
           </Dialog>
         </Paper>
-        <div style={{clear: 'both'}}>API Call: {apiCall}</div>
+        {!this.state.locked ?
+        <div style={{clear: 'both'}}>
+          API Call: <a className='api-url' href={apiCall} target="_blank">{apiCall}</a>
+          <Tooltip title="Copy To Clipboard">
+            <IconButton
+              edge="start"
+              color="inherit"
+              aria-label="edit"
+              onClick={this.copy}
+              style={{ marginLeft: 5 }}
+            >
+              <CopyIcon style={{ height: 15 }}/>
+            </IconButton>
+          </Tooltip>
+        </div>
+        :
+        <div/>
+        }
       </div>
     );
   }

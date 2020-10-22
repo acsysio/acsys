@@ -102,6 +102,9 @@
   font-weight: normal;
   font-size: 10;
 }
+.api-url {
+  color: #009be5;
+}
 a {
   text-decoration: none;
 }
