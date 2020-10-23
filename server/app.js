@@ -67,4 +67,7 @@ app.use(function (err, req, res, next) {
   }
 });
 
+// allow application to recognize secure protocols
+app.enable('trust proxy');
+
 module.exports = app;
