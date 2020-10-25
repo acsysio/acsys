@@ -1737,24 +1737,26 @@ class DocumentView extends React.Component {
             </DialogActions>
           </Dialog>
         </Paper>
-        {!this.state.locked ?
-        <div style={{clear: 'both'}}>
-          API Call: <a className='api-url' href={apiCall} target="_blank">{apiCall}</a>
-          <Tooltip title="Copy To Clipboard">
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="edit"
-              onClick={this.copy}
-              style={{ marginLeft: 5 }}
-            >
-              <CopyIcon style={{ height: 15 }}/>
-            </IconButton>
-          </Tooltip>
-        </div>
-        :
-        <div/>
-        }
+        <Hidden smDown implementation="css">
+          {!this.state.locked ?
+          <div style={{clear: 'both'}}>
+            API Call: <a className='api-url' href={apiCall} target="_blank">{apiCall}</a>
+            <Tooltip title="Copy To Clipboard">
+              <IconButton
+                edge="start"
+                color="inherit"
+                aria-label="edit"
+                onClick={this.copy}
+                style={{ marginLeft: 5 }}
+              >
+                <CopyIcon style={{ height: 15 }}/>
+              </IconButton>
+            </Tooltip>
+          </div>
+          :
+          <div/>
+          }
+        </Hidden>
       </div>
     );
   }
