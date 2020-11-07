@@ -43,18 +43,31 @@ class Config {
     });
   }
 
-  setConfig(databaseType, projectName) {
+  setConfig(databaseType, projectName, config) {
     return new Promise((resolve, reject) => {
       db.serialize(async function () {
         await db.run('DELETE FROM prmths_configuration');
 
-        const stmt = await db.prepare(
+        let stmt = await db.prepare(
           'INSERT INTO prmths_configuration VALUES (?, ?)'
         );
 
         stmt.run(databaseType, projectName);
 
         stmt.finalize();
+
+        if(databaseType === 'mysql') {
+          await db.run(
+            'CREATE TABLE IF NOT EXISTS prmths_mysql_configuration (host TEXT, database TEXT, port INT, username TEXT, password TEXT)'
+          );
+          stmt = await db.prepare(
+            'INSERT INTO prmths_mysql_configuration VALUES (?, ?, ?, ?, ?)'
+          );
+  
+          stmt.run(config.host, config.database, config.port, config.username, config.password);
+  
+          stmt.finalize();
+        }
 
         resolve(true);
       });
@@ -69,6 +82,32 @@ class Config {
           if (rows.length > 0) {
             if (rows[0].config.length > 0) {
               resolve(rows[0].config);
+            } else {
+              resolve(err);
+            }
+          } else {
+            resolve(err);
+          }
+        });
+      });
+    });
+  }
+
+  getMysqlConfig() {
+    return new Promise((resolve, reject) => {
+      db.serialize(async function () {
+        const sql = 'SELECT * FROM prmths_mysql_configuration';
+        await db.all(sql, [], (err, rows) => {
+          if (rows.length > 0) {
+            if (rows[0].host.length > 0) {
+              const config = {
+                host: rows[0].host,
+                database: rows[0].database,
+                port: rows[0].port,
+                username: rows[0].username,
+                password: rows[0].password,
+              }
+              resolve(config);
             } else {
               resolve(err);
             }

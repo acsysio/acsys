@@ -30,6 +30,7 @@ function jwt() {
       '/api/isConnected',
       '/api/setInitialLocalDatabaseConfig',
       '/api/setInitialFirestoreConfig',
+      '/api/setInitialMysqlConfig',
       '/api/readOpenData',
       '/api/insertOpenData',
       '/api/updateOpenData',

@@ -8,6 +8,7 @@ const path = require('path');
 const Config = require('../config/config');
 const SqliteDriver = require('../data-drivers/sqlitedb');
 const FirestoreDriver = require('../data-drivers/firestoredb');
+const MysqlDriver = require('../data-drivers/mysqldb');
 const StorageDriver = require('../storage-drivers/gcpstorage');
 const LocalStorage = require('../storage-drivers/localstorage');
 
@@ -38,16 +39,20 @@ function removeDir (path) {
 async function initialize() {
   await config.initialize();
 
-  const dbType = await config.getDatabaseType();
+  // const dbType = await config.getDatabaseType();
+  const dbType = 'mysql';
 
   if (dbType === 'firestore') {
     data = new FirestoreDriver();
+    storage = new StorageDriver();
+  } else if (dbType === 'mysql') {
+    data = new MysqlDriver();
     storage = new StorageDriver();
   } else if (dbType === 'local') {
     data = new SqliteDriver();
     storage = new LocalStorage();
   }
-  await data.initialize();
+  await data.initialize(config);
   await storage.initialize(config, data);
 }
 
@@ -928,6 +933,86 @@ router.post('/setFirestoreConfig', async function (req, res) {
     storage = new StorageDriver();
     await config
       .setConfig('firestore', 'firestore')
+      .then(async () => {
+        return new Promise((resolve) => setTimeout(resolve, 5000));
+      })
+      .catch(() => {
+        res.send(false);
+      });
+    await config
+      .setStorageConfig('gcp')
+      .then(async () => {})
+      .catch(() => {
+        res.send(false);
+      });
+    fs.writeFile(
+      './prometheus.service.config.json',
+      JSON.stringify(req.body).replace(/\\\\/g, '\\'),
+      async function (err) {
+        if (err) {
+          res.send(err);
+        } else {
+          data.initialize();
+          storage.initialize(config, data);
+          res.send(true);
+        }
+      }
+    );
+  } catch (error) {
+    res.send(false);
+  }
+});
+
+router.post('/setInitialMysqlConfig', async function (req, res) {
+  try {
+    await config.format();
+    await config.initialize();
+    fs.unlink('./prometheus.service.config.json', function (err) {});
+    removeDir('./files');
+    data = new MysqlDriver();
+    storage = new StorageDriver();
+    await config
+      .setConfig('mysql', 'mysql')
+      .then(async () => {
+        return new Promise((resolve) => setTimeout(resolve, 5000));
+      })
+      .catch(() => {
+        res.send(false);
+      });
+    await config
+      .setStorageConfig('gcp')
+      .then(async () => {})
+      .catch(() => {
+        res.send(false);
+      });
+    fs.writeFile(
+      './prometheus.service.config.json',
+      JSON.stringify(req.body).replace(/\\\\/g, '\\'),
+      async function (err) {
+        if (err) {
+          res.send(err);
+        } else {
+          data.initialize();
+          storage.initialize(config, data);
+          res.send(true);
+        }
+      }
+    );
+  } catch (error) {
+    res.send(false);
+  }
+});
+
+router.post('/setMysqlConfig', async function (req, res) {
+  try {
+    await config.format();
+    await config.initialize();
+    fs.unlink('./prometheus.service.config.json', function (err) {});
+    removeDir('./files');
+    data = new MysqlDriver();
+    storage = new StorageDriver();
+    await config
+      .setConfig('mysql', 'mysql')
       .then(async () => {
         return new Promise((resolve) => setTimeout(resolve, 5000));
       })
