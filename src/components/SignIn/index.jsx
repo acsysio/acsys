@@ -325,7 +325,7 @@ class SignInPage extends Component {
                   flexDirection="column"
                   padding="16px"
                 >
-                  <img src="/prometheus-banner.svg" alt="" />
+                  <img src="/acsys-logo.svg" alt="" style={{width: '50%', marginTop: 30, marginBottom: 30}} />
                   <Typography
                     variant="h4"
                     style={{
@@ -334,7 +334,7 @@ class SignInPage extends Component {
                       marginTop: '20px',
                     }}
                   >
-                    Prometheus CMS
+                    The streamlined data tool
                   </Typography>
                   <Typography
                     variant="p"
@@ -344,12 +344,12 @@ class SignInPage extends Component {
                       marginTop: '20px',
                     }}
                   >
-                    Prometheus is a data management system that automates many
+                    Acsys is a data management tool that automates many
                     of the backend processes involved in web development.
-                    Prometheus allows developers to configure a database through
-                    the Prometheus web app. Once this is done users can then use
-                    Prometheus as a headless content management system that also
-                    configures restful apis (no coding involved).
+                    Acsys allows developers to configure a database through
+                    the Acsys web app. Once this is done users can then use
+                    Acsys as a headless content management system that also
+                    configures restful APIs (no coding involved).
                   </Typography>
                 </Box>
               </Hidden>
