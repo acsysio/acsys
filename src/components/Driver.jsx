@@ -81,12 +81,12 @@ class Driver extends React.Component {
                   zIndex: 0,
                   color: '#18202c',
                   background: '#eaeff1',
-                  padding: 10,
+                  paddingTop: 20,
                 }}
                 position="static"
                 elevation={0}
               >
-                <Toolbar style={{ paddingLeft: 10 }}>
+                <Toolbar>
                   <Grid container spacing={1} alignItems="center">
                     <Grid item style={{ marginRight: 20 }}>
                       <Typography color="inherit" variant="h4" component="h1">
@@ -129,7 +129,7 @@ class Driver extends React.Component {
               </AppBar>
             </Hidden>
             <main
-              style={{ flex: 1, padding: '48px 32px', background: '#eaeff1' }}
+              style={{ flex: 1, padding: '48px 26px', background: '#eaeff1' }}
             >
               <div style={{ maxWidth: '80vw', margin: 'auto' }}>
                 <div style={{ flex: 1, maxWidth: 1236, margin: 'auto' }}>

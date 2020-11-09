@@ -325,7 +325,7 @@ class SignInPage extends Component {
                   flexDirection="column"
                   padding="16px"
                 >
-                  <img src="/acsys-logo.svg" alt="" style={{width: '50%', marginTop: 30, marginBottom: 30}} />
+                  <img src="/acsys-logo.svg" alt="" style={{width: '50%', marginTop: 35, marginBottom: 25}} />
                   <Typography
                     variant="h4"
                     style={{
