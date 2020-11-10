@@ -37,7 +37,7 @@ class Header extends React.Component {
         >
           <Grid container spacing={1} alignItems="center">
             <Hidden smDown implementation="css">
-              <img src="/prometheus-header.svg" alt="" style={{height: 45}} />
+              <img src="/acsys-logo.svg" alt="" style={{height: 45, marginLeft: 10}} />
             </Hidden>
             <Hidden mdUp implementation="css">
               <Grid item>
