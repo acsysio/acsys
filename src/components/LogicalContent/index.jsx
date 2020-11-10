@@ -350,7 +350,6 @@ class LogicalContent extends React.Component {
   }
   render() {
     const {
-      error,
       projectName,
       views,
       rowsPerPage,
