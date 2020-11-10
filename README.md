@@ -9,7 +9,7 @@
 [![Repo](https://img.shields.io/github/repo-size/aeon-software/prometheus)](https://github.com/aeon-software/prometheus)
 
 <p align="center">
-  <img alt="Acsys UI" src="https://storage.googleapis.com/acsys-common-storage/images/Acsys%20UI.png">
+  <img alt="Acsys UI" src="https://storage.googleapis.com/acsys-common-storage/images/acsys-ui.png">
 </p>
 
 ## Acsys [Live Demo](https://demo.acsys.com/)
