@@ -1,5 +1,5 @@
 {
-  "name": "prometheus",
+  "name": "acsys",
   "private": true,
   "scripts": {
     "build": "react-scripts build && (if exist server\\build rmdir /s /q server\\build) && move build server",
