@@ -344,12 +344,12 @@ class SignInPage extends Component {
                       marginTop: '20px',
                     }}
                   >
-                    Acsys is a data management tool that automates many
-                    of the backend processes involved in web development.
-                    Acsys allows developers to configure a database through
-                    the Acsys web app. Once this is done users can then use
-                    Acsys as a headless content management system that also
-                    configures restful APIs (no coding involved).
+                    Acsys is a data management tool that automates backend 
+                    processes to streamline development. Acsys allows developers 
+                    to configure a database through the Acsys web app.
+                    Once this is done users can then use Acsys as a headless 
+                    content management system that creates restful APIs to bridge 
+                    data between applications.
                   </Typography>
                 </Box>
               </Hidden>
