@@ -11,6 +11,7 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  Tooltip,
 } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
@@ -241,14 +242,16 @@ class LogicalContent extends React.Component {
             <TableCell>{table}</TableCell>
             <TableCell style={{ width: 50 }}>{rows}</TableCell>
             <TableCell style={{ width: 100 }} align="right">
-              <IconButton
-                edge="start"
-                color="inherit"
-                aria-label="delete"
-                onClick={() => this.handleDeleteOpen(table)}
-              >
-                <DeleteIcon />
-              </IconButton>
+              <Tooltip title="Delete Table">
+                <IconButton
+                  edge="start"
+                  color="inherit"
+                  aria-label="delete"
+                  onClick={() => this.handleDeleteOpen(table)}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </Tooltip>
             </TableCell>
           </TableRow>
         );
@@ -266,245 +269,260 @@ class LogicalContent extends React.Component {
       saveLoading,
       deleteLoading,
     } = this.state;
-    return (
-      <div>
-        <Paper
-          style={{
-            margin: 'auto',
-            overflow: 'hidden',
-            clear: 'both',
-            marginBottom: 20,
-          }}
-        >
-          <AppBar
-            position="static"
-            elevation={0}
+    try {
+      return (
+        <div>
+          <Paper
             style={{
-              backgroundColor: '#fafafa',
-              borderBottom: '1px solid #dcdcdc',
+              margin: 'auto',
+              overflow: 'hidden',
+              clear: 'both',
+              marginBottom: 20,
             }}
           >
-            <Toolbar style={{ margin: 4, paddingLeft: 12, paddingRight: 12 }}>
-              <Grid container spacing={1}>
-                <Grid item xs style={{ overflow: 'hidden' }}>
-                  <Typography
-                    align="left"
-                    variant="subtitle2"
-                    noWrap
-                    style={{ marginTop: 10, color: '#000000' }}
-                  >
-                    Project: {projectName}
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={this.handleClickOpen}
-                  >
-                    Add Table
-                  </Button>
-                </Grid>
-              </Grid>
-            </Toolbar>
-          </AppBar>
-          <div style={{ margin: 'auto', overflow: 'auto' }}>
-            <Table>
-              <TableHead style={{ backgroundColor: '#fafafa' }}>
-                <TableRow>
-                  <TableCell
-                    style={{
-                      paddingLeft: 16,
-                      paddingRight: 16,
-                      paddingTop: 5,
-                      paddingBottom: 5,
-                    }}
-                  >
-                    TABLE NAME
-                  </TableCell>
-                  <TableCell
-                    style={{
-                      paddingLeft: 16,
-                      paddingRight: 16,
-                      paddingTop: 5,
-                      paddingBottom: 5,
-                      width: 50,
-                    }}
-                  >
-                    ROWS
-                  </TableCell>
-                  <TableCell
-                    style={{
-                      paddingLeft: 16,
-                      paddingRight: 16,
-                      paddingTop: 5,
-                      paddingBottom: 5,
-                      width: 100,
-                    }}
-                    align="right"
-                  >
-                    ACTIONS
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>{this.renderTableData()}</TableBody>
-            </Table>
-          </div>
-          <TablePagination
-            rowsPerPageOptions={[25]}
-            component="div"
-            count={views.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            backIconButtonProps={{
-              'aria-label': 'previous page',
-            }}
-            nextIconButtonProps={{
-              'aria-label': 'next page',
-            }}
-            onChangePage={this.handleChangePage}
-            onChangeRowsPerPage={this.handleChangeRowsPerPage}
-          />
-          <Dialog
-            open={this.state.loading}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-            maxWidth={'lg'}
-          >
-            <DialogTitle id="alert-dialog-title" style={{ margin: 'auto' }}>
-              Loading
-            </DialogTitle>
-            <DialogContent
+            <AppBar
+              position="static"
+              elevation={0}
               style={{
-                minHeight: 150,
-                minWidth: 400,
-                margin: 'auto',
-                overflow: 'hidden',
+                backgroundColor: '#fafafa',
+                borderBottom: '1px solid #dcdcdc',
               }}
             >
-              <div style={{ width: 124, margin: 'auto' }}>
-                <CircularProgress size={124} />
-              </div>
-            </DialogContent>
-          </Dialog>
-          <Dialog
-            open={this.state.setOpen}
-            onClose={this.handleClose}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-            maxWidth={'md'}
-          >
-            <DialogTitle id="alert-dialog-title">{'Add Table'}</DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description"></DialogContentText>
-              <DndProvider backend={Backend}>
-                <TableControl setName={this.setName} entry={entry} />
-              </DndProvider>
-            </DialogContent>
-            <DialogActions>
-              <Button
-                onClick={this.addTable}
-                color="primary"
-                autoFocus
+              <Toolbar style={{ margin: 4, paddingLeft: 12, paddingRight: 12 }}>
+                <Grid container spacing={1}>
+                  <Grid item xs style={{ overflow: 'hidden' }}>
+                    <Typography
+                      align="left"
+                      variant="subtitle2"
+                      noWrap
+                      style={{ marginTop: 10, color: '#000000' }}
+                    >
+                      Project: {projectName}
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    <Tooltip title="Create New Table">
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={this.handleClickOpen}
+                      >
+                        Add Table
+                      </Button>
+                    </Tooltip>
+                  </Grid>
+                </Grid>
+              </Toolbar>
+            </AppBar>
+            <div style={{ margin: 'auto', overflow: 'auto' }}>
+              <Table>
+                <TableHead style={{ backgroundColor: '#fafafa' }}>
+                  <TableRow>
+                    <TableCell
+                      style={{
+                        paddingLeft: 16,
+                        paddingRight: 16,
+                        paddingTop: 5,
+                        paddingBottom: 5,
+                      }}
+                    >
+                      TABLE NAME
+                    </TableCell>
+                    <TableCell
+                      style={{
+                        paddingLeft: 16,
+                        paddingRight: 16,
+                        paddingTop: 5,
+                        paddingBottom: 5,
+                        width: 50,
+                      }}
+                    >
+                      ROWS
+                    </TableCell>
+                    <TableCell
+                      style={{
+                        paddingLeft: 16,
+                        paddingRight: 16,
+                        paddingTop: 5,
+                        paddingBottom: 5,
+                        width: 100,
+                      }}
+                      align="right"
+                    >
+                      ACTIONS
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>{this.renderTableData()}</TableBody>
+              </Table>
+            </div>
+            <TablePagination
+              rowsPerPageOptions={[25]}
+              component="div"
+              count={views.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              backIconButtonProps={{
+                'aria-label': 'previous page',
+              }}
+              nextIconButtonProps={{
+                'aria-label': 'next page',
+              }}
+              onChangePage={this.handleChangePage}
+              onChangeRowsPerPage={this.handleChangeRowsPerPage}
+            />
+            <Dialog
+              open={this.state.loading}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+              maxWidth={'lg'}
+            >
+              <DialogTitle id="alert-dialog-title" style={{ margin: 'auto' }}>
+                Loading
+              </DialogTitle>
+              <DialogContent
+                style={{
+                  minHeight: 150,
+                  minWidth: 400,
+                  margin: 'auto',
+                  overflow: 'hidden',
+                }}
               >
-                {addLoading && <CircularProgress size={24} />}
-                {!addLoading && 'Add'}
-              </Button>
-              <Button
-                onClick={this.handleClose}
-                color="primary"
-                autoFocus
-              >
-                Cancel
-              </Button>
-            </DialogActions>
-          </Dialog>
-          <Dialog
-            open={this.state.setEditOpen}
-            onClose={this.handleEditClose}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-          >
-            <DialogTitle id="alert-dialog-title">
-              {'Edit Logical View'}
-            </DialogTitle>
-            <DialogContent>
-              <div class="dialog-input">
-                <input
-                  placeholder="Enter view name here"
-                  type="text"
-                  defaultValue={tempView.name}
-                  onChange={(e) => (tempView['name'] = e.target.value)}
-                />
-              </div>
-              <div class="dialog-input">
-                <input
-                  placeholder="Enter description here"
-                  type="text"
-                  defaultValue={tempView.description}
-                  onChange={(e) => (tempView['description'] = e.target.value)}
-                />
-              </div>
-            </DialogContent>
-            <DialogActions>
-              <Button
-                onClick={this.editView}
-                color="primary"
-                autoFocus
-              >
-                {saveLoading && <CircularProgress size={24} />}
-                {!saveLoading && 'Update'}
-              </Button>
-            </DialogActions>
-          </Dialog>
-          <Dialog
-            open={this.state.deleting}
-            onClose={this.handleDeleteClose}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-          >
-            <DialogTitle id="alert-dialog-title">{'Delete data?'}</DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                Are you sure you want to delete this data?
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={this.handleDeleteClose} color="primary">
-                No
-              </Button>
-              <Button
-                onClick={this.deleteTable}
-                color="primary"
-                disabled={deleteLoading}
-                autoFocus
-              >
-                {deleteLoading && <CircularProgress size={24} />}
-                {!deleteLoading && 'Yes'}
-              </Button>
-            </DialogActions>
-          </Dialog>
-          <Dialog
-            open={this.state.openMessage}
-            onClose={this.handleMessageClose}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-          >
-            <DialogTitle id="alert-dialog-title">{'Error'}</DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                {message}
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={this.handleMessageClose} color="primary">
-                Okay
-              </Button>
-            </DialogActions>
-          </Dialog>
-        </Paper>
-      </div>
-    );
+                <div style={{ width: 124, margin: 'auto' }}>
+                  <CircularProgress size={124} />
+                </div>
+              </DialogContent>
+            </Dialog>
+            <Dialog
+              open={this.state.setOpen}
+              onClose={this.handleClose}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+              maxWidth={'md'}
+            >
+              <DialogTitle id="alert-dialog-title">{'Add Table'}</DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description"></DialogContentText>
+                <DndProvider backend={Backend}>
+                  <TableControl setName={this.setName} entry={entry} />
+                </DndProvider>
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  onClick={this.addTable}
+                  color="primary"
+                  autoFocus
+                >
+                  {addLoading && <CircularProgress size={24} />}
+                  {!addLoading && 'Add'}
+                </Button>
+                <Button
+                  onClick={this.handleClose}
+                  color="primary"
+                  autoFocus
+                >
+                  Cancel
+                </Button>
+              </DialogActions>
+            </Dialog>
+            <Dialog
+              open={this.state.setEditOpen}
+              onClose={this.handleEditClose}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+            >
+              <DialogTitle id="alert-dialog-title">
+                {'Edit Logical View'}
+              </DialogTitle>
+              <DialogContent>
+                <div class="dialog-input">
+                  <input
+                    placeholder="Enter view name here"
+                    type="text"
+                    defaultValue={tempView.name}
+                    onChange={(e) => (tempView['name'] = e.target.value)}
+                  />
+                </div>
+                <div class="dialog-input">
+                  <input
+                    placeholder="Enter description here"
+                    type="text"
+                    defaultValue={tempView.description}
+                    onChange={(e) => (tempView['description'] = e.target.value)}
+                  />
+                </div>
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  onClick={this.editView}
+                  color="primary"
+                  autoFocus
+                >
+                  {saveLoading && <CircularProgress size={24} />}
+                  {!saveLoading && 'Update'}
+                </Button>
+              </DialogActions>
+            </Dialog>
+            <Dialog
+              open={this.state.deleting}
+              onClose={this.handleDeleteClose}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+            >
+              <DialogTitle id="alert-dialog-title">{'Delete data?'}</DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  Are you sure you want to delete this data?
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={this.handleDeleteClose} color="primary">
+                  No
+                </Button>
+                <Button
+                  onClick={this.deleteTable}
+                  color="primary"
+                  disabled={deleteLoading}
+                  autoFocus
+                >
+                  {deleteLoading && <CircularProgress size={24} />}
+                  {!deleteLoading && 'Yes'}
+                </Button>
+              </DialogActions>
+            </Dialog>
+            <Dialog
+              open={this.state.openMessage}
+              onClose={this.handleMessageClose}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+            >
+              <DialogTitle id="alert-dialog-title">{'Error'}</DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  {message}
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={this.handleMessageClose} color="primary">
+                  Okay
+                </Button>
+              </DialogActions>
+            </Dialog>
+          </Paper>
+        </div>
+      );
+    }
+    catch (error) {
+      return (
+        <div style={{ maxWidth: 1236, margin: 'auto' }}>
+          <Paper style={{ height: 40 }}>
+            <div style={{ padding: 10, margin: 'auto' }}>
+              Please make sure database has been created.
+            </div>
+          </Paper>
+        </div>
+      );
+    }
   }
 }
 LogicalContent.contextType = PromConsumer;

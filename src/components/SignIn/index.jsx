@@ -5,6 +5,7 @@ import {
     Grid, Hidden,
     Typography
 } from '@material-ui/core';
+import { Link } from 'react-router-dom';
 import React, { Component } from 'react';
 import * as Prom from '../../services/Prometheus/Prom';
 
@@ -136,9 +137,9 @@ class SignInPage extends Component {
           <Typography
             variant="h4"
             color="primary"
-            style={{ marginTop: '20px' }}
+            style={{ marginTop: '50px' }}
           >
-            SIGN IN
+            Sign in to your account
           </Typography>
 
           <Typography
@@ -187,6 +188,10 @@ class SignInPage extends Component {
             {!loading && 'Sign In'}
           </Button>
 
+          <Typography variant='body2' color="primary" style={{marginTop: '20px'}} to={"/ForgotPassword"} component={Link}>
+            Forgot Password?
+          </Typography>
+
           {error && (
             <Typography variant="body1" color="error">
               {error.message}
@@ -207,9 +212,9 @@ class SignInPage extends Component {
           <Typography
             variant="h4"
             color="primary"
-            style={{ marginTop: '20px' }}
+            style={{ marginTop: '50px' }}
           >
-            REGISTER
+            Register
           </Typography>
 
           <Typography
@@ -320,16 +325,7 @@ class SignInPage extends Component {
                   flexDirection="column"
                   padding="16px"
                 >
-                  <Typography
-                    variant="h3"
-                    style={{
-                      textAlign: 'left',
-                      color: '#ffffff',
-                      marginTop: '20px',
-                    }}
-                  >
-                    Prometheus
-                  </Typography>
+                  <img src="/prometheus-banner.svg" alt="" />
                   <Typography
                     variant="h4"
                     style={{
@@ -338,7 +334,7 @@ class SignInPage extends Component {
                       marginTop: '20px',
                     }}
                   >
-                    Data Management System
+                    Prometheus CMS
                   </Typography>
                   <Typography
                     variant="p"
@@ -349,9 +345,9 @@ class SignInPage extends Component {
                     }}
                   >
                     Prometheus is a data management system that automates many
-                    of the backend processes found in web development.
+                    of the backend processes involved in web development.
                     Prometheus allows developers to configure a database through
-                    the Prometheus web app. Once this is done users can use
+                    the Prometheus web app. Once this is done users can then use
                     Prometheus as a headless content management system that also
                     configures restful apis (no coding involved).
                   </Typography>
