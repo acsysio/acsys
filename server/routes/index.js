@@ -4,25 +4,54 @@ const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const uniquid = require('uniqid');
 const nodemailer = require('nodemailer');
-const Config = require('../config/config.js');
-const DataDriver = require('../db.js');
-const StorageDriver = require('../storage.js');
+const path = require('path');
+const Config = require('../config/config');
+const SqliteDriver = require('../data-drivers/sqlitedb');
+const FirestoreDriver = require('../data-drivers/firestoredb');
+const StorageDriver = require('../storage-drivers/gcpstorage');
+const LocalStorage = require('../storage-drivers/localstorage');
 
 const router = express.Router();
 
-const configKey = require('../config/config.json');
-
 const config = new Config();
-config.initialize();
 
 let data;
-data = new DataDriver();
-
 let storage;
-storage = new StorageDriver();
 
-data.initialize();
-storage.initialize(data);
+function removeDir (path) {
+  if (fs.existsSync(path)) {
+    const files = fs.readdirSync(path);
+
+    files.forEach(function(filename) {
+      if (fs.statSync(path + "/" + filename).isDirectory()) {
+        removeDir(path + "/" + filename);
+      } else {
+        fs.unlinkSync(path + "/" + filename);
+      }
+    });
+    fs.rmdirSync(path);
+  } else {
+    console.log("Directory path not found.")
+  }
+}
+
+async function initialize() {
+  await config.initialize();
+
+  const dbType = await config.getDatabaseType();
+
+  if (dbType === 'firestore') {
+    data = new FirestoreDriver();
+    storage = new StorageDriver();
+  } else if (dbType === 'local') {
+    data = new SqliteDriver();
+    storage = new LocalStorage();
+  }
+  await data.initialize();
+  await storage.initialize(config, data);
+}
+
+initialize();
 
 express().use(express.static('./config'));
 
@@ -32,6 +61,11 @@ router.get('/isConnected', function (req, res) {
   } else {
     res.send(false);
   }
+});
+
+router.get('/getDatabaseType', async function (req, res) {
+  const type = await config.getDatabaseType();
+  res.json(type);
 });
 
 router.get('/hasAdmin', function (req, res) {
@@ -78,19 +112,19 @@ router.post('/register', function (req, res) {
         bcrypt.hash(userData.password, 8, function (err, hash) {
           const dataModel = {
             id: userData.id,
-            username: userData.username,
             email: userData.email,
+            username: userData.username,
             role: userData.role,
             mode: userData.mode,
             prmthsCd: hash,
           };
           data
             .insert('prmths_users', dataModel)
-            .then((action) => {
-              const token = jwt.sign({ sub: hash }, configKey.secret, {
+            .then(async (action) => {
+              const token = jwt.sign({ sub: hash }, await config.getSecret(), {
                 expiresIn: '1d',
               });
-              const refreshToken = jwt.sign({ sub: hash }, configKey.secret, {
+              const refreshToken = jwt.sign({ sub: hash }, await config.getSecret(), {
                 expiresIn: '3d',
               });
               res.json({
@@ -338,10 +372,10 @@ router.post('/createUser', function (req, res) {
               bcrypt.hash(userData.password, 8, function (err, hash) {
                 const dataModel = {
                   id: userData.id,
-                  username: userData.username,
                   email: userData.email,
-                  mode: userData.mode,
+                  username: userData.username,
                   role: userData.role,
+                  mode: userData.mode,
                   prmthsCd: hash,
                 };
                 data
@@ -372,16 +406,16 @@ router.post('/updateUser', function (req, res) {
     if (userData.prmthsCd === undefined) {
       dataModel = {
         id: userData.id,
-        username: userData.username,
         email: userData.email,
+        username: userData.username,
         role: userData.role,
         mode: userData.mode,
       };
     } else {
       dataModel = {
         id: userData.id,
-        username: userData.username,
         email: userData.email,
+        username: userData.username,
         role: userData.role,
         mode: userData.mode,
         prmthsCd: hash,
@@ -408,18 +442,18 @@ router.post('/authenticate', function (req, res) {
   data
     .getDocs('prmths_users', options)
     .then((result) => {
-      bcrypt.compare(cPassword, result[0].prmthsCd, function (err, outcome) {
+      bcrypt.compare(cPassword, result[0].prmthsCd, async function (err, outcome) {
         if (outcome) {
           const token = jwt.sign(
             { sub: result[0].prmthsCd },
-            configKey.secret,
+            await config.getSecret(),
             {
               expiresIn: '1d',
             }
           );
           const refreshToken = jwt.sign(
             { sub: result[0].prmthsCd },
-            configKey.secret,
+            await config.getSecret(),
             {
               expiresIn: '3d',
             }
@@ -447,11 +481,11 @@ router.post('/authenticate', function (req, res) {
     });
 });
 
-router.post('/refresh', function (req, res) {
-  const token = jwt.sign({ sub: configKey.secret }, configKey.secret, {
+router.post('/refresh', async function (req, res) {
+  const token = jwt.sign({ sub: await config.getSecret() }, await config.getSecret(), {
     expiresIn: '1d',
   });
-  const refreshToken = jwt.sign({ sub: configKey.secret }, configKey.secret, {
+  const refreshToken = jwt.sign({ sub: await config.getSecret() }, await config.getSecret(), {
     expiresIn: '3d',
   });
   res.json({ token, refreshToken });
@@ -466,6 +500,16 @@ router.get('/getProjectName', function (req, res) {
     .catch(() => {
       res.send((rData = { value: false }));
     });
+});
+
+router.get('/getUrl', function (req, res) {
+  const url = req.protocol + '://' + req.get('host') + '/api/readData?table=' + req.query.table + '&options=' + req.query.options;
+  res.send((rdata = {url: url}));
+});
+
+router.get('/getOpenUrl', function (req, res) {
+  const url = req.protocol + '://' + req.get('host') + '/api/readOpenData?table=' + req.query.table + '&options=' + req.query.options;
+  res.send((rdata = {url: url}));
 });
 
 router.get('/getAll', function (req, res) {
@@ -565,7 +609,7 @@ router.get('/readOpenData', function (req, res) {
           res.send(result);
         });
       } else {
-        res.send(false);
+        res.send('Error: Table must be unlocked before it can be accessed.');
       }
     })
     .catch(() => {
@@ -583,7 +627,7 @@ router.post('/insertOpenData', function (req, res) {
           res.send(result);
         });
       } else {
-        res.send(false);
+        res.send('Error: Table must be unlocked before it can be accessed.');
       }
     })
     .catch(() => {
@@ -603,7 +647,7 @@ router.post('/updateOpenData', function (req, res) {
             res.send(result);
           });
       } else {
-        res.send(false);
+        res.send('Error: Table must be unlocked before it can be accessed.');
       }
     })
     .catch(() => {
@@ -621,7 +665,7 @@ router.post('/deleteOpenData', function (req, res) {
           res.send(result);
         });
       } else {
-        res.send(false);
+        res.send('Error: Table must be unlocked before it can be accessed.');
       }
     })
     .catch(() => {
@@ -677,7 +721,7 @@ router.post('/unlockTable', function (req, res) {
 });
 
 router.post('/lockTable', function (req, res) {
-  data.lockTable(req.body.table).then((result, reject) => {
+  data.lockTable(req.body.table_name).then((result, reject) => {
     res.send(result);
   });
 });
@@ -705,13 +749,39 @@ router.post('/uploadFile', function (req, res) {
 });
 
 router.get('/getStorageURL', function (req, res) {
-  storage.getStorageURL(req.query.url).then((result, reject) => {
+  storage.getStorageURL(req).then((result, reject) => {
     res.send(
       JSON.stringify({
         data: result,
       })
     );
   });
+});
+
+router.get('/getFile', async function (req, res) {
+  const file = path.resolve('files/' + req.query.file);
+  if(req.query.token !== undefined) {
+    const token = req.query.token;
+    try {
+      const decoded = jwt.verify(token, await config.getSecret());
+      if (decoded) {
+        const today = parseInt(new Date().getTime().toString().substr(0, 10));
+        const difference = decoded.exp - today;
+        if (difference <= 0) {
+          res.send('Link has expired.');
+        }
+        res.sendFile(file);
+      }
+      else {
+        res.send('File could not be retrieved.');
+      }
+    } catch (error) {
+      res.send('File could not be retrieved.');
+    }
+  }
+  else {
+    res.sendFile(file);
+  }
 });
 
 router.post('/makeFilePublic', function (req, res) {
@@ -746,43 +816,143 @@ router.post('/restart', function (req, res) {
   }, 5000);
 });
 
-router.post('/setInitialDatabaseConfig', async function (req, res) {
+router.post('/setInitialLocalDatabaseConfig', async function (req, res) {
   try {
-    if (!data.isConnected()) {
-      try {
-        await config
-          .setConfig(req.body)
-          .then(async () => {
-            return new Promise((resolve) => setTimeout(resolve, 5000));
-          })
-          .catch(() => {
-            res.send(false);
-          });
-        await config
-          .setStorageConfig(req.body)
-          .then(async () => {})
-          .catch(() => {
-            res.send(false);
-          });
-        fs.writeFile(
-          './prometheus.service.config.json',
-          JSON.stringify(req.body).replace(/\\\\/g, '\\'),
-          async function (err) {
-            if (err) {
-              res.send(err);
-            } else {
-              data.initialize();
-              storage.initialize(data);
-              res.send(true);
-            }
-          }
-        );
-      } catch (error) {
+    const { projectName } = req.body;
+    await config.format();
+    await config.initialize();
+    fs.unlink('./prometheus.service.config.json', function (err) {});
+    removeDir('./files');
+    data = new SqliteDriver();
+    storage = new LocalStorage();
+    await config
+      .setConfig('local', projectName)
+      .then(async () => {
+        await data.initialize();
+      })
+      .catch(() => {
         res.send(false);
+      });
+      await config
+      .setStorageConfig('local')
+      .then(async () => {
+        storage.initialize(config, data);
+      })
+      .catch(() => {
+        res.send(false);
+      });
+      res.send(true);
+  } catch (error) {
+    res.send(false);
+  }
+});
+
+router.post('/setLocalDatabaseConfig', async function (req, res) {
+  try {
+    const { projectName } = req.body;
+    await config.format();
+    await config.initialize();
+    fs.unlink('./prometheus.service.config.json', function (err) {});
+    removeDir('./files');
+    data = new SqliteDriver();
+    storage = new LocalStorage();
+    await config
+      .setConfig('local', projectName)
+      .then(async () => {
+        await data.initialize();
+      })
+      .catch(() => {
+        res.send(false);
+      });
+      await config
+      .setStorageConfig('local')
+      .then(async () => {
+        storage.initialize(config, data);
+      })
+      .catch(() => {
+        res.send(false);
+      });
+      res.send(true);
+  } catch (error) {
+    res.send(false);
+  }
+});
+
+router.post('/setInitialFirestoreConfig', async function (req, res) {
+  try {
+    await config.format();
+    await config.initialize();
+    fs.unlink('./prometheus.service.config.json', function (err) {});
+    removeDir('./files');
+    data = new FirestoreDriver();
+    storage = new StorageDriver();
+    await config
+      .setConfig('firestore', 'firestore')
+      .then(async () => {
+        return new Promise((resolve) => setTimeout(resolve, 5000));
+      })
+      .catch(() => {
+        res.send(false);
+      });
+    await config
+      .setStorageConfig('gcp')
+      .then(async () => {})
+      .catch(() => {
+        res.send(false);
+      });
+    fs.writeFile(
+      './prometheus.service.config.json',
+      JSON.stringify(req.body).replace(/\\\\/g, '\\'),
+      async function (err) {
+        if (err) {
+          res.send(err);
+        } else {
+          data.initialize();
+          storage.initialize(config, data);
+          res.send(true);
+        }
       }
-    } else {
-      res.send(false);
-    }
+    );
+  } catch (error) {
+    res.send(false);
+  }
+});
+
+router.post('/setFirestoreConfig', async function (req, res) {
+  try {
+    await config.format();
+    await config.initialize();
+    fs.unlink('./prometheus.service.config.json', function (err) {});
+    removeDir('./files');
+    data = new FirestoreDriver();
+    storage = new StorageDriver();
+    await config
+      .setConfig('firestore', 'firestore')
+      .then(async () => {
+        return new Promise((resolve) => setTimeout(resolve, 5000));
+      })
+      .catch(() => {
+        res.send(false);
+      });
+    await config
+      .setStorageConfig('gcp')
+      .then(async () => {})
+      .catch(() => {
+        res.send(false);
+      });
+    fs.writeFile(
+      './prometheus.service.config.json',
+      JSON.stringify(req.body).replace(/\\\\/g, '\\'),
+      async function (err) {
+        if (err) {
+          res.send(err);
+        } else {
+          data.initialize();
+          storage.initialize(config, data);
+          res.send(true);
+        }
+      }
+    );
   } catch (error) {
     res.send(false);
   }
@@ -803,76 +973,37 @@ router.get('/loadDatabaseConfig', async function (req, res) {
     });
 });
 
-router.post('/setDatabaseConfig', async function (req, res) {
-  const configData = {
-    type: req.body.type,
-    project_id: req.body.project_id,
-    private_key_id: req.body.private_key_id,
-    private_key: req.body.private_key,
-    client_email: req.body.client_email,
-    client_id: req.body.client_id,
-    auth_uri: req.body.auth_uri,
-    token_uri: req.body.token_uri,
-    auth_provider_x509_cert_url: req.body.auth_provider_x509_cert_url,
-    client_x509_cert_url: req.body.client_x509_cert_url,
-  };
-
-  try {
+router.get('/getDatabaseConfig', async function (req, res) {
+  const type = await config.getDatabaseType();
+  if (type === 'local') {
     await config
-      .setConfig(configData)
-      .then(async () => {
-        return new Promise((resolve) => setTimeout(resolve, 5000));
+      .getConfig()
+      .then((result) => {
+        res.send((rData = { project_name: result }));
       })
       .catch(() => {
-        res.send(false);
+        res.send((rData = { value: false }));
       });
-    await config
-      .setStorageConfig(configData)
-      .then(async () => {})
-      .catch(() => {
-        res.send(false);
-      });
-    fs.writeFile(
-      './prometheus.service.config.json',
-      JSON.stringify(configData).replace(/\\\\/g, '\\'),
-      async function (err) {
+  } else if (type === 'firestore') {
+    try {
+      fs.readFile('./prometheus.service.config.json', function (err, result) {
         if (err) {
-          res.send(err);
+          res.send((rData = { value: false }));
         } else {
-          data.initialize();
-          storage.initialize(data);
-          res.send(true);
+          res.send(result);
         }
-      }
-    );
-  } catch (error) {
-    res.send(false);
+      });
+    } catch (error) {
+      res.send((rData = { value: false }));
+    }
+  } else {
+    res.send((rData = { value: false }));
   }
 });
 
-router.get('/getDatabaseConfig', function (req, res) {
-  config
-    .getStorageType()
-    .then((conf) => {
-      try {
-        fs.readFile('./prometheus.service.config.json', function (err, result) {
-          if (err) {
-            res.send((rData = { value: false }));
-          } else {
-            res.send(result);
-          }
-        });
-      } catch (error) {
-        res.send((rData = { value: false }));
-      }
-    })
-    .catch(() => {
-      res.send((rData = { value: false }));
-    });
-});
-
 router.get('/loadStorageConfig', async function (req, res) {
-  if ((await config.getStorageType()) === 'gcp') {
+  const type = await config.getStorageType();
+  if ((type) === 'gcp') {
     try {
       fs.readFile('./prometheus.service.config.json', function (
         err,
@@ -894,7 +1025,11 @@ router.get('/loadStorageConfig', async function (req, res) {
     } catch (error) {
       res.send((rData = { value: false }));
     }
-  } else {
+  } 
+  else if((type) === 'local') {
+    res.send((rData = { value: true }));
+  }
+  else {
     res.send((rData = { value: false }));
   }
 });

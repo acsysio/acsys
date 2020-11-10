@@ -9,6 +9,7 @@ import {
   ExpansionPanel,
   ExpansionPanelDetails,
   ExpansionPanelSummary,
+  NativeSelect,
   Tooltip,
 } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
@@ -24,19 +25,25 @@ const INITIAL_STATE = {
   port: '',
   username: '',
   password: '',
-  apiKey: '',
-  authDomain: '',
-  databaseURL: '',
-  projectId: '',
-  storageBucket: '',
-  messagingSenderId: '',
-  appId: '',
-  measurementId: '',
+  project_name: '',
+  databaseType: '',
+  type: '',
+  project_id: '',
+  private_key_id: '',
+  private_key: '',
+  client_email: '',
+  client_id: '',
+  auth_uri: '',
+  token_uri: '',
+  auth_provider_x509_cert_url: '',
+  client_x509_cert_url: '',
   updateEmail: false,
   updateDatabase: false,
   updateDatabase: false,
   passwordChange: false,
   userData: [],
+  uploadFile: '',
+  fileName: '',
   page: 0,
   rowsPerPage: 15,
   loading: false,
@@ -53,9 +60,11 @@ class Settings extends React.Component {
   };
 
   handleClickOpen = () => {
-    this.setState({
-      setOpen: true,
-    });
+    if (this.state.updateDatabase || this.state.updateEmail) {
+      this.setState({
+        setOpen: true,
+      });
+    }
   };
 
   handleClose = () => {
@@ -81,19 +90,34 @@ class Settings extends React.Component {
         password: emailConfig[0].password,
       });
     }
+    const databaseType = await Prom.getDatabaseType();
     const databaseConfig = await Prom.getDatabaseConfig();
+    if (databaseType === 'local') {
+      this.setState({
+        databaseType: databaseType,
+        project_name: databaseConfig.project_name,
+      });
+    }
+    else if (databaseType === 'firestore') {
+      this.setState({
+        databaseType: databaseType,
+        type: databaseConfig.type,
+        project_id: databaseConfig.project_id,
+        private_key_id: databaseConfig.private_key_id,
+        private_key: databaseConfig.private_key,
+        client_email: databaseConfig.client_email,
+        client_id: databaseConfig.client_id,
+        auth_uri: databaseConfig.auth_uri,
+        token_uri: databaseConfig.token_uri,
+        auth_provider_x509_cert_url: databaseConfig.auth_provider_x509_cert_url,
+        client_x509_cert_url: databaseConfig.client_x509_cert_url,
+      });
+    }
+  };
 
+  setDatabaseType = (type) => {
     this.setState({
-      type: databaseConfig.type,
-      project_id: databaseConfig.project_id,
-      private_key_id: databaseConfig.private_key_id,
-      private_key: databaseConfig.private_key,
-      client_email: databaseConfig.client_email,
-      client_id: databaseConfig.client_id,
-      auth_uri: databaseConfig.auth_uri,
-      token_uri: databaseConfig.token_uri,
-      auth_provider_x509_cert_url: databaseConfig.auth_provider_x509_cert_url,
-      client_x509_cert_url: databaseConfig.client_x509_cert_url,
+      databaseType: type,
     });
   };
 
@@ -109,7 +133,10 @@ class Settings extends React.Component {
 
   setDatabase = async () => {
     const {
+      databaseType,
+      project_name,
       type,
+      fileName,
       project_id,
       private_key_id,
       private_key,
@@ -120,25 +147,36 @@ class Settings extends React.Component {
       auth_provider_x509_cert_url,
       client_x509_cert_url,
     } = this.state;
-
-    const config = {
-      type: type,
-      project_id: project_id,
-      private_key_id: private_key_id,
-      private_key: private_key,
-      client_email: client_email,
-      client_id: client_id,
-      auth_uri: auth_uri,
-      token_uri: token_uri,
-      auth_provider_x509_cert_url: auth_provider_x509_cert_url,
-      client_x509_cert_url: client_x509_cert_url,
-    };
-
-    await Prom.setDatabaseConfig(config);
+    if (databaseType === 'local' && project_name.length < 1) {
+    
+    }
+    else {
+      if (databaseType === 'firestore') {
+        const config = {
+          type: type,
+          project_id: project_id,
+          private_key_id: private_key_id,
+          private_key: private_key,
+          client_email: client_email,
+          client_id: client_id,
+          auth_uri: auth_uri,
+          token_uri: token_uri,
+          auth_provider_x509_cert_url: auth_provider_x509_cert_url,
+          client_x509_cert_url: client_x509_cert_url,
+        };
+        await Prom.setFirestoreConfig(this.state.uploadFile);
+      }
+      else {
+        await Prom.setLocalDatabaseConfig(
+          project_name
+        );
+      }
+    }
   };
 
   setConfig = async () => {
     this.setState({
+      setOpen: false,
       loading: true,
     });
     if (this.state.updateEmail) {
@@ -151,15 +189,52 @@ class Settings extends React.Component {
     }
     if (this.state.updateDatabase || this.state.updateEmail) {
       await this.sleep(5000);
-      await Prom.restart().then(async () => {
-        await this.sleep(5000);
-        window.location.reload();
-      });
+      // await Prom.restart().then(async () => {
+      //   await this.sleep(5000);
+      //   window.location.reload();
+      // });
+      window.location.reload();
     }
     this.setState({
       loading: false,
     });
   };
+
+  setRef = (ref) => {
+    const fileReader = new FileReader();
+    fileReader.onload = (event) => this.loadFields(event);
+    try {
+      fileReader.readAsText(ref.target.files[0]);
+    }
+    catch (error) {
+
+    }
+    this.setState({
+      fileName: ref.target.files[0].name,
+      uploadFile: ref.target.files[0],
+    });
+  };
+
+  loadFields (event) {
+    try {
+      const settings = JSON.parse(event.target.result);
+      this.setState({
+        type: settings.type,
+        project_id: settings.project_id,
+        private_key_id: settings.private_key_id,
+        private_key: settings.private_key,
+        client_email: settings.client_email,
+        client_id: settings.client_id,
+        auth_uri: settings.auth_uri,
+        token_uri: settings.token_uri,
+        auth_provider_x509_cert_url: settings.auth_provider_x509_cert_url,
+        client_x509_cert_url: settings.client_x509_cert_url,
+      });
+    }
+    catch (error) {
+
+    }
+  }
 
   sleep(time) {
     return new Promise((resolve) => setTimeout(resolve, time));
@@ -169,12 +244,11 @@ class Settings extends React.Component {
     this.setState({ [event.target.name]: event.target.value });
   };
 
-  render() {
+  getConfigPanel() {
     const {
-      host,
-      port,
-      username,
-      password,
+      databaseType,
+      project_name,
+      fileName,
       type,
       project_id,
       private_key_id,
@@ -185,8 +259,183 @@ class Settings extends React.Component {
       token_uri,
       auth_provider_x509_cert_url,
       client_x509_cert_url,
+    } = this.state;
+    if(databaseType === 'local') {
+      return (
+        <ExpansionPanel
+          style={{ clear: 'both' }}
+          onChange={(e) =>
+            this.setState({
+              updateDatabase: !this.state.updateDatabase,
+            })
+          }
+        >
+          <ExpansionPanelSummary
+            expandIcon={<KeyboardArrowDown />}
+            aria-controls="panel1a-content"
+            id="panel1a-header"
+          >
+            <Typography>Local Configuration</Typography>
+          </ExpansionPanelSummary>
+          <ExpansionPanelDetails>
+            <Box
+              margin="auto"
+              width="90%"
+              display="flex"
+              flexDirection="column"
+              textAlign="center"
+              padding="16px"
+            >
+              <input
+                id="project_name"
+                name="project_name"
+                placeholder="Project Name"
+                value={project_name}
+                onChange={this.onChange}
+                style={{ marginTop: '20px' }}
+              />
+            </Box>
+          </ExpansionPanelDetails>
+        </ExpansionPanel>
+      )
+    }
+    else if(databaseType === 'firestore') {
+      return (
+        <ExpansionPanel
+          style={{ clear: 'both' }}
+          onChange={(e) =>
+            this.setState({
+              updateDatabase: !this.state.updateDatabase,
+            })
+          }
+        >
+          <ExpansionPanelSummary
+            expandIcon={<KeyboardArrowDown />}
+            aria-controls="panel1a-content"
+            id="panel1a-header"
+          >
+            <Typography>Firestore Configuration</Typography>
+          </ExpansionPanelSummary>
+          <ExpansionPanelDetails>
+            <Box
+              margin="auto"
+              width="90%"
+              display="flex"
+              flexDirection="column"
+              textAlign="center"
+              padding="16px"
+            >
+              <input
+                id="type"
+                name="type"
+                placeholder="Type"
+                value={type}
+                style={{ marginTop: '20px' }}
+              />
+              <input
+                id="project_id"
+                name="project_id"
+                placeholder="Project ID"
+                value={project_id}
+                style={{ marginTop: '20px' }}
+              />
+              <input
+                id="private_key_id"
+                name="private_key_id"
+                placeholder="Private Key ID"
+                value={private_key_id}
+                style={{ marginTop: '20px' }}
+              />
+              <input
+                id="private_key"
+                name="private_key"
+                placeholder="Private Key"
+                value={private_key}
+                style={{ marginTop: '20px' }}
+              />
+              <input
+                id="client_email"
+                name="client_email"
+                placeholder="Client Email"
+                value={client_email}
+                style={{ marginTop: '20px' }}
+              />
+              <input
+                id="client_id"
+                name="client_id"
+                placeholder="Client ID"
+                value={client_id}
+                style={{ marginTop: '20px' }}
+              />
+              <input
+                id="auth_uri"
+                name="auth_uri"
+                placeholder="Auth URI"
+                value={auth_uri}
+                style={{ marginTop: '20px' }}
+              />
+              <input
+                id="token_uri"
+                name="token_uri"
+                placeholder="Token URI"
+                value={token_uri}
+                style={{ marginTop: '20px' }}
+              />
+              <input
+                id="auth_provider_x509_cert_url"
+                name="auth_provider_x509_cert_url"
+                placeholder="Auth Provider x509 Cert URL"
+                value={auth_provider_x509_cert_url}
+                style={{ marginTop: '20px' }}
+              />
+              <input
+                id="client_x509_cert_url"
+                name="client_x509_cert_url"
+                placeholder="Client x509 Cert URL"
+                value={client_x509_cert_url}
+                style={{ marginTop: '20px' }}
+              />
+              <Grid container style={{ marginTop: '20px' }}>
+                <Grid item xs>
+                  <input
+                    defaultValue={fileName}
+                    style={{ width: '100%'}}
+                  />
+                </Grid>
+                <Grid item>
+                  <input
+                    id="contained-button-file"
+                    type="file"
+                    style={{ display: 'none' }}
+                    onChange={this.setRef}
+                  />
+                  <label htmlFor="contained-button-file">
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      component="span"
+                      style={{marginLeft: 28, height: 32}}
+                    >
+                      New Config
+                    </Button>
+                  </label>
+                </Grid>
+              </Grid>
+            </Box>
+          </ExpansionPanelDetails>
+        </ExpansionPanel>
+      )
+    }
+  }
+
+  render() {
+    const {
+      databaseType,
+      host,
+      port,
+      username,
+      password,
       loading,
-      error,
     } = this.state;
 
     return (
@@ -196,9 +445,9 @@ class Settings extends React.Component {
             style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
             variant="contained"
             color="primary"
-            onClick={this.setConfig}
+            onClick={this.handleClickOpen}
           >
-            Save
+            Configure
           </Button>
         </Tooltip>
         <Paper
@@ -213,8 +462,24 @@ class Settings extends React.Component {
             <div class="element-container">
               <Grid container spacing={3}>
                 <Grid item xs={12}>
-                  <Grid item xs={12}>
-                    <h1 class="element-header">Configuration</h1>
+                  <Grid container>
+                    <Grid item xs={9}>
+                      <h1 class="element-header" style={{ marginTop: 0 }}>Configuration</h1>
+                    </Grid>
+                    <Grid item xs={3}>
+                      <Tooltip title="Sets Database Type For Project">
+                        <NativeSelect
+                          value={databaseType}
+                          onChange={(e) =>
+                            this.setDatabaseType(e.target.value)
+                          }
+                          style={{ width: '100%', paddingTop: 7 }}
+                        >
+                          <option value={'local'}>Local</option>
+                          <option value={'firestore'}>Firestore</option>
+                        </NativeSelect>
+                      </Tooltip>
+                    </Grid>
                   </Grid>
                   <Grid item xs={12} style={{ marginBottom: 30 }}>
                     <ExpansionPanel
@@ -245,7 +510,7 @@ class Settings extends React.Component {
                             id="host"
                             name="host"
                             placeholder="Host"
-                            defaultValue={host}
+                            value={host}
                             onChange={this.onChange}
                             style={{ marginTop: '20px' }}
                           />
@@ -253,7 +518,7 @@ class Settings extends React.Component {
                             id="port"
                             name="port"
                             placeholder="Port"
-                            defaultValue={port}
+                            value={port}
                             onChange={this.onChange}
                             style={{ marginTop: '20px' }}
                           />
@@ -261,7 +526,7 @@ class Settings extends React.Component {
                             id="username"
                             name="username"
                             placeholder="Username"
-                            defaultValue={username}
+                            value={username}
                             onChange={this.onChange}
                             style={{ marginTop: '20px' }}
                           />
@@ -270,7 +535,7 @@ class Settings extends React.Component {
                             name="password"
                             placeholder="Password"
                             type="password"
-                            defaultValue={password}
+                            value={password}
                             onChange={this.onChange}
                             style={{ marginTop: '20px' }}
                           />
@@ -279,113 +544,7 @@ class Settings extends React.Component {
                     </ExpansionPanel>
                   </Grid>
                   <Grid item xs={12}>
-                    <ExpansionPanel
-                      style={{ clear: 'both' }}
-                      onChange={(e) =>
-                        this.setState({
-                          updateDatabase: !this.state.updateDatabase,
-                        })
-                      }
-                    >
-                      <ExpansionPanelSummary
-                        expandIcon={<KeyboardArrowDown />}
-                        aria-controls="panel1a-content"
-                        id="panel1a-header"
-                      >
-                        <Typography>Database Configuration</Typography>
-                      </ExpansionPanelSummary>
-                      <ExpansionPanelDetails>
-                        <Box
-                          margin="auto"
-                          width="90%"
-                          display="flex"
-                          flexDirection="column"
-                          textAlign="center"
-                          padding="16px"
-                        >
-                          <input
-                            id="type"
-                            name="type"
-                            placeholder="Type"
-                            defaultValue={type}
-                            onChange={this.onChange}
-                            style={{ marginTop: '20px' }}
-                          />
-                          <input
-                            id="project_id"
-                            name="project_id"
-                            placeholder="Project ID"
-                            defaultValue={project_id}
-                            onChange={this.onChange}
-                            style={{ marginTop: '20px' }}
-                          />
-                          <input
-                            id="private_key_id"
-                            name="private_key_id"
-                            placeholder="Private Key ID"
-                            defaultValue={private_key_id}
-                            onChange={this.onChange}
-                            style={{ marginTop: '20px' }}
-                          />
-                          <input
-                            id="private_key"
-                            name="private_key"
-                            placeholder="Private Key"
-                            defaultValue={private_key}
-                            onChange={this.onChange}
-                            style={{ marginTop: '20px' }}
-                          />
-                          <input
-                            id="client_email"
-                            name="client_email"
-                            placeholder="Client Email"
-                            defaultValue={client_email}
-                            onChange={this.onChange}
-                            style={{ marginTop: '20px' }}
-                          />
-                          <input
-                            id="client_id"
-                            name="client_id"
-                            placeholder="Client ID"
-                            defaultValue={client_id}
-                            onChange={this.onChange}
-                            style={{ marginTop: '20px' }}
-                          />
-                          <input
-                            id="auth_uri"
-                            name="auth_uri"
-                            placeholder="Auth URI"
-                            defaultValue={auth_uri}
-                            onChange={this.onChange}
-                            style={{ marginTop: '20px' }}
-                          />
-                          <input
-                            id="token_uri"
-                            name="token_uri"
-                            placeholder="Token URI"
-                            defaultValue={token_uri}
-                            onChange={this.onChange}
-                            style={{ marginTop: '20px' }}
-                          />
-                          <input
-                            id="auth_provider_x509_cert_url"
-                            name="auth_provider_x509_cert_url"
-                            placeholder="Auth Provider x509 Cert URL"
-                            defaultValue={auth_provider_x509_cert_url}
-                            onChange={this.onChange}
-                            style={{ marginTop: '20px' }}
-                          />
-                          <input
-                            id="client_x509_cert_url"
-                            name="client_x509_cert_url"
-                            placeholder="Client x509 Cert URL"
-                            defaultValue={client_x509_cert_url}
-                            onChange={this.onChange}
-                            style={{ marginTop: '20px' }}
-                          />
-                        </Box>
-                      </ExpansionPanelDetails>
-                    </ExpansionPanel>
+                    {this.getConfigPanel()}
                   </Grid>
                 </Grid>
               </Grid>
@@ -423,11 +582,11 @@ class Settings extends React.Component {
             aria-describedby="alert-dialog-description"
           >
             <DialogTitle id="alert-dialog-title">
-              {'Update profile?'}
+              {'Update configuration?'}
             </DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description">
-                Are you sure you want to update this data?
+              Are you sure you want to update the configuration? Doing so will overwrite current settings.
               </DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -435,7 +594,7 @@ class Settings extends React.Component {
                 No
               </Button>
               <Button
-                onClick={this.updateCredentials}
+                onClick={this.setConfig}
                 color="primary"
                 disabled={loading}
                 autoFocus

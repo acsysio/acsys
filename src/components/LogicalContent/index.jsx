@@ -219,7 +219,7 @@ class LogicalContent extends React.Component {
       linkViewId: '',
       linkTable: '',
       orderBy: '',
-      order: '',
+      viewOrder: '',
       rowNum: 10,
     };
     await Prom.insertData('prmths_views', { ...newView }).then(async () => {

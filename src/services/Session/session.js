@@ -85,5 +85,5 @@ export const logOut = () => {
   Cookies.remove('prmths_mode');
   Cookies.remove('prmths_session');
   Cookies.remove('prmths_refreshToken');
-  window.location.reload();
+  window.location.href = '/';
 };

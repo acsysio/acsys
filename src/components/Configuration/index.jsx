@@ -4,6 +4,7 @@ import {
   CircularProgress, 
   Container,
   Grid,
+  NativeSelect,
   Link,
   Paper,
   Typography
@@ -12,6 +13,8 @@ import React, { Component } from 'react';
 import * as Prom from '../../services/Prometheus/Prom';
 
 const INITIAL_STATE = {
+  databaseType: 'local',
+  projectName: '',
   uploadFile: '',
   fileName: '',
   measurementId: '',
@@ -26,6 +29,11 @@ class Configuration extends Component {
     this.setState({ ...INITIAL_STATE });
   };
 
+  setDatabase = async (type) => {
+    this.setState({
+      databaseType: type
+    });
+  }
   setRef = (ref) => {
     this.setState({
       fileName: ref.target.files[0].name,
@@ -43,17 +51,38 @@ class Configuration extends Component {
 
   onSubmit = async (event) => {
     try {
+      const {
+        databaseType,
+        projectName,
+      } = this.state;
+
       this.setState({
         loading: true,
       });
-      await Prom.setInitialDatabaseConfig(
-        this.state.uploadFile
-      );
-      await this.sleep(5000);
-      window.location.reload();
-      this.setState({
-        loading: false,
-      });
+
+      if (databaseType === 'local' && projectName.length < 1) {
+        this.setState({
+          loading: false,
+          message: 'Please enter a project name.'
+        })
+      }
+      else {
+        if (databaseType === 'firestore') {
+          await Prom.setInitialFirestoreConfig(
+            this.state.uploadFile
+          );
+        }
+        else {
+          await Prom.setInitialLocalDatabaseConfig(
+            projectName
+          );
+        }
+        await this.sleep(5000);
+        window.location.reload();
+        this.setState({
+          loading: false,
+        });
+      }
     } 
     catch (error) {
       await this.sleep(5000);
@@ -73,9 +102,74 @@ class Configuration extends Component {
     this.setState({ [event.target.name]: event.target.value });
   };
 
-  render() {
+  renderConfig() {
     const {
       fileName,
+      databaseType,
+      message,
+      projectName,
+     } = this.state;
+
+    if (databaseType === 'local') {
+      return (
+        <div>
+          <input
+            id="projectName"
+            name="projectName"
+            placeholder="Project Name"
+            defaultValue={projectName}
+            onKeyDown={this.onKeyDownSI}
+            onChange={this.onChange}
+            style={{ marginTop: '20px', width: '96%' }}
+          />
+          <Typography
+            variant="p"
+            color="secondary"
+            style={{ minHeight: 25}}
+          >
+            {message}
+          </Typography>
+          <p>When this option is selected Prometheus will use the internal database.</p>
+        </div>
+      );
+    }
+    else if (databaseType === 'firestore') {
+      return (
+        <div>
+          <p>Upload JSON service account key file. Instructions for creating this file can be found <Link href="https://cloud.google.com/iam/docs/creating-managing-service-account-keys" target="_blank" color="primary" rel="noreferrer">here</Link>.</p>
+            <Grid container>
+              <Grid item xs={3}>
+                <input
+                  id="contained-button-file"
+                  type="file"
+                  style={{ display: 'none' }}
+                  onChange={this.setRef}
+                />
+                <label htmlFor="contained-button-file">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    component="span"
+                    style={{ height: 28}}
+                  >
+                    Upload
+                  </Button>
+                </label>
+              </Grid>
+              <Grid item xs={9}>
+                <input
+                  defaultValue={fileName}
+                  style={{ height: 19}}
+                />
+              </Grid>
+            </Grid>
+        </div>
+      );
+    }
+  }
+
+  render() {
+    const {
       loading,
       error,
     } = this.state;
@@ -99,35 +193,16 @@ class Configuration extends Component {
               padding="16px"
             >
               <Typography variant="h4" color="primary">
-                Configure Firestore
+                Configure Database
               </Typography>
-              <p>Upload JSON service account key file. Instructions for creating this file can be found <Link href="https://cloud.google.com/iam/docs/creating-managing-service-account-keys" target="_blank" color="primary" rel="noreferrer">here</Link>.</p>
-              <Grid container>
-                <Grid item xs={3}>
-                  <input
-                    id="contained-button-file"
-                    type="file"
-                    style={{ display: 'none' }}
-                    onChange={this.setRef}
-                  />
-                  <label htmlFor="contained-button-file">
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      component="span"
-                      style={{ height: 28}}
-                    >
-                      Upload
-                    </Button>
-                  </label>
-                </Grid>
-                <Grid item xs={9}>
-                  <input
-                    defaultValue={fileName}
-                    style={{ height: 19}}
-                  />
-                </Grid>
-              </Grid>
+              <NativeSelect
+                onChange={(e) => this.setDatabase(e.target.value)}
+                style={{ marginTop: '20px' }}
+              >
+                <option value={'local'}>Local</option>
+                <option value={'firestore'}>Firestore</option>
+              </NativeSelect>
+              {this.renderConfig()}
             </Box>
             <Box
               margin="auto"

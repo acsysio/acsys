@@ -13,6 +13,8 @@ dbase.db
 
 # production
 /build
+/files
+/server/config/config.json
 
 # misc
 .DS_Store

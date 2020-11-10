@@ -9,7 +9,7 @@ let db;
 let projectId;
 
 class StorageDriver {
-  initialize(database) {
+  initialize(config, database) {
     return new Promise((resolve) => {
       try {
         fs.readFile('./prometheus.service.config.json', 'utf8', function (
@@ -284,7 +284,8 @@ class StorageDriver {
     });
   }
 
-  getStorageURL(referenceName) {
+  getStorageURL(req) {
+    const referenceName = req.query.url;
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
       const file = storage.file(referenceName.replace(/ /g, '_'));

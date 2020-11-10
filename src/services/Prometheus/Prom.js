@@ -55,6 +55,7 @@ const promFetch = (url, options = {}) => {
     const timer = setTimeout(() => {
       reject(new Error('Timeout for Promise'));
       controller.abort();
+      window.location.reload();
     }, timeout);
     fetch(url, { signal, ...rest })
       .finally(() => clearTimeout(timer))
@@ -130,6 +131,82 @@ export const getProjectName = async () => {
   });
 };
 
+export const getUrl = async (table, where, limit, orderBy, order) => {
+  await checkToken();
+  return new Promise((resolve, reject) => {
+    const apiString = `/api/getUrl?table=${table}&options=${JSON.stringify({
+      where,
+      limit,
+      orderBy,
+      order,
+    })}`;
+    promFetch(apiString, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Session.getToken()}`,
+      },
+    })
+      .then(async (response) => {
+        if (response.statusText !== 'Unauthorized') {
+          response
+            .json()
+            .then((json) => {
+              resolve(json.url);
+            })
+            .catch(() => {
+              reject();
+            });
+        } else {
+          Session.logOut();
+          reject();
+        }
+      })
+      .catch(() => {
+        resolve([]);
+      });
+  });
+};
+
+export const getOpenUrl = async (table, where, limit, orderBy, order) => {
+  await checkToken();
+  return new Promise((resolve, reject) => {
+    const apiString = `/api/getOpenUrl?table=${table}&options=${JSON.stringify({
+      where,
+      limit,
+      orderBy,
+      order,
+    })}`;
+    promFetch(apiString, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Session.getToken()}`,
+      },
+    })
+      .then(async (response) => {
+        if (response.statusText !== 'Unauthorized') {
+          response
+            .json()
+            .then((json) => {
+              resolve(json.url);
+            })
+            .catch(() => {
+              reject();
+            });
+        } else {
+          Session.logOut();
+          reject();
+        }
+      })
+      .catch(() => {
+        resolve([]);
+      });
+  });
+};
+
 export const restart = async () => {
   await checkToken();
   return new Promise((resolve, reject) => {
@@ -151,13 +228,100 @@ export const restart = async () => {
   });
 };
 
-export const setInitialDatabaseConfig = async (config) => {
+export const setInitialLocalDatabaseConfig = async (
+  projectName
+) => {
   return new Promise((resolve, reject) => {
-    promFetch('/api/setInitialDatabaseConfig', {
+    promFetch('/api/setInitialLocalDatabaseConfig', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        projectName,
+      }),
+    })
+      .then((response) => {
+        Session.logOut();
+        if (response.statusText !== 'Unauthorized') {
+          response.json().then((json) => {
+            resolve(json.value);
+          });
+          resolve();
+        } else {
+          reject();
+        }
+      })
+      .catch(reject);
+  });
+};
+
+export const setLocalDatabaseConfig = async (
+  projectName
+) => {
+  await checkToken();
+  return new Promise((resolve, reject) => {
+    promFetch('/api/setLocalDatabaseConfig', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Session.getToken()}`,
+      },
+      body: JSON.stringify({
+        projectName,
+      }),
+    })
+      .then((response) => {
+        Session.logOut();
+        if (response.statusText !== 'Unauthorized') {
+          response.json().then((json) => {
+            resolve(json.value);
+          });
+          resolve();
+        } else {
+          reject();
+        }
+      })
+      .catch(reject);
+  });
+};
+
+export const setInitialFirestoreConfig = async (config) => {
+  return new Promise((resolve, reject) => {
+    promFetch('/api/setInitialFirestoreConfig', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: config,
+    })
+      .then((response) => {
+        Session.logOut();
+        if (response.statusText !== 'Unauthorized') {
+          response.json().then((json) => {
+            resolve(json.value);
+          });
+          resolve();
+        } else {
+          reject();
+        }
+      })
+      .catch(reject);
+  });
+};
+
+export const setFirestoreConfig = async (config) => {
+  await checkToken();
+  return new Promise((resolve, reject) => {
+    promFetch('/api/setFirestoreConfig', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Session.getToken()}`,
       },
       body: config,
     })
@@ -231,33 +395,6 @@ export const getEmailConfig = async () => {
       .catch(() => {
         reject();
       });
-  });
-};
-
-export const setDatabaseConfig = async (config) => {
-  await checkToken();
-  return new Promise((resolve, reject) => {
-    promFetch('/api/setDatabaseConfig', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${Session.getToken()}`,
-      },
-      body: JSON.stringify(config),
-    })
-      .then((response) => {
-        if (response.statusText !== 'Unauthorized') {
-          response.json().then((json) => {
-            resolve(json.value);
-          });
-          resolve();
-        } else {
-          Session.logOut();
-          reject();
-        }
-      })
-      .catch(reject);
   });
 };
 
@@ -361,8 +498,8 @@ export const register = (username, email, password) => {
 
     const userData = {
       id: uniqid(),
-      username,
       email,
+      username,
       role,
       mode: role,
       password,
@@ -597,6 +734,27 @@ export const isConnected = () => {
       .then((response) => response.json())
       .then((json) => {
         resolve(json);
+      })
+      .catch((error) => {
+        resolve(false);
+      });
+  });
+};
+
+export const getDatabaseType = async () => {
+  await checkToken();
+  return new Promise((resolve, reject) => {
+    promFetch('/api/getDatabaseType', {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Session.getToken()}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        resolve(result);
       })
       .catch((error) => {
         resolve(false);
@@ -918,7 +1076,8 @@ export const getPage = async (
   limit,
   orderBy,
   order,
-  direction
+  direction,
+  currentPage
 ) => {
   await checkToken();
   return new Promise((resolve, reject) => {
@@ -928,6 +1087,7 @@ export const getPage = async (
       orderBy,
       order,
       direction,
+      currentPage,
     })}`;
     promFetch(apiString, {
       method: 'GET',
@@ -1184,7 +1344,7 @@ export const deleteView = async (viewId) => {
   });
 };
 
-export const unlockTable = async (table) => {
+export const unlockTable = async (table_name) => {
   await checkToken();
   return new Promise((resolve, reject) => {
     promFetch('/api/unlockTable', {
@@ -1195,7 +1355,7 @@ export const unlockTable = async (table) => {
         Authorization: `Bearer ${Session.getToken()}`,
       },
       body: JSON.stringify({
-        table,
+        table_name,
       }),
     })
       .then(async (response) => {
@@ -1219,7 +1379,7 @@ export const unlockTable = async (table) => {
   });
 };
 
-export const lockTable = async (table) => {
+export const lockTable = async (table_name) => {
   await checkToken();
   return new Promise((resolve, reject) => {
     promFetch('/api/lockTable', {
@@ -1230,7 +1390,7 @@ export const lockTable = async (table) => {
         Authorization: `Bearer ${Session.getToken()}`,
       },
       body: JSON.stringify({
-        table,
+        table_name,
       }),
     })
       .then(async (response) => {

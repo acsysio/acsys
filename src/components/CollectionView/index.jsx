@@ -5,6 +5,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Hidden,
   NativeSelect,
   Table,
   TableBody,
@@ -22,6 +23,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import {
   Create as CreateIcon,
+  FileCopyOutlined as CopyIcon,
   Delete as DeleteIcon,
   KeyboardArrowLeft,
   KeyboardArrowRight,
@@ -44,6 +46,7 @@ const INITIAL_STATE = {
   collectionValues: [],
   prmthsView: [],
   tableData: [],
+  apiCall: '',
   draftViews: [],
   totalRows: 0,
   page: 1,
@@ -75,6 +78,15 @@ class CollectionView extends React.Component {
   constructor(props) {
     super(props);
   }
+
+  copy = () => {
+    const el = document.createElement('textarea');
+    el.value = this.state.apiCall;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+  };
 
   openKeyMessage = () => {
     this.setState({
@@ -171,10 +183,10 @@ class CollectionView extends React.Component {
     let tempView = this.state.prmthsView;
     if (viewOrderField === 'none') {
       tempView['orderBy'] = '';
-      tempView['order'] = '';
+      tempView['viewOrder'] = '';
     } else {
       tempView['orderBy'] = viewOrderField;
-      tempView['order'] = viewOrder;
+      tempView['viewOrder'] = viewOrder;
     }
     tempView['isRemovable'] = isRemovable;
     tempView['rowNum'] = rowNum;
@@ -244,9 +256,10 @@ class CollectionView extends React.Component {
       tempDetails[0].collection,
       keys,
       rowNum,
-      this.state.order,
+      this.state.viewOrder,
       this.state.orderDir,
-      'prev'
+      'prev',
+      this.state.page,
     );
     this.setState({
       loading: false,
@@ -259,7 +272,7 @@ class CollectionView extends React.Component {
       tempDetails[0].collection,
       keys,
       rowNum,
-      this.state.order,
+      this.state.viewOrder,
       this.state.orderDir
     );
     this.context.setPageDirection('prev');
@@ -282,9 +295,10 @@ class CollectionView extends React.Component {
       tempDetails[0].collection,
       keys,
       rowNum,
-      this.state.order,
+      this.state.viewOrder,
       this.state.orderDir,
-      'next'
+      'next',
+      this.state.page,
     );
     this.setState({
       loading: false,
@@ -297,7 +311,7 @@ class CollectionView extends React.Component {
       tempDetails[0].collection,
       keys,
       rowNum,
-      this.state.order,
+      this.state.viewOrder,
       this.state.orderDir
     );
     this.context.setPageDirection('next');
@@ -308,7 +322,7 @@ class CollectionView extends React.Component {
     this.setState({ filterLoading: true });
     tableKeys = [];
     for (var i = 0; i < tempDetails.length; i++) {
-      tempDetails[i].order = i;
+      tempDetails[i].viewOrder = i;
       await Prom.updateData('prmths_document_details', tempDetails[i], [
         ['id', '=', tempDetails[i].id],
       ]);
@@ -356,8 +370,10 @@ class CollectionView extends React.Component {
   mount = async () => {
     let page = this.state.page;
     let prmthsView;
+    let locked = true;
     let details = [];
     let currentData;
+    let apiCall;
     let order = [];
     let orderDir = 'asc';
     lockedValue = true;
@@ -385,7 +401,7 @@ class CollectionView extends React.Component {
       rowNum = prmthsView[0].rowNum;
       if (prmthsView[0].orderBy.length > 0) {
         viewOrderField = prmthsView[0].orderBy;
-        viewOrder = prmthsView[0].order;
+        viewOrder = prmthsView[0].viewOrder;
       }
 
       let keys = [];
@@ -400,14 +416,23 @@ class CollectionView extends React.Component {
         ['contentId', '=', contentId],
       ]);
 
+      await Prom.getData('prmths_open_tables', [['table_name', '=', id]])
+        .then((result) => {
+          if (result[0].table_name === id) {
+            locked = false;
+            lockedValue = false;
+          }
+        })
+        .catch(() => {});
+
       if (details.length > 0) {
-        details.sort((a, b) => (a.order > b.order ? 1 : -1));
+        details.sort((a, b) => (a.viewOrder > b.viewOrder ? 1 : -1));
         if (prmthsView[0].orderBy.length > 0) {
           order.push(prmthsView[0].orderBy);
-          orderDir = prmthsView[0].order;
+          orderDir = prmthsView[0].viewOrder;
         }
         for (let i = 0; i < details.length; i++) {
-          if (details[i].isKey) {
+          if (Boolean(details[i].isKey)) {
             order.push(details[i].field_name);
           }
         }
@@ -418,14 +443,27 @@ class CollectionView extends React.Component {
             this.context.getRowsPerPage(),
             this.context.getOrder(),
             this.context.getDirection(),
-            this.context.getPageDirection()
+            this.context.getPageDirection(),
+            this.context.getPage()
           );
           page = this.context.getPage();
         } else {
           currentData = await Prom.getData(id, [], rowNum, order, orderDir);
+          if(locked) {
+            apiCall = await Prom.getUrl(id, [], rowNum, order, orderDir);
+          }
+          else {
+            apiCall = await Prom.getOpenUrl(id, [], rowNum, order, orderDir);
+          }
         }
       } else {
         currentData = await Prom.getData(id, keys, rowNum);
+        if(locked) {
+          apiCall = await Prom.getUrl(id, keys, rowNum);
+        }
+        else {
+          apiCall = await Prom.getOpenUrl(id, keys, rowNum);
+        }
         await Promise.all(
           Object.keys(currentData[0]).map(async (value, index) => {
             let collectionDetails = {
@@ -438,9 +476,10 @@ class CollectionView extends React.Component {
               isVisibleOnTable: true,
               type: typeof currentData[0][value],
               isKey: false,
-              order: index,
+              viewOrder: index,
               width: 12,
             };
+            console.log(currentData[0][value])
 
             await Prom.insertData(
               'prmths_document_details',
@@ -450,23 +489,12 @@ class CollectionView extends React.Component {
             });
           })
         ).then(() => {
-          details.sort((a, b) => (a.order > b.order ? 1 : -1));
+          details.sort((a, b) => (a.viewOrder > b.viewOrder ? 1 : -1));
         });
       }
     } catch (error) {
       console.log(error);
     }
-
-    let locked = true;
-
-    await Prom.getData('prmths_open_tables', [['table', '=', id]])
-      .then((result) => {
-        if (result[0].table === id) {
-          locked = false;
-          lockedValue = false;
-        }
-      })
-      .catch(() => {});
 
     this.setState({
       reset: false,
@@ -476,11 +504,12 @@ class CollectionView extends React.Component {
       contentId: contentId,
       initialViews: currentData,
       tableData: currentData,
+      apiCall: apiCall,
       prmthsView: prmthsView[0],
       page: page,
       documentDetails: details,
       totalRows: totalRows,
-      order: order,
+      viewOrder: order,
       orderDir: orderDir,
     });
   };
@@ -538,7 +567,7 @@ class CollectionView extends React.Component {
             let returnValue = '';
             Object.values(tableData).map((value, index) => {
               if (Object.keys(tableData)[index] == details.field_name) {
-                if (details.isKey && value !== undefined) {
+                if (Boolean(details.isKey) && value !== undefined) {
                   let tempObj = {
                     field: details.field_name,
                     value: value,
@@ -556,6 +585,15 @@ class CollectionView extends React.Component {
                       '/' +
                       date.getFullYear();
                     returnValue = printDate;
+                  } else if (details.control == 'booleanSelect') {
+                    const tmpElement = document.createElement('DIV');
+                    tmpElement.innerHTML = Boolean(value);
+                    const stringLimit = 100;
+                    let valueString = tmpElement.innerText;
+                    if (valueString.length >= stringLimit) {
+                      valueString = valueString.substr(0, stringLimit) + '...';
+                    }
+                    returnValue = valueString;
                   } else {
                     const tmpElement = document.createElement('DIV');
                     tmpElement.innerHTML = value;
@@ -732,6 +770,7 @@ class CollectionView extends React.Component {
   render() {
     const {
       locked,
+      apiCall,
       view,
       deleteLoading,
       prmthsView,
@@ -754,7 +793,7 @@ class CollectionView extends React.Component {
     } catch (error) {}
 
     for (let i = 0; i < documentDetails.length; i++) {
-      if (documentDetails[i].isKey) {
+      if (Boolean(documentDetails[i].isKey)) {
         let tempObj = {
           field: documentDetails[i].field_name,
         };
@@ -1095,6 +1134,26 @@ class CollectionView extends React.Component {
             </DialogActions>
           </Dialog>
         </Paper>
+        <Hidden smDown implementation="css">
+          {!this.state.locked ?
+          <div style={{clear: 'both'}}>
+            API Call: <a className='api-url' href={apiCall} target="_blank">{apiCall}</a>
+            <Tooltip title="Copy To Clipboard">
+              <IconButton
+                edge="start"
+                color="inherit"
+                aria-label="edit"
+                onClick={this.copy}
+                style={{ marginLeft: 5 }}
+              >
+                <CopyIcon style={{ height: 15 }}/>
+              </IconButton>
+            </Tooltip>
+          </div>
+          :
+          <div/>
+          }
+        </Hidden>
       </div>
     );
   }

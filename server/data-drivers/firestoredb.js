@@ -9,7 +9,7 @@ class DataDriver {
   initialize() {
     return new Promise(async (resolve, reject) => {
       try {
-        const serviceAccount = require('../prometheus.service.config.json');
+        const serviceAccount = require('../../prometheus.service.config.json');
         admin.initializeApp({
           credential: admin.credential.cert(serviceAccount),
         });
@@ -275,7 +275,7 @@ class DataDriver {
     return new Promise((resolve, reject) => {
       let query;
       query = db.collection('prmths_open_tables');
-      query = query.where('table', '==', data.table);
+      query = query.where('table_name', '==', data.table_name);
       query
         .get()
         .then((snapshot) => {
@@ -298,12 +298,12 @@ class DataDriver {
     });
   }
 
-  lockTable(table) {
+  lockTable(table_name) {
     return new Promise((resolve, reject) => {
       let query;
       // START -- construct collection reference
       query = db.collection('prmths_open_tables');
-      query = query.where('table', '==', table);
+      query = query.where('table_name', '==', table_name);
 
       // END -- construct collection reference
       query
@@ -545,7 +545,7 @@ class DataDriver {
     return new Promise((resolve, reject) => {
       let query;
       query = db.collection('prmths_open_tables');
-      query = query.where('table', '==', collectionName);
+      query = query.where('table_name', '==', collectionName);
       query
         .get()
         .then((snapshot) => {

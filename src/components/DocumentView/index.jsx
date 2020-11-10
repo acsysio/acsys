@@ -6,11 +6,15 @@ import {
   DialogContentText,
   DialogTitle,
   Hidden,
+  IconButton,
   MenuItem,
   NativeSelect,
   Select,
   Tooltip,
 } from '@material-ui/core';
+import {
+  FileCopyOutlined as CopyIcon,
+} from '@material-ui/icons';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
@@ -45,6 +49,7 @@ const INITIAL_STATE = {
   draft: false,
   document: [],
   views: [],
+  apiCall: '',
   keys: [],
   prmthsView: [],
   routed: false,
@@ -82,6 +87,15 @@ class DocumentView extends React.Component {
   constructor(props) {
     super(props);
   }
+
+  copy = () => {
+    const el = document.createElement('textarea');
+    el.value = this.state.apiCall;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+  };
 
   imageHandler = async () => {
     const quill = quillRef.getEditor();
@@ -435,7 +449,7 @@ class DocumentView extends React.Component {
     this.setState({ filterLoading: true });
 
     for (var i = 0; i < tempDetails.length; i++) {
-      tempDetails[i].order = i;
+      tempDetails[i].viewOrder = i;
       const result = await Prom.updateData(
         'prmths_document_details',
         { ...tempDetails[i] },
@@ -532,9 +546,11 @@ class DocumentView extends React.Component {
     let table = documentDetails[0].collection;
     let draft = false;
     let keys = [];
+    let apiCall;
     let position = 0;
+    let open = false;
     try {
-      documentDetails.sort((a, b) => (a.order > b.order ? 1 : -1));
+      documentDetails.sort((a, b) => (a.viewOrder > b.viewOrder ? 1 : -1));
       tempDetails = documentDetails;
 
       if (mode === 'update') {
@@ -554,6 +570,20 @@ class DocumentView extends React.Component {
             pullView = result;
             draft = true;
           });
+        }
+        await Prom.getData('prmths_open_tables', [['table_name', '=', table]])
+        .then(async (result) => {
+          if (result[0].table_name === table) {
+            open = true;
+          }
+        })
+        .catch(() => {});
+
+        if (open) {
+          apiCall = await Prom.getOpenUrl(table, keys);
+        }
+        else {
+          apiCall = await Prom.getUrl(table, keys);
         }
 
         let currentView;
@@ -607,7 +637,9 @@ class DocumentView extends React.Component {
         draft: draft,
         saving: false,
         documentDetails: documentDetails,
+        locked: !open,
         collection: table,
+        apiCall: apiCall,
         keys: keys,
         position: position,
       });
@@ -706,7 +738,7 @@ class DocumentView extends React.Component {
   }
 
   renderNoId() {
-    const { views, documentDetails, rowsPerPage, page } = this.state;
+    const { documentDetails } = this.state;
     return (
       <div class="element-container">
         <Grid container spacing={3}>
@@ -780,7 +812,7 @@ class DocumentView extends React.Component {
   }
 
   render() {
-    const { filterLoading, draft, deleteLoading, routed } = this.state;
+    const { filterLoading, draft, deleteLoading, apiCall } = this.state;
     return (
       <div style={{ minHeight: 600 }}>
         {Prom.getMode() !== 'Viewer' ? (
@@ -838,16 +870,14 @@ class DocumentView extends React.Component {
               <div />
             )}
             {Prom.getMode() === 'Administrator' ? (
-              <Tooltip title="Determines If Entry Is Accessed Directly From View Or Table">
-                <Select
-                  defaultValue={this.props.location.state.routed}
-                  onChange={(e) => this.saveView(e.target.value)}
-                  style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
-                >
-                  <MenuItem value={false}>Accessed From Table</MenuItem>
-                  <MenuItem value={true}>Accessed From View</MenuItem>
-                </Select>
-              </Tooltip>
+              <Select
+                defaultValue={this.props.location.state.routed}
+                onChange={(e) => this.saveView(e.target.value)}
+                style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
+              >
+                <MenuItem value={false}>Accessed From Table</MenuItem>
+                <MenuItem value={true}>Accessed From View</MenuItem>
+              </Select>
             ) : (
               <div />
             )}
@@ -987,6 +1017,26 @@ class DocumentView extends React.Component {
             </DialogActions>
           </Dialog>
         </Paper>
+        <Hidden smDown implementation="css">
+          {!this.state.locked ?
+          <div style={{clear: 'both'}}>
+            API Call: <a className='api-url' href={apiCall} target="_blank">{apiCall}</a>
+            <Tooltip title="Copy To Clipboard">
+              <IconButton
+                edge="start"
+                color="inherit"
+                aria-label="edit"
+                onClick={this.copy}
+                style={{ marginLeft: 5 }}
+              >
+                <CopyIcon style={{ height: 15 }}/>
+              </IconButton>
+            </Tooltip>
+          </div>
+          :
+          <div/>
+          }
+        </Hidden>
       </div>
     );
   }
