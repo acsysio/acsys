@@ -24,7 +24,7 @@ import { DndProvider } from 'react-dnd';
 import Backend from 'react-dnd-html5-backend';
 import ReactQuill from 'react-quill';
 import uniqid from 'uniqid';
-import * as Prom from '../../services/Prometheus/Prom';
+import * as Prom from '../../services/Acsys/Acsys';
 import AutoGen from '../Controls/AutoGen';
 import TextField from '../Controls/TextField';
 import DateTimePicker from '../Controls/DateTimePicker';

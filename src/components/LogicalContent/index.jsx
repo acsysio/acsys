@@ -27,7 +27,7 @@ import { Create as CreateIcon, Delete as DeleteIcon } from '@material-ui/icons';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import uniqid from 'uniqid';
-import * as Prom from '../../services/Prometheus/Prom';
+import * as Prom from '../../services/Acsys/Acsys';
 import { PromConsumer } from '../../services/Session/PromProvider';
 
 const styles = makeStyles({

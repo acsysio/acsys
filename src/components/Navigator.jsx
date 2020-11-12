@@ -18,7 +18,7 @@ import clsx from 'clsx';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import * as ROUTES from '../constants/routes';
-import * as Prom from '../services/Prometheus/Prom';
+import * as Prom from '../services/Acsys/Acsys';
 
 const styles = (theme) =>
   createStyles({
@@ -151,7 +151,7 @@ function Navigator(props) {
         </ListItemText>
       </ListItem>
       <a
-        href="https://prometheuscms.com/"
+        href="https://acsys.io/"
         target="_blank"
         style={{ textDecoration: 'none' }}
       >
@@ -217,7 +217,7 @@ function Navigator(props) {
         </ListItemText>
       </ListItem>
       <a
-        href="https://prometheuscms.com/"
+        href="https://acsys.io/"
         target="_blank"
         style={{ textDecoration: 'none' }}
       >

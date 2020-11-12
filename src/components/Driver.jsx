@@ -3,7 +3,7 @@ import Grid from '@material-ui/core/Grid';
 import Hidden from '@material-ui/core/Hidden';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import * as Prom from '../services/Prometheus/Prom';
+import * as Prom from '../services/Acsys/Acsys';
 import Footer from './Footer';
 import Header from './Header';
 import Navigator from './Navigator';

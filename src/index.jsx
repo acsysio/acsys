@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import App from './components/App';
 import Configuration from './components/Configuration';
 import './index.css';
-import * as Prom from './services/Prometheus/Prom';
+import * as Prom from './services/Acsys/Acsys';
 import { PromProvider } from './services/Session/PromProvider';
 import * as serviceWorker from './serviceWorker';
 

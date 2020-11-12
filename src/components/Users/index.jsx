@@ -24,7 +24,7 @@ import Typography from '@material-ui/core/Typography';
 import { Delete as DeleteIcon } from '@material-ui/icons';
 import React from 'react';
 import uniqid from 'uniqid';
-import * as Prom from '../../services/Prometheus/Prom';
+import * as Prom from '../../services/Acsys/Acsys';
 
 const styles = makeStyles({
   paper: {

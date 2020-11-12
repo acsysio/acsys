@@ -4,9 +4,9 @@
   </a>
 </p>
 
-[![License](https://img.shields.io/github/license/aeon-software/prometheus)](LICENSE.md)
-[![Commit](https://img.shields.io/github/last-commit/aeon-software/prometheus)](https://github.com/aeon-software/prometheus/commits)
-[![Repo](https://img.shields.io/github/repo-size/aeon-software/prometheus)](https://github.com/aeon-software/prometheus)
+[![License](https://img.shields.io/github/license/aeon-software/acsys)](LICENSE.md)
+[![Commit](https://img.shields.io/github/last-commit/aeon-software/acsys)](https://github.com/aeon-software/acsys/commits)
+[![Repo](https://img.shields.io/github/repo-size/aeon-software/acsys)](https://github.com/aeon-software/acsys)
 
 <p align="center">
   <img alt="Acsys UI" src="https://storage.googleapis.com/acsys-common-storage/images/acsys-ui.png">

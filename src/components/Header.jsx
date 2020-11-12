@@ -9,7 +9,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import * as ROUTES from '../constants/routes';
-import * as Prom from '../services/Prometheus/Prom';
+import * as Prom from '../services/Acsys/Acsys';
 import { PromConsumer } from '../services/Session/PromProvider';
 import SignOutButton from './SignOut';
 

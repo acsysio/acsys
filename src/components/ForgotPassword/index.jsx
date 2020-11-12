@@ -6,7 +6,7 @@ import {
     Typography
 } from '@material-ui/core';
 import React, { Component } from 'react';
-import * as Prom from '../../services/Prometheus/Prom';
+import * as Prom from '../../services/Acsys/Acsys';
 
 
 const INITIAL_STATE = {

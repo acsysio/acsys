@@ -10,7 +10,7 @@ import {
   Typography
 } from '@material-ui/core';
 import React, { Component } from 'react';
-import * as Prom from '../../services/Prometheus/Prom';
+import * as Prom from '../../services/Acsys/Acsys';
 
 const INITIAL_STATE = {
   databaseType: 'local',
@@ -129,7 +129,7 @@ class Configuration extends Component {
           >
             {message}
           </Typography>
-          <p>When this option is selected Prometheus will use the internal database.</p>
+          <p>When this option is selected Acsys will use the internal database.</p>
         </div>
       );
     }

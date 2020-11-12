@@ -7,7 +7,7 @@ import {
 } from '@material-ui/core';
 import { Link } from 'react-router-dom';
 import React, { Component } from 'react';
-import * as Prom from '../../services/Prometheus/Prom';
+import * as Prom from '../../services/Acsys/Acsys';
 
 
 const INITIAL_STATE = {

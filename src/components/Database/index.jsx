@@ -25,7 +25,7 @@ import { Delete as DeleteIcon } from '@material-ui/icons';
 import React from 'react';
 import { DndProvider } from 'react-dnd';
 import Backend from 'react-dnd-html5-backend';
-import * as Prom from '../../services/Prometheus/Prom';
+import * as Prom from '../../services/Acsys/Acsys';
 import { PromConsumer } from '../../services/Session/PromProvider';
 import TableControl from '../TableControl';
 
