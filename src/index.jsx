@@ -4,16 +4,17 @@ import ReactDOM from 'react-dom';
 import App from './components/App';
 import Configuration from './components/Configuration';
 import './index.css';
-import * as Prom from './services/Prometheus/Prom';
+import * as Prom from './services/Acsys/Acsys';
 import { PromProvider } from './services/Session/PromProvider';
 import * as serviceWorker from './serviceWorker';
 
 let theme = createMuiTheme({
   palette: {
     primary: {
-      light: '#63ccff',
-      main: '#009be5',
-      dark: '#006db3',
+      light: '#c5a8ff',
+      main: '#b79afe',
+      dark: '#7735e3',
+      contrastText: '#ffffff',
     },
   },
   typography: {

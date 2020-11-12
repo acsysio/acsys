@@ -27,7 +27,7 @@ import {
     LockOpen
 } from '@material-ui/icons';
 import React from 'react';
-import * as Prom from '../../services/Prometheus/Prom';
+import * as Prom from '../../services/Acsys/Acsys';
 
 const INITIAL_STATE = {
   locked: true,

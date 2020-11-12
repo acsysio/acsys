@@ -12,7 +12,7 @@ class Loading extends Component {
         style={{ height: '100vh' }}
       >
         <Grid container style={{ width: 300 }}>
-          <img style={{ width: '100%' }} src="/prometheus-logo.svg" alt="" />
+          <img style={{ width: '100%' }} src="/acsys-icon.svg" alt="" />
           <Typography variant="h4" style={{ margin: 'auto' }}>
             Loading...
           </Typography>

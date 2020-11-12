@@ -12,14 +12,14 @@ class StorageDriver {
   initialize(config, database) {
     return new Promise((resolve) => {
       try {
-        fs.readFile('./prometheus.service.config.json', 'utf8', function (
+        fs.readFile('./acsys.service.config.json', 'utf8', function (
           err,
           data
         ) {
           if (err) {
             console.log(err);
           } else {
-            fs.realpath('./prometheus.service.config.json', 'utf8', function (
+            fs.realpath('./acsys.service.config.json', 'utf8', function (
               _error,
               path
             ) {

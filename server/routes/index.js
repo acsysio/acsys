@@ -826,7 +826,7 @@ router.post('/setInitialLocalDatabaseConfig', async function (req, res) {
     const { projectName } = req.body;
     await config.format();
     await config.initialize();
-    fs.unlink('./prometheus.service.config.json', function (err) {});
+    fs.unlink('./acsys.service.config.json', function (err) {});
     removeDir('./files');
     data = new SqliteDriver();
     storage = new LocalStorage();
@@ -857,7 +857,7 @@ router.post('/setLocalDatabaseConfig', async function (req, res) {
     const { projectName } = req.body;
     await config.format();
     await config.initialize();
-    fs.unlink('./prometheus.service.config.json', function (err) {});
+    fs.unlink('./acsys.service.config.json', function (err) {});
     removeDir('./files');
     data = new SqliteDriver();
     storage = new LocalStorage();
@@ -887,7 +887,7 @@ router.post('/setInitialFirestoreConfig', async function (req, res) {
   try {
     await config.format();
     await config.initialize();
-    fs.unlink('./prometheus.service.config.json', function (err) {});
+    fs.unlink('./acsys.service.config.json', function (err) {});
     removeDir('./files');
     data = new FirestoreDriver();
     storage = new StorageDriver();
@@ -906,7 +906,7 @@ router.post('/setInitialFirestoreConfig', async function (req, res) {
         res.send(false);
       });
     fs.writeFile(
-      './prometheus.service.config.json',
+      './acsys.service.config.json',
       JSON.stringify(req.body).replace(/\\\\/g, '\\'),
       async function (err) {
         if (err) {
@@ -927,7 +927,7 @@ router.post('/setFirestoreConfig', async function (req, res) {
   try {
     await config.format();
     await config.initialize();
-    fs.unlink('./prometheus.service.config.json', function (err) {});
+    fs.unlink('./acsys.service.config.json', function (err) {});
     removeDir('./files');
     data = new FirestoreDriver();
     storage = new StorageDriver();
@@ -946,7 +946,7 @@ router.post('/setFirestoreConfig', async function (req, res) {
         res.send(false);
       });
     fs.writeFile(
-      './prometheus.service.config.json',
+      './acsys.service.config.json',
       JSON.stringify(req.body).replace(/\\\\/g, '\\'),
       async function (err) {
         if (err) {
@@ -1071,7 +1071,7 @@ router.get('/getDatabaseConfig', async function (req, res) {
       });
   } else if (type === 'firestore') {
     try {
-      fs.readFile('./prometheus.service.config.json', function (err, result) {
+      fs.readFile('./acsys.service.config.json', function (err, result) {
         if (err) {
           res.send((rData = { value: false }));
         } else {
@@ -1090,7 +1090,7 @@ router.get('/loadStorageConfig', async function (req, res) {
   const type = await config.getStorageType();
   if ((type) === 'gcp') {
     try {
-      fs.readFile('./prometheus.service.config.json', function (
+      fs.readFile('./acsys.service.config.json', function (
         err,
         dataConfig
       ) {

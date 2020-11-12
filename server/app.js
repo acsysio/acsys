@@ -23,7 +23,7 @@ app.use(bodyParser.json({ limit: '50mb', extended: true }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'build')));
-app.use('/favicon.ico', express.static('public/prometheus-logo.svg'));
+app.use('/favicon.ico', express.static('public/acsys-icon.svg'));
 
 // configure jwt
 app.use(jwt());
