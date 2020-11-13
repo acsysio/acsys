@@ -83,8 +83,8 @@ export const checkToken = () => {
           .then((json) => {
             token = json.token;
             refreshToken = json.refreshToken;
-            Cookies.set('prmths_session', token);
-            Cookies.set('prmths_refreshToken', refreshToken);
+            Cookies.set('acsys_session', token);
+            Cookies.set('acsys_refreshToken', refreshToken);
             resolve(true);
           })
           .catch((response) => {
@@ -340,6 +340,37 @@ export const setFirestoreConfig = async (config) => {
   });
 };
 
+export const setInitialMysqlConfig = async (host, port, database, username, password, config) => {
+  const formData = new FormData();
+  formData.append('host', host);
+  formData.append('port', port);
+  formData.append('database', database);
+  formData.append('username', username);
+  formData.append('password', password);
+  formData.append('file', config);
+  return new Promise((resolve, reject) => {
+    promFetch('/api/setInitialMysqlConfig', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+      },
+      body: formData
+    })
+      .then((response) => {
+        Session.logOut();
+        if (response.statusText !== 'Unauthorized') {
+          response.json().then((json) => {
+            resolve(json.value);
+          });
+          resolve();
+        } else {
+          reject();
+        }
+      })
+      .catch(reject);
+  });
+};
+
 export const setEmailConfig = async (config) => {
   await checkToken();
   return new Promise((resolve, reject) => {
@@ -523,13 +554,13 @@ export const register = (username, email, password) => {
           user = json.username;
           token = json.token;
           refreshToken = json.refreshToken;
-          Cookies.set('prmths_id', userData.id);
-          Cookies.set('prmths_role', userData.role);
-          Cookies.set('prmths_mode', userData.mode);
-          Cookies.set('prmths_user', user);
-          Cookies.set('prmths_email', email);
-          Cookies.set('prmths_session', token);
-          Cookies.set('prmths_refreshToken', refreshToken);
+          Cookies.set('acsys_id', userData.id);
+          Cookies.set('acsys_role', userData.role);
+          Cookies.set('acsys_mode', userData.mode);
+          Cookies.set('acsys_user', user);
+          Cookies.set('acsys_email', email);
+          Cookies.set('acsys_session', token);
+          Cookies.set('acsys_refreshToken', refreshToken);
           resolve(true);
         }
       })
@@ -712,13 +743,13 @@ export const authenticate = (username, password) => {
           email = json.email;
           token = json.token;
           refreshToken = json.refreshToken;
-          Cookies.set('prmths_id', id);
-          Cookies.set('prmths_role', role);
-          Cookies.set('prmths_mode', mode);
-          Cookies.set('prmths_user', user);
-          Cookies.set('prmths_email', email);
-          Cookies.set('prmths_session', token);
-          Cookies.set('prmths_refreshToken', refreshToken);
+          Cookies.set('acsys_id', id);
+          Cookies.set('acsys_role', role);
+          Cookies.set('acsys_mode', mode);
+          Cookies.set('acsys_user', user);
+          Cookies.set('acsys_email', email);
+          Cookies.set('acsys_session', token);
+          Cookies.set('acsys_refreshToken', refreshToken);
           resolve(true);
         }
       })

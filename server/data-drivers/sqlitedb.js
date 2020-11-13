@@ -13,28 +13,28 @@ class SqliteDriver {
         }
         db.serialize(async function () {
           await db.run(
-            'CREATE TABLE IF NOT EXISTS prmths_users (id TEXT, email TEXT, username TEXT, role TEXT, mode TEXT, prmthsCd TEXT)'
+            'CREATE TABLE IF NOT EXISTS acsys_users (id TEXT, email TEXT, username TEXT, role TEXT, mode TEXT, acsysCd TEXT)'
           );
           await db.run(
-            'CREATE TABLE IF NOT EXISTS prmths_logical_content (id TEXT, name TEXT, description TEXT, viewId TEXT, source_collection TEXT, position INT, tableKeys TEXT)'
+            'CREATE TABLE IF NOT EXISTS acsys_logical_content (id TEXT, name TEXT, description TEXT, viewId TEXT, source_collection TEXT, position INT, tableKeys TEXT)'
           );
           await db.run(
-            'CREATE TABLE IF NOT EXISTS prmths_views (id TEXT, isRemovable BOOLEAN, isTableMode BOOLEAN, linkTable TEXT, linkViewId TEXT, viewOrder TEXT, orderBy TEXT, rowNum INT)'
+            'CREATE TABLE IF NOT EXISTS acsys_views (id TEXT, isRemovable BOOLEAN, isTableMode BOOLEAN, linkTable TEXT, linkViewId TEXT, viewOrder TEXT, orderBy TEXT, rowNum INT)'
           );
           await db.run(
-            'CREATE TABLE IF NOT EXISTS prmths_document_details (id TEXT, contentId TEXT, collection TEXT, control TEXT, field_name TEXT, isVisibleOnPage BOOLEAN, isVisibleOnTable BOOLEAN, type TEXT, isKey BOOLEAN, viewOrder INT, width INT)'
+            'CREATE TABLE IF NOT EXISTS acsys_document_details (id TEXT, contentId TEXT, collection TEXT, control TEXT, field_name TEXT, isVisibleOnPage BOOLEAN, isVisibleOnTable BOOLEAN, type TEXT, isKey BOOLEAN, viewOrder INT, width INT)'
           );
           await db.run(
-            'CREATE TABLE IF NOT EXISTS prmths_email_settings (host TEXT, port INT, username TEXT, password TEXT)'
+            'CREATE TABLE IF NOT EXISTS acsys_email_settings (host TEXT, port INT, username TEXT, password TEXT)'
           );
           await db.run(
-            'CREATE TABLE IF NOT EXISTS prmths_open_tables (table_name TEXT)'
+            'CREATE TABLE IF NOT EXISTS acsys_open_tables (table_name TEXT)'
           );
           await db.run(
-            'CREATE TABLE IF NOT EXISTS prmths_storage_items (id TEXT, fileOrder INT, parent TEXT, name TEXT, contentType TEXT, isPublic BOOLEAN, timeCreated TEXT, updated TEXT)'
+            'CREATE TABLE IF NOT EXISTS acsys_storage_items (id TEXT, fileOrder INT, parent TEXT, name TEXT, contentType TEXT, isPublic BOOLEAN, timeCreated TEXT, updated TEXT)'
           );
           await db.run(
-            'CREATE TABLE IF NOT EXISTS prmths_user_reset (id TEXT, user_id Text, expiration_date INT)'
+            'CREATE TABLE IF NOT EXISTS acsys_user_reset (id TEXT, user_id Text, expiration_date INT)'
           );
         });
         connected = true;
@@ -50,7 +50,7 @@ class SqliteDriver {
 
   getProjectName() {
     return new Promise(async (resolve, reject) => {
-      const query = 'SELECT CONFIG FROM PRMTHS_CONFIGURATION LIMIT 1';
+      const query = 'SELECT CONFIG FROM acsys_CONFIGURATION LIMIT 1';
       await db.all(query, [], (error, rows) => {
         if (rows === undefined) {
           resolve('');
@@ -84,7 +84,7 @@ class SqliteDriver {
           }
         }
 
-        const sql = `INSERT INTO PRMTHS_USERS VALUES (${placeholders})`;
+        const sql = `INSERT INTO acsys_USERS VALUES (${placeholders})`;
 
         db.run(sql, function (err) {
           if (err) {
@@ -98,12 +98,12 @@ class SqliteDriver {
 
   verifyPassword(id) {
     return new Promise(async (resolve, reject) => {
-      const query = `SELECT * FROM PRMTHS_USERS WHERE ID = '${id}'`;
+      const query = `SELECT * FROM acsys_USERS WHERE ID = '${id}'`;
       await db.all(query, [], (error, rows) => {
         if (rows === undefined || error) {
           resolve(false);
         } else {
-          resolve(rows[0].prmthsCd);
+          resolve(rows[0].acsysCd);
         }
       });
     });
@@ -111,7 +111,7 @@ class SqliteDriver {
 
   getUsers(user) {
     return new Promise(async (resolve, reject) => {
-      const query = `SELECT * FROM PRMTHS_USERS WHERE USERNAME != '${user}'`;
+      const query = `SELECT * FROM acsys_USERS WHERE USERNAME != '${user}'`;
       await db.all(query, [], (error, rows) => {
         if (rows === undefined || error) {
           resolve([]);
@@ -125,7 +125,7 @@ class SqliteDriver {
   async getTableData() {
     return new Promise(async (resolve, reject) => {
       const collectionArr = [];
-      const query = `SELECT NAME FROM SQLITE_MASTER WHERE TYPE = 'table' AND NAME NOT LIKE 'sqlite_%' AND NAME NOT LIKE 'prmths_%'`;
+      const query = `SELECT NAME FROM SQLITE_MASTER WHERE TYPE = 'table' AND NAME NOT LIKE 'sqlite_%' AND NAME NOT LIKE 'acsys_%'`;
       await db.all(query, [], async (error, rows) => {
         if (rows === undefined || error) {
           resolve([]);
@@ -147,7 +147,7 @@ class SqliteDriver {
   listTables() {
     return new Promise(async (resolve, reject) => {
       const collectionArr = [];
-      const query = `SELECT NAME FROM SQLITE_MASTER WHERE TYPE = 'table' AND NAME NOT LIKE 'sqlite_%' AND NAME NOT LIKE 'prmths_%'`;
+      const query = `SELECT NAME FROM SQLITE_MASTER WHERE TYPE = 'table' AND NAME NOT LIKE 'sqlite_%' AND NAME NOT LIKE 'acsys_%'`;
       await db.all(query, [], (error, rows) => {
         if (rows === undefined || error) {
           resolve([]);
@@ -268,7 +268,7 @@ class SqliteDriver {
 
   repositionViews(data, pos) {
     return new Promise(async (resolve, reject) => {
-      const query = 'SELECT * FROM PRMTHS_LOGICAL_CONTENT ORDER BY POSITION';
+      const query = 'SELECT * FROM acsys_LOGICAL_CONTENT ORDER BY POSITION';
       await db.all(query, [], async (error, rows) => {
         if (rows === undefined || error) {
           resolve();
@@ -281,7 +281,7 @@ class SqliteDriver {
               }
               if (row.id === data.id) {
               } else {
-                const sql = `UPDATE PRMTHS_LOGICAL_CONTENT SET POSITION = ${newPos} WHERE ID = '${row.id}'`;
+                const sql = `UPDATE acsys_LOGICAL_CONTENT SET POSITION = ${newPos} WHERE ID = '${row.id}'`;
                 db.serialize(async function () {
                   await db.run(sql, function (err) {
                     console.log(err);
@@ -292,7 +292,7 @@ class SqliteDriver {
             }
             if (row.id === data.id) {
             } else {
-              const sql = `UPDATE PRMTHS_LOGICAL_CONTENT SET POSITION = ${newPos} WHERE ID = '${row.id}'`;
+              const sql = `UPDATE acsys_LOGICAL_CONTENT SET POSITION = ${newPos} WHERE ID = '${row.id}'`;
               db.serialize(async function () {
                 await db.run(sql, function (err) {
                   console.log(err);
@@ -379,10 +379,10 @@ class SqliteDriver {
 
   unlockTable(data) {
     return new Promise(async (resolve, reject) => {
-      const query = `SELECT * FROM prmths_open_tables WHERE TABLE_NAME = ${data.table_name}`;
+      const query = `SELECT * FROM acsys_open_tables WHERE TABLE_NAME = ${data.table_name}`;
       await db.all(query, [], (error, rows) => {
         if (rows === undefined || error) {
-          const sql = `INSERT INTO prmths_open_tables VALUES ('${data.table_name}')`;
+          const sql = `INSERT INTO acsys_open_tables VALUES ('${data.table_name}')`;
           db.run(sql, function (err) {
             if (err) {
               resolve(false);
@@ -390,7 +390,7 @@ class SqliteDriver {
             resolve(true);
           });
         } else {
-          const sql = `UPDATE prmths_open_tables SET TABLE_NAME = ${data.table_name}`;
+          const sql = `UPDATE acsys_open_tables SET TABLE_NAME = ${data.table_name}`;
           db.run(sql, function (err) {
             if (err) {
               resolve(false);
@@ -404,7 +404,7 @@ class SqliteDriver {
 
   lockTable(table) {
     return new Promise(async (resolve, reject) => {
-      const query = `DELETE FROM prmths_open_tables WHERE TABLE_NAME = '${table}'`;
+      const query = `DELETE FROM acsys_open_tables WHERE TABLE_NAME = '${table}'`;
       await db.all(query, [], (error) => {
         if (error) {
           resolve(false);
@@ -643,7 +643,7 @@ class SqliteDriver {
 
   checkOpenTable(collectionName) {
     return new Promise(async (resolve, reject) => {
-      const query = `SELECT * FROM prmths_open_tables WHERE TABLE_NAME = '${collectionName}'`;
+      const query = `SELECT * FROM acsys_open_tables WHERE TABLE_NAME = '${collectionName}'`;
       await db.all(query, [], (error, rows) => {
         if (rows === undefined || error) {
           resolve(false);

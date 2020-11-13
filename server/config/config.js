@@ -14,10 +14,13 @@ class Config {
 
       db.serialize(async function () {
         await db.run(
-          'CREATE TABLE IF NOT EXISTS prmths_configuration (type TEXT, config TEXT)'
+          'CREATE TABLE IF NOT EXISTS acsys_configuration (type TEXT, config TEXT)'
         );
         await db.run(
-          'CREATE TABLE IF NOT EXISTS prmths_storeconfig (type TEXT, config TEXT)'
+          'CREATE TABLE IF NOT EXISTS acsys_storeconfig (type TEXT, config TEXT)'
+        );
+        await db.run(
+          'CREATE TABLE IF NOT EXISTS acsys_mysql_config (host TEXT, port INT, database TEXT, username TEXT, password TEXT)'
         );
       });
       
@@ -27,7 +30,7 @@ class Config {
 
   format() {
     return new Promise(async (resolve, reject) => {
-      const query = `SELECT NAME FROM SQLITE_MASTER WHERE TYPE = 'table' AND NAME NOT LIKE 'sqlite_%' AND NAME NOT LIKE 'prmths_configuration' AND NAME NOT LIKE 'prmths_storeconfig'`;
+      const query = `SELECT NAME FROM SQLITE_MASTER WHERE TYPE = 'table' AND NAME NOT LIKE 'sqlite_%' AND NAME NOT LIKE 'acsys_%'`;
       await db.all(query, [], async (error, rows) => {
         if (rows === undefined || error) {
           resolve([]);
@@ -43,32 +46,33 @@ class Config {
     });
   }
 
-  setConfig(databaseType, projectName, config) {
+  setConfig(databaseType, projectName) {
     return new Promise((resolve, reject) => {
       db.serialize(async function () {
-        await db.run('DELETE FROM prmths_configuration');
-
+        await db.run('DELETE FROM acsys_configuration');
         let stmt = await db.prepare(
-          'INSERT INTO prmths_configuration VALUES (?, ?)'
+          'INSERT INTO acsys_configuration VALUES (?, ?)'
         );
-
         stmt.run(databaseType, projectName);
-
         stmt.finalize();
+        resolve(true);
+      });
+    });
+  }
 
-        if(databaseType === 'mysql') {
-          await db.run(
-            'CREATE TABLE IF NOT EXISTS prmths_mysql_configuration (host TEXT, database TEXT, port INT, username TEXT, password TEXT)'
-          );
-          stmt = await db.prepare(
-            'INSERT INTO prmths_mysql_configuration VALUES (?, ?, ?, ?, ?)'
-          );
-  
-          stmt.run(config.host, config.database, config.port, config.username, config.password);
-  
-          stmt.finalize();
+  setMysqlConfig(config) {
+    return new Promise((resolve, reject) => {
+      db.serialize(async function () {
+        await db.run('DELETE FROM acsys_mysql_config');
+        let stmt = await db.prepare(
+          'INSERT INTO acsys_mysql_config VALUES (?, ?, ?, ?, ?)'
+        );
+        let port = config.port;
+        if(!port) {
+          port = 0;
         }
-
+        stmt.run(config.host, config.port, config.database, config.username, config.password);
+        stmt.finalize();
         resolve(true);
       });
     });
@@ -77,7 +81,7 @@ class Config {
   getConfig() {
     return new Promise((resolve, reject) => {
       db.serialize(async function () {
-        const sql = 'SELECT * FROM prmths_configuration';
+        const sql = 'SELECT * FROM acsys_configuration';
         await db.all(sql, [], (err, rows) => {
           if (rows.length > 0) {
             if (rows[0].config.length > 0) {
@@ -96,7 +100,7 @@ class Config {
   getMysqlConfig() {
     return new Promise((resolve, reject) => {
       db.serialize(async function () {
-        const sql = 'SELECT * FROM prmths_mysql_configuration';
+        const sql = 'SELECT * FROM acsys_mysql_config';
         await db.all(sql, [], (err, rows) => {
           if (rows.length > 0) {
             if (rows[0].host.length > 0) {
@@ -122,7 +126,7 @@ class Config {
   getDatabaseType() {
     return new Promise((resolve, reject) => {
       db.serialize(async function () {
-        await db.each('SELECT * FROM prmths_configuration', function (
+        await db.each('SELECT * FROM acsys_configuration', function (
           err,
           row
         ) {
@@ -139,9 +143,9 @@ class Config {
   setStorageConfig(config) {
     return new Promise((resolve, reject) => {
       db.serialize(async function () {
-        await db.run('DELETE FROM prmths_storeconfig');
+        await db.run('DELETE FROM acsys_storeconfig');
         const stmt = await db.prepare(
-          'INSERT INTO prmths_storeconfig VALUES (?, ?)'
+          'INSERT INTO acsys_storeconfig VALUES (?, ?)'
         );
         stmt.run(`${config}`, `${config} storage`);
         stmt.finalize();
@@ -153,7 +157,7 @@ class Config {
   loadStorageConfig() {
     return new Promise((resolve, reject) => {
       db.serialize(async function () {
-        await db.each('SELECT * FROM prmths_storeconfig', function (err, row) {
+        await db.each('SELECT * FROM acsys_storeconfig', function (err, row) {
           if (row.config.length > 0) {
             resolve(row.config);
           } else {
@@ -167,7 +171,7 @@ class Config {
   getStorageType() {
     return new Promise((resolve, reject) => {
       db.serialize(async function () {
-        const sql = 'SELECT * FROM prmths_storeconfig';
+        const sql = 'SELECT * FROM acsys_storeconfig';
         await db.all(sql, [], (err, rows) => {
           if (rows.length > 0) {
             resolve(rows[0].type);

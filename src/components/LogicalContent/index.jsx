@@ -140,7 +140,7 @@ class LogicalContent extends React.Component {
       saving: true,
     });
     if (position === tempView.position) {
-      await Prom.updateData('prmths_logical_content', tempView, [
+      await Prom.updateData('acsys_logical_content', tempView, [
         ['id', '=', tempView.id],
       ]);
     } else {
@@ -149,7 +149,7 @@ class LogicalContent extends React.Component {
       await Prom.repositionViews(tempView, oldPosition, position);
       await this.sleep(1000);
     }
-    const currentView = await Prom.getData('prmths_logical_content', [], '', [
+    const currentView = await Prom.getData('acsys_logical_content', [], '', [
       'position',
     ]);
     this.setState({
@@ -195,7 +195,7 @@ class LogicalContent extends React.Component {
               
     let currentView = [];
 
-    currentView = await Prom.getData('prmths_logical_content', [], '', [
+    currentView = await Prom.getData('acsys_logical_content', [], '', [
       'position',
     ]);
 
@@ -222,7 +222,7 @@ class LogicalContent extends React.Component {
       viewOrder: '',
       rowNum: 10,
     };
-    await Prom.insertData('prmths_views', { ...newView }).then(async () => {
+    await Prom.insertData('acsys_views', { ...newView }).then(async () => {
       let newEntry = {
         id: uniqid(),
         name: this.state.name,
@@ -232,7 +232,7 @@ class LogicalContent extends React.Component {
         position: this.state.views.length + 1,
         tableKeys: [],
       };
-      await Prom.insertData('prmths_logical_content', { ...newEntry });
+      await Prom.insertData('acsys_logical_content', { ...newEntry });
     });
 
     this.setState({ addLoading: false });

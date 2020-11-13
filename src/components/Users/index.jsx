@@ -71,7 +71,7 @@ class Users extends React.Component {
   state = { ...INITIAL_STATE };
 
   deleteUser = async () => {
-    await Prom.deleteData('prmths_users', [['id', '=', this.state.userId]])
+    await Prom.deleteData('acsys_users', [['id', '=', this.state.userId]])
       .then(() => {
         this.componentDidMount();
       })

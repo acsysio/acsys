@@ -144,10 +144,10 @@ class LogicalContent extends React.Component {
     this.setState({
       saving: true,
     });
-    await Prom.updateData('prmths_logical_content', tempView, [
+    await Prom.updateData('acsys_logical_content', tempView, [
       ['id', '=', tempView.id],
     ]);
-    const currentView = await Prom.getData('prmths_logical_content');
+    const currentView = await Prom.getData('acsys_logical_content');
     this.setState({
       saving: false,
       saveLoading: false,

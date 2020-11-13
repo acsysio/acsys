@@ -2,42 +2,45 @@ const mysql = require('mysql');
 
 let db;
 
+let dbName;
+
 let connected = false;
 
 class MysqlDriver {
   initialize(config) {
     return new Promise(async (resolve, reject) => {
-      //do mysql config load here
+      const settings = await config.getMysqlConfig();
+      dbName = settings.database;
       db = mysql.createConnection({
-        host     : '',
-        port     : '',
-        database : '',
-        user     : '',
-        password : '' 
+        host     : settings.host,
+        port     : settings.port,
+        database : settings.database,
+        user     : settings.username,
+        password : settings.password 
       });
       db.connect();
-      db.query('CREATE TABLE IF NOT EXISTS prmths_users (id TEXT, email TEXT, username TEXT, role TEXT, mode TEXT, prmthsCd TEXT)', (error, rows) => {
+      db.query('CREATE TABLE IF NOT EXISTS acsys_users (id TEXT, email TEXT, username TEXT, role TEXT, mode TEXT, acsysCd TEXT)', (error, rows) => {
 
       });
-      db.query('CREATE TABLE IF NOT EXISTS prmths_logical_content (id TEXT, name TEXT, description TEXT, viewId TEXT, source_collection TEXT, position INT, tableKeys TEXT)', (error, rows) => {
+      db.query('CREATE TABLE IF NOT EXISTS acsys_logical_content (id TEXT, name TEXT, description TEXT, viewId TEXT, source_collection TEXT, position INT, tableKeys TEXT)', (error, rows) => {
       
       });
-      db.query('CREATE TABLE IF NOT EXISTS prmths_views (id TEXT, isRemovable BOOLEAN, isTableMode BOOLEAN, linkTable TEXT, linkViewId TEXT, viewOrder TEXT, orderBy TEXT, rowNum INT)', (error, rows) => {
+      db.query('CREATE TABLE IF NOT EXISTS acsys_views (id TEXT, isRemovable BOOLEAN, isTableMode BOOLEAN, linkTable TEXT, linkViewId TEXT, viewOrder TEXT, orderBy TEXT, rowNum INT)', (error, rows) => {
 
       });
-      db.query('CREATE TABLE IF NOT EXISTS prmths_document_details (id TEXT, contentId TEXT, collection TEXT, control TEXT, field_name TEXT, isVisibleOnPage BOOLEAN, isVisibleOnTable BOOLEAN, type TEXT, isKey BOOLEAN, viewOrder INT, width INT)', (error, rows) => {
+      db.query('CREATE TABLE IF NOT EXISTS acsys_document_details (id TEXT, contentId TEXT, collection TEXT, control TEXT, field_name TEXT, isVisibleOnPage BOOLEAN, isVisibleOnTable BOOLEAN, type TEXT, isKey BOOLEAN, viewOrder INT, width INT)', (error, rows) => {
 
       });
-      db.query('CREATE TABLE IF NOT EXISTS prmths_email_settings (host TEXT, port INT, username TEXT, password TEXT)', (error, rows) => {
+      db.query('CREATE TABLE IF NOT EXISTS acsys_email_settings (host TEXT, port INT, username TEXT, password TEXT)', (error, rows) => {
 
       });
-      db.query('CREATE TABLE IF NOT EXISTS prmths_open_tables (table_name TEXT)', (error, rows) => {
+      db.query('CREATE TABLE IF NOT EXISTS acsys_open_tables (table_name TEXT)', (error, rows) => {
 
       });
-      db.query('CREATE TABLE IF NOT EXISTS prmths_storage_items (id TEXT, fileOrder INT, parent TEXT, name TEXT, contentType TEXT, isPublic BOOLEAN, timeCreated TEXT, updated TEXT)', (error, rows) => {
+      db.query('CREATE TABLE IF NOT EXISTS acsys_storage_items (id TEXT, fileOrder INT, parent TEXT, name TEXT, contentType TEXT, isPublic BOOLEAN, timeCreated TEXT, updated TEXT)', (error, rows) => {
 
       });
-      db.query('CREATE TABLE IF NOT EXISTS prmths_user_reset (id TEXT, user_id Text, expiration_date INT)', (error, rows) => {
+      db.query('CREATE TABLE IF NOT EXISTS acsys_user_reset (id TEXT, user_id Text, expiration_date INT)', (error, rows) => {
 
       });
       connected = true;
@@ -51,14 +54,7 @@ class MysqlDriver {
 
   getProjectName() {
     return new Promise(async (resolve, reject) => {
-      const query = 'SELECT CONFIG FROM PRMTHS_CONFIGURATION LIMIT 1';
-      await db.query(query, (error, rows) => {
-        if (rows === undefined) {
-          resolve('');
-        } else {
-          resolve(rows[0].config);
-        }
-      });
+      resolve(dbName);
     });
   }
 
@@ -84,7 +80,7 @@ class MysqlDriver {
         }
       }
 
-      const sql = `INSERT INTO PRMTHS_USERS VALUES (${placeholders})`;
+      const sql = `INSERT INTO acsys_USERS VALUES (${placeholders})`;
 
       db.query(sql, function (err) {
         if (err) {
@@ -97,12 +93,12 @@ class MysqlDriver {
 
   verifyPassword(id) {
     return new Promise(async (resolve, reject) => {
-      const query = `SELECT * FROM PRMTHS_USERS WHERE ID = '${id}'`;
+      const query = `SELECT * FROM acsys_USERS WHERE ID = '${id}'`;
       await db.query(query, (error, rows) => {
         if (rows === undefined || error) {
           resolve(false);
         } else {
-          resolve(rows[0].prmthsCd);
+          resolve(rows[0].acsysCd);
         }
       });
     });
@@ -110,7 +106,7 @@ class MysqlDriver {
 
   getUsers(user) {
     return new Promise(async (resolve, reject) => {
-      const query = `SELECT * FROM PRMTHS_USERS WHERE USERNAME != '${user}'`;
+      const query = `SELECT * FROM acsys_USERS WHERE USERNAME != '${user}'`;
       await db.query(query, (error, rows) => {
         if (rows === undefined || error) {
           resolve([]);
@@ -130,7 +126,7 @@ class MysqlDriver {
           resolve([]);
         } else {
           for (const row of rows) {
-            if(Object.values(row)[0].substring(0, 7) !== 'prmths_') {
+            if(Object.values(row)[0].substring(0, 6) !== 'acsys_') {
               const count = await this.getTableSize(Object.values(row)[0]);
               const data = {
                 table: Object.values(row)[0],
@@ -154,7 +150,7 @@ class MysqlDriver {
           resolve([]);
         } else {
           rows.forEach((row) => {
-            if(Object.values(row)[0].substring(0, 7) !== 'prmths_') {
+            if(Object.values(row)[0].substring(0, 6) !== 'acsys_') {
               collectionArr.push(Object.values(row)[0]);
             }
           });
@@ -269,7 +265,7 @@ class MysqlDriver {
 
   repositionViews(data, pos) {
     return new Promise(async (resolve, reject) => {
-      const query = 'SELECT * FROM PRMTHS_LOGICAL_CONTENT ORDER BY POSITION';
+      const query = 'SELECT * FROM acsys_LOGICAL_CONTENT ORDER BY POSITION';
       await db.query(query, async (error, rows) => {
         if (rows === undefined || error) {
           resolve();
@@ -282,7 +278,7 @@ class MysqlDriver {
               }
               if (row.id === data.id) {
               } else {
-                const sql = `UPDATE PRMTHS_LOGICAL_CONTENT SET POSITION = ${newPos} WHERE ID = '${row.id}'`;
+                const sql = `UPDATE acsys_LOGICAL_CONTENT SET POSITION = ${newPos} WHERE ID = '${row.id}'`;
                 db.query(sql, function (err) {
                   console.log(err);
                 });
@@ -291,7 +287,7 @@ class MysqlDriver {
             }
             if (row.id === data.id) {
             } else {
-              const sql = `UPDATE PRMTHS_LOGICAL_CONTENT SET POSITION = ${newPos} WHERE ID = '${row.id}'`;
+              const sql = `UPDATE acsys_LOGICAL_CONTENT SET POSITION = ${newPos} WHERE ID = '${row.id}'`;
               db.query(sql, function (err) {
                 console.log(err);
               });
@@ -376,10 +372,10 @@ class MysqlDriver {
 
   unlockTable(data) {
     return new Promise(async (resolve, reject) => {
-      const query = `SELECT * FROM prmths_open_tables WHERE TABLE_NAME = ${data.table_name}`;
+      const query = `SELECT * FROM acsys_open_tables WHERE TABLE_NAME = ${data.table_name}`;
       await db.query(query, (error, rows) => {
         if (rows === undefined || error) {
-          const sql = `INSERT INTO prmths_open_tables VALUES ('${data.table_name}')`;
+          const sql = `INSERT INTO acsys_open_tables VALUES ('${data.table_name}')`;
           db.query(sql, function (err) {
             if (err) {
               resolve(false);
@@ -387,7 +383,7 @@ class MysqlDriver {
             resolve(true);
           });
         } else {
-          const sql = `UPDATE prmths_open_tables SET TABLE_NAME = ${data.table_name}`;
+          const sql = `UPDATE acsys_open_tables SET TABLE_NAME = ${data.table_name}`;
           db.query(sql, function (err) {
             if (err) {
               resolve(false);
@@ -401,7 +397,7 @@ class MysqlDriver {
 
   lockTable(table) {
     return new Promise(async (resolve, reject) => {
-      const query = `DELETE FROM prmths_open_tables WHERE TABLE_NAME = '${table}'`;
+      const query = `DELETE FROM acsys_open_tables WHERE TABLE_NAME = '${table}'`;
       await db.query(query, (error) => {
         if (error) {
           resolve(false);
@@ -636,7 +632,7 @@ class MysqlDriver {
 
   checkOpenTable(collectionName) {
     return new Promise(async (resolve, reject) => {
-      const query = `SELECT * FROM prmths_open_tables WHERE TABLE_NAME = '${collectionName}'`;
+      const query = `SELECT * FROM acsys_open_tables WHERE TABLE_NAME = '${collectionName}'`;
       await db.query(query, (error, rows) => {
         if (rows === undefined || error) {
           resolve(false);

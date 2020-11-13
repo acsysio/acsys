@@ -48,7 +48,7 @@ class StorageDriver {
 
   syncFiles() {
     return new Promise((resolve) => {
-      db.deleteDocs('prmths_storage_items')
+      db.deleteDocs('acsys_storage_items')
         .then(async () => {
           await storage.getFiles(
             {
@@ -131,7 +131,7 @@ class StorageDriver {
                     } ${dateUpdated.getDate()}, ${dateUpdated.getFullYear()}`,
                   };
 
-                  db.insert('prmths_storage_items', object);
+                  db.insert('acsys_storage_items', object);
                 }
               }
               resolve(true);
@@ -201,7 +201,7 @@ class StorageDriver {
             } ${dateUpdated.getDate()}, ${dateUpdated.getFullYear()}`,
           };
 
-          db.insert('prmths_storage_items', object)
+          db.insert('acsys_storage_items', object)
             .then(() => {
               resolve(true);
             })
@@ -269,7 +269,7 @@ class StorageDriver {
             } ${dateUpdated.getDate()}, ${dateUpdated.getFullYear()}`,
           };
 
-          db.insert('prmths_storage_items', object)
+          db.insert('acsys_storage_items', object)
             .then(() => {
               resolve(true);
             })
@@ -318,20 +318,20 @@ class StorageDriver {
           metaData[0].contentType ===
           'application/x-www-form-urlencoded;charset=UTF-8'
         ) {
-          const files = await db.getDocs('prmths_storage_items', {
+          const files = await db.getDocs('acsys_storage_items', {
             where: [['parent', '=', referenceName]],
           });
           files.forEach(async (file) => {
             const fileBlob = storage.file(file.id.replace(/ /g, '_'));
             await fileBlob.makePublic(async function () {
-              await db.update('prmths_storage_items', { isPublic: true }, [
+              await db.update('acsys_storage_items', { isPublic: true }, [
                 ['id', '=', file.id],
               ]);
             });
           });
         }
         await db
-          .update('prmths_storage_items', { isPublic: true }, [
+          .update('acsys_storage_items', { isPublic: true }, [
             ['id', '=', referenceName],
           ])
           .then(() => {
@@ -354,20 +354,20 @@ class StorageDriver {
           metaData[0].contentType ===
           'application/x-www-form-urlencoded;charset=UTF-8'
         ) {
-          const files = await db.getDocs('prmths_storage_items', {
+          const files = await db.getDocs('acsys_storage_items', {
             where: [['parent', '=', referenceName]],
           });
           files.forEach(async (file) => {
             const fileBlob = storage.file(file.id.replace(/ /g, '_'));
             await fileBlob.makePrivate(async function () {
-              await db.update('prmths_storage_items', { isPublic: false }, [
+              await db.update('acsys_storage_items', { isPublic: false }, [
                 ['id', '=', file.id],
               ]);
             });
           });
         }
         await db
-          .update('prmths_storage_items', { isPublic: false }, [
+          .update('acsys_storage_items', { isPublic: false }, [
             ['id', '=', referenceName],
           ])
           .then(() => {
@@ -391,14 +391,14 @@ class StorageDriver {
         async function (err, files) {
           for (let i = 0; i < files.length; i += 1) {
             files[i].delete(
-              await db.deleteDocs('prmths_storage_items', [
+              await db.deleteDocs('acsys_storage_items', [
                 ['id', '=', referenceName],
               ])
             );
           }
           await blob.delete(async function () {
             await db
-              .deleteDocs('prmths_storage_items', [['id', '=', referenceName]])
+              .deleteDocs('acsys_storage_items', [['id', '=', referenceName]])
               .then(() => {
                 resolve(true);
               })

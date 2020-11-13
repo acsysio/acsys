@@ -44,7 +44,7 @@ const INITIAL_STATE = {
   collectionDetails: [],
   documentDetails: [],
   collectionValues: [],
-  prmthsView: [],
+  acsysView: [],
   tableData: [],
   apiCall: '',
   draftViews: [],
@@ -180,7 +180,7 @@ class CollectionView extends React.Component {
     this.setState({
       loading: true,
     });
-    let tempView = this.state.prmthsView;
+    let tempView = this.state.acsysView;
     if (viewOrderField === 'none') {
       tempView['orderBy'] = '';
       tempView['viewOrder'] = '';
@@ -192,7 +192,7 @@ class CollectionView extends React.Component {
     tempView['rowNum'] = rowNum;
     this.toggleTable(lockedValue);
     this.context.setHeld(false);
-    await Prom.updateData('prmths_views', tempView, [['id', '=', tempView.id]]);
+    await Prom.updateData('acsys_views', tempView, [['id', '=', tempView.id]]);
     this.setState({
       setViewOpen: false,
       reset: true,
@@ -227,7 +227,7 @@ class CollectionView extends React.Component {
       .then(async (result) => {
         if (result.length < 1) {
           await Prom.deleteData(
-            'prmths_' + documentDetails[0].collection,
+            'acsys_' + documentDetails[0].collection,
             keys
           );
         } else {
@@ -323,7 +323,7 @@ class CollectionView extends React.Component {
     tableKeys = [];
     for (var i = 0; i < tempDetails.length; i++) {
       tempDetails[i].viewOrder = i;
-      await Prom.updateData('prmths_document_details', tempDetails[i], [
+      await Prom.updateData('acsys_document_details', tempDetails[i], [
         ['id', '=', tempDetails[i].id],
       ]);
     }
@@ -335,7 +335,7 @@ class CollectionView extends React.Component {
     this.setState({
       loading: true,
     });
-    Prom.deleteData('prmths_document_details', [
+    Prom.deleteData('acsys_document_details', [
       ['contentId', '=', this.state.contentId],
     ])
       .then(async () => {
@@ -369,7 +369,7 @@ class CollectionView extends React.Component {
 
   mount = async () => {
     let page = this.state.page;
-    let prmthsView;
+    let acsysView;
     let locked = true;
     let details = [];
     let currentData;
@@ -388,7 +388,7 @@ class CollectionView extends React.Component {
     if (published) {
       id = this.props.match.params.id;
     } else {
-      id = 'prmths_' + this.props.match.params.id;
+      id = 'acsys_' + this.props.match.params.id;
     }
 
     const contentId = this.props.match.params.contentId;
@@ -396,12 +396,12 @@ class CollectionView extends React.Component {
     const totalRows = await Prom.getTableSize(id);
 
     try {
-      prmthsView = await Prom.getData('prmths_views', [['id', '=', contentId]]);
-      isRemovable = prmthsView[0].isRemovable;
-      rowNum = prmthsView[0].rowNum;
-      if (prmthsView[0].orderBy.length > 0) {
-        viewOrderField = prmthsView[0].orderBy;
-        viewOrder = prmthsView[0].viewOrder;
+      acsysView = await Prom.getData('acsys_views', [['id', '=', contentId]]);
+      isRemovable = acsysView[0].isRemovable;
+      rowNum = acsysView[0].rowNum;
+      if (acsysView[0].orderBy.length > 0) {
+        viewOrderField = acsysView[0].orderBy;
+        viewOrder = acsysView[0].viewOrder;
       }
 
       let keys = [];
@@ -412,11 +412,11 @@ class CollectionView extends React.Component {
         }
       } catch (error) {}
 
-      details = await Prom.getData('prmths_document_details', [
+      details = await Prom.getData('acsys_document_details', [
         ['contentId', '=', contentId],
       ]);
 
-      await Prom.getData('prmths_open_tables', [['table_name', '=', id]])
+      await Prom.getData('acsys_open_tables', [['table_name', '=', id]])
         .then((result) => {
           if (result[0].table_name === id) {
             locked = false;
@@ -427,9 +427,9 @@ class CollectionView extends React.Component {
 
       if (details.length > 0) {
         details.sort((a, b) => (a.viewOrder > b.viewOrder ? 1 : -1));
-        if (prmthsView[0].orderBy.length > 0) {
-          order.push(prmthsView[0].orderBy);
-          orderDir = prmthsView[0].viewOrder;
+        if (acsysView[0].orderBy.length > 0) {
+          order.push(acsysView[0].orderBy);
+          orderDir = acsysView[0].viewOrder;
         }
         for (let i = 0; i < details.length; i++) {
           if (Boolean(details[i].isKey)) {
@@ -482,7 +482,7 @@ class CollectionView extends React.Component {
             console.log(currentData[0][value])
 
             await Prom.insertData(
-              'prmths_document_details',
+              'acsys_document_details',
               collectionDetails
             ).then(() => {
               details.push(collectionDetails);
@@ -505,7 +505,7 @@ class CollectionView extends React.Component {
       initialViews: currentData,
       tableData: currentData,
       apiCall: apiCall,
-      prmthsView: prmthsView[0],
+      acsysView: acsysView[0],
       page: page,
       documentDetails: details,
       totalRows: totalRows,
@@ -608,14 +608,14 @@ class CollectionView extends React.Component {
               }
             });
             if (details.isVisibleOnTable) {
-              return this.state.prmthsView.linkViewId.length > 0 ? (
+              return this.state.acsysView.linkViewId.length > 0 ? (
                 <TableCell
                   to={{
                     pathname:
                       '/CollectionView/' +
-                      this.state.prmthsView.linkTable +
+                      this.state.acsysView.linkTable +
                       '/' +
-                      this.state.prmthsView.linkViewId,
+                      this.state.acsysView.linkViewId,
                     state: {
                       tableKeys: tableKeys[rowIndex],
                     },
@@ -773,7 +773,7 @@ class CollectionView extends React.Component {
       apiCall,
       view,
       deleteLoading,
-      prmthsView,
+      acsysView,
       filterLoading,
       documentDetails,
     } = this.state;
@@ -785,7 +785,7 @@ class CollectionView extends React.Component {
     let paginate = false;
 
     try {
-      projectId = prmthsView.id;
+      projectId = acsysView.id;
     } catch (error) {}
 
     try {

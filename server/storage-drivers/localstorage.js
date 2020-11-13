@@ -87,7 +87,7 @@ const searchDir = function (dir) {
             monthNames[dateUpdated.getMonth()]
           } ${dateUpdated.getDate()}, ${dateUpdated.getFullYear()}`,
         };
-        await db.insert('prmths_storage_items', object);
+        await db.insert('acsys_storage_items', object);
         if (type === 'Folder') {
           searchDir(dir + '/' + files[i]);
         }
@@ -108,7 +108,7 @@ const removeDir = function (path) {
         async function (err) {
             if (!err) {
                 await db
-                .deleteDocs('prmths_storage_items', [['id', '=', path.substring(8) + filename]]);
+                .deleteDocs('acsys_storage_items', [['id', '=', path.substring(8) + filename]]);
             }
         });
       }
@@ -117,7 +117,7 @@ const removeDir = function (path) {
       async function (err) {
           if (!err) {
               await db
-              .deleteDocs('prmths_storage_items', [['id', '=', path.substring(8)]]);
+              .deleteDocs('acsys_storage_items', [['id', '=', path.substring(8)]]);
           }
       });
   }
@@ -135,7 +135,7 @@ class LocalStorageDriver {
 
   syncFiles() {
     return new Promise((resolve) => {
-      db.deleteDocs('prmths_storage_items')
+      db.deleteDocs('acsys_storage_items')
         .then(() => {
           searchDir('./files');
           resolve(true);
@@ -193,7 +193,7 @@ class LocalStorageDriver {
             } ${dateUpdated.getDate()}, ${dateUpdated.getFullYear()}`,
         };
 
-        db.insert('prmths_storage_items', object)
+        db.insert('acsys_storage_items', object)
             .then(() => {
             resolve(true);
             })
@@ -250,7 +250,7 @@ class LocalStorageDriver {
                         } ${dateUpdated.getDate()}, ${dateUpdated.getFullYear()}`,
                     };
             
-                    db.insert('prmths_storage_items', object)
+                    db.insert('acsys_storage_items', object)
                         .then(() => {
                           resolve(true);
                         })
@@ -269,7 +269,7 @@ class LocalStorageDriver {
       const options = {
         where: [['id', '=', req.query.url]],
       };
-      await db.getDocs('prmths_storage_items', options)
+      await db.getDocs('acsys_storage_items', options)
         .then(async (result) => {
           if (Boolean(result.length > 0 && result[0].isPublic)) {
             const url = req.protocol + '://' + req.get('host') + '/api/getFile?file=' + req.query.url;
@@ -290,7 +290,7 @@ class LocalStorageDriver {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
         await db
-        .update('prmths_storage_items', { isPublic: true }, [
+        .update('acsys_storage_items', { isPublic: true }, [
           ['id', '=', referenceName],
         ])
         .then(() => {
@@ -306,7 +306,7 @@ class LocalStorageDriver {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
         await db
-        .update('prmths_storage_items', { isPublic: false }, [
+        .update('acsys_storage_items', { isPublic: false }, [
           ['id', '=', referenceName],
         ])
         .then(() => {
@@ -332,7 +332,7 @@ class LocalStorageDriver {
                 resolve(false);
             } else {
                 await db
-                .deleteDocs('prmths_storage_items', [['id', '=', referenceName]])
+                .deleteDocs('acsys_storage_items', [['id', '=', referenceName]])
                 .then(() => {
                     resolve(true);
                 })

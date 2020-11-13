@@ -39,8 +39,7 @@ function removeDir (path) {
 async function initialize() {
   await config.initialize();
 
-  // const dbType = await config.getDatabaseType();
-  const dbType = 'mysql';
+  const dbType = await config.getDatabaseType();
 
   if (dbType === 'firestore') {
     data = new FirestoreDriver();
@@ -80,7 +79,7 @@ router.get('/hasAdmin', function (req, res) {
   };
 
   data
-    .getDocs('prmths_users', options)
+    .getDocs('acsys_users', options)
     .then((result, reject) => {
       if (result.length > 0) {
         res.send((rData = { value: true }));
@@ -101,7 +100,7 @@ router.post('/register', function (req, res) {
   };
 
   data
-    .getDocs('prmths_users', options)
+    .getDocs('acsys_users', options)
     .then((result, reject) => {
       if (result.length > 0) {
         res.json({ message: 'Action not available.' });
@@ -121,10 +120,10 @@ router.post('/register', function (req, res) {
             username: userData.username,
             role: userData.role,
             mode: userData.mode,
-            prmthsCd: hash,
+            acsysCd: hash,
           };
           data
-            .insert('prmths_users', dataModel)
+            .insert('acsys_users', dataModel)
             .then(async (action) => {
               const token = jwt.sign({ sub: hash }, await config.getSecret(), {
                 expiresIn: '1d',
@@ -166,7 +165,7 @@ router.post('/verifyPassword', function (req, res) {
 
 router.post('/sendResetLink', function (req, res) {
   data
-    .getDocs('prmths_email_settings', {})
+    .getDocs('acsys_email_settings', {})
     .then((emailSettings) => {
       const { email } = req.body;
       const options = {
@@ -174,7 +173,7 @@ router.post('/sendResetLink', function (req, res) {
         limit: parseInt(1),
       };
       data
-        .getDocs('prmths_users', options)
+        .getDocs('acsys_users', options)
         .then((result, reject) => {
           if (result.length > 0) {
             const resetOptions = {
@@ -182,7 +181,7 @@ router.post('/sendResetLink', function (req, res) {
               limit: parseInt(1),
             };
             data
-              .getDocs('prmths_user_reset', resetOptions)
+              .getDocs('acsys_user_reset', resetOptions)
               .then((userResult, reject) => {
                 if (userResult.length > 0) {
                   const date = new Date();
@@ -196,7 +195,7 @@ router.post('/sendResetLink', function (req, res) {
                       expiration_date: expDate,
                     };
                     data
-                      .update('prmths_user_reset', dataModel)
+                      .update('acsys_user_reset', dataModel)
                       .then((action) => {
                         const transporter = nodemailer.createTransport({
                           host: emailSettings[0].host,
@@ -239,7 +238,7 @@ router.post('/sendResetLink', function (req, res) {
                     expiration_date: expDate,
                   };
                   data
-                    .insert('prmths_user_reset', dataModel)
+                    .insert('acsys_user_reset', dataModel)
                     .then((action) => {
                       const transporter = nodemailer.createTransport({
                         host: emailSettings[0].host,
@@ -295,7 +294,7 @@ router.post('/resetPassword', function (req, res) {
     limit: parseInt(1),
   };
   data
-    .getDocs('prmths_user_reset', options)
+    .getDocs('acsys_user_reset', options)
     .then((result, reject) => {
       if (result.length > 0) {
         const date = new Date();
@@ -305,7 +304,7 @@ router.post('/resetPassword', function (req, res) {
             limit: parseInt(1),
           };
           data
-            .getDocs('prmths_users', userOptions)
+            .getDocs('acsys_users', userOptions)
             .then((userResult, reject) => {
               bcrypt.hash(password, 8, function (err, hash) {
                 const dataModel = {
@@ -314,13 +313,13 @@ router.post('/resetPassword', function (req, res) {
                   mode: userResult[0].mode,
                   email: userResult[0].email,
                   username: userResult[0].username,
-                  prmthsCd: hash,
+                  acsysCd: hash,
                 };
                 data
-                  .update('prmths_users', dataModel)
+                  .update('acsys_users', dataModel)
                   .then((action) => {
                     data
-                      .deleteDocs('prmths_user_reset', result)
+                      .deleteDocs('acsys_user_reset', result)
                       .then((deleteResult) => {
                         res.send({ message: 'Password has been reset.' });
                       })
@@ -356,7 +355,7 @@ router.post('/createUser', function (req, res) {
   };
 
   data
-    .getDocs('prmths_users', options)
+    .getDocs('acsys_users', options)
     .then((result, reject) => {
       if (result.length > 0) {
         res.json({ message: 'Email already in use.' });
@@ -367,7 +366,7 @@ router.post('/createUser', function (req, res) {
         };
 
         data
-          .getDocs('prmths_users', options)
+          .getDocs('acsys_users', options)
           .then((result, reject) => {
             if (result.length > 0) {
               res.json({
@@ -381,10 +380,10 @@ router.post('/createUser', function (req, res) {
                   username: userData.username,
                   role: userData.role,
                   mode: userData.mode,
-                  prmthsCd: hash,
+                  acsysCd: hash,
                 };
                 data
-                  .insert('prmths_users', dataModel)
+                  .insert('acsys_users', dataModel)
                   .then((result) => {
                     res.send(true);
                   })
@@ -406,9 +405,9 @@ router.post('/createUser', function (req, res) {
 
 router.post('/updateUser', function (req, res) {
   const userData = req.body.data;
-  bcrypt.hash(userData.prmthsCd, 8, function (err, hash) {
+  bcrypt.hash(userData.acsysCd, 8, function (err, hash) {
     let dataModel;
-    if (userData.prmthsCd === undefined) {
+    if (userData.acsysCd === undefined) {
       dataModel = {
         id: userData.id,
         email: userData.email,
@@ -423,11 +422,11 @@ router.post('/updateUser', function (req, res) {
         username: userData.username,
         role: userData.role,
         mode: userData.mode,
-        prmthsCd: hash,
+        acsysCd: hash,
       };
     }
     data
-      .update('prmths_users', dataModel, [['id', '=', dataModel.id]])
+      .update('acsys_users', dataModel, [['id', '=', dataModel.id]])
       .then((result) => {
         res.json({ result });
       })
@@ -445,19 +444,19 @@ router.post('/authenticate', function (req, res) {
     where: [['username', '=', cUsername]],
   };
   data
-    .getDocs('prmths_users', options)
+    .getDocs('acsys_users', options)
     .then((result) => {
-      bcrypt.compare(cPassword, result[0].prmthsCd, async function (err, outcome) {
+      bcrypt.compare(cPassword, result[0].acsysCd, async function (err, outcome) {
         if (outcome) {
           const token = jwt.sign(
-            { sub: result[0].prmthsCd },
+            { sub: result[0].acsysCd },
             await config.getSecret(),
             {
               expiresIn: '1d',
             }
           );
           const refreshToken = jwt.sign(
-            { sub: result[0].prmthsCd },
+            { sub: result[0].acsysCd },
             await config.getSecret(),
             {
               expiresIn: '3d',
@@ -681,15 +680,15 @@ router.post('/deleteOpenData', function (req, res) {
 router.post('/deleteView', function (req, res) {
   deleteData = req.body;
   data
-    .deleteDocs('prmths_document_details', [
+    .deleteDocs('acsys_document_details', [
       ['contentId', '=', deleteData.viewId],
     ])
     .then((result) => {
       data
-        .deleteDocs('prmths_views', [['id', '=', deleteData.viewId]])
+        .deleteDocs('acsys_views', [['id', '=', deleteData.viewId]])
         .then((result) => {
           data
-            .deleteDocs('prmths_logical_content', [
+            .deleteDocs('acsys_logical_content', [
               ['viewId', '=', deleteData.viewId],
             ])
             .then((result) => {
@@ -967,14 +966,29 @@ router.post('/setInitialMysqlConfig', async function (req, res) {
   try {
     await config.format();
     await config.initialize();
-    fs.unlink('./prometheus.service.config.json', function (err) {});
+    fs.unlink('./acsys.service.config.json', function (err) {});
     removeDir('./files');
     data = new MysqlDriver();
     storage = new StorageDriver();
+    const mysqlConfig = {
+      host: req.body.host,
+      port: req.body.port,
+      database: req.body.database,
+      username: req.body.username,
+      password: req.body.password,
+    };
     await config
       .setConfig('mysql', 'mysql')
       .then(async () => {
-        return new Promise((resolve) => setTimeout(resolve, 5000));
+        return new Promise((resolve) => setTimeout(resolve, 3000));
+      })
+      .catch(() => {
+        res.send(false);
+      });
+    await config
+      .setMysqlConfig(mysqlConfig)
+      .then(async () => {
+        return new Promise((resolve) => setTimeout(resolve, 2000));
       })
       .catch(() => {
         res.send(false);
@@ -985,14 +999,13 @@ router.post('/setInitialMysqlConfig', async function (req, res) {
       .catch(() => {
         res.send(false);
       });
-    fs.writeFile(
-      './prometheus.service.config.json',
-      JSON.stringify(req.body).replace(/\\\\/g, '\\'),
+    req.files.file.mv(
+      './acsys.service.config.json',
       async function (err) {
         if (err) {
           res.send(err);
         } else {
-          data.initialize();
+          data.initialize(config);
           storage.initialize(config, data);
           res.send(true);
         }
@@ -1007,7 +1020,7 @@ router.post('/setMysqlConfig', async function (req, res) {
   try {
     await config.format();
     await config.initialize();
-    fs.unlink('./prometheus.service.config.json', function (err) {});
+    fs.unlink('./acsys.service.config.json', function (err) {});
     removeDir('./files');
     data = new MysqlDriver();
     storage = new StorageDriver();
@@ -1026,7 +1039,7 @@ router.post('/setMysqlConfig', async function (req, res) {
         res.send(false);
       });
     fs.writeFile(
-      './prometheus.service.config.json',
+      './acsys.service.config.json',
       JSON.stringify(req.body).replace(/\\\\/g, '\\'),
       async function (err) {
         if (err) {
@@ -1098,7 +1111,7 @@ router.get('/loadStorageConfig', async function (req, res) {
           res.send((rData = { value: false }));
         } else {
           storage
-            .initialize(data)
+            .initialize(config, data)
             .then((result) => {
               res.send((rData = { value: true }));
             })
@@ -1129,11 +1142,11 @@ router.post('/setEmailConfig', async function (req, res) {
     };
 
     data
-      .getDocs('prmths_email_settings', {})
+      .getDocs('acsys_email_settings', {})
       .then((result, reject) => {
         if (result.length > 0) {
           data
-            .update('prmths_email_settings', configData, [
+            .update('acsys_email_settings', configData, [
               'host',
               '=',
               configData.host,
@@ -1146,7 +1159,7 @@ router.post('/setEmailConfig', async function (req, res) {
             });
         } else {
           data
-            .insert('prmths_email_settings', configData)
+            .insert('acsys_email_settings', configData)
             .then((result) => {
               res.send(true);
             })
@@ -1165,7 +1178,7 @@ router.post('/setEmailConfig', async function (req, res) {
 
 router.get('/getEmailConfig', async function (req, res) {
   data
-    .getDocs('prmths_email_settings', {})
+    .getDocs('acsys_email_settings', {})
     .then((result, reject) => {
       res.send(result);
     })

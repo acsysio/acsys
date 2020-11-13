@@ -54,7 +54,7 @@ const INITIAL_STATE = {
   collectionDetails: [],
   documentDetails: [],
   collectionValues: [],
-  prmthsView: [],
+  acsysView: [],
   views: [],
   draftViews: [],
   page: 0,
@@ -96,7 +96,7 @@ class Storage extends React.Component {
       loading: true,
     });
     const parentDir = this.state.files[0].parent;
-    const files = await Prom.getData('prmths_storage_items', [
+    const files = await Prom.getData('acsys_storage_items', [
       ['parent', '=', dir],
     ]);
     for (var i = 0; i < files.length; i++) {
@@ -131,18 +131,18 @@ class Storage extends React.Component {
     let files;
     if (this.state.previousDir !== '/') {
       const parent = await Prom.getData(
-        'prmths_storage_items',
+        'acsys_storage_items',
         [['id', '=', this.state.previousDir]],
         1
       );
       parentFile = parent[0].parent;
       currentDir = '/' + this.state.previousDir;
-      files = await Prom.getData('prmths_storage_items', [
+      files = await Prom.getData('acsys_storage_items', [
         ['parent', '=', this.state.previousDir],
       ]);
     } else {
       currentDir = this.state.previousDir;
-      files = await Prom.getData('prmths_storage_items', [
+      files = await Prom.getData('acsys_storage_items', [
         ['parent', '=', '/'],
       ]);
     }
@@ -192,7 +192,7 @@ class Storage extends React.Component {
       loading: true,
     });
     await Prom.syncFiles();
-    let files = await Prom.getData('prmths_storage_items', [
+    let files = await Prom.getData('acsys_storage_items', [
       ['parent', '=', '/'],
     ]);
     for (var i = 0; i < files.length; i++) {
@@ -320,7 +320,7 @@ class Storage extends React.Component {
     if (dir !== '/') {
       dir = dir.substring(1, dir.length);
     }
-    const files = await Prom.getData('prmths_storage_items', [
+    const files = await Prom.getData('acsys_storage_items', [
       ['parent', '=', dir],
     ]);
     for (var i = 0; i < files.length; i++) {
@@ -368,7 +368,7 @@ class Storage extends React.Component {
           loading: true,
           openImg: false,
         });
-        const files = await Prom.getData('prmths_storage_items', [
+        const files = await Prom.getData('acsys_storage_items', [
           ['parent', '=', newDir],
         ]).catch();
         for (var i = 0; i < files.length; i++) {
@@ -418,7 +418,7 @@ class Storage extends React.Component {
           con: con,
         });
       }
-      files = await Prom.getData('prmths_storage_items', [
+      files = await Prom.getData('acsys_storage_items', [
         ['parent', '=', parent],
       ]);
       for (var i = 0; i < files.length; i++) {

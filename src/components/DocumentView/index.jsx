@@ -51,7 +51,7 @@ const INITIAL_STATE = {
   views: [],
   apiCall: '',
   keys: [],
-  prmthsView: [],
+  acsysView: [],
   routed: false,
   position: 0,
   page: 0,
@@ -228,13 +228,13 @@ class DocumentView extends React.Component {
           }
         }
         const result = await Prom.updateData(
-          'prmths_document_details',
+          'acsys_document_details',
           { ...tempDetails[i] },
           [['id', '=', tempDetails[i].id]]
         );
       }
       const result = await Prom.updateData(
-        'prmths_' + this.state.collection,
+        'acsys_' + this.state.collection,
         { ...tempDocument },
         this.state.keys
       );
@@ -255,14 +255,14 @@ class DocumentView extends React.Component {
           }
         }
         const result = await Prom.updateData(
-          'prmths_document_details',
+          'acsys_document_details',
           { ...tempDetails[i] },
           [['id', '=', tempDetails[i].id]]
         );
       }
 
       const result = await Prom.insertData(
-        'prmths_' + this.state.collection,
+        'acsys_' + this.state.collection,
         { ...tempDocument },
         this.state.keys
       );
@@ -358,7 +358,7 @@ class DocumentView extends React.Component {
           }
         }
         const result = await Prom.updateData(
-          'prmths_document_details',
+          'acsys_document_details',
           { ...tempDetails[i] },
           [['id', '=', tempDetails[i].id]]
         );
@@ -373,7 +373,7 @@ class DocumentView extends React.Component {
               )) + 1;
           }
           const result = await Prom.updateData(
-            'prmths_document_details',
+            'acsys_document_details',
             { ...tempDetails[i] },
             [['id', '=', tempDetails[i].id]]
           );
@@ -384,7 +384,7 @@ class DocumentView extends React.Component {
           this.state.keys
         );
         await Prom.deleteData(
-          'prmths_' + this.state.collection,
+          'acsys_' + this.state.collection,
           this.state.keys
         )
           .then(() => {
@@ -421,7 +421,7 @@ class DocumentView extends React.Component {
           }
         }
         const result = await Prom.updateData(
-          'prmths_document_details',
+          'acsys_document_details',
           { ...tempDetails[i] },
           [['id', '=', tempDetails[i].id]]
         );
@@ -451,7 +451,7 @@ class DocumentView extends React.Component {
     for (var i = 0; i < tempDetails.length; i++) {
       tempDetails[i].viewOrder = i;
       const result = await Prom.updateData(
-        'prmths_document_details',
+        'acsys_document_details',
         { ...tempDetails[i] },
         [['id', '=', tempDetails[i].id]]
       );
@@ -463,7 +463,7 @@ class DocumentView extends React.Component {
   saveView = async (value) => {
     this.setState({ loading: true });
 
-    var tempView = this.state.prmthsView;
+    var tempView = this.state.acsysView;
 
     if (value) {
       tempView['tableKeys'] = this.props.location.state.tableKeys;
@@ -472,7 +472,7 @@ class DocumentView extends React.Component {
     }
 
     for (var i = 0; i < tempDetails.length; i++) {
-      const result = await Prom.updateData('prmths_logical_content', tempView, [
+      const result = await Prom.updateData('acsys_logical_content', tempView, [
         ['viewId', '=', this.props.location.state.viewId],
       ]);
     }
@@ -484,7 +484,7 @@ class DocumentView extends React.Component {
     this.setState({ deleteLoading: true });
     let collection;
     if (draft) {
-      collection = 'prmths_' + documentDetails[0].collection;
+      collection = 'acsys_' + documentDetails[0].collection;
     } else {
       collection = documentDetails[0].collection;
     }
@@ -506,7 +506,7 @@ class DocumentView extends React.Component {
       initLoad = true;
       let tempMode = mode;
       let routed = this.state.routed;
-      const prmthsView = await Prom.getData('prmths_logical_content', [
+      const acsysView = await Prom.getData('acsys_logical_content', [
         ['viewId', '=', this.props.location.state.viewId],
       ]);
       try {
@@ -516,13 +516,13 @@ class DocumentView extends React.Component {
       } catch (error) {
         mode = tempMode;
       }
-      if (prmthsView[0].tableKeys.length > 0) {
+      if (acsysView[0].tableKeys.length > 0) {
         routed = true;
       }
       this.setState({
         loading: true,
         routed: routed,
-        prmthsView: prmthsView[0],
+        acsysView: acsysView[0],
       });
       tempDocument = [];
       fileRefs = [];
@@ -537,7 +537,7 @@ class DocumentView extends React.Component {
   mount = async () => {
     let documentDetails;
     try {
-      documentDetails = await Prom.getData('prmths_document_details', [
+      documentDetails = await Prom.getData('acsys_document_details', [
         ['contentId', '=', this.props.location.state.viewId],
       ]);
     } catch (error) {
@@ -566,12 +566,12 @@ class DocumentView extends React.Component {
           })
           .catch(async () => {});
         if (pullView.length < 1) {
-          await Prom.getData('prmths_' + table, keys).then((result) => {
+          await Prom.getData('acsys_' + table, keys).then((result) => {
             pullView = result;
             draft = true;
           });
         }
-        await Prom.getData('prmths_open_tables', [['table_name', '=', table]])
+        await Prom.getData('acsys_open_tables', [['table_name', '=', table]])
         .then(async (result) => {
           if (result[0].table_name === table) {
             open = true;

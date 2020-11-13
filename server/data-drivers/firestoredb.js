@@ -52,7 +52,7 @@ class DataDriver {
           authUser // Create a user in firestore to allow for additional configuration
         ) => {
           if (authUser.user)
-            return setDoc('prmths_users', {
+            return setDoc('acsys_users', {
               uid: authUser.user.uid,
               role: 'Administrator',
               username,
@@ -65,7 +65,7 @@ class DataDriver {
 
   createUser(data) {
     return new Promise((resolve, reject) => {
-      db.collection('prmths_users')
+      db.collection('acsys_users')
         .add(data)
         .then((docRef) => resolve(docRef))
         .catch(reject);
@@ -79,14 +79,14 @@ class DataDriver {
   verifyPassword(id) {
     return new Promise((resolve, reject) => {
       let query;
-      query = db.collection('prmths_users');
+      query = db.collection('acsys_users');
       query = query.where('id', '==', id);
       query
         .get()
         .then((snapshot) => {
           snapshot.forEach((doc) => {
             const data = doc.data();
-            resolve(data.prmthsCd);
+            resolve(data.acsysCd);
           });
           resolve(false);
         })
@@ -99,7 +99,7 @@ class DataDriver {
   getUsers(user) {
     return new Promise((resolve, reject) => {
       let query;
-      query = db.collection('prmths_users');
+      query = db.collection('acsys_users');
       query
         .get()
         .then((snapshot) => {
@@ -121,7 +121,7 @@ class DataDriver {
   getTableData() {
     return new Promise((resolve, reject) => {
       const collectionArr = [];
-      const expr = /prmths_/;
+      const expr = /acsys_/;
       db.listCollections()
         .then(async (collections) => {
           for (const collection of collections) {
@@ -146,7 +146,7 @@ class DataDriver {
   listTables() {
     return new Promise((resolve, reject) => {
       const collectionArr = [];
-      const expr = /prmths_/;
+      const expr = /acsys_/;
       db.listCollections()
         .then((collections) => {
           for (const collection of collections) {
@@ -202,7 +202,7 @@ class DataDriver {
       const posFound = false;
       const entryFound = false;
       let query;
-      query = db.collection('prmths_logical_content');
+      query = db.collection('acsys_logical_content');
       query = query.orderBy('position');
       query
         .get()
@@ -214,11 +214,11 @@ class DataDriver {
               }
             }
             if (doc.data().id === data.id) {
-              db.collection('prmths_logical_content').doc(doc.id).update(data);
+              db.collection('acsys_logical_content').doc(doc.id).update(data);
             } else {
               const newEntry = doc.data();
               newEntry.position = newPos;
-              db.collection('prmths_logical_content')
+              db.collection('acsys_logical_content')
                 .doc(doc.id)
                 .update(newEntry);
               newPos++;
@@ -241,7 +241,7 @@ class DataDriver {
     return new Promise((resolve, reject) => {
       let newPos = 1;
       let query;
-      query = db.collection('prmths_logical_content');
+      query = db.collection('acsys_logical_content');
       query = query.orderBy('position');
       query
         .get()
@@ -249,7 +249,7 @@ class DataDriver {
           snapshot.forEach((doc) => {
             const newEntry = doc.data();
             newEntry.position = newPos;
-            db.collection('prmths_logical_content')
+            db.collection('acsys_logical_content')
               .doc(doc.id)
               .update(newEntry);
             newPos++;
@@ -274,7 +274,7 @@ class DataDriver {
   unlockTable(data) {
     return new Promise((resolve, reject) => {
       let query;
-      query = db.collection('prmths_open_tables');
+      query = db.collection('acsys_open_tables');
       query = query.where('table_name', '==', data.table_name);
       query
         .get()
@@ -286,7 +286,7 @@ class DataDriver {
           if (objects.length > 0) {
             resolve(objects);
           } else {
-            db.collection('prmths_open_tables')
+            db.collection('acsys_open_tables')
               .add(data)
               .then((docRef) => resolve(docRef))
               .catch(reject);
@@ -302,7 +302,7 @@ class DataDriver {
     return new Promise((resolve, reject) => {
       let query;
       // START -- construct collection reference
-      query = db.collection('prmths_open_tables');
+      query = db.collection('acsys_open_tables');
       query = query.where('table_name', '==', table_name);
 
       // END -- construct collection reference
@@ -312,7 +312,7 @@ class DataDriver {
           const objects = [];
 
           snapshot.forEach((doc) => {
-            db.collection('prmths_open_tables')
+            db.collection('acsys_open_tables')
               .doc(doc.id)
               .delete()
               .then(() => resolve(true))
@@ -544,7 +544,7 @@ class DataDriver {
   checkOpenTable(collectionName) {
     return new Promise((resolve, reject) => {
       let query;
-      query = db.collection('prmths_open_tables');
+      query = db.collection('acsys_open_tables');
       query = query.where('table_name', '==', collectionName);
       query
         .get()

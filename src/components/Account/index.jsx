@@ -65,7 +65,7 @@ class Account extends React.Component {
       this.props.setHeader('Account');
       let userData;
       try {
-        userData = await Prom.getData('prmths_users', [
+        userData = await Prom.getData('acsys_users', [
           ['id', '=', Prom.getId()],
         ]);
       } catch (error) {}
@@ -99,7 +99,7 @@ class Account extends React.Component {
       mode: Prom.getMode(),
       username: username,
       email: email,
-      prmthsCd: password,
+      acsysCd: password,
     };
     if (await Prom.verifyPassword(this.state.userData.id, currentPassword)) {
       if (this.state.passwordChange) {
