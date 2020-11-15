@@ -371,6 +371,38 @@ export const setInitialMysqlConfig = async (host, port, database, username, pass
   });
 };
 
+export const setMysqlConfig = async (host, port, database, username, password, config) => {
+  await checkToken();
+  const formData = new FormData();
+  formData.append('host', host);
+  formData.append('port', port);
+  formData.append('database', database);
+  formData.append('username', username);
+  formData.append('password', password);
+  formData.append('file', config);
+  return new Promise((resolve, reject) => {
+    promFetch('/api/setMysqlConfig', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+      },
+      body: formData
+    })
+      .then((response) => {
+        Session.logOut();
+        if (response.statusText !== 'Unauthorized') {
+          response.json().then((json) => {
+            resolve(json.value);
+          });
+          resolve();
+        } else {
+          reject();
+        }
+      })
+      .catch(reject);
+  });
+};
+
 export const setEmailConfig = async (config) => {
   await checkToken();
   return new Promise((resolve, reject) => {

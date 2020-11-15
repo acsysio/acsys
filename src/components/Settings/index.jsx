@@ -25,6 +25,11 @@ const INITIAL_STATE = {
   port: '',
   username: '',
   password: '',
+  dhost: '',
+  dport: '',
+  database: '',
+  dusername: '',
+  dpassword: '',
   project_name: '',
   databaseType: '',
   type: '',
@@ -113,6 +118,26 @@ class Settings extends React.Component {
         client_x509_cert_url: databaseConfig.client_x509_cert_url,
       });
     }
+    else if (databaseType === 'mysql') {
+      this.setState({
+        databaseType: databaseType,
+        dhost: databaseConfig.host,
+        dport: databaseConfig.port,
+        ddatabase: databaseConfig.database,
+        dusername: databaseConfig.username,
+        dpassword: databaseConfig.password,
+        type: databaseConfig.type,
+        project_id: databaseConfig.project_id,
+        private_key_id: databaseConfig.private_key_id,
+        private_key: databaseConfig.private_key,
+        client_email: databaseConfig.client_email,
+        client_id: databaseConfig.client_id,
+        auth_uri: databaseConfig.auth_uri,
+        token_uri: databaseConfig.token_uri,
+        auth_provider_x509_cert_url: databaseConfig.auth_provider_x509_cert_url,
+        client_x509_cert_url: databaseConfig.client_x509_cert_url,
+      });
+    }
   };
 
   setDatabaseType = (type) => {
@@ -135,38 +160,31 @@ class Settings extends React.Component {
     const {
       databaseType,
       project_name,
-      type,
-      fileName,
-      project_id,
-      private_key_id,
-      private_key,
-      client_email,
-      client_id,
-      auth_uri,
-      token_uri,
-      auth_provider_x509_cert_url,
-      client_x509_cert_url,
+      dhost,
+      dport,
+      ddatabase,
+      dusername,
+      dpassword,
+      uploadFile,
     } = this.state;
     if (databaseType === 'local' && project_name.length < 1) {
     
     }
     else {
       if (databaseType === 'firestore') {
-        const config = {
-          type: type,
-          project_id: project_id,
-          private_key_id: private_key_id,
-          private_key: private_key,
-          client_email: client_email,
-          client_id: client_id,
-          auth_uri: auth_uri,
-          token_uri: token_uri,
-          auth_provider_x509_cert_url: auth_provider_x509_cert_url,
-          client_x509_cert_url: client_x509_cert_url,
-        };
         await Prom.setFirestoreConfig(this.state.uploadFile);
       }
-      else {
+      else if (databaseType === 'mysql') {
+        await Prom.setMysqlConfig(
+          dhost,
+          dport,
+          ddatabase,
+          dusername,
+          dpassword,
+          uploadFile
+        );
+      }
+      else if (databaseType === 'local') {
         await Prom.setLocalDatabaseConfig(
           project_name
         );
@@ -189,10 +207,6 @@ class Settings extends React.Component {
     }
     if (this.state.updateDatabase || this.state.updateEmail) {
       await this.sleep(5000);
-      // await Prom.restart().then(async () => {
-      //   await this.sleep(5000);
-      //   window.location.reload();
-      // });
       window.location.reload();
     }
     this.setState({
@@ -244,10 +258,51 @@ class Settings extends React.Component {
     this.setState({ [event.target.name]: event.target.value });
   };
 
-  getConfigPanel() {
+  getLocalPanel() {
     const {
-      databaseType,
       project_name,
+    } = this.state;
+    return (
+      <ExpansionPanel
+        style={{ clear: 'both' }}
+        onChange={(e) =>
+          this.setState({
+            updateDatabase: !this.state.updateDatabase,
+          })
+        }
+      >
+        <ExpansionPanelSummary
+          expandIcon={<KeyboardArrowDown />}
+          aria-controls="panel1a-content"
+          id="panel1a-header"
+        >
+          <Typography>Local Configuration</Typography>
+        </ExpansionPanelSummary>
+        <ExpansionPanelDetails>
+          <Box
+            margin="auto"
+            width="90%"
+            display="flex"
+            flexDirection="column"
+            textAlign="center"
+            padding="16px"
+          >
+            <input
+              id="project_name"
+              name="project_name"
+              placeholder="Project Name"
+              value={project_name}
+              onChange={this.onChange}
+              style={{ marginTop: '20px' }}
+            />
+          </Box>
+        </ExpansionPanelDetails>
+      </ExpansionPanel>
+    );
+  };
+
+  getFirestorePanel(name) {
+    const {
       fileName,
       type,
       project_id,
@@ -260,170 +315,233 @@ class Settings extends React.Component {
       auth_provider_x509_cert_url,
       client_x509_cert_url,
     } = this.state;
+    return (
+      <ExpansionPanel
+        style={{ clear: 'both' }}
+        onChange={(e) =>
+          this.setState({
+            updateDatabase: !this.state.updateDatabase,
+          })
+        }
+      >
+        <ExpansionPanelSummary
+          expandIcon={<KeyboardArrowDown />}
+          aria-controls="panel1a-content"
+          id="panel1a-header"
+        >
+          <Typography>{name} Configuration</Typography>
+        </ExpansionPanelSummary>
+        <ExpansionPanelDetails>
+          <Box
+            margin="auto"
+            width="90%"
+            display="flex"
+            flexDirection="column"
+            textAlign="center"
+            padding="16px"
+          >
+            <input
+              id="type"
+              name="type"
+              placeholder="Type"
+              value={type}
+              style={{ marginTop: '20px' }}
+            />
+            <input
+              id="project_id"
+              name="project_id"
+              placeholder="Project ID"
+              value={project_id}
+              style={{ marginTop: '20px' }}
+            />
+            <input
+              id="private_key_id"
+              name="private_key_id"
+              placeholder="Private Key ID"
+              value={private_key_id}
+              style={{ marginTop: '20px' }}
+            />
+            <input
+              id="private_key"
+              name="private_key"
+              placeholder="Private Key"
+              value={private_key}
+              style={{ marginTop: '20px' }}
+            />
+            <input
+              id="client_email"
+              name="client_email"
+              placeholder="Client Email"
+              value={client_email}
+              style={{ marginTop: '20px' }}
+            />
+            <input
+              id="client_id"
+              name="client_id"
+              placeholder="Client ID"
+              value={client_id}
+              style={{ marginTop: '20px' }}
+            />
+            <input
+              id="auth_uri"
+              name="auth_uri"
+              placeholder="Auth URI"
+              value={auth_uri}
+              style={{ marginTop: '20px' }}
+            />
+            <input
+              id="token_uri"
+              name="token_uri"
+              placeholder="Token URI"
+              value={token_uri}
+              style={{ marginTop: '20px' }}
+            />
+            <input
+              id="auth_provider_x509_cert_url"
+              name="auth_provider_x509_cert_url"
+              placeholder="Auth Provider x509 Cert URL"
+              value={auth_provider_x509_cert_url}
+              style={{ marginTop: '20px' }}
+            />
+            <input
+              id="client_x509_cert_url"
+              name="client_x509_cert_url"
+              placeholder="Client x509 Cert URL"
+              value={client_x509_cert_url}
+              style={{ marginTop: '20px' }}
+            />
+            <Grid container style={{ marginTop: '20px' }}>
+              <Grid item xs>
+                <input
+                  defaultValue={fileName}
+                  style={{ width: '100%'}}
+                />
+              </Grid>
+              <Grid item>
+                <input
+                  id="contained-button-file"
+                  type="file"
+                  style={{ display: 'none' }}
+                  onChange={this.setRef}
+                />
+                <label htmlFor="contained-button-file">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    component="span"
+                    style={{marginLeft: 28, height: 32}}
+                  >
+                    New Config
+                  </Button>
+                </label>
+              </Grid>
+            </Grid>
+          </Box>
+        </ExpansionPanelDetails>
+      </ExpansionPanel>
+    );
+  };
+
+  getMysqlPanel() {
+    const {
+      dhost,
+      dport,
+      ddatabase,
+      dusername,
+      dpassword,
+    } = this.state;
+    return (
+      <Grid>
+        <Grid item xs={12} style={{ marginBottom: 30 }}>
+          <ExpansionPanel
+            style={{ clear: 'both' }}
+            onChange={(e) =>
+              this.setState({
+                updateDatabase: !this.state.updateDatabase,
+              })
+            }
+          >
+            <ExpansionPanelSummary
+              expandIcon={<KeyboardArrowDown />}
+              aria-controls="panel1a-content"
+              id="panel1a-header"
+            >
+              <Typography>MySQL Configuration</Typography>
+            </ExpansionPanelSummary>
+            <ExpansionPanelDetails>
+              <Box
+                margin="auto"
+                width="90%"
+                display="flex"
+                flexDirection="column"
+                textAlign="center"
+                padding="16px"
+              >
+                <input
+                  id="host"
+                  name="host"
+                  placeholder="Host"
+                  value={dhost}
+                  style={{ marginTop: '20px' }}
+                />
+                <input
+                  id="port"
+                  name="port"
+                  placeholder="Port"
+                  value={dport}
+                  type="number"
+                  style={{ marginTop: '20px' }}
+                />
+                <input
+                  id="database"
+                  name="database"
+                  placeholder="Database"
+                  value={ddatabase}
+                  style={{ marginTop: '20px' }}
+                />
+                <input
+                  id="username"
+                  name="username"
+                  placeholder="Username"
+                  value={dusername}
+                  style={{ marginTop: '20px' }}
+                />
+                <input
+                  id="password"
+                  name="password"
+                  placeholder="Password"
+                  value={dpassword}
+                  type="password"
+                  style={{ marginTop: '20px' }}
+                />
+              </Box>
+            </ExpansionPanelDetails>
+          </ExpansionPanel>
+        </Grid>
+        <Grid item xs={12}>
+          {this.getFirestorePanel('Storage')}
+        </Grid>
+      </Grid>
+    );
+  };
+
+  getConfigPanel() {
+    const {
+      databaseType,
+    } = this.state;
     if(databaseType === 'local') {
       return (
-        <ExpansionPanel
-          style={{ clear: 'both' }}
-          onChange={(e) =>
-            this.setState({
-              updateDatabase: !this.state.updateDatabase,
-            })
-          }
-        >
-          <ExpansionPanelSummary
-            expandIcon={<KeyboardArrowDown />}
-            aria-controls="panel1a-content"
-            id="panel1a-header"
-          >
-            <Typography>Local Configuration</Typography>
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails>
-            <Box
-              margin="auto"
-              width="90%"
-              display="flex"
-              flexDirection="column"
-              textAlign="center"
-              padding="16px"
-            >
-              <input
-                id="project_name"
-                name="project_name"
-                placeholder="Project Name"
-                value={project_name}
-                onChange={this.onChange}
-                style={{ marginTop: '20px' }}
-              />
-            </Box>
-          </ExpansionPanelDetails>
-        </ExpansionPanel>
+        this.getLocalPanel()
       )
     }
     else if(databaseType === 'firestore') {
       return (
-        <ExpansionPanel
-          style={{ clear: 'both' }}
-          onChange={(e) =>
-            this.setState({
-              updateDatabase: !this.state.updateDatabase,
-            })
-          }
-        >
-          <ExpansionPanelSummary
-            expandIcon={<KeyboardArrowDown />}
-            aria-controls="panel1a-content"
-            id="panel1a-header"
-          >
-            <Typography>Firestore Configuration</Typography>
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails>
-            <Box
-              margin="auto"
-              width="90%"
-              display="flex"
-              flexDirection="column"
-              textAlign="center"
-              padding="16px"
-            >
-              <input
-                id="type"
-                name="type"
-                placeholder="Type"
-                value={type}
-                style={{ marginTop: '20px' }}
-              />
-              <input
-                id="project_id"
-                name="project_id"
-                placeholder="Project ID"
-                value={project_id}
-                style={{ marginTop: '20px' }}
-              />
-              <input
-                id="private_key_id"
-                name="private_key_id"
-                placeholder="Private Key ID"
-                value={private_key_id}
-                style={{ marginTop: '20px' }}
-              />
-              <input
-                id="private_key"
-                name="private_key"
-                placeholder="Private Key"
-                value={private_key}
-                style={{ marginTop: '20px' }}
-              />
-              <input
-                id="client_email"
-                name="client_email"
-                placeholder="Client Email"
-                value={client_email}
-                style={{ marginTop: '20px' }}
-              />
-              <input
-                id="client_id"
-                name="client_id"
-                placeholder="Client ID"
-                value={client_id}
-                style={{ marginTop: '20px' }}
-              />
-              <input
-                id="auth_uri"
-                name="auth_uri"
-                placeholder="Auth URI"
-                value={auth_uri}
-                style={{ marginTop: '20px' }}
-              />
-              <input
-                id="token_uri"
-                name="token_uri"
-                placeholder="Token URI"
-                value={token_uri}
-                style={{ marginTop: '20px' }}
-              />
-              <input
-                id="auth_provider_x509_cert_url"
-                name="auth_provider_x509_cert_url"
-                placeholder="Auth Provider x509 Cert URL"
-                value={auth_provider_x509_cert_url}
-                style={{ marginTop: '20px' }}
-              />
-              <input
-                id="client_x509_cert_url"
-                name="client_x509_cert_url"
-                placeholder="Client x509 Cert URL"
-                value={client_x509_cert_url}
-                style={{ marginTop: '20px' }}
-              />
-              <Grid container style={{ marginTop: '20px' }}>
-                <Grid item xs>
-                  <input
-                    defaultValue={fileName}
-                    style={{ width: '100%'}}
-                  />
-                </Grid>
-                <Grid item>
-                  <input
-                    id="contained-button-file"
-                    type="file"
-                    style={{ display: 'none' }}
-                    onChange={this.setRef}
-                  />
-                  <label htmlFor="contained-button-file">
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      component="span"
-                      style={{marginLeft: 28, height: 32}}
-                    >
-                      New Config
-                    </Button>
-                  </label>
-                </Grid>
-              </Grid>
-            </Box>
-          </ExpansionPanelDetails>
-        </ExpansionPanel>
+        this.getFirestorePanel('Firestore')
+      )
+    }
+    else if(databaseType === 'mysql') {
+      return (
+        this.getMysqlPanel()
       )
     }
   }
@@ -477,6 +595,7 @@ class Settings extends React.Component {
                         >
                           <option value={'local'}>Local</option>
                           <option value={'firestore'}>Firestore</option>
+                          <option value={'mysql'}>MySQL</option>
                         </NativeSelect>
                       </Tooltip>
                     </Grid>

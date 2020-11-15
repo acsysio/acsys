@@ -1094,6 +1094,27 @@ router.get('/getDatabaseConfig', async function (req, res) {
     } catch (error) {
       res.send((rData = { value: false }));
     }
+  } else if (type === 'mysql') {
+    try {
+      fs.readFile('./acsys.service.config.json', async function (err, result) {
+        if (err) {
+          res.send((rData = { value: false }));
+        } else {
+          await config
+          .getMysqlConfig()
+          .then((dataConfig) => {
+            const storageObject = JSON.parse(result);
+            const response = Object.assign(dataConfig, storageObject);
+            res.send((response));
+          })
+          .catch(() => {
+            res.send((rData = { value: false }));
+          });
+        }
+      });
+    } catch (error) {
+      res.send((rData = { value: false }));
+    }
   } else {
     res.send((rData = { value: false }));
   }
