@@ -385,6 +385,7 @@ export const setMysqlConfig = async (host, port, database, username, password, c
       method: 'POST',
       headers: {
         Accept: 'application/json',
+        Authorization: `Bearer ${Session.getToken()}`,
       },
       body: formData
     })

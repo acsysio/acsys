@@ -44,10 +44,10 @@ const INITIAL_STATE = {
   client_x509_cert_url: '',
   updateEmail: false,
   updateDatabase: false,
-  updateDatabase: false,
+  updateStorage: false,
   passwordChange: false,
   userData: [],
-  uploadFile: '',
+  uploadFile: undefined,
   fileName: '',
   page: 0,
   rowsPerPage: 15,
@@ -55,6 +55,8 @@ const INITIAL_STATE = {
   setOpen: false,
   addLoading: false,
   error: '',
+  message: '',
+  setMessageOpen: false,
 };
 
 class Settings extends React.Component {
@@ -65,7 +67,7 @@ class Settings extends React.Component {
   };
 
   handleClickOpen = () => {
-    if (this.state.updateDatabase || this.state.updateEmail) {
+    if (this.state.updateDatabase || this.state.updateStorage || this.state.updateEmail) {
       this.setState({
         setOpen: true,
       });
@@ -75,6 +77,12 @@ class Settings extends React.Component {
   handleClose = () => {
     this.setState({
       setOpen: false,
+    });
+  };
+
+  handleMessageClose = () => {
+    this.setState({
+      setMessageOpen: false,
     });
   };
 
@@ -167,14 +175,30 @@ class Settings extends React.Component {
       dpassword,
       uploadFile,
     } = this.state;
-    if (databaseType === 'local' && project_name.length < 1) {
     
-    }
-    else {
-      if (databaseType === 'firestore') {
-        await Prom.setFirestoreConfig(this.state.uploadFile);
+    if (databaseType === 'firestore') {
+      if (uploadFile === undefined) {
+        this.setState({
+          setMessageOpen: true,
+          setOpen: false,
+          message: 'Please select a configuration to upload.',
+          loading: false,
+        });
       }
-      else if (databaseType === 'mysql') {
+      else {
+        await Prom.setFirestoreConfig(uploadFile);
+      }
+    }
+    else if (databaseType === 'mysql') {
+      if (dhost < 1 || ddatabase < 1 || dusername < 1 || dpassword < 1 || uploadFile === undefined) {
+        this.setState({
+          setMessageOpen: true,
+          setOpen: false,
+          message: 'Please complete all necessary database fields and storage settings.',
+          loading: false,
+        });
+      }
+      else {
         await Prom.setMysqlConfig(
           dhost,
           dport,
@@ -184,7 +208,17 @@ class Settings extends React.Component {
           uploadFile
         );
       }
-      else if (databaseType === 'local') {
+    }
+    else if (databaseType === 'local') {
+      if (project_name.length < 1) {
+        this.setState({
+          setMessageOpen: true,
+          setOpen: false,
+          message: 'Please enter a project name.',
+          loading: false,
+        });
+      }
+      else {
         await Prom.setLocalDatabaseConfig(
           project_name
         );
@@ -201,11 +235,11 @@ class Settings extends React.Component {
       this.setEmail();
       await this.sleep(5000);
     }
-    if (this.state.updateDatabase) {
+    if (this.state.updateDatabase || this.state.updateStorage) {
       this.setDatabase();
       await this.sleep(5000);
     }
-    if (this.state.updateDatabase || this.state.updateEmail) {
+    if ((this.state.updateDatabase || this.state.updateEmail || this.state.updateStorage) && this.state.loading) {
       await this.sleep(5000);
       window.location.reload();
     }
@@ -320,7 +354,7 @@ class Settings extends React.Component {
         style={{ clear: 'both' }}
         onChange={(e) =>
           this.setState({
-            updateDatabase: !this.state.updateDatabase,
+            updateStorage: !this.state.updateStorage,
           })
         }
       >
@@ -478,39 +512,44 @@ class Settings extends React.Component {
                 padding="16px"
               >
                 <input
-                  id="host"
-                  name="host"
+                  id="dhost"
+                  name="dhost"
                   placeholder="Host"
                   value={dhost}
+                  onChange={this.onChange}
                   style={{ marginTop: '20px' }}
                 />
                 <input
-                  id="port"
-                  name="port"
+                  id="dport"
+                  name="dport"
                   placeholder="Port"
                   value={dport}
+                  onChange={this.onChange}
                   type="number"
                   style={{ marginTop: '20px' }}
                 />
                 <input
-                  id="database"
-                  name="database"
+                  id="ddatabase"
+                  name="ddatabase"
                   placeholder="Database"
                   value={ddatabase}
+                  onChange={this.onChange}
                   style={{ marginTop: '20px' }}
                 />
                 <input
-                  id="username"
-                  name="username"
+                  id="dusername"
+                  name="dusername"
                   placeholder="Username"
                   value={dusername}
+                  onChange={this.onChange}
                   style={{ marginTop: '20px' }}
                 />
                 <input
-                  id="password"
-                  name="password"
+                  id="dpassword"
+                  name="dpassword"
                   placeholder="Password"
                   value={dpassword}
+                  onChange={this.onChange}
                   type="password"
                   style={{ marginTop: '20px' }}
                 />
@@ -554,6 +593,7 @@ class Settings extends React.Component {
       username,
       password,
       loading,
+      message,
     } = this.state;
 
     return (
@@ -720,6 +760,26 @@ class Settings extends React.Component {
               >
                 {loading && <CircularProgress size={24} />}
                 {!loading && 'Yes'}
+              </Button>
+            </DialogActions>
+          </Dialog>
+          <Dialog
+            open={this.state.setMessageOpen}
+            onClose={this.handleMessageClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogTitle id="alert-dialog-title">
+              {'Error'}
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+              {message}
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={this.handleMessageClose} color="primary">
+                Okay
               </Button>
             </DialogActions>
           </Dialog>

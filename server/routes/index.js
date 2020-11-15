@@ -832,7 +832,7 @@ router.post('/setInitialLocalDatabaseConfig', async function (req, res) {
     await config
       .setConfig('local', projectName)
       .then(async () => {
-        await data.initialize();
+        await data.initialize(config);
       })
       .catch(() => {
         res.send(false);
@@ -863,7 +863,7 @@ router.post('/setLocalDatabaseConfig', async function (req, res) {
     await config
       .setConfig('local', projectName)
       .then(async () => {
-        await data.initialize();
+        await data.initialize(config);
       })
       .catch(() => {
         res.send(false);
@@ -911,7 +911,7 @@ router.post('/setInitialFirestoreConfig', async function (req, res) {
         if (err) {
           res.send(err);
         } else {
-          data.initialize();
+          data.initialize(config);
           storage.initialize(config, data);
           res.send(true);
         }
@@ -951,7 +951,7 @@ router.post('/setFirestoreConfig', async function (req, res) {
         if (err) {
           res.send(err);
         } else {
-          data.initialize();
+          data.initialize(config);
           storage.initialize(config, data);
           res.send(true);
         }
@@ -1024,10 +1024,25 @@ router.post('/setMysqlConfig', async function (req, res) {
     removeDir('./files');
     data = new MysqlDriver();
     storage = new StorageDriver();
+    const mysqlConfig = {
+      host: req.body.host,
+      port: req.body.port,
+      database: req.body.database,
+      username: req.body.username,
+      password: req.body.password,
+    };
     await config
       .setConfig('mysql', 'mysql')
       .then(async () => {
-        return new Promise((resolve) => setTimeout(resolve, 5000));
+        return new Promise((resolve) => setTimeout(resolve, 3000));
+      })
+      .catch(() => {
+        res.send(false);
+      });
+    await config
+      .setMysqlConfig(mysqlConfig)
+      .then(async () => {
+        return new Promise((resolve) => setTimeout(resolve, 2000));
       })
       .catch(() => {
         res.send(false);
@@ -1038,14 +1053,13 @@ router.post('/setMysqlConfig', async function (req, res) {
       .catch(() => {
         res.send(false);
       });
-    fs.writeFile(
+    req.files.file.mv(
       './acsys.service.config.json',
-      JSON.stringify(req.body).replace(/\\\\/g, '\\'),
       async function (err) {
         if (err) {
           res.send(err);
         } else {
-          data.initialize();
+          data.initialize(config);
           storage.initialize(config, data);
           res.send(true);
         }
