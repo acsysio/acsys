@@ -467,7 +467,7 @@ class DocumentView extends React.Component {
     var tempView = this.state.acsysView;
 
     if (value) {
-      tempView['tableKeys'] = this.props.location.state.tableKeys;
+      tempView['tableKeys'] = JSON.stringify(this.props.location.state.tableKeys);
     } else {
       tempView['tableKeys'] = [];
     }
@@ -510,15 +510,20 @@ class DocumentView extends React.Component {
       const acsysView = await Prom.getData('acsys_logical_content', [
         ['viewId', '=', this.props.location.state.viewId],
       ]);
+      if (acsysView[0].tableKeys.length > 0) {
+        routed = true;
+      }
       try {
         mode = this.props.location.state.mode;
         isRemovable = this.props.location.state.isRemovable;
-        tableKeys = this.props.location.state.tableKeys;
+        if(routed) {
+          tableKeys = JSON.parse(this.props.location.state.tableKeys);
+        }
+        else {
+          tableKeys = this.props.location.state.tableKeys;
+        }
       } catch (error) {
         mode = tempMode;
-      }
-      if (acsysView[0].tableKeys.length > 0) {
-        routed = true;
       }
       this.setState({
         loading: true,
@@ -560,7 +565,6 @@ class DocumentView extends React.Component {
         for (let i = 0; i < tableKeys.length; i++) {
           keys.push([tableKeys[i].field, '=', tableKeys[i].value]);
         }
-
         await Prom.getData(table, keys)
           .then((result) => {
             pullView = result;

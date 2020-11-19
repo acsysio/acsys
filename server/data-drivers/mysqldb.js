@@ -69,7 +69,10 @@ class MysqlDriver {
       for (let i = 0; i < insertData.length; i++) {
         let insert = '';
         if (typeof insertData[i] === 'string') {
-          insert = `'${insertData[i]}'`;
+          insert = db.escape(insertData[i]);
+          if (insert.length < 1) {
+            insert = "''";
+          }
         } else {
           insert = insertData[i];
         }
@@ -80,10 +83,11 @@ class MysqlDriver {
         }
       }
 
-      const sql = `INSERT INTO acsys_USERS VALUES (${placeholders})`;
+      const sql = `INSERT INTO acsys_users VALUES (${placeholders})`;
 
       db.query(sql, function (err) {
         if (err) {
+          console.log(err);
           resolve(false);
         }
         resolve(true);
@@ -93,7 +97,7 @@ class MysqlDriver {
 
   verifyPassword(id) {
     return new Promise(async (resolve, reject) => {
-      const query = `SELECT * FROM acsys_USERS WHERE ID = '${id}'`;
+      const query = `SELECT * FROM acsys_users WHERE ID = '${id}'`;
       await db.query(query, (error, rows) => {
         if (rows === undefined || error) {
           resolve(false);
@@ -106,7 +110,7 @@ class MysqlDriver {
 
   getUsers(user) {
     return new Promise(async (resolve, reject) => {
-      const query = `SELECT * FROM acsys_USERS WHERE USERNAME != '${user}'`;
+      const query = `SELECT * FROM acsys_users WHERE USERNAME != '${user}'`;
       await db.query(query, (error, rows) => {
         if (rows === undefined || error) {
           resolve([]);
@@ -196,7 +200,10 @@ class MysqlDriver {
                 typeof updateData[i] === 'string' ||
                 typeof updateData[i] === 'object'
               ) {
-                update = `'${updateData[i]}'`;
+                update = db.escape(updateData[i]);
+                if (update.length < 1) {
+                  update = "''";
+                }
               } else {
                 update = updateData[i];
               }
@@ -219,11 +226,11 @@ class MysqlDriver {
                 options.where.forEach((tuple, index) => {
                   try {
                     let value = '';
-                    // if (tuple[1] == '=') {
-                    //   tuple[1] = '==';
-                    // }
                     if (typeof tuple[2] === 'string') {
-                      value = `'${tuple[2]}'`;
+                      value = db.escape(tuple[2]);
+                      if (value.length < 1) {
+                        value = "''";
+                      }
                     } else {
                       value = tuple[2];
                     }
@@ -265,7 +272,7 @@ class MysqlDriver {
 
   repositionViews(data, pos) {
     return new Promise(async (resolve, reject) => {
-      const query = 'SELECT * FROM acsys_LOGICAL_CONTENT ORDER BY POSITION';
+      const query = 'SELECT * FROM acsys_logical_content ORDER BY POSITION';
       await db.query(query, async (error, rows) => {
         if (rows === undefined || error) {
           resolve();
@@ -278,7 +285,7 @@ class MysqlDriver {
               }
               if (row.id === data.id) {
               } else {
-                const sql = `UPDATE acsys_LOGICAL_CONTENT SET POSITION = ${newPos} WHERE ID = '${row.id}'`;
+                const sql = `UPDATE acsys_logical_content SET POSITION = ${newPos} WHERE ID = '${row.id}'`;
                 db.query(sql, function (err) {
                   console.log(err);
                 });
@@ -287,7 +294,7 @@ class MysqlDriver {
             }
             if (row.id === data.id) {
             } else {
-              const sql = `UPDATE acsys_LOGICAL_CONTENT SET POSITION = ${newPos} WHERE ID = '${row.id}'`;
+              const sql = `UPDATE acsys_logical_content SET POSITION = ${newPos} WHERE ID = '${row.id}'`;
               db.query(sql, function (err) {
                 console.log(err);
               });
@@ -296,6 +303,28 @@ class MysqlDriver {
           }
         }
         resolve();
+      });
+    });
+  }
+
+  reorgViews() {
+    return new Promise(async (resolve, reject) => {
+      const query = `SELECT * FROM acsys_logical_content ORDER BY POSITION`;
+      let newPos = 1;
+      await db.query(query, (error, rows) => {
+        if (rows === undefined || error) {
+          console.log(error);
+          resolve([]);
+        } else {
+          for (const row of rows) {
+            const sql = `UPDATE acsys_logical_content SET POSITION = ${newPos} WHERE ID = '${row.id}'`;
+            db.query(sql, function (err) {
+              console.log(err);
+            });
+            newPos++;
+          }
+          resolve();
+        }
       });
     });
   }
@@ -346,7 +375,10 @@ class MysqlDriver {
             typeof insertData[i] === 'string' ||
             typeof insertData[i] === 'object'
           ) {
-            insert = `'${insertData[i]}'`;
+            insert = db.escape(insertData[i]);
+            if (insert.length < 1) {
+              insert = "''";
+            }
           } else {
             insert = insertData[i];
           }
@@ -450,7 +482,6 @@ class MysqlDriver {
   getDocs(table, options) {
     return new Promise(async (resolve, reject) => {
       let query = `SELECT * FROM ${table} `;
-      // query = db.collection(collectionName);
 
       if (options) {
         if (
@@ -462,11 +493,11 @@ class MysqlDriver {
           options.where.forEach((tuple, index) => {
             try {
               let value = '';
-              // if (tuple[1] == '=') {
-              //   tuple[1] = '==';
-              // }
               if (typeof tuple[2] === 'string') {
-                value = `'${tuple[2]}'`;
+                value = db.escape(tuple[2]);
+                if (value.length < 1) {
+                  value = "''";
+                }
               } else {
                 value = tuple[2];
               }
@@ -510,7 +541,7 @@ class MysqlDriver {
     return new Promise((resolve, reject) => {
       const insertData = Object.values(data);
 
-      const values = [];
+      const dataKeys = Object.keys(data);
 
       let placeholders = '';
 
@@ -520,7 +551,10 @@ class MysqlDriver {
           typeof insertData[i] === 'string' ||
           typeof insertData[i] === 'object'
         ) {
-          insert = `'${insertData[i]}'`;
+          insert = db.escape(insertData[i]);
+          if (insert.length < 1) {
+            insert = "''";
+          }
         } else {
           insert = insertData[i];
         }
@@ -531,7 +565,7 @@ class MysqlDriver {
         }
       }
 
-      const sql = `INSERT INTO ${table} VALUES (${placeholders})`;
+      const sql = `INSERT INTO ${table} (${dataKeys.toString()}) VALUES (${placeholders})`;
 
       db.query(sql, function (err) {
         if (err) {
@@ -557,7 +591,10 @@ class MysqlDriver {
           typeof updateData[i] === 'string' ||
           typeof updateData[i] === 'object'
         ) {
-          update = `'${updateData[i]}'`;
+          update = db.escape(updateData[i]);
+          if (update.length < 1) {
+            update = "''";
+          }
         } else {
           update = updateData[i];
         }
@@ -576,7 +613,10 @@ class MysqlDriver {
           try {
             let value = '';
             if (typeof tuple[2] === 'string') {
-              value = `'${tuple[2]}'`;
+              value = db.escape(tuple[2]);
+              if (value.length < 1) {
+                value = "''";
+              }
             } else {
               value = tuple[2];
             }
@@ -608,7 +648,10 @@ class MysqlDriver {
           try {
             let value = '';
             if (typeof tuple[2] === 'string') {
-              value = `'${tuple[2]}'`;
+              value = db.escape(tuple[2]);
+              if (value.length < 1) {
+                value = "''";
+              }
             } else {
               value = tuple[2];
             }
@@ -619,6 +662,9 @@ class MysqlDriver {
             }
           } catch (error) {}
         });
+      }
+      else {
+        query = `DROP TABLE ${collectionName} `;
       }
       await db.query(query, (error) => {
         if (error) {
