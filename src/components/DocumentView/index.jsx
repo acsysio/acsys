@@ -56,6 +56,7 @@ const INITIAL_STATE = {
   position: 0,
   page: 0,
   rowsPerPage: 15,
+  locked: true,
   loading: false,
   deleting: false,
   deleteLoading: false,
