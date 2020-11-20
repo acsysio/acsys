@@ -228,11 +228,11 @@ class DocumentView extends React.Component {
             tempDocument[tempDetails[i].field_name] = '';
           }
         }
-        const result = await Prom.updateData(
-          'acsys_document_details',
-          { ...tempDetails[i] },
-          [['acsys_id', '=', tempDetails[i].id]]
-        );
+        // const result = await Prom.updateData(
+        //   'acsys_document_details',
+        //   { ...tempDetails[i] },
+        //   [['acsys_id', '=', tempDetails[i].acsys_id]]
+        // );
       }
       const result = await Prom.updateData(
         'acsys_' + this.state.collection,
@@ -255,13 +255,12 @@ class DocumentView extends React.Component {
             tempDocument[tempDetails[i].field_name] = '';
           }
         }
-        const result = await Prom.updateData(
-          'acsys_document_details',
-          { ...tempDetails[i] },
-          [['acsys_id', '=', tempDetails[i].id]]
-        );
+        // const result = await Prom.updateData(
+        //   'acsys_document_details',
+        //   { ...tempDetails[i] },
+        //   [['acsys_id', '=', tempDetails[i].acsys_id]]
+        // );
       }
-
       const result = await Prom.insertData(
         'acsys_' + this.state.collection,
         { ...tempDocument },
@@ -358,11 +357,11 @@ class DocumentView extends React.Component {
             tempDocument[tempDetails[i].field_name] = '';
           }
         }
-        const result = await Prom.updateData(
-          'acsys_document_details',
-          { ...tempDetails[i] },
-          [['acsys_id', '=', tempDetails[i].id]]
-        );
+        // const result = await Prom.updateData(
+        //   'acsys_document_details',
+        //   { ...tempDetails[i] },
+        //   [['acsys_id', '=', tempDetails[i].acsys_id]]
+        // );
       }
       if (this.state.draft) {
         for (var i = 0; i < tempDetails.length; i++) {
@@ -376,7 +375,7 @@ class DocumentView extends React.Component {
           const result = await Prom.updateData(
             'acsys_document_details',
             { ...tempDetails[i] },
-            [['acsys_id', '=', tempDetails[i].id]]
+            [['acsys_id', '=', tempDetails[i].acsys_id]]
           );
         }
         const result = await Prom.insertData(
@@ -421,13 +420,14 @@ class DocumentView extends React.Component {
             tempDocument[tempDetails[i].field_name] = '';
           }
         }
-        const result = await Prom.updateData(
-          'acsys_document_details',
-          { ...tempDetails[i] },
-          [['acsys_id', '=', tempDetails[i].id]]
-        );
+        // await Prom.updateData(
+        //   'acsys_document_details',
+        //   { ...tempDetails[i] },
+        //   [['acsys_id', '=', tempDetails[i].acsys_id]]
+        // );
       }
-      const result = await Prom.insertData(this.state.collection, {
+      console.log(fileDoc)
+      await Prom.insertData(this.state.collection, {
         ...tempDocument,
       });
     }
@@ -454,7 +454,7 @@ class DocumentView extends React.Component {
       const result = await Prom.updateData(
         'acsys_document_details',
         { ...tempDetails[i] },
-        [['acsys_id', '=', tempDetails[i].id]]
+        [['acsys_id', '=', tempDetails[i].acsys_id]]
       );
     }
     this.setState({ filterLoading: false });
@@ -502,9 +502,22 @@ class DocumentView extends React.Component {
   };
 
   componentDidMount = async () => {
+    initLoad = true;
+    tableKeys = [];
+    tempDetails = [];
+    tempDocument = [];
+    fileDoc = [];
+    fileRefs = [];
+    mode = '';
+    isRemovable = true;
+    quillRef = null;
+    quillIndex = 0;
+    quillURL = '';
+    posArr = [];
+    initPos = 0;
+    highestPos = 0;
     try {
       this.props.setHeader('Content');
-      initLoad = true;
       let tempMode = mode;
       let routed = this.state.routed;
       const acsysView = await Prom.getData('acsys_logical_content', [

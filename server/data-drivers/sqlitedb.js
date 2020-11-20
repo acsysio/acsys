@@ -400,6 +400,9 @@ class SqliteDriver {
             typeof insertData[i] === 'object'
           ) {
             insert = `"${querystring.escape(insertData[i])}"`;
+            if (insert.length < 1) {
+              insert = "''";
+            }
           } else {
             insert = insertData[i];
           }
@@ -469,15 +472,13 @@ class SqliteDriver {
 
       if (options) {
         if (options.orderBy !== undefined && options.orderBy) {
-          options.orderBy.forEach((orderBy) => {
-            if (orderBy !== undefined && orderBy.length > 0) {
-              if (options.order) {
-                query += `ORDER BY ${orderBy} ${options.order} `;
-              } else {
-                query += `ORDER BY ${orderBy} `;
-              }
+          if (options.orderBy !== undefined && options.orderBy.length > 0) {
+            if (options.order) {
+              query += `ORDER BY ${options.orderBy.toString()} ${options.order} `;
+            } else {
+              query += `ORDER BY ${options.orderBy.toString()} `;
             }
-          });
+          }
         }
 
         if (options.direction === 'next') {
@@ -518,6 +519,9 @@ class SqliteDriver {
               let value = '';
               if (typeof tuple[2] === 'string') {
                 value = `"${querystring.escape(tuple[2])}"`;
+                if (value.length < 1) {
+                  value = "''";
+                }
               } else {
                 value = tuple[2];
               }
@@ -531,15 +535,13 @@ class SqliteDriver {
         }
 
         if (options.orderBy !== undefined && options.orderBy) {
-          options.orderBy.forEach((orderBy) => {
-            if (orderBy !== undefined && orderBy.length > 0) {
-              if (options.order) {
-                query += `ORDER BY ${orderBy} ${options.order} `;
-              } else {
-                query += `ORDER BY ${orderBy} `;
-              }
+          if (options.orderBy !== undefined && options.orderBy.length > 0) {
+            if (options.order) {
+              query += `ORDER BY ${options.orderBy.toString()} ${options.order} `;
+            } else {
+              query += `ORDER BY ${options.orderBy.toString()} `;
             }
-          });
+          }
         }
 
         if (options.limit !== undefined && options.limit) {
@@ -563,7 +565,7 @@ class SqliteDriver {
       db.serialize(async function () {
         const insertData = Object.values(data);
 
-        const values = [];
+        const dataKeys = Object.keys(data);
 
         let placeholders = '';
 
@@ -574,6 +576,9 @@ class SqliteDriver {
             typeof insertData[i] === 'object'
           ) {
             insert = `"${querystring.escape(insertData[i])}"`;
+            if (insert.length < 1) {
+              insert = "''";
+            }
           } else {
             insert = insertData[i];
           }
@@ -584,7 +589,7 @@ class SqliteDriver {
           }
         }
 
-        const sql = `INSERT INTO ${table} VALUES (${placeholders})`;
+        const sql = `INSERT INTO ${table} (${dataKeys.toString()}) VALUES (${placeholders})`;
 
         db.run(sql, function (err) {
           if (err) {
@@ -613,6 +618,9 @@ class SqliteDriver {
             typeof updateData[i] === 'object'
           ) {
             update = `"${querystring.escape(updateData[i])}"`;
+            if (update.length < 1) {
+              update = "''";
+            }
           } else {
             update = updateData[i];
           }
@@ -632,6 +640,9 @@ class SqliteDriver {
               let value = '';
               if (typeof tuple[2] === 'string') {
                 value = `"${querystring.escape(tuple[2])}"`;
+                if (value.length < 1) {
+                  value = "''";
+                }
               } else {
                 value = tuple[2];
               }
@@ -665,6 +676,9 @@ class SqliteDriver {
             let value = '';
             if (typeof tuple[2] === 'string') {
               value = `"${querystring.escape(tuple[2])}"`;
+              if (value.length < 1) {
+                value = "''";
+              }
             } else {
               value = tuple[2];
             }
@@ -675,6 +689,9 @@ class SqliteDriver {
             }
           } catch (error) {}
         });
+      }
+      else {
+        query = `DROP TABLE ${collectionName} `;
       }
       await db.all(query, [], (error) => {
         if (error) {

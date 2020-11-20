@@ -43,7 +43,7 @@ function RichTextEditor(props) {
             props.setQuillRef(el);
           }}
           modules={modules}
-          value={props.defaultValue}
+          value={props.defaultValue || ''}
           onChange={(e) => props.handleChange(props.currentKey, e)}
           style={{
             clear: 'both',

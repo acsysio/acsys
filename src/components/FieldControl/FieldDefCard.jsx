@@ -150,7 +150,7 @@ const Card = memo(({ id, details, moveCard }) => {
           <Grid item xs={2}>
             <div>
               <NativeSelect
-                defaultValue={details.isVisibleOnTable}
+                defaultValue={Boolean(details.isVisibleOnTable)}
                 onChange={(e) => showOnTable(e.target.value == 'true')}
               >
                 <option value={true}>Show</option>
@@ -161,7 +161,7 @@ const Card = memo(({ id, details, moveCard }) => {
           <Grid item xs={2}>
             <div>
               <NativeSelect
-                defaultValue={details.isVisibleOnPage}
+                defaultValue={Boolean(details.isVisibleOnPage)}
                 onChange={(e) => showOnPage(e.target.value == 'true')}
               >
                 <option value={true}>Show</option>

@@ -447,15 +447,13 @@ class MysqlDriver {
 
       if (options) {
         if (options.orderBy !== undefined && options.orderBy) {
-          options.orderBy.forEach((orderBy) => {
-            if (orderBy !== undefined && orderBy.length > 0) {
-              if (options.order) {
-                query += `ORDER BY ${orderBy} ${options.order} `;
-              } else {
-                query += `ORDER BY ${orderBy} `;
-              }
+          if (options.orderBy !== undefined && options.orderBy.length > 0) {
+            if (options.order) {
+              query += `ORDER BY ${options.orderBy.toString()} ${options.order} `;
+            } else {
+              query += `ORDER BY ${options.orderBy.toString()} `;
             }
-          });
+          }
         }
 
         if (options.direction === 'next') {
@@ -511,15 +509,13 @@ class MysqlDriver {
         }
 
         if (options.orderBy !== undefined && options.orderBy) {
-          options.orderBy.forEach((orderBy) => {
-            if (orderBy !== undefined && orderBy.length > 0) {
-              if (options.order) {
-                query += `ORDER BY ${orderBy} ${options.order} `;
-              } else {
-                query += `ORDER BY ${orderBy} `;
-              }
+          if (options.orderBy !== undefined && options.orderBy.length > 0) {
+            if (options.order) {
+              query += `ORDER BY ${options.orderBy.toString()} ${options.order} `;
+            } else {
+              query += `ORDER BY ${options.orderBy.toString()} `;
             }
-          });
+          }
         }
 
         if (options.limit !== undefined && options.limit) {

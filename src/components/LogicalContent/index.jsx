@@ -266,7 +266,7 @@ class LogicalContent extends React.Component {
                   },
                 }}
                 component={Link}
-                style={{ width: 150 }}
+                style={{ minWidth: 150 }}
               >
                 {name}
               </TableCell>
@@ -282,7 +282,7 @@ class LogicalContent extends React.Component {
                   },
                 }}
                 component={Link}
-                style={{ width: 150 }}
+                style={{ minWidth: 150 }}
               >
                 {name}
               </TableCell>
@@ -298,6 +298,7 @@ class LogicalContent extends React.Component {
                   },
                 }}
                 component={Link}
+                style={{ width: '100%' }}
               >
                 {description}
               </TableCell>
@@ -318,7 +319,7 @@ class LogicalContent extends React.Component {
               </TableCell>
             )}
             {Prom.getMode() === 'Administrator' ? (
-              <TableCell style={{ minWidth: 100 }} align="right">
+              <TableCell style={{ minWidth: 70 }} align="right">
                 <Tooltip title="Edit View">
                   <IconButton
                     edge="start"
