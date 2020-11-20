@@ -19,16 +19,16 @@ class MysqlDriver {
         password : settings.password 
       });
       db.connect();
-      db.query('CREATE TABLE IF NOT EXISTS acsys_users (id TEXT, email TEXT, username TEXT, role TEXT, mode TEXT, acsysCd TEXT)', (error, rows) => {
+      db.query('CREATE TABLE IF NOT EXISTS acsys_users (acsys_id TEXT, email TEXT, username TEXT, role TEXT, mode TEXT, acsysCd TEXT)', (error, rows) => {
 
       });
-      db.query('CREATE TABLE IF NOT EXISTS acsys_logical_content (id TEXT, name TEXT, description TEXT, viewId TEXT, source_collection TEXT, position INT, tableKeys TEXT)', (error, rows) => {
+      db.query('CREATE TABLE IF NOT EXISTS acsys_logical_content (acsys_id TEXT, name TEXT, description TEXT, viewId TEXT, source_collection TEXT, position INT, tableKeys TEXT)', (error, rows) => {
       
       });
-      db.query('CREATE TABLE IF NOT EXISTS acsys_views (id TEXT, isRemovable BOOLEAN, isTableMode BOOLEAN, linkTable TEXT, linkViewId TEXT, viewOrder TEXT, orderBy TEXT, rowNum INT)', (error, rows) => {
+      db.query('CREATE TABLE IF NOT EXISTS acsys_views (acsys_id TEXT, isRemovable BOOLEAN, isTableMode BOOLEAN, linkTable TEXT, linkViewId TEXT, viewOrder TEXT, orderBy TEXT, rowNum INT)', (error, rows) => {
 
       });
-      db.query('CREATE TABLE IF NOT EXISTS acsys_document_details (id TEXT, contentId TEXT, collection TEXT, control TEXT, field_name TEXT, isVisibleOnPage BOOLEAN, isVisibleOnTable BOOLEAN, type TEXT, isKey BOOLEAN, viewOrder INT, width INT)', (error, rows) => {
+      db.query('CREATE TABLE IF NOT EXISTS acsys_document_details (acsys_id TEXT, contentId TEXT, collection TEXT, control TEXT, field_name TEXT, isVisibleOnPage BOOLEAN, isVisibleOnTable BOOLEAN, type TEXT, isKey BOOLEAN, viewOrder INT, width INT)', (error, rows) => {
 
       });
       db.query('CREATE TABLE IF NOT EXISTS acsys_email_settings (host TEXT, port INT, username TEXT, password TEXT)', (error, rows) => {
@@ -37,10 +37,10 @@ class MysqlDriver {
       db.query('CREATE TABLE IF NOT EXISTS acsys_open_tables (table_name TEXT)', (error, rows) => {
 
       });
-      db.query('CREATE TABLE IF NOT EXISTS acsys_storage_items (id TEXT, fileOrder INT, parent TEXT, name TEXT, contentType TEXT, isPublic BOOLEAN, timeCreated TEXT, updated TEXT)', (error, rows) => {
+      db.query('CREATE TABLE IF NOT EXISTS acsys_storage_items (acsys_id TEXT, fileOrder INT, parent TEXT, name TEXT, contentType TEXT, isPublic BOOLEAN, timeCreated TEXT, updated TEXT)', (error, rows) => {
 
       });
-      db.query('CREATE TABLE IF NOT EXISTS acsys_user_reset (id TEXT, user_id Text, expiration_date INT)', (error, rows) => {
+      db.query('CREATE TABLE IF NOT EXISTS acsys_user_reset (acsys_id TEXT, user_id Text, expiration_date INT)', (error, rows) => {
 
       });
       connected = true;
@@ -95,9 +95,9 @@ class MysqlDriver {
     });
   }
 
-  verifyPassword(id) {
+  verifyPassword(acsys_id) {
     return new Promise(async (resolve, reject) => {
-      const query = `SELECT * FROM acsys_users WHERE ID = '${id}'`;
+      const query = `SELECT * FROM acsys_users WHERE acsys_id = '${acsys_id}'`;
       await db.query(query, (error, rows) => {
         if (rows === undefined || error) {
           resolve(false);
@@ -283,18 +283,18 @@ class MysqlDriver {
               if (pos === 1) {
                 newPos++;
               }
-              if (row.id === data.id) {
+              if (row.acsys_id === data.acsys_id) {
               } else {
-                const sql = `UPDATE acsys_logical_content SET POSITION = ${newPos} WHERE ID = '${row.id}'`;
+                const sql = `UPDATE acsys_logical_content SET POSITION = ${newPos} WHERE acsys_id = '${row.acsys_id}'`;
                 db.query(sql, function (err) {
                   console.log(err);
                 });
                 newPos++;
               }
             }
-            if (row.id === data.id) {
+            if (row.acsys_id === data.acsys_id) {
             } else {
-              const sql = `UPDATE acsys_logical_content SET POSITION = ${newPos} WHERE ID = '${row.id}'`;
+              const sql = `UPDATE acsys_logical_content SET POSITION = ${newPos} WHERE acsys_id = '${row.acsys_id}'`;
               db.query(sql, function (err) {
                 console.log(err);
               });
@@ -317,7 +317,7 @@ class MysqlDriver {
           resolve([]);
         } else {
           for (const row of rows) {
-            const sql = `UPDATE acsys_logical_content SET POSITION = ${newPos} WHERE ID = '${row.id}'`;
+            const sql = `UPDATE acsys_logical_content SET POSITION = ${newPos} WHERE acsys_id = '${row.acsys_id}'`;
             db.query(sql, function (err) {
               console.log(err);
             });

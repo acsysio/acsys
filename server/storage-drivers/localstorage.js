@@ -74,7 +74,7 @@ const searchDir = function (dir) {
         const dateCreated = await fs.lstatSync(dir + '/' + files[i]).birthtime;
         const dateUpdated = await fs.lstatSync(dir + '/' + files[i]).mtime;
         const object = {
-          id: tempFileName,
+          acsys_id: tempFileName,
           fileOrder: order,
           parent: parentName,
           name: fileName,
@@ -108,7 +108,7 @@ const removeDir = function (path) {
         async function (err) {
             if (!err) {
                 await db
-                .deleteDocs('acsys_storage_items', [['id', '=', path.substring(8) + filename]]);
+                .deleteDocs('acsys_storage_items', [['acsys_id', '=', path.substring(8) + filename]]);
             }
         });
       }
@@ -117,7 +117,7 @@ const removeDir = function (path) {
       async function (err) {
           if (!err) {
               await db
-              .deleteDocs('acsys_storage_items', [['id', '=', path.substring(8)]]);
+              .deleteDocs('acsys_storage_items', [['acsys_id', '=', path.substring(8)]]);
           }
       });
   }
@@ -179,7 +179,7 @@ class LocalStorageDriver {
         const dateCreated = new Date();
         const dateUpdated = new Date();
         const object = {
-            id: writeName,
+            acsys_id: writeName,
             fileOrder: order,
             parent: parentName,
             name: file.name,
@@ -236,7 +236,7 @@ class LocalStorageDriver {
                     const dateCreated = new Date();
                     const dateUpdated = new Date();
                     const object = {
-                        id: writeName,
+                        acsys_id: writeName,
                         fileOrder: order,
                         parent: parentName,
                         name: folder,
@@ -267,7 +267,7 @@ class LocalStorageDriver {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
       const options = {
-        where: [['id', '=', req.query.url]],
+        where: [['acsys_id', '=', req.query.url]],
       };
       await db.getDocs('acsys_storage_items', options)
         .then(async (result) => {
@@ -291,7 +291,7 @@ class LocalStorageDriver {
     return new Promise(async (resolve) => {
         await db
         .update('acsys_storage_items', { isPublic: true }, [
-          ['id', '=', referenceName],
+          ['acsys_id', '=', referenceName],
         ])
         .then(() => {
           resolve(true);
@@ -307,7 +307,7 @@ class LocalStorageDriver {
     return new Promise(async (resolve) => {
         await db
         .update('acsys_storage_items', { isPublic: false }, [
-          ['id', '=', referenceName],
+          ['acsys_id', '=', referenceName],
         ])
         .then(() => {
           resolve(true);
@@ -332,7 +332,7 @@ class LocalStorageDriver {
                 resolve(false);
             } else {
                 await db
-                .deleteDocs('acsys_storage_items', [['id', '=', referenceName]])
+                .deleteDocs('acsys_storage_items', [['acsys_id', '=', referenceName]])
                 .then(() => {
                     resolve(true);
                 })

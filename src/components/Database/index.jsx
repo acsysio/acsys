@@ -145,7 +145,7 @@ class LogicalContent extends React.Component {
       saving: true,
     });
     await Prom.updateData('acsys_logical_content', tempView, [
-      ['id', '=', tempView.id],
+      ['acsys_id', '=', tempView.acsys_id],
     ]);
     const currentView = await Prom.getData('acsys_logical_content');
     this.setState({
@@ -236,9 +236,9 @@ class LogicalContent extends React.Component {
     return views
       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
       .map((views) => {
-        const { id, table, rows, viewId, source_collection, tableKeys } = views;
+        const { acsys_id, table, rows, viewId, source_collection, tableKeys } = views;
         return (
-          <TableRow key={id}>
+          <TableRow key={acsys_id}>
             <TableCell>{table}</TableCell>
             <TableCell style={{ width: 50 }}>{rows}</TableCell>
             <TableCell style={{ width: 100 }} align="right">

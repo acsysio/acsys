@@ -231,7 +231,7 @@ class DocumentView extends React.Component {
         const result = await Prom.updateData(
           'acsys_document_details',
           { ...tempDetails[i] },
-          [['id', '=', tempDetails[i].id]]
+          [['acsys_id', '=', tempDetails[i].id]]
         );
       }
       const result = await Prom.updateData(
@@ -258,7 +258,7 @@ class DocumentView extends React.Component {
         const result = await Prom.updateData(
           'acsys_document_details',
           { ...tempDetails[i] },
-          [['id', '=', tempDetails[i].id]]
+          [['acsys_id', '=', tempDetails[i].id]]
         );
       }
 
@@ -361,7 +361,7 @@ class DocumentView extends React.Component {
         const result = await Prom.updateData(
           'acsys_document_details',
           { ...tempDetails[i] },
-          [['id', '=', tempDetails[i].id]]
+          [['acsys_id', '=', tempDetails[i].id]]
         );
       }
       if (this.state.draft) {
@@ -376,7 +376,7 @@ class DocumentView extends React.Component {
           const result = await Prom.updateData(
             'acsys_document_details',
             { ...tempDetails[i] },
-            [['id', '=', tempDetails[i].id]]
+            [['acsys_id', '=', tempDetails[i].id]]
           );
         }
         const result = await Prom.insertData(
@@ -424,7 +424,7 @@ class DocumentView extends React.Component {
         const result = await Prom.updateData(
           'acsys_document_details',
           { ...tempDetails[i] },
-          [['id', '=', tempDetails[i].id]]
+          [['acsys_id', '=', tempDetails[i].id]]
         );
       }
       const result = await Prom.insertData(this.state.collection, {
@@ -454,7 +454,7 @@ class DocumentView extends React.Component {
       const result = await Prom.updateData(
         'acsys_document_details',
         { ...tempDetails[i] },
-        [['id', '=', tempDetails[i].id]]
+        [['acsys_id', '=', tempDetails[i].id]]
       );
     }
     this.setState({ filterLoading: false });

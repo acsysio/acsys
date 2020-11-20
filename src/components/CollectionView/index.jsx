@@ -192,7 +192,7 @@ class CollectionView extends React.Component {
     tempView['rowNum'] = rowNum;
     this.toggleTable(lockedValue);
     this.context.setHeld(false);
-    await Prom.updateData('acsys_views', tempView, [['id', '=', tempView.id]]);
+    await Prom.updateData('acsys_views', tempView, [['acsys_id', '=', tempView.acsys_id]]);
     this.setState({
       setViewOpen: false,
       reset: true,
@@ -324,7 +324,7 @@ class CollectionView extends React.Component {
     for (var i = 0; i < tempDetails.length; i++) {
       tempDetails[i].viewOrder = i;
       await Prom.updateData('acsys_document_details', tempDetails[i], [
-        ['id', '=', tempDetails[i].id],
+        ['acsys_id', '=', tempDetails[i].acsys_id],
       ]);
     }
     this.setState({ filterLoading: false });
@@ -384,19 +384,19 @@ class CollectionView extends React.Component {
     if (!this.state.reset) {
       tableKeys = this.props.location.state.tableKeys;
     }
-    let id = '';
+    let acsys_id = '';
     if (published) {
-      id = this.props.match.params.id;
+      acsys_id = this.props.match.params.acsys_id;
     } else {
-      id = 'acsys_' + this.props.match.params.id;
+      acsys_id = 'acsys_' + this.props.match.params.acsys_id;
     }
 
     const contentId = this.props.match.params.contentId;
 
-    const totalRows = await Prom.getTableSize(id);
+    const totalRows = await Prom.getTableSize(acsys_id);
 
     try {
-      acsysView = await Prom.getData('acsys_views', [['id', '=', contentId]]);
+      acsysView = await Prom.getData('acsys_views', [['acsys_id', '=', contentId]]);
       isRemovable = acsysView[0].isRemovable;
       rowNum = acsysView[0].rowNum;
       if (acsysView[0].orderBy.length > 0) {
@@ -416,9 +416,9 @@ class CollectionView extends React.Component {
         ['contentId', '=', contentId],
       ]);
 
-      await Prom.getData('acsys_open_tables', [['table_name', '=', id]])
+      await Prom.getData('acsys_open_tables', [['table_name', '=', acsys_id]])
         .then((result) => {
-          if (result[0].table_name === id) {
+          if (result[0].table_name === acsys_id) {
             locked = false;
             lockedValue = false;
           }
@@ -448,28 +448,28 @@ class CollectionView extends React.Component {
           );
           page = this.context.getPage();
         } else {
-          currentData = await Prom.getData(id, [], rowNum, order, orderDir);
+          currentData = await Prom.getData(acsys_id, [], rowNum, order, orderDir);
           if(locked) {
-            apiCall = await Prom.getUrl(id, [], rowNum, order, orderDir);
+            apiCall = await Prom.getUrl(acsys_id, [], rowNum, order, orderDir);
           }
           else {
-            apiCall = await Prom.getOpenUrl(id, [], rowNum, order, orderDir);
+            apiCall = await Prom.getOpenUrl(acsys_id, [], rowNum, order, orderDir);
           }
         }
       } else {
-        currentData = await Prom.getData(id, keys, rowNum);
+        currentData = await Prom.getData(acsys_id, keys, rowNum);
         if(locked) {
-          apiCall = await Prom.getUrl(id, keys, rowNum);
+          apiCall = await Prom.getUrl(acsys_id, keys, rowNum);
         }
         else {
-          apiCall = await Prom.getOpenUrl(id, keys, rowNum);
+          apiCall = await Prom.getOpenUrl(acsys_id, keys, rowNum);
         }
         await Promise.all(
           Object.keys(currentData[0]).map(async (value, index) => {
             let collectionDetails = {
-              id: uniqid(),
+              acsys_id: uniqid(),
               contentId: contentId,
-              collection: id,
+              collection: acsys_id,
               control: 'none',
               field_name: value,
               isVisibleOnPage: true,
@@ -479,8 +479,6 @@ class CollectionView extends React.Component {
               viewOrder: index,
               width: 12,
             };
-            console.log(currentData[0][value])
-
             await Prom.insertData(
               'acsys_document_details',
               collectionDetails
@@ -785,7 +783,7 @@ class CollectionView extends React.Component {
     let paginate = false;
 
     try {
-      projectId = acsysView.id;
+      projectId = acsysView.acsys_id;
     } catch (error) {}
 
     try {

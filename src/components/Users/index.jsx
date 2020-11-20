@@ -71,7 +71,7 @@ class Users extends React.Component {
   state = { ...INITIAL_STATE };
 
   deleteUser = async () => {
-    await Prom.deleteData('acsys_users', [['id', '=', this.state.userId]])
+    await Prom.deleteData('acsys_users', [['acsys_id', '=', this.state.userId]])
       .then(() => {
         this.componentDidMount();
       })
@@ -128,7 +128,7 @@ class Users extends React.Component {
     const { role, username, email, passwordOne } = this.state;
     this.setState({ loading: true });
     const user = {
-      id: uniqid(),
+      acsys_id: uniqid(),
       role: role,
       mode: role,
       username: username,
@@ -156,9 +156,9 @@ class Users extends React.Component {
     return users
       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
       .map((users) => {
-        const { id, username, email, role } = users;
+        const { acsys_id, username, email, role } = users;
         return (
-          <TableRow key={id}>
+          <TableRow key={acsys_id}>
             <TableCell>{username}</TableCell>
             <TableCell>{role}</TableCell>
             <TableCell>{email}</TableCell>
@@ -168,7 +168,7 @@ class Users extends React.Component {
                   edge="start"
                   color="inherit"
                   aria-label="delete"
-                  onClick={() => this.handleDeleteOpen(id)}
+                  onClick={() => this.handleDeleteOpen(acsys_id)}
                 >
                   <DeleteIcon />
                 </IconButton>

@@ -117,7 +117,7 @@ class StorageDriver {
                   const dateCreated = new Date(metaData[0].timeCreated);
                   const dateUpdated = new Date(metaData[0].updated);
                   const object = {
-                    id: tempFileName,
+                    acsys_id: tempFileName,
                     fileOrder: order,
                     parent: parentName,
                     name: fileName,
@@ -188,7 +188,7 @@ class StorageDriver {
           const dateCreated = new Date();
           const dateUpdated = new Date();
           const object = {
-            id: blob.name,
+            acsys_id: blob.name,
             fileOrder: order,
             parent: parentName,
             name,
@@ -256,7 +256,7 @@ class StorageDriver {
           const dateCreated = new Date(metaData[0].timeCreated);
           const dateUpdated = new Date(metaData[0].updated);
           const object = {
-            id: fileName,
+            acsys_id: fileName,
             fileOrder: order,
             parent: parentName,
             name: folder,
@@ -322,17 +322,17 @@ class StorageDriver {
             where: [['parent', '=', referenceName]],
           });
           files.forEach(async (file) => {
-            const fileBlob = storage.file(file.id.replace(/ /g, '_'));
+            const fileBlob = storage.file(file.acsys_id.replace(/ /g, '_'));
             await fileBlob.makePublic(async function () {
               await db.update('acsys_storage_items', { isPublic: true }, [
-                ['id', '=', file.id],
+                ['acsys_id', '=', file.acsys_id],
               ]);
             });
           });
         }
         await db
           .update('acsys_storage_items', { isPublic: true }, [
-            ['id', '=', referenceName],
+            ['acsys_id', '=', referenceName],
           ])
           .then(() => {
             resolve(true);
@@ -358,17 +358,17 @@ class StorageDriver {
             where: [['parent', '=', referenceName]],
           });
           files.forEach(async (file) => {
-            const fileBlob = storage.file(file.id.replace(/ /g, '_'));
+            const fileBlob = storage.file(file.acsys_id.replace(/ /g, '_'));
             await fileBlob.makePrivate(async function () {
               await db.update('acsys_storage_items', { isPublic: false }, [
-                ['id', '=', file.id],
+                ['acsys_id', '=', file.acsys_id],
               ]);
             });
           });
         }
         await db
           .update('acsys_storage_items', { isPublic: false }, [
-            ['id', '=', referenceName],
+            ['acsys_id', '=', referenceName],
           ])
           .then(() => {
             resolve(true);
@@ -392,13 +392,13 @@ class StorageDriver {
           for (let i = 0; i < files.length; i += 1) {
             files[i].delete(
               await db.deleteDocs('acsys_storage_items', [
-                ['id', '=', referenceName],
+                ['acsys_id', '=', referenceName],
               ])
             );
           }
           await blob.delete(async function () {
             await db
-              .deleteDocs('acsys_storage_items', [['id', '=', referenceName]])
+              .deleteDocs('acsys_storage_items', [['acsys_id', '=', referenceName]])
               .then(() => {
                 resolve(true);
               })

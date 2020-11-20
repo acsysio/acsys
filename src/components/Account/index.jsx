@@ -66,11 +66,11 @@ class Account extends React.Component {
       let userData;
       try {
         userData = await Prom.getData('acsys_users', [
-          ['id', '=', Prom.getId()],
+          ['acsys_id', '=', Prom.getId()],
         ]);
       } catch (error) {}
       this.setState({
-        id: userData[0].id,
+        acsys_id: userData[0].id,
         role: userData[0].role,
         username: userData[0].username,
         email: userData[0].email,
@@ -84,7 +84,7 @@ class Account extends React.Component {
   };
   updateCredentials = async () => {
     const {
-      id,
+      acsys_id,
       role,
       username,
       email,
@@ -94,14 +94,14 @@ class Account extends React.Component {
     } = this.state;
     this.setState({ saving: true, saveLoading: true });
     const user = {
-      id: id,
+      acsys_id: acsys_id,
       role: role,
       mode: Prom.getMode(),
       username: username,
       email: email,
       acsysCd: password,
     };
-    if (await Prom.verifyPassword(this.state.userData.id, currentPassword)) {
+    if (await Prom.verifyPassword(this.state.userData.acsys_id, currentPassword)) {
       if (this.state.passwordChange) {
           if (password.length > 0) {
             if (password === verifyPassword) {

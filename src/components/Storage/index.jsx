@@ -100,7 +100,7 @@ class Storage extends React.Component {
       ['parent', '=', dir],
     ]);
     for (var i = 0; i < files.length; i++) {
-      await Prom.getStorageURL(files[i].id)
+      await Prom.getStorageURL(files[i].acsys_id)
         .then((result) => {
           files[i]['url'] = result;
         })
@@ -132,7 +132,7 @@ class Storage extends React.Component {
     if (this.state.previousDir !== '/') {
       const parent = await Prom.getData(
         'acsys_storage_items',
-        [['id', '=', this.state.previousDir]],
+        [['acsys_id', '=', this.state.previousDir]],
         1
       );
       parentFile = parent[0].parent;
@@ -147,7 +147,7 @@ class Storage extends React.Component {
       ]);
     }
     for (var i = 0; i < files.length; i++) {
-      await Prom.getStorageURL(files[i].id)
+      await Prom.getStorageURL(files[i].acsys_id)
         .then((result) => {
           files[i]['url'] = result;
         })
@@ -196,7 +196,7 @@ class Storage extends React.Component {
       ['parent', '=', '/'],
     ]);
     for (var i = 0; i < files.length; i++) {
-      await Prom.getStorageURL(files[i].id)
+      await Prom.getStorageURL(files[i].acsys_id)
         .then((result) => {
           files[i]['url'] = result;
         })
@@ -324,7 +324,7 @@ class Storage extends React.Component {
       ['parent', '=', dir],
     ]);
     for (var i = 0; i < files.length; i++) {
-      await Prom.getStorageURL(files[i].id)
+      await Prom.getStorageURL(files[i].acsys_id)
         .then((result) => {
           files[i]['url'] = result;
         })
@@ -372,7 +372,7 @@ class Storage extends React.Component {
           ['parent', '=', newDir],
         ]).catch();
         for (var i = 0; i < files.length; i++) {
-          await Prom.getStorageURL(files[i].id)
+          await Prom.getStorageURL(files[i].acsys_id)
             .then((result) => {
               files[i]['url'] = result;
             })
@@ -422,7 +422,7 @@ class Storage extends React.Component {
         ['parent', '=', parent],
       ]);
       for (var i = 0; i < files.length; i++) {
-        await Prom.getStorageURL(files[i].id)
+        await Prom.getStorageURL(files[i].acsys_id)
           .then((result) => {
             files[i]['url'] = result;
           })
@@ -528,12 +528,12 @@ class Storage extends React.Component {
     return files
       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
       .map((file) => {
-        const { id, name, contentType, updated, isPublic, url } = file;
+        const { acsys_id, name, contentType, updated, isPublic, url } = file;
         if (name.length > 0) {
           return (
             <TableRow>
               {this.renderIcon(contentType, url, name)}
-              {this.renderName(id, contentType, name)}
+              {this.renderName(acsys_id, contentType, name)}
               <TableCell>{contentType}</TableCell>
               <TableCell>{updated}</TableCell>
               {Prom.getMode() !== 'Viewer' ? (
@@ -544,7 +544,7 @@ class Storage extends React.Component {
                         edge="start"
                         color="inherit"
                         aria-label="make private"
-                        onClick={() => this.makeFilePrivate(id)}
+                        onClick={() => this.makeFilePrivate(acsys_id)}
                         style={{ marginRight: 10 }}
                       >
                         <LockOpen />
@@ -556,7 +556,7 @@ class Storage extends React.Component {
                         edge="start"
                         color="inherit"
                         aria-label="make public"
-                        onClick={() => this.makeFilePublic(id)}
+                        onClick={() => this.makeFilePublic(acsys_id)}
                         style={{ marginRight: 10 }}
                       >
                         <Lock />
@@ -568,7 +568,7 @@ class Storage extends React.Component {
                       edge="start"
                       color="inherit"
                       aria-label="delete"
-                      onClick={() => this.handleDeleteOpen(id)}
+                      onClick={() => this.handleDeleteOpen(acsys_id)}
                     >
                       <Delete />
                     </IconButton>

@@ -141,7 +141,7 @@ class LogicalContent extends React.Component {
     });
     if (position === tempView.position) {
       await Prom.updateData('acsys_logical_content', tempView, [
-        ['id', '=', tempView.id],
+        ['acsys_id', '=', tempView.acsys_id],
       ]);
     } else {
       const oldPosition = tempView['position'];
@@ -213,7 +213,7 @@ class LogicalContent extends React.Component {
     const uId = uniqid();
 
     let newView = {
-      id: uId,
+      acsys_id: uId,
       isTableMode: true,
       isRemovable: true,
       linkViewId: '',
@@ -224,7 +224,7 @@ class LogicalContent extends React.Component {
     };
     await Prom.insertData('acsys_views', { ...newView }).then(async () => {
       let newEntry = {
-        id: uniqid(),
+        acsys_id: uniqid(),
         name: this.state.name,
         description: this.state.description,
         viewId: uId,
@@ -246,7 +246,7 @@ class LogicalContent extends React.Component {
       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
       .map((views) => {
         const {
-          id,
+          acsys_id,
           name,
           description,
           viewId,
@@ -254,7 +254,7 @@ class LogicalContent extends React.Component {
           tableKeys,
         } = views;
         return (
-          <TableRow key={id}>
+          <TableRow key={acsys_id}>
             {tableKeys.length < 1 ? (
               <TableCell
                 to={{

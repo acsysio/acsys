@@ -1,8 +1,28 @@
 const sqlite3 = require('sqlite3').verbose();
+const querystring = require('querystring');
 
 let db;
 
 let connected = false;
+
+const siftRows = function (rows) {
+  let sRows = [];
+  for(let i = 0; i < rows.length; i++) {
+    let obj = {};
+    const values = Object.values(rows[i]);
+    const fields = Object.keys(rows[i]);
+    for(let j = 0; j < values.length; j++) {
+      if(typeof values[j] === 'string') {
+        obj[fields[j]] = querystring.unescape(values[j]);
+      }
+      else {
+        obj[fields[j]] = values[j];
+      }
+    }
+    sRows.push(obj);
+  }
+  return sRows;
+}
 
 class SqliteDriver {
   initialize() {
@@ -13,16 +33,16 @@ class SqliteDriver {
         }
         db.serialize(async function () {
           await db.run(
-            'CREATE TABLE IF NOT EXISTS acsys_users (id TEXT, email TEXT, username TEXT, role TEXT, mode TEXT, acsysCd TEXT)'
+            'CREATE TABLE IF NOT EXISTS acsys_users (acsys_id TEXT, email TEXT, username TEXT, role TEXT, mode TEXT, acsysCd TEXT)'
           );
           await db.run(
-            'CREATE TABLE IF NOT EXISTS acsys_logical_content (id TEXT, name TEXT, description TEXT, viewId TEXT, source_collection TEXT, position INT, tableKeys TEXT)'
+            'CREATE TABLE IF NOT EXISTS acsys_logical_content (acsys_id TEXT, name TEXT, description TEXT, viewId TEXT, source_collection TEXT, position INT, tableKeys TEXT)'
           );
           await db.run(
-            'CREATE TABLE IF NOT EXISTS acsys_views (id TEXT, isRemovable BOOLEAN, isTableMode BOOLEAN, linkTable TEXT, linkViewId TEXT, viewOrder TEXT, orderBy TEXT, rowNum INT)'
+            'CREATE TABLE IF NOT EXISTS acsys_views (acsys_id TEXT, isRemovable BOOLEAN, isTableMode BOOLEAN, linkTable TEXT, linkViewId TEXT, viewOrder TEXT, orderBy TEXT, rowNum INT)'
           );
           await db.run(
-            'CREATE TABLE IF NOT EXISTS acsys_document_details (id TEXT, contentId TEXT, collection TEXT, control TEXT, field_name TEXT, isVisibleOnPage BOOLEAN, isVisibleOnTable BOOLEAN, type TEXT, isKey BOOLEAN, viewOrder INT, width INT)'
+            'CREATE TABLE IF NOT EXISTS acsys_document_details (acsys_id TEXT, contentId TEXT, collection TEXT, control TEXT, field_name TEXT, isVisibleOnPage BOOLEAN, isVisibleOnTable BOOLEAN, type TEXT, isKey BOOLEAN, viewOrder INT, width INT)'
           );
           await db.run(
             'CREATE TABLE IF NOT EXISTS acsys_email_settings (host TEXT, port INT, username TEXT, password TEXT)'
@@ -31,10 +51,10 @@ class SqliteDriver {
             'CREATE TABLE IF NOT EXISTS acsys_open_tables (table_name TEXT)'
           );
           await db.run(
-            'CREATE TABLE IF NOT EXISTS acsys_storage_items (id TEXT, fileOrder INT, parent TEXT, name TEXT, contentType TEXT, isPublic BOOLEAN, timeCreated TEXT, updated TEXT)'
+            'CREATE TABLE IF NOT EXISTS acsys_storage_items (acsys_id TEXT, fileOrder INT, parent TEXT, name TEXT, contentType TEXT, isPublic BOOLEAN, timeCreated TEXT, updated TEXT)'
           );
           await db.run(
-            'CREATE TABLE IF NOT EXISTS acsys_user_reset (id TEXT, user_id Text, expiration_date INT)'
+            'CREATE TABLE IF NOT EXISTS acsys_user_reset (acsys_id TEXT, user_id Text, expiration_date INT)'
           );
         });
         connected = true;
@@ -84,7 +104,7 @@ class SqliteDriver {
           }
         }
 
-        const sql = `INSERT INTO acsys_USERS VALUES (${placeholders})`;
+        const sql = `INSERT INTO acsys_users VALUES (${placeholders})`;
 
         db.run(sql, function (err) {
           if (err) {
@@ -98,7 +118,7 @@ class SqliteDriver {
 
   verifyPassword(id) {
     return new Promise(async (resolve, reject) => {
-      const query = `SELECT * FROM acsys_USERS WHERE ID = '${id}'`;
+      const query = `SELECT * FROM acsys_users WHERE acsys_id = '${id}'`;
       await db.all(query, [], (error, rows) => {
         if (rows === undefined || error) {
           resolve(false);
@@ -111,7 +131,7 @@ class SqliteDriver {
 
   getUsers(user) {
     return new Promise(async (resolve, reject) => {
-      const query = `SELECT * FROM acsys_USERS WHERE USERNAME != '${user}'`;
+      const query = `SELECT * FROM acsys_users WHERE USERNAME != '${user}'`;
       await db.all(query, [], (error, rows) => {
         if (rows === undefined || error) {
           resolve([]);
@@ -268,7 +288,7 @@ class SqliteDriver {
 
   repositionViews(data, pos) {
     return new Promise(async (resolve, reject) => {
-      const query = 'SELECT * FROM acsys_LOGICAL_CONTENT ORDER BY POSITION';
+      const query = 'SELECT * FROM acsys_logical_content ORDER BY POSITION';
       await db.all(query, [], async (error, rows) => {
         if (rows === undefined || error) {
           resolve();
@@ -281,7 +301,7 @@ class SqliteDriver {
               }
               if (row.id === data.id) {
               } else {
-                const sql = `UPDATE acsys_LOGICAL_CONTENT SET POSITION = ${newPos} WHERE ID = '${row.id}'`;
+                const sql = `UPDATE acsys_logical_content SET POSITION = ${newPos} WHERE acsys_id = '${row.id}'`;
                 db.serialize(async function () {
                   await db.run(sql, function (err) {
                     console.log(err);
@@ -292,7 +312,7 @@ class SqliteDriver {
             }
             if (row.id === data.id) {
             } else {
-              const sql = `UPDATE acsys_LOGICAL_CONTENT SET POSITION = ${newPos} WHERE ID = '${row.id}'`;
+              const sql = `UPDATE acsys_logical_content SET POSITION = ${newPos} WHERE acsys_id = '${row.id}'`;
               db.serialize(async function () {
                 await db.run(sql, function (err) {
                   console.log(err);
@@ -303,6 +323,28 @@ class SqliteDriver {
           }
         }
         resolve();
+      });
+    });
+  }
+
+  reorgViews() {
+    return new Promise(async (resolve, reject) => {
+      const query = `SELECT * FROM acsys_logical_content ORDER BY POSITION`;
+      let newPos = 1;
+      await db.all(query, [], (error, rows) => {
+        if (rows === undefined || error) {
+          console.log(error);
+          resolve([]);
+        } else {
+          for (const row of rows) {
+            const sql = `UPDATE acsys_logical_content SET POSITION = ${newPos} WHERE acsys_id = '${row.id}'`;
+            db.run(sql, function (err) {
+              console.log(err);
+            });
+            newPos++;
+          }
+          resolve();
+        }
       });
     });
   }
@@ -353,7 +395,7 @@ class SqliteDriver {
             typeof insertData[i] === 'string' ||
             typeof insertData[i] === 'object'
           ) {
-            insert = `'${insertData[i]}'`;
+            insert = `"${querystring.escape(insertData[i])}"`;
           } else {
             insert = insertData[i];
           }
@@ -457,7 +499,6 @@ class SqliteDriver {
   getDocs(table, options) {
     return new Promise(async (resolve, reject) => {
       let query = `SELECT * FROM ${table} `;
-      // query = db.collection(collectionName);
 
       if (options) {
         if (
@@ -469,11 +510,8 @@ class SqliteDriver {
           options.where.forEach((tuple, index) => {
             try {
               let value = '';
-              // if (tuple[1] == '=') {
-              //   tuple[1] = '==';
-              // }
               if (typeof tuple[2] === 'string') {
-                value = `'${tuple[2]}'`;
+                value = `"${querystring.escape(tuple[2])}"`;
               } else {
                 value = tuple[2];
               }
@@ -507,7 +545,8 @@ class SqliteDriver {
           console.log(error);
           resolve([]);
         } else {
-          resolve(rows);
+          let sRows = siftRows(rows);
+          resolve(sRows);
         }
       });
     });
@@ -528,7 +567,7 @@ class SqliteDriver {
             typeof insertData[i] === 'string' ||
             typeof insertData[i] === 'object'
           ) {
-            insert = `'${insertData[i]}'`;
+            insert = `"${querystring.escape(insertData[i])}"`;
           } else {
             insert = insertData[i];
           }
@@ -567,7 +606,7 @@ class SqliteDriver {
             typeof updateData[i] === 'string' ||
             typeof updateData[i] === 'object'
           ) {
-            update = `'${updateData[i]}'`;
+            update = `"${querystring.escape(updateData[i])}"`;
           } else {
             update = updateData[i];
           }
@@ -586,7 +625,7 @@ class SqliteDriver {
             try {
               let value = '';
               if (typeof tuple[2] === 'string') {
-                value = `'${tuple[2]}'`;
+                value = `"${querystring.escape(tuple[2])}"`;
               } else {
                 value = tuple[2];
               }
@@ -619,7 +658,7 @@ class SqliteDriver {
           try {
             let value = '';
             if (typeof tuple[2] === 'string') {
-              value = `'${tuple[2]}'`;
+              value = `"${querystring.escape(tuple[2])}"`;
             } else {
               value = tuple[2];
             }
