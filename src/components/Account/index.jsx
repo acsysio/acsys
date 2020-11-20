@@ -70,7 +70,7 @@ class Account extends React.Component {
         ]);
       } catch (error) {}
       this.setState({
-        acsys_id: userData[0].id,
+        acsys_id: userData[0].acsys_id,
         role: userData[0].role,
         username: userData[0].username,
         email: userData[0].email,

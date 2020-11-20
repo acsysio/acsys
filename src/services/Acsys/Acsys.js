@@ -25,7 +25,7 @@ export const getMode = () => {
 export const setMode = async (newMode) => {
   return new Promise(async (resolve, reject) => {
     await updateUser({
-      id: getId(),
+      acsys_id: getId(),
       username: getUser(),
       email: getEmail(),
       role: getRole(),
@@ -41,7 +41,7 @@ export const setMode = async (newMode) => {
   });
 };
 
-export const getUniqueId = () => {
+export const getUnique_id = () => {
   return uniqid();
 };
 
@@ -561,7 +561,7 @@ export const register = (username, email, password) => {
     let refreshToken;
 
     const userData = {
-      id: uniqid(),
+      acsys_id: uniqid(),
       email,
       username,
       role,
@@ -587,7 +587,7 @@ export const register = (username, email, password) => {
           user = json.username;
           token = json.token;
           refreshToken = json.refreshToken;
-          Cookies.set('acsys_id', userData.id);
+          Cookies.set('acsys_id', userData.acsys_id);
           Cookies.set('acsys_role', userData.role);
           Cookies.set('acsys_mode', userData.mode);
           Cookies.set('acsys_user', user);
@@ -626,7 +626,7 @@ export const sendResetLink = async (email) => {
   });
 };
 
-export const resetPassword = async (id, password) => {
+export const resetPassword = async (acsys_id, password) => {
   return new Promise((resolve, reject) => {
     promFetch('/api/resetPassword', {
       method: 'POST',
@@ -635,7 +635,7 @@ export const resetPassword = async (id, password) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        id,
+        acsys_id,
         password,
       }),
     })
@@ -746,7 +746,7 @@ export const getUsers = async (user) => {
 
 export const authenticate = (username, password) => {
   return new Promise((resolve, reject) => {
-    let id;
+    let acsys_id;
     let role;
     let mode;
     let user;
@@ -769,14 +769,14 @@ export const authenticate = (username, password) => {
         if (json.message) {
           resolve(json.message);
         } else {
-          id = json.id;
+          acsys_id = json.acsys_id;
           role = json.role;
           mode = json.mode;
           user = json.username;
           email = json.email;
           token = json.token;
           refreshToken = json.refreshToken;
-          Cookies.set('acsys_id', id);
+          Cookies.set('acsys_id', acsys_id);
           Cookies.set('acsys_role', role);
           Cookies.set('acsys_mode', mode);
           Cookies.set('acsys_user', user);
@@ -862,7 +862,7 @@ export const hasAdmin = () => {
   });
 };
 
-export const verifyPassword = async (id, password) => {
+export const verifyPassword = async (acsys_id, password) => {
   await checkToken();
   return new Promise((resolve, reject) => {
     promFetch('/api/verifyPassword', {
@@ -872,7 +872,7 @@ export const verifyPassword = async (id, password) => {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${Session.getToken()}`,
       },
-      body: JSON.stringify({ id, password }),
+      body: JSON.stringify({ acsys_id, password }),
     })
       .then((response) => {
         if (response.statusText !== 'Unauthorized') {
@@ -1382,7 +1382,7 @@ export const deleteOpenData = (table, entry) => {
   });
 };
 
-export const deleteView = async (viewId) => {
+export const deleteView = async (view_id) => {
   await checkToken();
   return new Promise((resolve, reject) => {
     promFetch('/api/deleteView', {
@@ -1393,7 +1393,7 @@ export const deleteView = async (viewId) => {
         Authorization: `Bearer ${Session.getToken()}`,
       },
       body: JSON.stringify({
-        viewId,
+        view_id,
       }),
     })
       .then((response) => {

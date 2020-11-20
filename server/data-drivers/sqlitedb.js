@@ -75,7 +75,8 @@ class SqliteDriver {
         if (rows === undefined) {
           resolve('');
         } else {
-          resolve(rows[0].config);
+          let sRows = siftRows(rows);
+          resolve(sRows[0].config);
         }
       });
     });
@@ -85,8 +86,6 @@ class SqliteDriver {
     return new Promise((resolve, reject) => {
       db.serialize(async function () {
         const insertData = Object.values(data);
-
-        const values = [];
 
         let placeholders = '';
 
@@ -123,7 +122,8 @@ class SqliteDriver {
         if (rows === undefined || error) {
           resolve(false);
         } else {
-          resolve(rows[0].acsysCd);
+          let sRows = siftRows(rows);
+          resolve(sRows[0].acsysCd);
         }
       });
     });
@@ -136,7 +136,8 @@ class SqliteDriver {
         if (rows === undefined || error) {
           resolve([]);
         } else {
-          resolve(rows);
+          let sRows = siftRows(rows);
+          resolve(sRows);
         }
       });
     });
@@ -172,7 +173,8 @@ class SqliteDriver {
         if (rows === undefined || error) {
           resolve([]);
         } else {
-          rows.forEach((row) => {
+          let sRows = siftRows(rows);
+          sRows.forEach((row) => {
             collectionArr.push(row.name);
           });
           resolve(collectionArr);
@@ -188,7 +190,8 @@ class SqliteDriver {
         if (rows === undefined || error) {
           resolve(0);
         } else {
-          resolve(rows[0].NUM);
+          let sRows = siftRows(rows);
+          resolve(sRows[0].NUM);
         }
       });
     });
@@ -332,11 +335,12 @@ class SqliteDriver {
       const query = `SELECT * FROM acsys_logical_content ORDER BY POSITION`;
       let newPos = 1;
       await db.all(query, [], (error, rows) => {
-        if (rows === undefined || error) {
+        let sRows = siftRows(rows);
+        if (sRows === undefined || error) {
           console.log(error);
           resolve([]);
         } else {
-          for (const row of rows) {
+          for (const row of sRows) {
             const sql = `UPDATE acsys_logical_content SET POSITION = ${newPos} WHERE acsys_id = '${row.id}'`;
             db.run(sql, function (err) {
               console.log(err);
@@ -423,7 +427,8 @@ class SqliteDriver {
     return new Promise(async (resolve, reject) => {
       const query = `SELECT * FROM acsys_open_tables WHERE TABLE_NAME = ${data.table_name}`;
       await db.all(query, [], (error, rows) => {
-        if (rows === undefined || error) {
+        let sRows = siftRows(rows);
+        if (sRows === undefined || error) {
           const sql = `INSERT INTO acsys_open_tables VALUES ('${data.table_name}')`;
           db.run(sql, function (err) {
             if (err) {
@@ -490,7 +495,8 @@ class SqliteDriver {
           console.log(error);
           resolve([]);
         } else {
-          resolve(rows);
+          let sRows = siftRows(rows);
+          resolve(sRows);
         }
       });
     });
@@ -684,7 +690,8 @@ class SqliteDriver {
     return new Promise(async (resolve, reject) => {
       const query = `SELECT * FROM acsys_open_tables WHERE TABLE_NAME = '${collectionName}'`;
       await db.all(query, [], (error, rows) => {
-        if (rows === undefined || error) {
+        let sRows = siftRows(rows);
+        if (sRows === undefined || error) {
           resolve(false);
         } else {
           resolve(true);

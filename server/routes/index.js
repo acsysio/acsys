@@ -115,7 +115,7 @@ router.post('/register', function (req, res) {
         } catch (error) {}
         bcrypt.hash(userData.password, 8, function (err, hash) {
           const dataModel = {
-            id: userData.id,
+            acsys_id: userData.acsys_id,
             email: userData.email,
             username: userData.username,
             role: userData.role,
@@ -132,7 +132,7 @@ router.post('/register', function (req, res) {
                 expiresIn: '3d',
               });
               res.json({
-                id: dataModel.id,
+                acsys_id: dataModel.acsys_id,
                 role: dataModel.role,
                 username: dataModel.username,
                 token,
@@ -152,7 +152,7 @@ router.post('/register', function (req, res) {
 });
 
 router.post('/verifyPassword', function (req, res) {
-  data.verifyPassword(req.body.id).then((result) => {
+  data.verifyPassword(req.body.acsys_id).then((result) => {
     bcrypt.compare(req.body.password, result, function (err, outcome) {
       if (outcome) {
         res.send({ value: true });
@@ -177,7 +177,7 @@ router.post('/sendResetLink', function (req, res) {
         .then((result, reject) => {
           if (result.length > 0) {
             const resetOptions = {
-              where: [['user_id', '=', result[0].id]],
+              where: [['user_id', '=', result[0].acsys_id]],
               limit: parseInt(1),
             };
             data
@@ -190,8 +190,8 @@ router.post('/sendResetLink', function (req, res) {
                   } else {
                     const expDate = date.getTime() + 5 * 60000;
                     const dataModel = {
-                      id: uniquid(),
-                      user_id: result[0].id,
+                      acsys_id: uniquid(),
+                      user_id: result[0].acsys_id,
                       expiration_date: expDate,
                     };
                     data
@@ -212,7 +212,7 @@ router.post('/sendResetLink', function (req, res) {
                           html: `<p>Please follow the below link to reset your password.</p><a href="${req.get(
                             'host'
                           )}/PasswordReset/${
-                            dataModel.id
+                            dataModel.acsys_id
                           }">reset password</a><p>This link will expire in 5 minutes.</p>`,
                         };
 
@@ -233,8 +233,8 @@ router.post('/sendResetLink', function (req, res) {
                   const date = new Date();
                   const expDate = date.getTime() + 5 * 60000;
                   const dataModel = {
-                    id: uniquid(),
-                    user_id: result[0].id,
+                    acsys_id: uniquid(),
+                    user_id: result[0].acsys_id,
                     expiration_date: expDate,
                   };
                   data
@@ -255,7 +255,7 @@ router.post('/sendResetLink', function (req, res) {
                         html: `<p>Please follow the below link to reset your password.</p><a href="${req.get(
                           'host'
                         )}/PasswordReset/${
-                          dataModel.id
+                          dataModel.acsys_id
                         }">reset password</a><p>This link will expire in 5 minutes.</p>`,
                       };
 
@@ -288,9 +288,9 @@ router.post('/sendResetLink', function (req, res) {
 });
 
 router.post('/resetPassword', function (req, res) {
-  const { id, password } = req.body;
+  const { acsys_id, password } = req.body;
   const options = {
-    where: [['id', '=', id]],
+    where: [['acsys_id', '=', acsys_id]],
     limit: parseInt(1),
   };
   data
@@ -300,7 +300,7 @@ router.post('/resetPassword', function (req, res) {
         const date = new Date();
         if (date.getTime() < result[0].expiration_date) {
           const userOptions = {
-            where: [['id', '=', result[0].user_id]],
+            where: [['acsys_id', '=', result[0].user_id]],
             limit: parseInt(1),
           };
           data
@@ -308,7 +308,7 @@ router.post('/resetPassword', function (req, res) {
             .then((userResult, reject) => {
               bcrypt.hash(password, 8, function (err, hash) {
                 const dataModel = {
-                  id: userResult[0].id,
+                  acsys_id: userResult[0].acsys_id,
                   role: userResult[0].role,
                   mode: userResult[0].mode,
                   email: userResult[0].email,
@@ -375,7 +375,7 @@ router.post('/createUser', function (req, res) {
             } else {
               bcrypt.hash(userData.password, 8, function (err, hash) {
                 const dataModel = {
-                  id: userData.id,
+                  acsys_id: userData.acsys_id,
                   email: userData.email,
                   username: userData.username,
                   role: userData.role,
@@ -385,6 +385,7 @@ router.post('/createUser', function (req, res) {
                 data
                   .insert('acsys_users', dataModel)
                   .then((result) => {
+                    console.log(result)
                     res.send(true);
                   })
                   .catch((result) => {
@@ -409,7 +410,7 @@ router.post('/updateUser', function (req, res) {
     let dataModel;
     if (userData.acsysCd === undefined) {
       dataModel = {
-        id: userData.id,
+        acsys_id: userData.acsys_id,
         email: userData.email,
         username: userData.username,
         role: userData.role,
@@ -417,7 +418,7 @@ router.post('/updateUser', function (req, res) {
       };
     } else {
       dataModel = {
-        id: userData.id,
+        acsys_id: userData.acsys_id,
         email: userData.email,
         username: userData.username,
         role: userData.role,
@@ -425,8 +426,9 @@ router.post('/updateUser', function (req, res) {
         acsysCd: hash,
       };
     }
+    console.log(userData)
     data
-      .update('acsys_users', dataModel, [['id', '=', dataModel.id]])
+      .update('acsys_users', dataModel, [['acsys_id', '=', dataModel.acsys_id]])
       .then((result) => {
         res.json({ result });
       })
@@ -463,7 +465,7 @@ router.post('/authenticate', function (req, res) {
             }
           );
           res.json({
-            id: result[0].id,
+            acsys_id: result[0].acsys_id,
             role: result[0].role,
             mode: result[0].mode,
             username: result[0].username,
@@ -685,7 +687,7 @@ router.post('/deleteView', function (req, res) {
     ])
     .then((result) => {
       data
-        .deleteDocs('acsys_views', [['id', '=', deleteData.viewId]])
+        .deleteDocs('acsys_views', [['acsys_id', '=', deleteData.viewId]])
         .then((result) => {
           data
             .deleteDocs('acsys_logical_content', [
