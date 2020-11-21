@@ -102,6 +102,23 @@ class CollectionView extends React.Component {
 
   handleViewChange = (value) => {
     published = value;
+    let acsys_id = '';
+    if (published) {
+      acsys_id = this.props.match.params.acsys_id;
+    } else {
+      acsys_id = 'acsys_' + this.props.match.params.acsys_id;
+    }
+    this.context.setPageData(
+      acsys_id,
+      this.context.getKeys(),
+      rowNum,
+      this.state.viewOrder,
+      this.state.orderDir
+    );
+    this.context.setPage(1);
+    // this.setState({
+    //   page: 1,
+    // });
     this.mount();
   };
 
