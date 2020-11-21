@@ -24,6 +24,79 @@ const siftRows = function (rows) {
   return sRows;
 }
 
+const createTable = function (tableName, data) {
+  return new Promise(async (resolve, reject) => {
+    const insertData = Object.values(data);
+
+    const dataKeys = Object.keys(data);
+
+    let placeholders = '';
+
+    for (let i = 0; i < insertData.length; i++) {
+      let insert = '';
+      if (
+        typeof insertData[i] === 'string' ||
+        typeof insertData[i] === 'object'
+      ) {
+        insert = `${dataKeys[i]} TEXT`;
+      } else if (
+        typeof insertData[i] === 'number' ||
+        typeof insertData[i] === 'bigint'
+      ) {
+        insert = `${dataKeys[i]} INT`;
+      } else if (typeof insertData[i] === 'boolean') {
+        insert = `${dataKeys[i]} BOOLEAN`;
+      }
+      if (i === 0) {
+        placeholders += `${insert}`;
+      } else {
+        placeholders += `, ${insert}`;
+      }
+    }
+
+    let sql = `CREATE TABLE IF NOT EXISTS ${tableName} (${placeholders})`;
+
+    db.run(sql, function (err) {
+      if (err) {
+        console.log(err);
+        resolve (false);
+      }
+
+      let placeholders = '';
+
+      for (let i = 0; i < insertData.length; i++) {
+        let insert = '';
+        if (
+          typeof insertData[i] === 'string' ||
+          typeof insertData[i] === 'object'
+        ) {
+          insert = `"${querystring.escape(insertData[i])}"`;
+          if (insert.length < 1) {
+            insert = "''";
+          }
+        } else {
+          insert = insertData[i];
+        }
+        if (i === 0) {
+          placeholders += `${insert}`;
+        } else {
+          placeholders += `, ${insert}`;
+        }
+      }
+
+      sql = `INSERT INTO ${tableName} VALUES (${placeholders})`;
+
+      db.run(sql, function (err) {
+        if (err) {
+          console.log(err);
+          resolve (false);
+        }
+        resolve (true);
+      });
+    });
+  })
+}
+
 class SqliteDriver {
   initialize() {
     return new Promise(async (resolve, reject) => {
@@ -354,75 +427,9 @@ class SqliteDriver {
   }
 
   createTable(tableName, data) {
-    return new Promise((resolve, reject) => {
-      const insertData = Object.values(data);
-
-      const dataKeys = Object.keys(data);
-
-      let placeholders = '';
-
-      for (let i = 0; i < insertData.length; i++) {
-        let insert = '';
-        if (
-          typeof insertData[i] === 'string' ||
-          typeof insertData[i] === 'object'
-        ) {
-          insert = `${dataKeys[i]} TEXT`;
-        } else if (
-          typeof insertData[i] === 'number' ||
-          typeof insertData[i] === 'bigint'
-        ) {
-          insert = `${dataKeys[i]} INT`;
-        } else if (typeof insertData[i] === 'boolean') {
-          insert = `${dataKeys[i]} BOOLEAN`;
-        }
-        if (i === 0) {
-          placeholders += `${insert}`;
-        } else {
-          placeholders += `, ${insert}`;
-        }
-      }
-
-      let sql = `CREATE TABLE ${tableName} (${placeholders})`;
-
-      db.run(sql, function (err) {
-        if (err) {
-          console.log(err);
-          resolve(false);
-        }
-
-        let placeholders = '';
-
-        for (let i = 0; i < insertData.length; i++) {
-          let insert = '';
-          if (
-            typeof insertData[i] === 'string' ||
-            typeof insertData[i] === 'object'
-          ) {
-            insert = `"${querystring.escape(insertData[i])}"`;
-            if (insert.length < 1) {
-              insert = "''";
-            }
-          } else {
-            insert = insertData[i];
-          }
-          if (i === 0) {
-            placeholders += `${insert}`;
-          } else {
-            placeholders += `, ${insert}`;
-          }
-        }
-
-        sql = `INSERT INTO ${tableName} VALUES (${placeholders})`;
-
-        db.run(sql, function (err) {
-          if (err) {
-            console.log(err);
-            resolve(false);
-          }
-          resolve(true);
-        });
-      });
+    return new Promise(async (resolve, reject) => {
+      const result = await createTable(tableName, data);
+      resolve(result);
     });
   }
 
@@ -487,7 +494,12 @@ class SqliteDriver {
         }
 
         if (options.direction === 'prev') {
-          const offset = (options.currentPage - 2) * options.limit + 1;
+          const offset = (options.currentPage - 2) * options.limit;
+          query += `LIMIT ${offset},${options.limit}`;
+        }
+
+        if (options.direction === 'none') {
+          const offset = (options.currentPage - 1) * options.limit;
           query += `LIMIT ${offset},${options.limit}`;
         }
       }
@@ -591,8 +603,12 @@ class SqliteDriver {
 
         const sql = `INSERT INTO ${table} (${dataKeys.toString()}) VALUES (${placeholders})`;
 
-        db.run(sql, function (err) {
+        db.run(sql, async function (err) {
           if (err) {
+            if(err.errno === 1) {
+              await createTable(table, data);
+              resolve(true);
+            }
             console.log(err);
             resolve(false);
           }

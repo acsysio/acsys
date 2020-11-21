@@ -6,6 +6,79 @@ let dbName;
 
 let connected = false;
 
+const createTable = function (tableName, data) {
+  return new Promise((resolve, reject) => {
+    const insertData = Object.values(data);
+
+    const dataKeys = Object.keys(data);
+
+    let placeholders = '';
+
+    for (let i = 0; i < insertData.length; i++) {
+      let insert = '';
+      if (
+        typeof insertData[i] === 'string' ||
+        typeof insertData[i] === 'object'
+      ) {
+        insert = `${dataKeys[i]} TEXT`;
+      } else if (
+        typeof insertData[i] === 'number' ||
+        typeof insertData[i] === 'bigint'
+      ) {
+        insert = `${dataKeys[i]} INT`;
+      } else if (typeof insertData[i] === 'boolean') {
+        insert = `${dataKeys[i]} BOOLEAN`;
+      }
+      if (i === 0) {
+        placeholders += `${insert}`;
+      } else {
+        placeholders += `, ${insert}`;
+      }
+    }
+
+    let sql = `CREATE TABLE ${tableName} (${placeholders})`;
+
+    db.query(sql, function (err) {
+      if (err) {
+        console.log(err);
+        resolve(false);
+      }
+
+      let placeholders = '';
+
+      for (let i = 0; i < insertData.length; i++) {
+        let insert = '';
+        if (
+          typeof insertData[i] === 'string' ||
+          typeof insertData[i] === 'object'
+        ) {
+          insert = db.escape(insertData[i]);
+          if (insert.length < 1) {
+            insert = "''";
+          }
+        } else {
+          insert = insertData[i];
+        }
+        if (i === 0) {
+          placeholders += `${insert}`;
+        } else {
+          placeholders += `, ${insert}`;
+        }
+      }
+
+      sql = `INSERT INTO ${tableName} VALUES (${placeholders})`;
+
+      db.query(sql, function (err) {
+        if (err) {
+          console.log(err);
+          resolve(false);
+        }
+        resolve(true);
+      });
+    });
+  });
+}
+
 class MysqlDriver {
   initialize(config) {
     return new Promise(async (resolve, reject) => {
@@ -330,75 +403,9 @@ class MysqlDriver {
   }
 
   createTable(tableName, data) {
-    return new Promise((resolve, reject) => {
-      const insertData = Object.values(data);
-
-      const dataKeys = Object.keys(data);
-
-      let placeholders = '';
-
-      for (let i = 0; i < insertData.length; i++) {
-        let insert = '';
-        if (
-          typeof insertData[i] === 'string' ||
-          typeof insertData[i] === 'object'
-        ) {
-          insert = `${dataKeys[i]} TEXT`;
-        } else if (
-          typeof insertData[i] === 'number' ||
-          typeof insertData[i] === 'bigint'
-        ) {
-          insert = `${dataKeys[i]} INT`;
-        } else if (typeof insertData[i] === 'boolean') {
-          insert = `${dataKeys[i]} BOOLEAN`;
-        }
-        if (i === 0) {
-          placeholders += `${insert}`;
-        } else {
-          placeholders += `, ${insert}`;
-        }
-      }
-
-      let sql = `CREATE TABLE ${tableName} (${placeholders})`;
-
-      db.query(sql, function (err) {
-        if (err) {
-          console.log(err);
-          resolve(false);
-        }
-
-        let placeholders = '';
-
-        for (let i = 0; i < insertData.length; i++) {
-          let insert = '';
-          if (
-            typeof insertData[i] === 'string' ||
-            typeof insertData[i] === 'object'
-          ) {
-            insert = db.escape(insertData[i]);
-            if (insert.length < 1) {
-              insert = "''";
-            }
-          } else {
-            insert = insertData[i];
-          }
-          if (i === 0) {
-            placeholders += `${insert}`;
-          } else {
-            placeholders += `, ${insert}`;
-          }
-        }
-
-        sql = `INSERT INTO ${tableName} VALUES (${placeholders})`;
-
-        db.query(sql, function (err) {
-          if (err) {
-            console.log(err);
-            resolve(false);
-          }
-          resolve(true);
-        });
-      });
+    return new Promise(async (resolve, reject) => {
+      const result = await createTable(tableName, data);
+      resolve(result);
     });
   }
 
@@ -563,8 +570,12 @@ class MysqlDriver {
 
       const sql = `INSERT INTO ${table} (${dataKeys.toString()}) VALUES (${placeholders})`;
 
-      db.query(sql, function (err) {
+      db.query(sql, async function (err) {
         if (err) {
+          if(err.errno === 1) {
+            await createTable(table, data);
+            resolve(true);
+          }
           console.log(err);
           resolve(false);
         }

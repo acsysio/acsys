@@ -437,13 +437,18 @@ class CollectionView extends React.Component {
           }
         }
         if (this.context.isHeld()) {
+          let direction = 'none';
+          const dbType = await Prom.getDatabaseType();
+          if (dbType === 'firestore') {
+            direction = this.context.getPageDirection();
+          }
           currentData = await Prom.getPage(
             this.context.getTable(),
             this.context.getKeys(),
             this.context.getRowsPerPage(),
             this.context.getOrder(),
             this.context.getDirection(),
-            this.context.getPageDirection(),
+            direction,
             this.context.getPage()
           );
           page = this.context.getPage();
