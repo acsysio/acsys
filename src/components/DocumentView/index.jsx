@@ -31,7 +31,6 @@ import DateTimePicker from '../Controls/DateTimePicker';
 import NumberEditor from '../Controls/NumberEditor';
 import RichTextEditor from '../Controls/RichTextEditor';
 import BooleanSelect from '../Controls/BooleanSelect';
-import Position from '../Controls/Position';
 import ImageReference from '../Controls/ImageReference';
 import ImageURL from '../Controls/ImageURL';
 import VideoReference from '../Controls/VideoReference';
@@ -286,65 +285,6 @@ class DocumentView extends React.Component {
     this.setState({ saving: true });
     if (mode === 'update') {
       for (var i = 0; i < tempDetails.length; i++) {
-        if (tempDetails[i].control === 'position') {
-          if (
-            tempDocument[tempDetails[i].field_name] !==
-            posArr[tempDetails[i].field_name]
-          ) {
-            if (tempDocument[tempDetails[i].field_name] === highestPos) {
-              tempDocument[tempDetails[i].field_name] =
-                (await this.getMaxPos(
-                  tempDetails[i].collection,
-                  tempDetails[i].field_name
-                )) + 1;
-            } else {
-              let startAt = tempDocument[tempDetails[i].field_name];
-              let end = posArr[tempDetails[i].field_name];
-              if (startAt > initPos) {
-                let stop = false;
-                for (var k = 0; k < this.state.position.length; k++) {
-                  if (
-                    startAt ===
-                      this.state.position[k][tempDetails[i].field_name] &&
-                    !stop
-                  ) {
-                    stop = true;
-                    var next = k + 1;
-                    startAt = this.state.position[next][
-                      tempDetails[i].field_name
-                    ];
-                    end++;
-
-                    tempDocument[tempDetails[i].field_name] = startAt;
-                    if (
-                      !(await this.increment(
-                        tempDetails[i].collection,
-                        tempDetails[i].field_name,
-                        startAt,
-                        startAt
-                      ))
-                    ) {
-                    }
-                  }
-                }
-              } else {
-                if (
-                  !(await this.increment(
-                    tempDetails[i].collection,
-                    tempDetails[i].field_name,
-                    startAt,
-                    startAt
-                  ))
-                ) {
-                  tempDocument[tempDetails[i].field_name] = end;
-                }
-              }
-            }
-            posArr[tempDetails[i].field_name] =
-              tempDocument[tempDetails[i].field_name];
-            initPos = tempDocument[tempDetails[i].field_name];
-          }
-        }
         if (fileDoc[tempDetails[i].field_name] !== undefined) {
           tempDocument[tempDetails[i].field_name] =
             fileDoc[tempDetails[i].field_name];
@@ -365,13 +305,6 @@ class DocumentView extends React.Component {
       }
       if (this.state.draft) {
         for (var i = 0; i < tempDetails.length; i++) {
-          if (tempDetails[i].control === 'position') {
-            tempDocument[tempDetails[i].field_name] =
-              (await this.getMaxPos(
-                tempDetails[i].collection,
-                tempDetails[i].field_name
-              )) + 1;
-          }
           const result = await Prom.updateData(
             'acsys_document_details',
             { ...tempDetails[i] },
@@ -408,12 +341,6 @@ class DocumentView extends React.Component {
         } else if (tempDocument[tempDetails[i].field_name] === undefined) {
           if (tempDetails[i].control === 'numberEditor') {
             tempDocument[tempDetails[i].field_name] = 0;
-          } else if (tempDetails[i].control === 'position') {
-            tempDocument[tempDetails[i].field_name] =
-              (await this.getMaxPos(
-                tempDetails[i].collection,
-                tempDetails[i].field_name
-              )) + 1;
           } else if (tempDetails[i].control === 'booleanSelect') {
             tempDocument[tempDetails[i].field_name] = false;
           } else {
@@ -630,16 +557,6 @@ class DocumentView extends React.Component {
               currentView[documentDetails[i].field_name];
             fileDoc[documentDetails[i].field_name] =
               currentView[documentDetails[i].field_name];
-          } else if (documentDetails[i].control === 'position') {
-            position = await Prom.getData(
-              table,
-              '',
-              '',
-              [documentDetails[i].field_name],
-              'asc'
-            );
-            highestPos =
-              position[position.length - 1][documentDetails[i].field_name];
           }
         }
 
@@ -718,14 +635,6 @@ class DocumentView extends React.Component {
                   return (
                     <BooleanSelect width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} />
                   );
-                } else if (details.control == 'position') {
-                  if (initLoad) {
-                    initPos = tempDocument[currentKey];
-                    posArr[details.field_name] = tempDocument[currentKey];
-                  }
-                  return (
-                    <Position width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} draft = {this.state.draft} position = {this.state.position} />
-                  );
                 } else if (details.control == 'imageReference') {
                   const url = fileRefs[details.field_name];
                   return (
@@ -792,14 +701,6 @@ class DocumentView extends React.Component {
               } else if (details.control == 'booleanSelect') {
                 return (
                   <BooleanSelect width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} />
-                );
-              } else if (details.control == 'position') {
-                if (initLoad) {
-                  initPos = tempDocument[currentKey];
-                  posArr[details.field_name] = tempDocument[currentKey];
-                }
-                return (
-                  <Position width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} draft = {this.state.draft} position = {this.state.position} />
                 );
               } else if (details.control == 'imageReference') {
                 const url = fileRefs[details.field_name];

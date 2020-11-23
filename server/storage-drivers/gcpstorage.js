@@ -47,8 +47,8 @@ class StorageDriver {
   }
 
   syncFiles() {
-    return new Promise((resolve) => {
-      db.deleteDocs('acsys_storage_items')
+    return new Promise(async (resolve) => {
+      await db.deleteDocs('acsys_storage_items')
         .then(async () => {
           await storage.getFiles(
             {
@@ -131,7 +131,7 @@ class StorageDriver {
                     } ${dateUpdated.getDate()}, ${dateUpdated.getFullYear()}`,
                   };
 
-                  db.insert('acsys_storage_items', object);
+                  await db.insert('acsys_storage_items', object);
                 }
               }
               resolve(true);

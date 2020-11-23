@@ -562,9 +562,14 @@ router.post('/createTable', function (req, res) {
 });
 
 router.post('/dropTable', function (req, res) {
-  tableData = req.body;
-  data.deleteDocs(tableData.table).then((result) => {
-    res.send(result);
+  deleteData = req.body;
+  data.dropTable(deleteData.table).then((result) => {
+    data.dropTable('acsys_' + deleteData.table).then(() => {
+      res.send(result);
+    })
+    .catch(() => {
+      res.send(result);
+    })
   });
 });
 

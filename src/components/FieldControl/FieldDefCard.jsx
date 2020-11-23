@@ -61,7 +61,6 @@ const Card = memo(({ id, details, moveCard }) => {
 
   if (details.type === 'number') {
     data.push(<option value="numberEditor">numberEditor</option>);
-    data.push(<option value="position">position</option>);
     data.push(<option value="booleanSelect">boolean</option>);
   }
 

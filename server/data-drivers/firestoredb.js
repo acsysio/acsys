@@ -541,6 +541,27 @@ class DataDriver {
     });
   }
 
+  dropTable(collectionName) {
+    return new Promise((resolve, reject) => {
+      let query = db.collection(collectionName);
+      query
+        .get()
+        .then((snapshot) => {
+          const objects = [];
+
+          snapshot.forEach((doc) => {
+            db.collection(collectionName)
+              .doc(doc.id)
+              .delete()
+              .then(() => resolve(true))
+              .catch(() => reject(false));
+          });
+          resolve();
+        })
+        .catch(reject);
+    });
+  }
+
   checkOpenTable(collectionName) {
     return new Promise((resolve, reject) => {
       let query;

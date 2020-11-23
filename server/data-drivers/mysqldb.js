@@ -469,7 +469,12 @@ class MysqlDriver {
         }
 
         if (options.direction === 'prev') {
-          const offset = (options.currentPage - 2) * options.limit + 1;
+          const offset = (options.currentPage - 2) * options.limit;
+          query += `LIMIT ${offset},${options.limit}`;
+        }
+
+        if (options.direction === 'none') {
+          const offset = (options.currentPage - 1) * options.limit;
           query += `LIMIT ${offset},${options.limit}`;
         }
       }
@@ -529,6 +534,7 @@ class MysqlDriver {
           query += `LIMIT 0,${options.limit}`;
         }
       }
+
       await db.query(query, (error, rows) => {
         if (rows === undefined || error) {
           console.log(error);
@@ -541,7 +547,7 @@ class MysqlDriver {
   }
 
   insert(table, data) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       const insertData = Object.values(data);
 
       const dataKeys = Object.keys(data);
@@ -558,7 +564,16 @@ class MysqlDriver {
           if (insert.length < 1) {
             insert = "''";
           }
-        } else {
+        } 
+        else if (typeof insertData[i] === 'boolean') {
+          if(insertData[i]) {
+            insert = true;
+          }
+          else {
+            insert = false;
+          }
+        }
+        else {
           insert = insertData[i];
         }
         if (i === 0) {
@@ -570,9 +585,9 @@ class MysqlDriver {
 
       const sql = `INSERT INTO ${table} (${dataKeys.toString()}) VALUES (${placeholders})`;
 
-      db.query(sql, async function (err) {
+      await db.query(sql, async function (err) {
         if (err) {
-          if(err.errno === 1) {
+          if(err.code === 'ER_NO_SUCH_TABLE') {
             await createTable(table, data);
             resolve(true);
           }
@@ -585,7 +600,7 @@ class MysqlDriver {
   }
 
   update(collectionName, data, options) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       const updateData = Object.values(data);
 
       const dataKeys = Object.keys(data);
@@ -636,7 +651,7 @@ class MysqlDriver {
         });
       }
 
-      db.query(query, function (err) {
+      await db.query(query, function (err) {
         if (err) {
           console.log(err);
           resolve(false);
@@ -670,9 +685,6 @@ class MysqlDriver {
           } catch (error) {}
         });
       }
-      else {
-        query = `DROP TABLE ${collectionName} `;
-      }
       await db.query(query, (error) => {
         if (error) {
           resolve(false);
@@ -681,6 +693,19 @@ class MysqlDriver {
         }
       });
     });
+  }
+
+  dropTable(collectionName) {
+    return new Promise(async (resolve, reject) => {
+      let query = `DROP TABLE ${collectionName} `;
+      await db.query(query, (error) => {
+        if (error) {
+          resolve(false);
+        } else {
+          resolve(true);
+        }
+      });
+    })
   }
 
   checkOpenTable(collectionName) {

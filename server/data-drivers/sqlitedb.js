@@ -719,6 +719,19 @@ class SqliteDriver {
     });
   }
 
+  dropTable(collectionName) {
+    return new Promise(async (resolve, reject) => {
+      let query = `DROP TABLE ${collectionName} `;
+      await db.all(query, [], (error) => {
+        if (error) {
+          resolve(false);
+        } else {
+          resolve(true);
+        }
+      });
+    });
+  }
+
   checkOpenTable(collectionName) {
     return new Promise(async (resolve, reject) => {
       const query = `SELECT * FROM acsys_open_tables WHERE TABLE_NAME = '${collectionName}'`;
