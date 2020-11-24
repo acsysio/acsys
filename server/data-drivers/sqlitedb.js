@@ -437,8 +437,7 @@ class SqliteDriver {
     return new Promise(async (resolve, reject) => {
       const query = `SELECT * FROM acsys_open_tables WHERE TABLE_NAME = ${data.table_name}`;
       await db.all(query, [], (error, rows) => {
-        let sRows = siftRows(rows);
-        if (sRows === undefined || error) {
+        if (rows === undefined || error) {
           const sql = `INSERT INTO acsys_open_tables VALUES ('${data.table_name}')`;
           db.run(sql, function (err) {
             if (err) {

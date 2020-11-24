@@ -84,14 +84,14 @@ class MysqlDriver {
     return new Promise(async (resolve, reject) => {
       const settings = await config.getMysqlConfig();
       dbName = settings.database;
-      db = mysql.createConnection({
+      db = mysql.createPool({
+        connectionLimit: 10,
         host     : settings.host,
         port     : settings.port,
         database : settings.database,
         user     : settings.username,
         password : settings.password 
       });
-      db.connect();
       db.query('CREATE TABLE IF NOT EXISTS acsys_users (acsys_id TEXT, email TEXT, username TEXT, role TEXT, mode TEXT, acsysCd TEXT)', (error, rows) => {
 
       });

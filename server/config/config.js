@@ -30,7 +30,7 @@ class Config {
 
   format() {
     return new Promise(async (resolve, reject) => {
-      const query = `SELECT NAME FROM SQLITE_MASTER WHERE TYPE = 'table' AND NAME NOT LIKE 'sqlite_%' AND NAME NOT LIKE 'acsys_%'`;
+      const query = `SELECT NAME FROM SQLITE_MASTER WHERE TYPE = 'table' AND NAME NOT LIKE 'sqlite_%' AND NAME NOT LIKE 'acsys_configuration' AND NAME NOT LIKE 'acsys_storeconfig' AND NAME NOT LIKE 'acsys_mysql_config'`;
       await db.all(query, [], async (error, rows) => {
         if (rows === undefined || error) {
           resolve([]);
