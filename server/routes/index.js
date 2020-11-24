@@ -688,19 +688,19 @@ router.post('/deleteView', function (req, res) {
   deleteData = req.body;
   data
     .deleteDocs('acsys_document_details', [
-      ['contentId', '=', deleteData.viewId],
+      ['contentId', '=', deleteData.view_id],
     ])
     .then((result) => {
       data
-        .deleteDocs('acsys_views', [['acsys_id', '=', deleteData.viewId]])
-        .then((result) => {
+        .deleteDocs('acsys_views', [['acsys_id', '=', deleteData.view_id]])
+        .then((result2) => {
           data
             .deleteDocs('acsys_logical_content', [
-              ['viewId', '=', deleteData.viewId],
+              ['viewId', '=', deleteData.view_id],
             ])
-            .then((result) => {
-              data.reorgViews().then((result) => {
-                res.send(result);
+            .then((result3) => {
+              data.reorgViews().then((result4) => {
+                res.send(result4);
               });
             });
         });

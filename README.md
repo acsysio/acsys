@@ -1,16 +1,12 @@
 <p align="center">
   <a href="https://acsys.io">
-    <img alt="Acsys" src="https://storage.googleapis.com/acsys-common-storage/images/acsys%20-%20logo.svg">
+    <img alt="Acsys" src="https://storage.googleapis.com/acsys-common-storage/images/acsys-graphic.jpg">
   </a>
 </p>
 
 [![License](https://img.shields.io/github/license/aeon-software/acsys)](LICENSE.md)
 [![Commit](https://img.shields.io/github/last-commit/aeon-software/acsys)](https://github.com/aeon-software/acsys/commits)
 [![Repo](https://img.shields.io/github/repo-size/aeon-software/acsys)](https://github.com/aeon-software/acsys)
-
-<p align="center">
-  <img alt="Acsys UI" src="https://storage.googleapis.com/acsys-common-storage/images/acsys-ui.png">
-</p>
 
 ## Acsys [Live Demo](https://demo.acsys.com/)
 
