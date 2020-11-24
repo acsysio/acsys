@@ -80,7 +80,7 @@ class DataDriver {
     return new Promise((resolve, reject) => {
       let query;
       query = db.collection('acsys_users');
-      query = query.where('id', '==', id);
+      query = query.where('acsys_id', '==', id);
       query
         .get()
         .then((snapshot) => {
