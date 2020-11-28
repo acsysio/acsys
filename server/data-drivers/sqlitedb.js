@@ -362,7 +362,7 @@ class SqliteDriver {
     });
   }
 
-  repositionViews(data, pos) {
+  repositionViews(data, old, pos) {
     return new Promise(async (resolve, reject) => {
       const query = 'SELECT * FROM acsys_logical_content ORDER BY POSITION';
       await db.all(query, [], async (error, rows) => {
@@ -371,30 +371,31 @@ class SqliteDriver {
         } else {
           let newPos = 1;
           for (const row of rows) {
-            if (pos === row.position) {
-              if (pos === 1) {
-                newPos++;
-              }
-              if (row.id === data.id) {
-              } else {
-                const sql = `UPDATE acsys_logical_content SET POSITION = ${newPos} WHERE acsys_id = '${row.id}'`;
-                db.serialize(async function () {
-                  await db.run(sql, function (err) {
-                    console.log(err);
-                  });
-                });
+            if (old > pos) {
+              if (pos === row.position) {
                 newPos++;
               }
             }
-            if (row.id === data.id) {
+            if (row.acsys_id === data.acsys_id) {
+              const sql = `UPDATE acsys_logical_content SET POSITION = ${data.position} WHERE acsys_id = '${row.acsys_id}'`;
+              db.serialize(async function () {
+                await db.run(sql, function (err) {
+                  console.log(err);
+                });
+              });
             } else {
-              const sql = `UPDATE acsys_logical_content SET POSITION = ${newPos} WHERE acsys_id = '${row.id}'`;
+              const sql = `UPDATE acsys_logical_content SET POSITION = ${newPos} WHERE acsys_id = '${row.acsys_id}'`;
               db.serialize(async function () {
                 await db.run(sql, function (err) {
                   console.log(err);
                 });
               });
               newPos++;
+            }
+            if (pos > old) {
+              if (pos === row.position) {
+                newPos++;
+              }
             }
           }
         }
