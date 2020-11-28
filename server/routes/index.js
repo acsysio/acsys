@@ -120,7 +120,7 @@ router.post('/register', function (req, res) {
             username: userData.username,
             role: userData.role,
             mode: userData.mode,
-            acsysCd: hash,
+            acsys_cd: hash,
           };
           data
             .insert('acsys_users', dataModel)
@@ -313,7 +313,7 @@ router.post('/resetPassword', function (req, res) {
                   mode: userResult[0].mode,
                   email: userResult[0].email,
                   username: userResult[0].username,
-                  acsysCd: hash,
+                  acsys_cd: hash,
                 };
                 data
                   .update('acsys_users', dataModel)
@@ -380,7 +380,7 @@ router.post('/createUser', function (req, res) {
                   username: userData.username,
                   role: userData.role,
                   mode: userData.mode,
-                  acsysCd: hash,
+                  acsys_cd: hash,
                 };
                 data
                   .insert('acsys_users', dataModel)
@@ -406,9 +406,9 @@ router.post('/createUser', function (req, res) {
 
 router.post('/updateUser', function (req, res) {
   const userData = req.body.data;
-  bcrypt.hash(userData.acsysCd, 8, function (err, hash) {
+  bcrypt.hash(userData.acsys_cd, 8, function (err, hash) {
     let dataModel;
-    if (userData.acsysCd === undefined) {
+    if (userData.acsys_cd === undefined) {
       dataModel = {
         acsys_id: userData.acsys_id,
         email: userData.email,
@@ -423,7 +423,7 @@ router.post('/updateUser', function (req, res) {
         username: userData.username,
         role: userData.role,
         mode: userData.mode,
-        acsysCd: hash,
+        acsys_cd: hash,
       };
     }
     console.log(userData)
@@ -448,17 +448,17 @@ router.post('/authenticate', function (req, res) {
   data
     .getDocs('acsys_users', options)
     .then((result) => {
-      bcrypt.compare(cPassword, result[0].acsysCd, async function (err, outcome) {
+      bcrypt.compare(cPassword, result[0].acsys_cd, async function (err, outcome) {
         if (outcome) {
           const token = jwt.sign(
-            { sub: result[0].acsysCd },
+            { sub: result[0].acsys_cd },
             await config.getSecret(),
             {
               expiresIn: '1d',
             }
           );
           const refreshToken = jwt.sign(
-            { sub: result[0].acsysCd },
+            { sub: result[0].acsys_cd },
             await config.getSecret(),
             {
               expiresIn: '3d',
@@ -688,7 +688,7 @@ router.post('/deleteView', function (req, res) {
   deleteData = req.body;
   data
     .deleteDocs('acsys_document_details', [
-      ['contentId', '=', deleteData.view_id],
+      ['content_id', '=', deleteData.view_id],
     ])
     .then((result) => {
       data

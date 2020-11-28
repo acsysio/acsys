@@ -131,13 +131,13 @@ export const getProjectName = async () => {
   });
 };
 
-export const getUrl = async (table, where, limit, orderBy, order) => {
+export const getUrl = async (table, where, limit, order_by, order) => {
   await checkToken();
   return new Promise((resolve, reject) => {
     const apiString = `/api/getUrl?table=${table}&options=${JSON.stringify({
       where,
       limit,
-      orderBy,
+      order_by,
       order,
     })}`;
     promFetch(apiString, {
@@ -169,13 +169,13 @@ export const getUrl = async (table, where, limit, orderBy, order) => {
   });
 };
 
-export const getOpenUrl = async (table, where, limit, orderBy, order) => {
+export const getOpenUrl = async (table, where, limit, order_by, order) => {
   await checkToken();
   return new Promise((resolve, reject) => {
     const apiString = `/api/getOpenUrl?table=${table}&options=${JSON.stringify({
       where,
       limit,
-      orderBy,
+      order_by,
       order,
     })}`;
     promFetch(apiString, {
@@ -1096,13 +1096,13 @@ export const dropTable = async (table) => {
   });
 };
 
-export const getData = async (table, where, limit, orderBy, order) => {
+export const getData = async (table, where, limit, order_by, order) => {
   await checkToken();
   return new Promise((resolve, reject) => {
     const apiString = `/api/readData?table=${table}&options=${JSON.stringify({
       where,
       limit,
-      orderBy,
+      order_by,
       order,
     })}`;
     promFetch(apiString, {
@@ -1138,7 +1138,7 @@ export const getPage = async (
   table,
   where,
   limit,
-  orderBy,
+  order_by,
   order,
   direction,
   currentPage
@@ -1148,7 +1148,7 @@ export const getPage = async (
     const apiString = `/api/readPage?table=${table}&options=${JSON.stringify({
       where,
       limit,
-      orderBy,
+      order_by,
       order,
       direction,
       currentPage,
@@ -1266,13 +1266,13 @@ export const deleteData = async (table, entry) => {
   });
 };
 
-export const getOpenData = (table, where, limit, orderBy, order) => {
+export const getOpenData = (table, where, limit, order_by, order) => {
   return new Promise((resolve, reject) => {
     const apiString = `/api/readOpenData?table=${table}&options=${JSON.stringify(
       {
         where,
         limit,
-        orderBy,
+        order_by,
         order,
       }
     )}`;

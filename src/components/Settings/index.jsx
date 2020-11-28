@@ -522,7 +522,7 @@ class Settings extends React.Component {
                 <input
                   id="dport"
                   name="dport"
-                  placeholder="Port"
+                  placeholder="Port (Can be empty)"
                   value={dport}
                   onChange={this.onChange}
                   type="number"

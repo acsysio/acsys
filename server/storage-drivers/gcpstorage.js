@@ -107,7 +107,7 @@ class StorageDriver {
                 }
                 if (fileName !== 'undefined') {
                   const metaData = await files[i].getMetadata();
-                  const isPublic = await files[i].isPublic();
+                  const is_public = await files[i].isPublic();
                   let order = 1;
                   let type = metaData[0].contentType;
                   if (fileName.substring(fileName.length - 1) === '/') {
@@ -118,12 +118,12 @@ class StorageDriver {
                   const dateUpdated = new Date(metaData[0].updated);
                   const object = {
                     acsys_id: tempFileName,
-                    fileOrder: order,
+                    file_order: order,
                     parent: parentName,
                     name: fileName,
-                    contentType: type,
-                    isPublic: isPublic[0],
-                    timeCreated: `${
+                    content_type: type,
+                    is_public: is_public[0],
+                    time_created: `${
                       monthNames[dateCreated.getMonth()]
                     } ${dateCreated.getDate()}, ${dateCreated.getFullYear()}`,
                     updated: `${
@@ -154,7 +154,7 @@ class StorageDriver {
       const blobStream = blob.createWriteStream({
         resumable: false,
         metadata: {
-          contentType: mimetype,
+          content_type: mimetype,
         },
       });
 
@@ -189,11 +189,11 @@ class StorageDriver {
           const dateUpdated = new Date();
           const object = {
             acsys_id: blob.name,
-            fileOrder: order,
+            file_order: order,
             parent: parentName,
             name,
-            contentType: type,
-            timeCreated: `${
+            content_type: type,
+            time_created: `${
               monthNames[dateCreated.getMonth()]
             } ${dateCreated.getDate()}, ${dateCreated.getFullYear()}`,
             updated: `${
@@ -224,7 +224,7 @@ class StorageDriver {
       const blobStream = blob.createWriteStream({
         resumable: false,
         metadata: {
-          contentType: 'application/x-www-form-urlencoded;charset=UTF-8',
+          content_type: 'application/x-www-form-urlencoded;charset=UTF-8',
         },
       });
 
@@ -257,11 +257,11 @@ class StorageDriver {
           const dateUpdated = new Date(metaData[0].updated);
           const object = {
             acsys_id: fileName,
-            fileOrder: order,
+            file_order: order,
             parent: parentName,
             name: folder,
-            contentType: type,
-            timeCreated: `${
+            content_type: type,
+            time_created: `${
               monthNames[dateCreated.getMonth()]
             } ${dateCreated.getDate()}, ${dateCreated.getFullYear()}`,
             updated: `${
@@ -289,9 +289,9 @@ class StorageDriver {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
       const file = storage.file(referenceName.replace(/ /g, '_'));
-      const isPublic = await file.isPublic();
+      const is_public = await file.isPublic();
       let url = '';
-      if (isPublic[0]) {
+      if (is_public[0]) {
         resolve(
           `https://storage.googleapis.com/${projectId}.appspot.com/${referenceName}`
         );
@@ -324,14 +324,14 @@ class StorageDriver {
           files.forEach(async (file) => {
             const fileBlob = storage.file(file.acsys_id.replace(/ /g, '_'));
             await fileBlob.makePublic(async function () {
-              await db.update('acsys_storage_items', { isPublic: true }, [
+              await db.update('acsys_storage_items', { is_public: true }, [
                 ['acsys_id', '=', file.acsys_id],
               ]);
             });
           });
         }
         await db
-          .update('acsys_storage_items', { isPublic: true }, [
+          .update('acsys_storage_items', { is_public: true }, [
             ['acsys_id', '=', referenceName],
           ])
           .then(() => {
@@ -360,14 +360,14 @@ class StorageDriver {
           files.forEach(async (file) => {
             const fileBlob = storage.file(file.acsys_id.replace(/ /g, '_'));
             await fileBlob.makePrivate(async function () {
-              await db.update('acsys_storage_items', { isPublic: false }, [
+              await db.update('acsys_storage_items', { is_public: false }, [
                 ['acsys_id', '=', file.acsys_id],
               ]);
             });
           });
         }
         await db
-          .update('acsys_storage_items', { isPublic: false }, [
+          .update('acsys_storage_items', { is_public: false }, [
             ['acsys_id', '=', referenceName],
           ])
           .then(() => {

@@ -48,7 +48,7 @@ const INITIAL_STATE = {
   currentDir: '/',
   files: [],
   uploadFile: '',
-  contentId: '',
+  content_id: '',
   viewId: 0,
   initialViews: [],
   collectionDetails: [],
@@ -106,7 +106,7 @@ class Storage extends React.Component {
         })
         .catch((error) => console.log(error));
     }
-    files.sort((a, b) => (a.fileOrder > b.fileOrder ? 1 : -1));
+    files.sort((a, b) => (a.file_order > b.file_order ? 1 : -1));
     this.setState({
       loading: false,
       previousDir: parentDir,
@@ -153,7 +153,7 @@ class Storage extends React.Component {
         })
         .catch((error) => console.log(error));
     }
-    files.sort((a, b) => (a.fileOrder > b.fileOrder ? 1 : -1));
+    files.sort((a, b) => (a.file_order > b.file_order ? 1 : -1));
 
     this.setState({
       loading: false,
@@ -202,7 +202,7 @@ class Storage extends React.Component {
         })
         .catch((error) => console.log(error));
     }
-    files.sort((a, b) => (a.fileOrder > b.fileOrder ? 1 : -1));
+    files.sort((a, b) => (a.file_order > b.file_order ? 1 : -1));
     this.setState({
       loading: false,
       files: files,
@@ -330,7 +330,7 @@ class Storage extends React.Component {
         })
         .catch((error) => console.log(error));
     }
-    files.sort((a, b) => (a.fileOrder > b.fileOrder ? 1 : -1));
+    files.sort((a, b) => (a.file_order > b.file_order ? 1 : -1));
     this.setState({
       files: files,
     });
@@ -378,7 +378,7 @@ class Storage extends React.Component {
             })
             .catch((error) => console.log(error));
         }
-        files.sort((a, b) => (a.fileOrder > b.fileOrder ? 1 : -1));
+        files.sort((a, b) => (a.file_order > b.file_order ? 1 : -1));
         let currentDir = '/';
         if (newDir !== '/') {
           currentDir += newDir;
@@ -428,7 +428,7 @@ class Storage extends React.Component {
           })
           .catch((error) => console.log(error));
       }
-      files.sort((a, b) => (a.fileOrder > b.fileOrder ? 1 : -1));
+      files.sort((a, b) => (a.file_order > b.file_order ? 1 : -1));
     } catch (error) {}
     this.setState({
       loading: false,
@@ -452,14 +452,14 @@ class Storage extends React.Component {
       <div></div>
     );
   }
-  renderIcon(contentType, url) {
-    if (contentType === 'Folder') {
+  renderIcon(content_type, url) {
+    if (content_type === 'Folder') {
       return (
         <TableCell style={{ width: 40, paddingRight: 0 }}>
           <FolderOpen />
         </TableCell>
       );
-    } else if (contentType.includes('image')) {
+    } else if (content_type.includes('image')) {
       return (
         <TableCell style={{ width: 40, paddingRight: 0 }}>
           <img
@@ -480,8 +480,8 @@ class Storage extends React.Component {
       );
     }
   }
-  renderName(id, contentType, name) {
-    if (contentType === 'Folder') {
+  renderName(id, content_type, name) {
+    if (content_type === 'Folder') {
       if (this.state.mode === 'standard') {
         return (
           <TableCell>
@@ -528,17 +528,17 @@ class Storage extends React.Component {
     return files
       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
       .map((file) => {
-        const { acsys_id, name, contentType, updated, isPublic, url } = file;
+        const { acsys_id, name, content_type, updated, is_public, url } = file;
         if (name.length > 0) {
           return (
             <TableRow>
-              {this.renderIcon(contentType, url, name)}
-              {this.renderName(acsys_id, contentType, name)}
-              <TableCell>{contentType}</TableCell>
+              {this.renderIcon(content_type, url, name)}
+              {this.renderName(acsys_id, content_type, name)}
+              <TableCell>{content_type}</TableCell>
               <TableCell>{updated}</TableCell>
               {Prom.getMode() !== 'Viewer' ? (
                 <TableCell style={{ minWidth: 100 }} align="right">
-                  {isPublic ? (
+                  {is_public ? (
                     <Tooltip title="Public To Internet">
                       <IconButton
                         edge="start"

@@ -75,12 +75,12 @@ const searchDir = function (dir) {
         const dateUpdated = await fs.lstatSync(dir + '/' + files[i]).mtime;
         const object = {
           acsys_id: tempFileName,
-          fileOrder: order,
+          file_order: order,
           parent: parentName,
           name: fileName,
-          contentType: type,
-          isPublic: false,
-          timeCreated: `${
+          content_type: type,
+          is_public: false,
+          time_created: `${
             monthNames[dateCreated.getMonth()]
           } ${dateCreated.getDate()}, ${dateCreated.getFullYear()}`,
           updated: `${
@@ -180,12 +180,12 @@ class LocalStorageDriver {
         const dateUpdated = new Date();
         const object = {
             acsys_id: writeName,
-            fileOrder: order,
+            file_order: order,
             parent: parentName,
             name: file.name,
-            contentType: type,
-            isPublic: false,
-            timeCreated: `${
+            content_type: type,
+            is_public: false,
+            time_created: `${
             monthNames[dateCreated.getMonth()]
             } ${dateCreated.getDate()}, ${dateCreated.getFullYear()}`,
             updated: `${
@@ -237,12 +237,12 @@ class LocalStorageDriver {
                     const dateUpdated = new Date();
                     const object = {
                         acsys_id: writeName,
-                        fileOrder: order,
+                        file_order: order,
                         parent: parentName,
                         name: folder,
-                        contentType: type,
-                        isPublic: false,
-                        timeCreated: `${
+                        content_type: type,
+                        is_public: false,
+                        time_created: `${
                         monthNames[dateCreated.getMonth()]
                         } ${dateCreated.getDate()}, ${dateCreated.getFullYear()}`,
                         updated: `${
@@ -290,7 +290,7 @@ class LocalStorageDriver {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
         await db
-        .update('acsys_storage_items', { isPublic: true }, [
+        .update('acsys_storage_items', { is_public: true }, [
           ['acsys_id', '=', referenceName],
         ])
         .then(() => {
@@ -306,7 +306,7 @@ class LocalStorageDriver {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
         await db
-        .update('acsys_storage_items', { isPublic: false }, [
+        .update('acsys_storage_items', { is_public: false }, [
           ['acsys_id', '=', referenceName],
         ])
         .then(() => {

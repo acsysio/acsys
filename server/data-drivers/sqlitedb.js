@@ -106,16 +106,16 @@ class SqliteDriver {
         }
         db.serialize(async function () {
           await db.run(
-            'CREATE TABLE IF NOT EXISTS acsys_users (acsys_id TEXT, email TEXT, username TEXT, role TEXT, mode TEXT, acsysCd TEXT)'
+            'CREATE TABLE IF NOT EXISTS acsys_users (acsys_id TEXT, email TEXT, username TEXT, role TEXT, mode TEXT, acsys_cd TEXT)'
           );
           await db.run(
-            'CREATE TABLE IF NOT EXISTS acsys_logical_content (acsys_id TEXT, name TEXT, description TEXT, viewId TEXT, source_collection TEXT, position INT, tableKeys TEXT)'
+            'CREATE TABLE IF NOT EXISTS acsys_logical_content (acsys_id TEXT, name TEXT, description TEXT, viewId TEXT, source_collection TEXT, position INT, table_keys TEXT)'
           );
           await db.run(
-            'CREATE TABLE IF NOT EXISTS acsys_views (acsys_id TEXT, isRemovable BOOLEAN, isTableMode BOOLEAN, linkTable TEXT, linkViewId TEXT, viewOrder TEXT, orderBy TEXT, rowNum INT)'
+            'CREATE TABLE IF NOT EXISTS acsys_views (acsys_id TEXT, is_removable BOOLEAN, is_table_mode BOOLEAN, link_table TEXT, link_view_id TEXT, view_order TEXT, order_by TEXT, row_num INT)'
           );
           await db.run(
-            'CREATE TABLE IF NOT EXISTS acsys_document_details (acsys_id TEXT, contentId TEXT, collection TEXT, control TEXT, field_name TEXT, isVisibleOnPage BOOLEAN, isVisibleOnTable BOOLEAN, type TEXT, isKey BOOLEAN, viewOrder INT, width INT)'
+            'CREATE TABLE IF NOT EXISTS acsys_document_details (acsys_id TEXT, content_id TEXT, collection TEXT, control TEXT, field_name TEXT, is_visible_on_page BOOLEAN, is_visible_on_table BOOLEAN, type TEXT, is_key BOOLEAN, view_order INT, width INT)'
           );
           await db.run(
             'CREATE TABLE IF NOT EXISTS acsys_email_settings (host TEXT, port INT, username TEXT, password TEXT)'
@@ -124,7 +124,7 @@ class SqliteDriver {
             'CREATE TABLE IF NOT EXISTS acsys_open_tables (table_name TEXT)'
           );
           await db.run(
-            'CREATE TABLE IF NOT EXISTS acsys_storage_items (acsys_id TEXT, fileOrder INT, parent TEXT, name TEXT, contentType TEXT, isPublic BOOLEAN, timeCreated TEXT, updated TEXT)'
+            'CREATE TABLE IF NOT EXISTS acsys_storage_items (acsys_id TEXT, file_order INT, parent TEXT, name TEXT, content_type TEXT, is_public BOOLEAN, time_created TEXT, updated TEXT)'
           );
           await db.run(
             'CREATE TABLE IF NOT EXISTS acsys_user_reset (acsys_id TEXT, user_id Text, expiration_date INT)'
@@ -196,7 +196,7 @@ class SqliteDriver {
           resolve(false);
         } else {
           let sRows = siftRows(rows);
-          resolve(sRows[0].acsysCd);
+          resolve(sRows[0].acsys_cd);
         }
       });
     });
@@ -333,13 +333,13 @@ class SqliteDriver {
                 });
               }
 
-              if (options.orderBy !== undefined && options.orderBy) {
-                options.orderBy.forEach((orderBy) => {
-                  if (orderBy !== undefined && orderBy.length > 0) {
+              if (options.order_by !== undefined && options.order_by) {
+                options.order_by.forEach((order_by) => {
+                  if (order_by !== undefined && order_by.length > 0) {
                     if (options.order) {
-                      query += `ORDER BY ${orderBy} ${options.order} `;
+                      query += `ORDER BY ${order_by} ${options.order} `;
                     } else {
-                      query += `ORDER BY ${orderBy} `;
+                      query += `ORDER BY ${order_by} `;
                     }
                   }
                 });
@@ -477,12 +477,12 @@ class SqliteDriver {
       let query = `SELECT * FROM ${table} `;
 
       if (options) {
-        if (options.orderBy !== undefined && options.orderBy) {
-          if (options.orderBy !== undefined && options.orderBy.length > 0) {
+        if (options.order_by !== undefined && options.order_by) {
+          if (options.order_by !== undefined && options.order_by.length > 0) {
             if (options.order) {
-              query += `ORDER BY ${options.orderBy.toString()} ${options.order} `;
+              query += `ORDER BY ${options.order_by.toString()} ${options.order} `;
             } else {
-              query += `ORDER BY ${options.orderBy.toString()} `;
+              query += `ORDER BY ${options.order_by.toString()} `;
             }
           }
         }
@@ -545,12 +545,12 @@ class SqliteDriver {
           });
         }
 
-        if (options.orderBy !== undefined && options.orderBy) {
-          if (options.orderBy !== undefined && options.orderBy.length > 0) {
+        if (options.order_by !== undefined && options.order_by) {
+          if (options.order_by !== undefined && options.order_by.length > 0) {
             if (options.order) {
-              query += `ORDER BY ${options.orderBy.toString()} ${options.order} `;
+              query += `ORDER BY ${options.order_by.toString()} ${options.order} `;
             } else {
-              query += `ORDER BY ${options.orderBy.toString()} `;
+              query += `ORDER BY ${options.order_by.toString()} `;
             }
           }
         }

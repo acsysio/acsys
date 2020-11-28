@@ -214,13 +214,13 @@ class LogicalContent extends React.Component {
 
     let newView = {
       acsys_id: uId,
-      isTableMode: true,
-      isRemovable: true,
-      linkViewId: '',
-      linkTable: '',
-      orderBy: '',
-      viewOrder: '',
-      rowNum: 10,
+      is_table_mode: true,
+      is_removable: true,
+      link_view_id: '',
+      link_table: '',
+      order_by: '',
+      view_order: '',
+      row_num: 10,
     };
     await Prom.insertData('acsys_views', { ...newView }).then(async () => {
       let newEntry = {
@@ -230,7 +230,7 @@ class LogicalContent extends React.Component {
         viewId: uId,
         source_collection: this.state.collection,
         position: this.state.views.length + 1,
-        tableKeys: [],
+        table_keys: [],
       };
       await Prom.insertData('acsys_logical_content', { ...newEntry });
     });
@@ -251,17 +251,17 @@ class LogicalContent extends React.Component {
           description,
           viewId,
           source_collection,
-          tableKeys,
+          table_keys,
         } = views;
         return (
           <TableRow key={acsys_id}>
-            {tableKeys.length < 1 ? (
+            {table_keys.length < 1 ? (
               <TableCell
                 to={{
                   pathname:
                     '/CollectionView/' + source_collection + '/' + viewId,
                   state: {
-                    tableKeys: [],
+                    table_keys: [],
                     view: name,
                   },
                 }}
@@ -276,7 +276,7 @@ class LogicalContent extends React.Component {
                   pathname: '/DocumentView',
                   state: {
                     mode: 'update',
-                    tableKeys: views.tableKeys,
+                    table_keys: views.table_keys,
                     routed: true,
                     viewId: views.viewId,
                   },
@@ -287,13 +287,13 @@ class LogicalContent extends React.Component {
                 {name}
               </TableCell>
             )}
-            {tableKeys.length < 1 ? (
+            {table_keys.length < 1 ? (
               <TableCell
                 to={{
                   pathname:
                     '/CollectionView/' + source_collection + '/' + viewId,
                   state: {
-                    tableKeys: [],
+                    table_keys: [],
                     view: name,
                   },
                 }}
@@ -308,7 +308,7 @@ class LogicalContent extends React.Component {
                   pathname: '/DocumentView',
                   state: {
                     mode: 'update',
-                    tableKeys: views.tableKeys,
+                    table_keys: views.table_keys,
                     routed: true,
                     viewId: views.viewId,
                   },

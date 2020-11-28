@@ -86,7 +86,7 @@ class DataDriver {
         .then((snapshot) => {
           snapshot.forEach((doc) => {
             const data = doc.data();
-            resolve(data.acsysCd);
+            resolve(data.acsys_cd);
           });
           resolve(false);
         })
@@ -342,13 +342,13 @@ class DataDriver {
           });
         }
 
-        if (options.orderBy !== undefined && options.orderBy) {
-          options.orderBy.forEach((orderBy) => {
-            if (orderBy !== undefined && orderBy.length > 0) {
+        if (options.order_by !== undefined && options.order_by) {
+          options.order_by.forEach((order_by) => {
+            if (order_by !== undefined && order_by.length > 0) {
               if (options.order) {
-                query = query.orderBy(orderBy, options.order);
+                query = query.orderBy(order_by, options.order);
               } else {
-                query = query.orderBy(orderBy);
+                query = query.orderBy(order_by);
               }
             }
           });
@@ -411,13 +411,13 @@ class DataDriver {
           });
         }
 
-        if (options.orderBy !== undefined && options.orderBy) {
-          options.orderBy.forEach((orderBy) => {
-            if (orderBy !== undefined && orderBy.length > 0) {
+        if (options.order_by !== undefined && options.order_by) {
+          options.order_by.forEach((order_by) => {
+            if (order_by !== undefined && order_by.length > 0) {
               if (options.order) {
-                query = query.orderBy(orderBy, options.order);
+                query = query.orderBy(order_by, options.order);
               } else {
-                query = query.orderBy(orderBy);
+                query = query.orderBy(order_by);
               }
             }
           });

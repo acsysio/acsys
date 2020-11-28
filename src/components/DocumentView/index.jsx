@@ -67,13 +67,13 @@ const INITIAL_STATE = {
 };
 
 let initLoad = true;
-let tableKeys = [];
+let table_keys = [];
 let tempDetails = [];
 let tempDocument = [];
 let fileDoc = [];
 let fileRefs = [];
 let mode = '';
-let isRemovable = true;
+let is_removable = true;
 let quillRef = null;
 let quillIndex = 0;
 let quillURL = '';
@@ -266,14 +266,14 @@ class DocumentView extends React.Component {
         this.state.keys
       );
     }
-    tableKeys = [];
+    table_keys = [];
     for (var i = 0; i < tempDetails.length; i++) {
-      if (tempDetails[i].isKey) {
+      if (tempDetails[i].is_key) {
         const object = {
           field: tempDetails[i].field_name,
           value: tempDocument[tempDetails[i].field_name],
         };
-        tableKeys.push(object);
+        table_keys.push(object);
       }
     }
     mode = 'update';
@@ -358,14 +358,14 @@ class DocumentView extends React.Component {
         ...tempDocument,
       });
     }
-    tableKeys = [];
+    table_keys = [];
     for (var i = 0; i < tempDetails.length; i++) {
-      if (tempDetails[i].isKey) {
+      if (tempDetails[i].is_key) {
         const object = {
           field: tempDetails[i].field_name,
           value: tempDocument[tempDetails[i].field_name],
         };
-        tableKeys.push(object);
+        table_keys.push(object);
       }
     }
     mode = 'update';
@@ -377,7 +377,7 @@ class DocumentView extends React.Component {
     this.setState({ filterLoading: true });
 
     for (var i = 0; i < tempDetails.length; i++) {
-      tempDetails[i].viewOrder = i;
+      tempDetails[i].view_order = i;
       const result = await Prom.updateData(
         'acsys_document_details',
         { ...tempDetails[i] },
@@ -394,9 +394,9 @@ class DocumentView extends React.Component {
     var tempView = this.state.acsysView;
 
     if (value) {
-      tempView['tableKeys'] = JSON.stringify(this.props.location.state.tableKeys);
+      tempView['table_keys'] = JSON.stringify(this.props.location.state.table_keys);
     } else {
-      tempView['tableKeys'] = [];
+      tempView['table_keys'] = [];
     }
 
     for (var i = 0; i < tempDetails.length; i++) {
@@ -430,13 +430,13 @@ class DocumentView extends React.Component {
 
   componentDidMount = async () => {
     initLoad = true;
-    tableKeys = [];
+    table_keys = [];
     tempDetails = [];
     tempDocument = [];
     fileDoc = [];
     fileRefs = [];
     mode = '';
-    isRemovable = true;
+    is_removable = true;
     quillRef = null;
     quillIndex = 0;
     quillURL = '';
@@ -450,17 +450,17 @@ class DocumentView extends React.Component {
       const acsysView = await Prom.getData('acsys_logical_content', [
         ['viewId', '=', this.props.location.state.viewId],
       ]);
-      if (acsysView[0].tableKeys.length > 0) {
+      if (acsysView[0].table_keys.length > 0) {
         routed = true;
       }
       try {
         mode = this.props.location.state.mode;
-        isRemovable = this.props.location.state.isRemovable;
+        is_removable = this.props.location.state.is_removable;
         if(routed) {
-          tableKeys = JSON.parse(this.props.location.state.tableKeys);
+          table_keys = JSON.parse(this.props.location.state.table_keys);
         }
         else {
-          tableKeys = this.props.location.state.tableKeys;
+          table_keys = this.props.location.state.table_keys;
         }
       } catch (error) {
         mode = tempMode;
@@ -484,7 +484,7 @@ class DocumentView extends React.Component {
     let documentDetails;
     try {
       documentDetails = await Prom.getData('acsys_document_details', [
-        ['contentId', '=', this.props.location.state.viewId],
+        ['content_id', '=', this.props.location.state.viewId],
       ]);
     } catch (error) {
       documentDetails = this.state.documentDetails;
@@ -496,14 +496,14 @@ class DocumentView extends React.Component {
     let position = 0;
     let open = false;
     try {
-      documentDetails.sort((a, b) => (a.viewOrder > b.viewOrder ? 1 : -1));
+      documentDetails.sort((a, b) => (a.view_order > b.view_order ? 1 : -1));
       tempDetails = documentDetails;
 
       if (mode === 'update') {
         let pullView;
 
-        for (let i = 0; i < tableKeys.length; i++) {
-          keys.push([tableKeys[i].field, '=', tableKeys[i].value]);
+        for (let i = 0; i < table_keys.length; i++) {
+          keys.push([table_keys[i].field, '=', table_keys[i].value]);
         }
         await Prom.getData(table, keys)
           .then((result) => {
@@ -608,7 +608,7 @@ class DocumentView extends React.Component {
                   initLoad = false;
                 }
               }
-              if (currentKey == details.field_name && details.isVisibleOnPage) {
+              if (currentKey == details.field_name && details.is_visible_on_page) {
                 if (details.control == 'autoGen') {
                   return (
                     <AutoGen width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} />
@@ -671,7 +671,7 @@ class DocumentView extends React.Component {
         <Grid container spacing={3}>
           {Object.values(documentDetails).map((details, dindex) => {
             let currentKey = details.field_name;
-            if (details.isVisibleOnPage) {
+            if (details.is_visible_on_page) {
               if (details.control == 'autoGen') {
                 return (
                   <AutoGen width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} new = {true} />
@@ -736,7 +736,7 @@ class DocumentView extends React.Component {
       <div style={{ minHeight: 600 }}>
         {Prom.getMode() !== 'Viewer' ? (
           <div>
-            {!this.props.location.state.routed && isRemovable ? (
+            {!this.props.location.state.routed && is_removable ? (
               <Tooltip title="Delete Entry">
                 <Button
                   style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}

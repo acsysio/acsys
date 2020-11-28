@@ -74,13 +74,13 @@ const Card = memo(({ id, details, moveCard }) => {
     details.control = event;
   };
   const setKey = (event) => {
-    details.isKey = event;
+    details.is_key = event;
   };
   const showOnTable = (event) => {
-    details.isVisibleOnTable = event;
+    details.is_visible_on_table = event;
   };
   const showOnPage = (event) => {
-    details.isVisibleOnPage = event;
+    details.is_visible_on_page = event;
   };
   const setWidth = (event) => {
     details.width = parseInt(event);
@@ -138,7 +138,7 @@ const Card = memo(({ id, details, moveCard }) => {
           <Grid item xs={2}>
             <div>
               <NativeSelect
-                defaultValue={Boolean(details.isKey)}
+                defaultValue={Boolean(details.is_key)}
                 onChange={(e) => setKey(e.target.value == 'true')}
               >
                 <option value={true}>True</option>
@@ -149,7 +149,7 @@ const Card = memo(({ id, details, moveCard }) => {
           <Grid item xs={2}>
             <div>
               <NativeSelect
-                defaultValue={Boolean(details.isVisibleOnTable)}
+                defaultValue={Boolean(details.is_visible_on_table)}
                 onChange={(e) => showOnTable(e.target.value == 'true')}
               >
                 <option value={true}>Show</option>
@@ -160,7 +160,7 @@ const Card = memo(({ id, details, moveCard }) => {
           <Grid item xs={2}>
             <div>
               <NativeSelect
-                defaultValue={Boolean(details.isVisibleOnPage)}
+                defaultValue={Boolean(details.is_visible_on_page)}
                 onChange={(e) => showOnPage(e.target.value == 'true')}
               >
                 <option value={true}>Show</option>

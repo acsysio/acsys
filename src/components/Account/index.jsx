@@ -99,7 +99,7 @@ class Account extends React.Component {
       mode: Prom.getMode(),
       username: username,
       email: email,
-      acsysCd: password,
+      acsys_cd: password,
     };
     if (await Prom.verifyPassword(this.state.userData.acsys_id, currentPassword)) {
       if (this.state.passwordChange) {
