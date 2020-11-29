@@ -1,18 +1,18 @@
 import {
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Hidden,
-  NativeSelect,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Tooltip,
+    CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Hidden,
+    NativeSelect,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableRow,
+    Tooltip
 } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
@@ -22,11 +22,10 @@ import Paper from '@material-ui/core/Paper';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import {
-  Create as CreateIcon,
-  FileCopyOutlined as CopyIcon,
-  Delete as DeleteIcon,
-  KeyboardArrowLeft,
-  KeyboardArrowRight,
+    Create as CreateIcon,
+    Delete as DeleteIcon, FileCopyOutlined as CopyIcon,
+    KeyboardArrowLeft,
+    KeyboardArrowRight
 } from '@material-ui/icons';
 import React from 'react';
 import { DndProvider } from 'react-dnd';

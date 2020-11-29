@@ -1,10 +1,9 @@
 import {
-  Box,
-  Button,
-  CircularProgress,
-  Grid,
-  Hidden,
-  Typography,
+    Box,
+    Button,
+    CircularProgress,
+    Grid,
+    Typography
 } from '@material-ui/core';
 import React, { Component } from 'react';
 import * as Prom from '../../services/Acsys/Acsys';

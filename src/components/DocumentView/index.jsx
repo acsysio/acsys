@@ -8,31 +8,28 @@ import {
   Hidden,
   IconButton,
   MenuItem,
-  NativeSelect,
   Select,
-  Tooltip,
+  Tooltip
 } from '@material-ui/core';
-import {
-  FileCopyOutlined as CopyIcon,
-} from '@material-ui/icons';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
+import {
+  FileCopyOutlined as CopyIcon
+} from '@material-ui/icons';
 import React from 'react';
-import Datetime from 'react-datetime';
 import { DndProvider } from 'react-dnd';
 import Backend from 'react-dnd-html5-backend';
-import ReactQuill from 'react-quill';
 import uniqid from 'uniqid';
 import * as Prom from '../../services/Acsys/Acsys';
 import AutoGen from '../Controls/AutoGen';
-import TextField from '../Controls/TextField';
-import DateTimePicker from '../Controls/DateTimePicker';
-import NumberEditor from '../Controls/NumberEditor';
-import RichTextEditor from '../Controls/RichTextEditor';
 import BooleanSelect from '../Controls/BooleanSelect';
+import DateTimePicker from '../Controls/DateTimePicker';
 import ImageReference from '../Controls/ImageReference';
 import ImageURL from '../Controls/ImageURL';
+import NumberEditor from '../Controls/NumberEditor';
+import RichTextEditor from '../Controls/RichTextEditor';
+import TextField from '../Controls/TextField';
 import VideoReference from '../Controls/VideoReference';
 import VideoURL from '../Controls/VideoURL';
 import Example from '../FieldControl/FieldDef';

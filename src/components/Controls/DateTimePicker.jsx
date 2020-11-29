@@ -1,6 +1,6 @@
+import { Grid } from '@material-ui/core';
 import React from 'react';
 import Datetime from 'react-datetime';
-import { Grid } from '@material-ui/core';
 
 function DateTimePicker(props) {
   return (

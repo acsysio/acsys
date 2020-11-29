@@ -1,5 +1,5 @@
-import React from 'react';
 import { Grid, NativeSelect } from '@material-ui/core';
+import React from 'react';
 
 function NumberEditor(props) {
   return (

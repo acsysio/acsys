@@ -2,7 +2,7 @@ import {
     Box,
     Button,
     CircularProgress,
-    Grid, Hidden,
+    Grid,
     Typography
 } from '@material-ui/core';
 import React, { Component } from 'react';

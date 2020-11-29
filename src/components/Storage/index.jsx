@@ -21,7 +21,6 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import {
-    CreateNewFolder,
     Delete,
     Description, FolderOpen, KeyboardArrowLeft, Lock,
     LockOpen
