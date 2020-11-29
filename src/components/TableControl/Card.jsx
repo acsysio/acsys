@@ -41,7 +41,6 @@ const Card = memo(({ id, entry, deleteField }) => {
   const setValue = (event) => {
     entry.value = event;
   };
-  console.log(entry);
 
   return (
     <Paper style={{ maxHeight: 160, marginBottom: 30 }}>

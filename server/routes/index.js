@@ -426,7 +426,6 @@ router.post('/updateUser', function (req, res) {
         acsys_cd: hash,
       };
     }
-    console.log(userData)
     data
       .update('acsys_users', dataModel, [['acsys_id', '=', dataModel.acsys_id]])
       .then((result) => {
@@ -1172,6 +1171,36 @@ router.get('/loadStorageConfig', async function (req, res) {
   else {
     res.send((rData = { value: false }));
   }
+});
+
+router.get('/getCurrentBucket', async function (req, res) {
+  const bucket = await storage.getCurrentBucket();
+  res.json(bucket);
+});
+
+router.post('/setStorageBucket', async function (req, res) {
+  const bucket = req.body.bucket;
+  data.deleteDocs('acsys_storage_settings')
+    .then(() => {
+      const configData = {
+        bucket: bucket
+      };
+      data.insert('acsys_storage_settings', configData)
+        .then(() => {
+          storage.setBucket(bucket)
+          .then(() => {
+            storage.syncFiles().then((result, reject) => {
+              res.send(result);
+            });
+          })
+        })
+    })
+    res.send(false);
+});
+
+router.get('/getStorageBuckets', async function (req, res) {
+  const buckets = await storage.getBuckets();
+  res.json(buckets);
 });
 
 router.post('/setEmailConfig', async function (req, res) {

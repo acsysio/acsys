@@ -116,6 +116,9 @@ class MysqlDriver {
       db.query('CREATE TABLE IF NOT EXISTS acsys_user_reset (acsys_id TEXT, user_id Text, expiration_date INT)', (error, rows) => {
 
       });
+      db.query('CREATE TABLE IF NOT EXISTS acsys_storage_settings (bucket TEXT)', (error, rows) => {
+
+      });
       connected = true;
       resolve(true);
     });

@@ -1478,6 +1478,74 @@ export const lockTable = async (table_name) => {
   });
 };
 
+export const getCurrentBucket = async () => {
+  await checkToken();
+  return new Promise((resolve, reject) => {
+    promFetch('/api/getCurrentBucket', {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Session.getToken()}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        resolve(result);
+      })
+      .catch((error) => {
+        resolve(false);
+      });
+  });
+};
+
+export const setStorageBucket = async (config) => {
+  await checkToken();
+  return new Promise((resolve, reject) => {
+    promFetch('/api/setStorageBucket', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Session.getToken()}`,
+      },
+      body: JSON.stringify(config),
+    })
+      .then((response) => {
+        if (response.statusText !== 'Unauthorized') {
+          response.json().then((json) => {
+            resolve(json.value);
+          });
+        } else {
+          Session.logOut();
+          reject();
+        }
+      })
+      .catch(reject);
+  });
+};
+
+export const getStorageBuckets = async () => {
+  await checkToken();
+  return new Promise((resolve, reject) => {
+    promFetch('/api/getStorageBuckets', {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Session.getToken()}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        resolve(result);
+      })
+      .catch((error) => {
+        resolve(false);
+      });
+  });
+};
+
 export const syncFiles = async () => {
   await checkToken();
   return new Promise((resolve, reject) => {

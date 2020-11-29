@@ -60,7 +60,7 @@ class DataDriver {
             });
         }
       )
-      .catch(console.log);
+      .catch();
   }
 
   createUser(data) {

@@ -42,6 +42,9 @@ const INITIAL_STATE = {
   token_uri: '',
   auth_provider_x509_cert_url: '',
   client_x509_cert_url: '',
+  bucket: '',
+  buckets: [],
+  updateBucket: false,
   updateEmail: false,
   updateDatabase: false,
   updateStorage: false,
@@ -67,7 +70,7 @@ class Settings extends React.Component {
   };
 
   handleClickOpen = () => {
-    if (this.state.updateDatabase || this.state.updateStorage || this.state.updateEmail) {
+    if (this.state.updateDatabase || this.state.updateStorage || this.state.updateEmail || this.state.updateBucket) {
       this.setState({
         setOpen: true,
       });
@@ -112,7 +115,12 @@ class Settings extends React.Component {
       });
     }
     else if (databaseType === 'firestore') {
+      const currentBucket = await Prom.getCurrentBucket();
+      const buckets = await Prom.getStorageBuckets();
+      
       this.setState({
+        bucket: currentBucket,
+        buckets: buckets,
         databaseType: databaseType,
         type: databaseConfig.type,
         project_id: databaseConfig.project_id,
@@ -127,7 +135,12 @@ class Settings extends React.Component {
       });
     }
     else if (databaseType === 'mysql') {
+      const currentBucket = await Prom.getCurrentBucket();
+      const buckets = await Prom.getStorageBuckets();
+      
       this.setState({
+        bucket: currentBucket,
+        buckets: buckets,
         databaseType: databaseType,
         dhost: databaseConfig.host,
         dport: databaseConfig.port,
@@ -154,6 +167,12 @@ class Settings extends React.Component {
     });
   };
 
+  selectBucket = (bucket) => {
+    this.setState({
+      bucket: bucket,
+    });
+  };
+
   setEmail = async () => {
     const config = {
       host: this.state.host,
@@ -162,6 +181,13 @@ class Settings extends React.Component {
       password: this.state.password,
     };
     await Prom.setEmailConfig(config);
+  };
+
+  setBucket = async () => {
+    const config = {
+      bucket: this.state.bucket,
+    };
+    await Prom.setStorageBucket(config);
   };
 
   setDatabase = async () => {
@@ -235,6 +261,10 @@ class Settings extends React.Component {
       this.setEmail();
       await this.sleep(5000);
     }
+    if (this.state.updateBucket) {
+      this.setBucket();
+      await this.sleep(5000);
+    }
     if (this.state.updateDatabase || this.state.updateStorage) {
       this.setDatabase();
       await this.sleep(5000);
@@ -290,6 +320,53 @@ class Settings extends React.Component {
 
   onChange = (event) => {
     this.setState({ [event.target.name]: event.target.value });
+  };
+
+  getBucketPanel() {
+    const {
+      bucket,
+      buckets,
+    } = this.state;
+    return (
+      <ExpansionPanel
+        style={{ clear: 'both' }}
+        onChange={(e) =>
+          this.setState({
+            updateBucket: !this.state.updateBucket,
+          })
+        }
+      >
+        <ExpansionPanelSummary
+          expandIcon={<KeyboardArrowDown />}
+          aria-controls="panel1a-content"
+          id="panel1a-header"
+        >
+          <Typography>Bucket Configuration</Typography>
+        </ExpansionPanelSummary>
+        <ExpansionPanelDetails>
+          <Box
+            margin="auto"
+            width="90%"
+            display="flex"
+            flexDirection="column"
+            textAlign="center"
+            padding="16px"
+          >
+            <NativeSelect
+              value={bucket}
+              onChange={(e) =>
+                this.selectBucket(e.target.value)
+              }
+              style={{ width: '100%', paddingTop: 7 }}
+            >
+              {buckets.map((bucketName) => (
+                <option value={bucketName}>{bucketName}</option>
+              ))}
+            </NativeSelect>
+          </Box>
+        </ExpansionPanelDetails>
+      </ExpansionPanel>
+    );
   };
 
   getLocalPanel() {
@@ -350,129 +427,140 @@ class Settings extends React.Component {
       client_x509_cert_url,
     } = this.state;
     return (
-      <ExpansionPanel
-        style={{ clear: 'both' }}
-        onChange={(e) =>
-          this.setState({
-            updateStorage: !this.state.updateStorage,
-          })
-        }
-      >
-        <ExpansionPanelSummary
-          expandIcon={<KeyboardArrowDown />}
-          aria-controls="panel1a-content"
-          id="panel1a-header"
-        >
-          <Typography>{name} Configuration</Typography>
-        </ExpansionPanelSummary>
-        <ExpansionPanelDetails>
-          <Box
-            margin="auto"
-            width="90%"
-            display="flex"
-            flexDirection="column"
-            textAlign="center"
-            padding="16px"
+      <Grid>
+        <Grid item xs={12} style={{marginBottom: 30}}>
+          {this.state.bucket.length > 0 ?
+            this.getBucketPanel()
+            :
+            null
+          }
+        </Grid>
+        <Grid item xs={12}>
+          <ExpansionPanel
+            style={{ clear: 'both' }}
+            onChange={(e) =>
+              this.setState({
+                updateStorage: !this.state.updateStorage,
+              })
+            }
           >
-            <input
-              id="type"
-              name="type"
-              placeholder="Type"
-              value={type}
-              style={{ marginTop: '20px' }}
-            />
-            <input
-              id="project_id"
-              name="project_id"
-              placeholder="Project ID"
-              value={project_id}
-              style={{ marginTop: '20px' }}
-            />
-            <input
-              id="private_key_id"
-              name="private_key_id"
-              placeholder="Private Key ID"
-              value={private_key_id}
-              style={{ marginTop: '20px' }}
-            />
-            <input
-              id="private_key"
-              name="private_key"
-              placeholder="Private Key"
-              value={private_key}
-              style={{ marginTop: '20px' }}
-            />
-            <input
-              id="client_email"
-              name="client_email"
-              placeholder="Client Email"
-              value={client_email}
-              style={{ marginTop: '20px' }}
-            />
-            <input
-              id="client_id"
-              name="client_id"
-              placeholder="Client ID"
-              value={client_id}
-              style={{ marginTop: '20px' }}
-            />
-            <input
-              id="auth_uri"
-              name="auth_uri"
-              placeholder="Auth URI"
-              value={auth_uri}
-              style={{ marginTop: '20px' }}
-            />
-            <input
-              id="token_uri"
-              name="token_uri"
-              placeholder="Token URI"
-              value={token_uri}
-              style={{ marginTop: '20px' }}
-            />
-            <input
-              id="auth_provider_x509_cert_url"
-              name="auth_provider_x509_cert_url"
-              placeholder="Auth Provider x509 Cert URL"
-              value={auth_provider_x509_cert_url}
-              style={{ marginTop: '20px' }}
-            />
-            <input
-              id="client_x509_cert_url"
-              name="client_x509_cert_url"
-              placeholder="Client x509 Cert URL"
-              value={client_x509_cert_url}
-              style={{ marginTop: '20px' }}
-            />
-            <Grid container style={{ marginTop: '20px' }}>
-              <Grid item xs>
+            <ExpansionPanelSummary
+              expandIcon={<KeyboardArrowDown />}
+              aria-controls="panel1a-content"
+              id="panel1a-header"
+            >
+              <Typography>{name} Configuration</Typography>
+            </ExpansionPanelSummary>
+            <ExpansionPanelDetails>
+              <Box
+                margin="auto"
+                width="90%"
+                display="flex"
+                flexDirection="column"
+                textAlign="center"
+                padding="16px"
+              >
                 <input
-                  defaultValue={fileName}
-                  style={{ width: '100%'}}
+                  id="type"
+                  name="type"
+                  placeholder="Type"
+                  value={type}
+                  style={{ marginTop: '20px' }}
                 />
-              </Grid>
-              <Grid item>
                 <input
-                  id="contained-button-file"
-                  type="file"
-                  style={{ display: 'none' }}
-                  onChange={this.setRef}
+                  id="project_id"
+                  name="project_id"
+                  placeholder="Project ID"
+                  value={project_id}
+                  style={{ marginTop: '20px' }}
                 />
-                <label htmlFor="contained-button-file">
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    component="span"
-                    style={{marginLeft: 28, height: 32}}
-                  >
-                    New Config
-                  </Button>
-                </label>
-              </Grid>
-            </Grid>
-          </Box>
-        </ExpansionPanelDetails>
-      </ExpansionPanel>
+                <input
+                  id="private_key_id"
+                  name="private_key_id"
+                  placeholder="Private Key ID"
+                  value={private_key_id}
+                  style={{ marginTop: '20px' }}
+                />
+                <input
+                  id="private_key"
+                  name="private_key"
+                  placeholder="Private Key"
+                  value={private_key}
+                  style={{ marginTop: '20px' }}
+                />
+                <input
+                  id="client_email"
+                  name="client_email"
+                  placeholder="Client Email"
+                  value={client_email}
+                  style={{ marginTop: '20px' }}
+                />
+                <input
+                  id="client_id"
+                  name="client_id"
+                  placeholder="Client ID"
+                  value={client_id}
+                  style={{ marginTop: '20px' }}
+                />
+                <input
+                  id="auth_uri"
+                  name="auth_uri"
+                  placeholder="Auth URI"
+                  value={auth_uri}
+                  style={{ marginTop: '20px' }}
+                />
+                <input
+                  id="token_uri"
+                  name="token_uri"
+                  placeholder="Token URI"
+                  value={token_uri}
+                  style={{ marginTop: '20px' }}
+                />
+                <input
+                  id="auth_provider_x509_cert_url"
+                  name="auth_provider_x509_cert_url"
+                  placeholder="Auth Provider x509 Cert URL"
+                  value={auth_provider_x509_cert_url}
+                  style={{ marginTop: '20px' }}
+                />
+                <input
+                  id="client_x509_cert_url"
+                  name="client_x509_cert_url"
+                  placeholder="Client x509 Cert URL"
+                  value={client_x509_cert_url}
+                  style={{ marginTop: '20px' }}
+                />
+                <Grid container style={{ marginTop: '20px' }}>
+                  <Grid item xs>
+                    <input
+                      defaultValue={fileName}
+                      style={{ width: '100%'}}
+                    />
+                  </Grid>
+                  <Grid item>
+                    <input
+                      id="contained-button-file"
+                      type="file"
+                      style={{ display: 'none' }}
+                      onChange={this.setRef}
+                    />
+                    <label htmlFor="contained-button-file">
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        component="span"
+                        style={{marginLeft: 28, height: 32}}
+                      >
+                        New Config
+                      </Button>
+                    </label>
+                  </Grid>
+                </Grid>
+              </Box>
+            </ExpansionPanelDetails>
+          </ExpansionPanel>
+        </Grid>
+      </Grid>
     );
   };
 

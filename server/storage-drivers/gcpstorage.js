@@ -4,6 +4,9 @@ const { Storage } = require('@google-cloud/storage');
 const fs = require('fs');
 const temp = require('temp').track();
 
+let gStorage;
+let buckets = [];
+let currentBucket;
 let storage;
 let db;
 let projectId;
@@ -19,18 +22,34 @@ class StorageDriver {
           if (err) {
             console.log(err);
           } else {
-            fs.realpath('./acsys.service.config.json', 'utf8', function (
+            fs.realpath('./acsys.service.config.json', 'utf8', async function (
               _error,
               path
             ) {
               try {
                 const config = JSON.parse(data);
-                const gStorage = new Storage({
+                gStorage = new Storage({
                   projectId: config.project_id,
                   keyFilename: path.replace(/\\/g, '/'),
                 });
-                storage = gStorage.bucket(`${config.project_id}.appspot.com`);
+                buckets = [];
+                await gStorage.getBuckets()
+                  .then((bckts) => {
+                    bckts[0].forEach((bckt) => {
+                      buckets.push(bckt.id);
+                    })
+                  })
                 db = database;
+                await db.getDocs('acsys_storage_settings')
+                  .then((result) => {
+                    if(result.length > 0) {
+                      currentBucket = result[0].bucket;                
+                    }
+                    else {
+                      currentBucket = buckets[0];
+                    }
+                    storage = gStorage.bucket(currentBucket);
+                  })
                 projectId = config.project_id;
               } catch (error2) {
                 console.log(error2);
@@ -43,6 +62,32 @@ class StorageDriver {
       } catch (error) {
         resolve(false);
       }
+    });
+  }
+
+  setBucket(bckt) {
+    return new Promise(async (resolve) => {
+      storage = gStorage.bucket(bckt);
+      buckets = [];
+      await gStorage.getBuckets()
+              .then((bckts) => {
+                bckts[0].forEach((bckt) => {
+                  buckets.push(bckt.id);
+                });
+              });
+      resolve(true);
+    });
+  }
+
+  getCurrentBucket() {
+    return new Promise((resolve) => {
+      resolve(currentBucket);
+    });
+  }
+
+  getBuckets() {
+    return new Promise((resolve) => {
+      resolve(buckets);
     });
   }
 
