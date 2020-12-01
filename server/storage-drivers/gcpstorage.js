@@ -338,7 +338,7 @@ class StorageDriver {
       let url = '';
       if (is_public[0]) {
         resolve(
-          `https://storage.googleapis.com/${projectId}.appspot.com/${referenceName}`
+          `https://storage.googleapis.com/${currentBucket}/${referenceName}`
         );
       } else {
         const today = new Date();
