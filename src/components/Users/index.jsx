@@ -24,7 +24,7 @@ import Typography from '@material-ui/core/Typography';
 import { Delete as DeleteIcon } from '@material-ui/icons';
 import React from 'react';
 import uniqid from 'uniqid';
-import * as Prom from '../../services/Acsys/Acsys';
+import * as Acsys from '../../services/Acsys/Acsys';
 
 const styles = makeStyles({
   paper: {
@@ -71,7 +71,7 @@ class Users extends React.Component {
   state = { ...INITIAL_STATE };
 
   deleteUser = async () => {
-    await Prom.deleteData('acsys_users', [['acsys_id', '=', this.state.userId]])
+    await Acsys.deleteData('acsys_users', [['acsys_id', '=', this.state.userId]])
       .then(() => {
         this.componentDidMount();
       })
@@ -114,10 +114,10 @@ class Users extends React.Component {
 
   componentDidMount = async () => {
     this.props.setHeader('Users');
-    let projectName = await Prom.getProjectName();
+    let projectName = await Acsys.getProjectName();
     let users = [];
     try {
-      users = await Prom.getUsers(Prom.getUser());
+      users = await Acsys.getUsers(Acsys.getUser());
     } catch (error) {}
     this.setState({
       projectName: projectName,
@@ -135,7 +135,7 @@ class Users extends React.Component {
       email: email,
       password: passwordOne,
     };
-    await Prom.createUser(user)
+    await Acsys.createUser(user)
       .then((result) => {
         if (result === true) {
           this.setState({ ...INITIAL_STATE, loading: false });

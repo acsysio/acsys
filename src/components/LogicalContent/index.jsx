@@ -27,7 +27,7 @@ import { Create as CreateIcon, Delete as DeleteIcon } from '@material-ui/icons';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import uniqid from 'uniqid';
-import * as Prom from '../../services/Acsys/Acsys';
+import * as Acsys from '../../services/Acsys/Acsys';
 import { PromConsumer } from '../../services/Session/PromProvider';
 
 const styles = makeStyles({
@@ -92,7 +92,7 @@ class LogicalContent extends React.Component {
   deleteView = async () => {
     this.setState({ deleteLoading: true });
     if (this.state.viewId.length > 0) {
-      await Prom.deleteView(this.state.viewId);
+      await Acsys.deleteView(this.state.viewId);
     }
     this.handleDeleteClose();
     this.componentDidMount();
@@ -105,7 +105,7 @@ class LogicalContent extends React.Component {
   handleClickOpen = async () => {
     let collections = [];
 
-    await Prom.getTables().then((json) => {
+    await Acsys.getTables().then((json) => {
       collections = json;
       this.setState({
         collectionArr: collections,
@@ -140,16 +140,16 @@ class LogicalContent extends React.Component {
       saving: true,
     });
     if (position === tempView.position) {
-      await Prom.updateData('acsys_logical_content', tempView, [
+      await Acsys.updateData('acsys_logical_content', tempView, [
         ['acsys_id', '=', tempView.acsys_id],
       ]);
     } else {
       const oldPosition = tempView['position'];
       tempView['position'] = position;
-      await Prom.repositionViews(tempView, oldPosition, position);
+      await Acsys.repositionViews(tempView, oldPosition, position);
       await this.sleep(1000);
     }
-    const currentView = await Prom.getData('acsys_logical_content', [], '', [
+    const currentView = await Acsys.getData('acsys_logical_content', [], '', [
       'position',
     ]);
     this.setState({
@@ -188,14 +188,14 @@ class LogicalContent extends React.Component {
     
     let projectName = '';
 
-    await Prom.getProjectName()
+    await Acsys.getProjectName()
               .then((result) => {
                 projectName = result;
               });
               
     let currentView = [];
 
-    currentView = await Prom.getData('acsys_logical_content', [], '', [
+    currentView = await Acsys.getData('acsys_logical_content', [], '', [
       'position',
     ]);
 
@@ -222,7 +222,7 @@ class LogicalContent extends React.Component {
       view_order: '',
       row_num: 10,
     };
-    await Prom.insertData('acsys_views', { ...newView }).then(async () => {
+    await Acsys.insertData('acsys_views', { ...newView }).then(async () => {
       let newEntry = {
         acsys_id: uniqid(),
         name: this.state.name,
@@ -232,7 +232,7 @@ class LogicalContent extends React.Component {
         position: this.state.views.length + 1,
         table_keys: [],
       };
-      await Prom.insertData('acsys_logical_content', { ...newEntry });
+      await Acsys.insertData('acsys_logical_content', { ...newEntry });
     });
 
     this.setState({ addLoading: false });
@@ -318,7 +318,7 @@ class LogicalContent extends React.Component {
                 {description}
               </TableCell>
             )}
-            {Prom.getMode() === 'Administrator' ? (
+            {Acsys.getMode() === 'Administrator' ? (
               <TableCell style={{ minWidth: 70 }} align="right">
                 <Tooltip title="Edit View">
                   <IconButton
@@ -379,7 +379,7 @@ class LogicalContent extends React.Component {
               }}
             >
               <Toolbar style={{ margin: 4, paddingLeft: 12, paddingRight: 12 }}>
-                {Prom.getMode() === 'Administrator' ? (
+                {Acsys.getMode() === 'Administrator' ? (
                   <Grid container spacing={1}>
                     <Grid item xs style={{ overflow: 'hidden' }}>
                       <Typography
@@ -444,7 +444,7 @@ class LogicalContent extends React.Component {
                     >
                       DESCRIPTION
                     </TableCell>
-                    {Prom.getMode() === 'Administrator' ? (
+                    {Acsys.getMode() === 'Administrator' ? (
                       <TableCell
                         style={{
                           paddingLeft: 16,

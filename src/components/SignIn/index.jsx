@@ -7,7 +7,7 @@ import {
 } from '@material-ui/core';
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import * as Prom from '../../services/Acsys/Acsys';
+import * as Acsys from '../../services/Acsys/Acsys';
 
 
 const INITIAL_STATE = {
@@ -25,7 +25,7 @@ class SignInPage extends Component {
   state = { ...INITIAL_STATE };
 
   componentDidMount = async () => {
-    const installed = await Prom.hasAdmin();
+    const installed = await Acsys.hasAdmin();
 
     this.setState({
       isInstalled: installed,
@@ -64,7 +64,7 @@ class SignInPage extends Component {
 
     this.setState({ loading: true });
 
-    await Prom.authenticate(username, passwordOne)
+    await Acsys.authenticate(username, passwordOne)
       .then((result) => {
         if (result === true) {
           window.location.reload(false);
@@ -84,7 +84,7 @@ class SignInPage extends Component {
 
     this.setState({ loading: true });
 
-    await Prom.register(username, email, passwordOne)
+    await Acsys.register(username, email, passwordOne)
       .then((result) => {
         if (result === true) {
           window.location.reload(false);

@@ -8,7 +8,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import * as ROUTES from '../constants/routes';
-import * as Prom from '../services/Acsys/Acsys';
+import * as Acsys from '../services/Acsys/Acsys';
 import { PromConsumer } from '../services/Session/PromProvider';
 import SignOutButton from './SignOut';
 
@@ -50,7 +50,7 @@ class Header extends React.Component {
               </Grid>
             </Hidden>
             <Grid item xs />
-            <Grid item>{Prom.getUser()}</Grid>
+            <Grid item>{Acsys.getUser()}</Grid>
             <Grid item>
               <Tooltip title="My Account">
                 <IconButton

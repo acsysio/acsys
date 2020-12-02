@@ -21,7 +21,7 @@ import React from 'react';
 import { DndProvider } from 'react-dnd';
 import Backend from 'react-dnd-html5-backend';
 import uniqid from 'uniqid';
-import * as Prom from '../../services/Acsys/Acsys';
+import * as Acsys from '../../services/Acsys/Acsys';
 import AutoGen from '../Controls/AutoGen';
 import BooleanSelect from '../Controls/BooleanSelect';
 import DateTimePicker from '../Controls/DateTimePicker';
@@ -147,7 +147,7 @@ class DocumentView extends React.Component {
 
   setReference = async (name, reference) => {
     const field = this.state.control;
-    const url = await Prom.getStorageURL(reference);
+    const url = await Acsys.getStorageURL(reference);
     if (this.state.fileMode === 'quill') {
       quillURL = url;
     } else if (this.state.fileMode === 'ref') {
@@ -186,7 +186,7 @@ class DocumentView extends React.Component {
 
   getMaxPos = async (table, field) => {
     return new Promise(async (resolve, reject) => {
-      const pos = await Prom.getData(table, '', 1, [field], 'desc')
+      const pos = await Acsys.getData(table, '', 1, [field], 'desc')
         .then((result) => {
           resolve(result[0][field]);
         })
@@ -198,7 +198,7 @@ class DocumentView extends React.Component {
 
   increment = async (table, field, start, num) => {
     return new Promise(async (resolve, reject) => {
-      await Prom.increment(table, field, start, num)
+      await Acsys.increment(table, field, start, num)
         .then(() => {
           resolve(true);
         })
@@ -224,13 +224,13 @@ class DocumentView extends React.Component {
             tempDocument[tempDetails[i].field_name] = '';
           }
         }
-        // const result = await Prom.updateData(
+        // const result = await Acsys.updateData(
         //   'acsys_document_details',
         //   { ...tempDetails[i] },
         //   [['acsys_id', '=', tempDetails[i].acsys_id]]
         // );
       }
-      const result = await Prom.updateData(
+      const result = await Acsys.updateData(
         'acsys_' + this.state.collection,
         { ...tempDocument },
         this.state.keys
@@ -251,13 +251,13 @@ class DocumentView extends React.Component {
             tempDocument[tempDetails[i].field_name] = '';
           }
         }
-        // const result = await Prom.updateData(
+        // const result = await Acsys.updateData(
         //   'acsys_document_details',
         //   { ...tempDetails[i] },
         //   [['acsys_id', '=', tempDetails[i].acsys_id]]
         // );
       }
-      const result = await Prom.insertData(
+      const result = await Acsys.insertData(
         'acsys_' + this.state.collection,
         { ...tempDocument },
         this.state.keys
@@ -294,7 +294,7 @@ class DocumentView extends React.Component {
             tempDocument[tempDetails[i].field_name] = '';
           }
         }
-        // const result = await Prom.updateData(
+        // const result = await Acsys.updateData(
         //   'acsys_document_details',
         //   { ...tempDetails[i] },
         //   [['acsys_id', '=', tempDetails[i].acsys_id]]
@@ -302,18 +302,18 @@ class DocumentView extends React.Component {
       }
       if (this.state.draft) {
         for (var i = 0; i < tempDetails.length; i++) {
-          const result = await Prom.updateData(
+          const result = await Acsys.updateData(
             'acsys_document_details',
             { ...tempDetails[i] },
             [['acsys_id', '=', tempDetails[i].acsys_id]]
           );
         }
-        const result = await Prom.insertData(
+        const result = await Acsys.insertData(
           this.state.collection,
           { ...tempDocument },
           this.state.keys
         );
-        await Prom.deleteData(
+        await Acsys.deleteData(
           'acsys_' + this.state.collection,
           this.state.keys
         )
@@ -322,7 +322,7 @@ class DocumentView extends React.Component {
           })
           .catch((error) => {});
       } else {
-        const result = await Prom.updateData(
+        const result = await Acsys.updateData(
           this.state.collection,
           { ...tempDocument },
           this.state.keys
@@ -344,14 +344,14 @@ class DocumentView extends React.Component {
             tempDocument[tempDetails[i].field_name] = '';
           }
         }
-        // await Prom.updateData(
+        // await Acsys.updateData(
         //   'acsys_document_details',
         //   { ...tempDetails[i] },
         //   [['acsys_id', '=', tempDetails[i].acsys_id]]
         // );
       }
       console.log(fileDoc)
-      await Prom.insertData(this.state.collection, {
+      await Acsys.insertData(this.state.collection, {
         ...tempDocument,
       });
     }
@@ -375,7 +375,7 @@ class DocumentView extends React.Component {
 
     for (var i = 0; i < tempDetails.length; i++) {
       tempDetails[i].view_order = i;
-      const result = await Prom.updateData(
+      const result = await Acsys.updateData(
         'acsys_document_details',
         { ...tempDetails[i] },
         [['acsys_id', '=', tempDetails[i].acsys_id]]
@@ -397,7 +397,7 @@ class DocumentView extends React.Component {
     }
 
     for (var i = 0; i < tempDetails.length; i++) {
-      const result = await Prom.updateData('acsys_logical_content', tempView, [
+      const result = await Acsys.updateData('acsys_logical_content', tempView, [
         ['viewId', '=', this.props.location.state.viewId],
       ]);
     }
@@ -413,7 +413,7 @@ class DocumentView extends React.Component {
     } else {
       collection = documentDetails[0].collection;
     }
-    await Prom.deleteData(collection, this.state.keys)
+    await Acsys.deleteData(collection, this.state.keys)
       .then(() => {
         this.handleClose();
         this.setState({ deleteLoading: false });
@@ -444,7 +444,7 @@ class DocumentView extends React.Component {
       this.props.setHeader('Content');
       let tempMode = mode;
       let routed = this.state.routed;
-      const acsysView = await Prom.getData('acsys_logical_content', [
+      const acsysView = await Acsys.getData('acsys_logical_content', [
         ['viewId', '=', this.props.location.state.viewId],
       ]);
       if (acsysView[0].table_keys.length > 0) {
@@ -480,7 +480,7 @@ class DocumentView extends React.Component {
   mount = async () => {
     let documentDetails;
     try {
-      documentDetails = await Prom.getData('acsys_document_details', [
+      documentDetails = await Acsys.getData('acsys_document_details', [
         ['content_id', '=', this.props.location.state.viewId],
       ]);
     } catch (error) {
@@ -502,18 +502,18 @@ class DocumentView extends React.Component {
         for (let i = 0; i < table_keys.length; i++) {
           keys.push([table_keys[i].field, '=', table_keys[i].value]);
         }
-        await Prom.getData(table, keys)
+        await Acsys.getData(table, keys)
           .then((result) => {
             pullView = result;
           })
           .catch(async () => {});
         if (pullView.length < 1) {
-          await Prom.getData('acsys_' + table, keys).then((result) => {
+          await Acsys.getData('acsys_' + table, keys).then((result) => {
             pullView = result;
             draft = true;
           });
         }
-        await Prom.getData('acsys_open_tables', [['table_name', '=', table]])
+        await Acsys.getData('acsys_open_tables', [['table_name', '=', table]])
         .then(async (result) => {
           if (result[0].table_name === table) {
             open = true;
@@ -522,10 +522,10 @@ class DocumentView extends React.Component {
         .catch(() => {});
 
         if (open) {
-          apiCall = await Prom.getOpenUrl(table, keys);
+          apiCall = await Acsys.getOpenUrl(table, keys);
         }
         else {
-          apiCall = await Prom.getUrl(table, keys);
+          apiCall = await Acsys.getUrl(table, keys);
         }
 
         let currentView;
@@ -541,7 +541,7 @@ class DocumentView extends React.Component {
             documentDetails[i].control === 'imageReference' ||
             documentDetails[i].control === 'videoReference'
           ) {
-            fileRefs[documentDetails[i].field_name] = await Prom.getStorageURL(
+            fileRefs[documentDetails[i].field_name] = await Acsys.getStorageURL(
               currentView[documentDetails[i].field_name]
             );
             fileDoc[documentDetails[i].field_name] =
@@ -731,7 +731,7 @@ class DocumentView extends React.Component {
     const { filterLoading, draft, deleteLoading, apiCall } = this.state;
     return (
       <div style={{ minHeight: 600 }}>
-        {Prom.getMode() !== 'Viewer' ? (
+        {Acsys.getMode() !== 'Viewer' ? (
           <div>
             {!this.props.location.state.routed && is_removable ? (
               <Tooltip title="Delete Entry">
@@ -771,7 +771,7 @@ class DocumentView extends React.Component {
             ) : (
               <div></div>
             )}
-            {Prom.getMode() === 'Administrator' ? (
+            {Acsys.getMode() === 'Administrator' ? (
               <Tooltip title="Change How Data Is Presented">
                 <Button
                   style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
@@ -785,7 +785,7 @@ class DocumentView extends React.Component {
             ) : (
               <div />
             )}
-            {Prom.getMode() === 'Administrator' ? (
+            {Acsys.getMode() === 'Administrator' ? (
               <Select
                 defaultValue={this.props.location.state.routed}
                 onChange={(e) => this.saveView(e.target.value)}

@@ -26,7 +26,7 @@ import {
     LockOpen
 } from '@material-ui/icons';
 import React from 'react';
-import * as Prom from '../../services/Acsys/Acsys';
+import * as Acsys from '../../services/Acsys/Acsys';
 
 const INITIAL_STATE = {
   locked: true,
@@ -95,11 +95,11 @@ class Storage extends React.Component {
       loading: true,
     });
     const parentDir = this.state.files[0].parent;
-    const files = await Prom.getData('acsys_storage_items', [
+    const files = await Acsys.getData('acsys_storage_items', [
       ['parent', '=', dir],
     ]);
     for (var i = 0; i < files.length; i++) {
-      await Prom.getStorageURL(files[i].acsys_id)
+      await Acsys.getStorageURL(files[i].acsys_id)
         .then((result) => {
           files[i]['url'] = result;
         })
@@ -129,24 +129,24 @@ class Storage extends React.Component {
     let currentDir;
     let files;
     if (this.state.previousDir !== '/') {
-      const parent = await Prom.getData(
+      const parent = await Acsys.getData(
         'acsys_storage_items',
         [['acsys_id', '=', this.state.previousDir]],
         1
       );
       parentFile = parent[0].parent;
       currentDir = '/' + this.state.previousDir;
-      files = await Prom.getData('acsys_storage_items', [
+      files = await Acsys.getData('acsys_storage_items', [
         ['parent', '=', this.state.previousDir],
       ]);
     } else {
       currentDir = this.state.previousDir;
-      files = await Prom.getData('acsys_storage_items', [
+      files = await Acsys.getData('acsys_storage_items', [
         ['parent', '=', '/'],
       ]);
     }
     for (var i = 0; i < files.length; i++) {
-      await Prom.getStorageURL(files[i].acsys_id)
+      await Acsys.getStorageURL(files[i].acsys_id)
         .then((result) => {
           files[i]['url'] = result;
         })
@@ -173,7 +173,7 @@ class Storage extends React.Component {
       this.setState({
         loading: true,
       });
-      await Prom.uploadFile(
+      await Acsys.uploadFile(
         this.state.uploadFile.files[0],
         this.state.currentDir
       ).then(async () => {
@@ -190,12 +190,12 @@ class Storage extends React.Component {
     this.setState({
       loading: true,
     });
-    await Prom.syncFiles();
-    let files = await Prom.getData('acsys_storage_items', [
+    await Acsys.syncFiles();
+    let files = await Acsys.getData('acsys_storage_items', [
       ['parent', '=', '/'],
     ]);
     for (var i = 0; i < files.length; i++) {
-      await Prom.getStorageURL(files[i].acsys_id)
+      await Acsys.getStorageURL(files[i].acsys_id)
         .then((result) => {
           files[i]['url'] = result;
         })
@@ -254,7 +254,7 @@ class Storage extends React.Component {
       loading: true,
       newFolder: false,
     });
-    await Prom.createNewFolder(newFolderName, this.state.currentDir);
+    await Acsys.createNewFolder(newFolderName, this.state.currentDir);
     await this.loadFiles();
     this.setState({
       loading: false,
@@ -265,7 +265,7 @@ class Storage extends React.Component {
     this.setState({
       loading: true,
     });
-    await Prom.makeFilePublic(fileName)
+    await Acsys.makeFilePublic(fileName)
       .then(async () => {
         await this.loadFiles();
       })
@@ -279,7 +279,7 @@ class Storage extends React.Component {
     this.setState({
       loading: true,
     });
-    await Prom.makeFilePrivate(fileName)
+    await Acsys.makeFilePrivate(fileName)
       .then(async () => {
         await this.loadFiles();
       })
@@ -291,7 +291,7 @@ class Storage extends React.Component {
 
   deleteFile = async () => {
     this.setState({ deleteLoading: true });
-    await Prom.deleteFile(this.state.fileName)
+    await Acsys.deleteFile(this.state.fileName)
       .then(async () => {
         await this.loadFiles();
       })
@@ -319,11 +319,11 @@ class Storage extends React.Component {
     if (dir !== '/') {
       dir = dir.substring(1, dir.length);
     }
-    const files = await Prom.getData('acsys_storage_items', [
+    const files = await Acsys.getData('acsys_storage_items', [
       ['parent', '=', dir],
     ]);
     for (var i = 0; i < files.length; i++) {
-      await Prom.getStorageURL(files[i].acsys_id)
+      await Acsys.getStorageURL(files[i].acsys_id)
         .then((result) => {
           files[i]['url'] = result;
         })
@@ -367,11 +367,11 @@ class Storage extends React.Component {
           loading: true,
           openImg: false,
         });
-        const files = await Prom.getData('acsys_storage_items', [
+        const files = await Acsys.getData('acsys_storage_items', [
           ['parent', '=', newDir],
         ]).catch();
         for (var i = 0; i < files.length; i++) {
-          await Prom.getStorageURL(files[i].acsys_id)
+          await Acsys.getStorageURL(files[i].acsys_id)
             .then((result) => {
               files[i]['url'] = result;
             })
@@ -410,18 +410,18 @@ class Storage extends React.Component {
     let con;
     let files;
     try {
-      con = await Prom.isStorageConnected();
+      con = await Acsys.isStorageConnected();
       if (!con) {
         this.setState({
           loading: false,
           con: con,
         });
       }
-      files = await Prom.getData('acsys_storage_items', [
+      files = await Acsys.getData('acsys_storage_items', [
         ['parent', '=', parent],
       ]);
       for (var i = 0; i < files.length; i++) {
-        await Prom.getStorageURL(files[i].acsys_id)
+        await Acsys.getStorageURL(files[i].acsys_id)
           .then((result) => {
             files[i]['url'] = result;
           })
@@ -535,7 +535,7 @@ class Storage extends React.Component {
               {this.renderName(acsys_id, content_type, name)}
               <TableCell>{content_type}</TableCell>
               <TableCell>{updated}</TableCell>
-              {Prom.getMode() !== 'Viewer' ? (
+              {Acsys.getMode() !== 'Viewer' ? (
                 <TableCell style={{ minWidth: 100 }} align="right">
                   {is_public ? (
                     <Tooltip title="Public To Internet">
@@ -599,7 +599,7 @@ class Storage extends React.Component {
                 }}
               >
                 <Toolbar style={{ margin: 4, paddingLeft: 12, paddingRight: 12 }}>
-                  {Prom.getMode() !== 'Viewer' ? (
+                  {Acsys.getMode() !== 'Viewer' ? (
                     <Grid container spacing={1}>
                       <Grid item xs style={{ overflow: 'hidden' }}>
                         <Typography
@@ -709,7 +709,7 @@ class Storage extends React.Component {
                       >
                         LAST MODIFIED
                       </TableCell>
-                      {Prom.getMode() !== 'Viewer' ? (
+                      {Acsys.getMode() !== 'Viewer' ? (
                         <TableCell
                           style={{
                             paddingLeft: 16,

@@ -18,7 +18,7 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { KeyboardArrowDown } from '@material-ui/icons';
 import React from 'react';
-import * as Prom from '../../services/Acsys/Acsys';
+import * as Acsys from '../../services/Acsys/Acsys';
 
 const INITIAL_STATE = {
   host: '',
@@ -98,7 +98,7 @@ class Settings extends React.Component {
 
   componentDidMount = async () => {
     this.props.setHeader('Settings');
-    const emailConfig = await Prom.getEmailConfig();
+    const emailConfig = await Acsys.getEmailConfig();
     if (emailConfig.length > 0) {
       this.setState({
         host: emailConfig[0].host,
@@ -107,8 +107,8 @@ class Settings extends React.Component {
         password: emailConfig[0].password,
       });
     }
-    const databaseType = await Prom.getDatabaseType();
-    const databaseConfig = await Prom.getDatabaseConfig();
+    const databaseType = await Acsys.getDatabaseType();
+    const databaseConfig = await Acsys.getDatabaseConfig();
     if (databaseType === 'local') {
       this.setState({
         databaseType: databaseType,
@@ -116,8 +116,8 @@ class Settings extends React.Component {
       });
     }
     else if (databaseType === 'firestore') {
-      const currentBucket = await Prom.getCurrentBucket();
-      const buckets = await Prom.getStorageBuckets();
+      const currentBucket = await Acsys.getCurrentBucket();
+      const buckets = await Acsys.getStorageBuckets();
       
       this.setState({
         bucket: currentBucket,
@@ -136,8 +136,8 @@ class Settings extends React.Component {
       });
     }
     else if (databaseType === 'mysql') {
-      const currentBucket = await Prom.getCurrentBucket();
-      const buckets = await Prom.getStorageBuckets();
+      const currentBucket = await Acsys.getCurrentBucket();
+      const buckets = await Acsys.getStorageBuckets();
       
       this.setState({
         bucket: currentBucket,
@@ -182,14 +182,14 @@ class Settings extends React.Component {
       username: this.state.username,
       password: this.state.password,
     };
-    await Prom.setEmailConfig(config);
+    await Acsys.setEmailConfig(config);
   };
 
   setBucket = async () => {
     const config = {
       bucket: this.state.bucket,
     };
-    await Prom.setStorageBucket(config);
+    await Acsys.setStorageBucket(config);
   };
 
   setDatabase = async () => {
@@ -215,7 +215,7 @@ class Settings extends React.Component {
         });
       }
       else {
-        await Prom.setFirestoreConfig(uploadFile);
+        await Acsys.setFirestoreConfig(uploadFile);
       }
     }
     else if (databaseType === 'mysql') {
@@ -228,7 +228,7 @@ class Settings extends React.Component {
         });
       }
       else {
-        await Prom.setMysqlConfig(
+        await Acsys.setMysqlConfig(
           dhost,
           dport,
           ddatabase,
@@ -249,7 +249,7 @@ class Settings extends React.Component {
         });
       }
       else {
-        await Prom.setLocalDatabaseConfig(
+        await Acsys.setLocalDatabaseConfig(
           project_name
         );
       }

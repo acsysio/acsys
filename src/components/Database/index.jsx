@@ -25,7 +25,7 @@ import { Delete as DeleteIcon } from '@material-ui/icons';
 import React from 'react';
 import { DndProvider } from 'react-dnd';
 import Backend from 'react-dnd-html5-backend';
-import * as Prom from '../../services/Acsys/Acsys';
+import * as Acsys from '../../services/Acsys/Acsys';
 import { PromConsumer } from '../../services/Session/PromProvider';
 import TableControl from '../TableControl';
 
@@ -89,7 +89,7 @@ class LogicalContent extends React.Component {
   deleteTable = async () => {
     this.setState({ deleteLoading: true });
     if (this.state.viewId.length > 0) {
-      await Prom.dropTable(this.state.viewId);
+      await Acsys.dropTable(this.state.viewId);
     }
     this.handleDeleteClose();
     this.componentDidMount();
@@ -144,10 +144,10 @@ class LogicalContent extends React.Component {
     this.setState({
       saving: true,
     });
-    await Prom.updateData('acsys_logical_content', tempView, [
+    await Acsys.updateData('acsys_logical_content', tempView, [
       ['acsys_id', '=', tempView.acsys_id],
     ]);
-    const currentView = await Prom.getData('acsys_logical_content');
+    const currentView = await Acsys.getData('acsys_logical_content');
     this.setState({
       saving: false,
       saveLoading: false,
@@ -177,10 +177,10 @@ class LogicalContent extends React.Component {
     this.setState({
       loading: true,
     });
-    let projectName = await Prom.getProjectName();
+    let projectName = await Acsys.getProjectName();
     let currentView = [];
 
-    currentView = await Prom.getTableData();
+    currentView = await Acsys.getTableData();
 
     this.setState({
       projectName: projectName,
@@ -225,7 +225,7 @@ class LogicalContent extends React.Component {
       })
     }
     else {
-      await Prom.createTable(tableName, newEntry);
+      await Acsys.createTable(tableName, newEntry);
       this.handleClose();
       this.componentDidMount();
     }

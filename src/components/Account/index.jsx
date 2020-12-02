@@ -16,7 +16,7 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { KeyboardArrowDown } from '@material-ui/icons';
 import React from 'react';
-import * as Prom from '../../services/Acsys/Acsys';
+import * as Acsys from '../../services/Acsys/Acsys';
 
 const INITIAL_STATE = {
   passwordChange: false,
@@ -65,8 +65,8 @@ class Account extends React.Component {
       this.props.setHeader('Account');
       let userData;
       try {
-        userData = await Prom.getData('acsys_users', [
-          ['acsys_id', '=', Prom.getId()],
+        userData = await Acsys.getData('acsys_users', [
+          ['acsys_id', '=', Acsys.getId()],
         ]);
       } catch (error) {}
       this.setState({
@@ -96,16 +96,16 @@ class Account extends React.Component {
     const user = {
       acsys_id: acsys_id,
       role: role,
-      mode: Prom.getMode(),
+      mode: Acsys.getMode(),
       username: username,
       email: email,
       acsys_cd: password,
     };
-    if (await Prom.verifyPassword(this.state.userData.acsys_id, currentPassword)) {
+    if (await Acsys.verifyPassword(this.state.userData.acsys_id, currentPassword)) {
       if (this.state.passwordChange) {
           if (password.length > 0) {
             if (password === verifyPassword) {
-              await Prom.updateUser(user);
+              await Acsys.updateUser(user);
             } else {
               this.setState({
                 setMsgOpen: true,
@@ -119,7 +119,7 @@ class Account extends React.Component {
             });
           }
       } else {
-        await Prom.updateUser(user);
+        await Acsys.updateUser(user);
       }
     } else {
       this.setState({

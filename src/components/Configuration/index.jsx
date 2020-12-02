@@ -10,7 +10,7 @@ import {
   Typography
 } from '@material-ui/core';
 import React, { Component } from 'react';
-import * as Prom from '../../services/Acsys/Acsys';
+import * as Acsys from '../../services/Acsys/Acsys';
 
 const INITIAL_STATE = {
   databaseType: 'local',
@@ -81,7 +81,7 @@ class Configuration extends Component {
       }
       else {
         if (databaseType === 'firestore') {
-          await Prom.setInitialFirestoreConfig(
+          await Acsys.setInitialFirestoreConfig(
             uploadFile
           );
           await this.sleep(5000);
@@ -92,7 +92,7 @@ class Configuration extends Component {
         }
         else if (databaseType === 'mysql') {
           if(host.length > 0 && database.length > 0 && username.length > 0 && password.length > 0 && uploadFile) {
-            await Prom.setInitialMysqlConfig(
+            await Acsys.setInitialMysqlConfig(
               host,
               port,
               database,
@@ -115,7 +115,7 @@ class Configuration extends Component {
           }
         }
         else {
-          await Prom.setInitialLocalDatabaseConfig(
+          await Acsys.setInitialLocalDatabaseConfig(
             projectName
           );
           await this.sleep(5000);

@@ -32,7 +32,7 @@ import { DndProvider } from 'react-dnd';
 import Backend from 'react-dnd-html5-backend';
 import { Link } from 'react-router-dom';
 import uniqid from 'uniqid';
-import * as Prom from '../../services/Acsys/Acsys';
+import * as Acsys from '../../services/Acsys/Acsys';
 import { PromConsumer } from '../../services/Session/PromProvider';
 import Example from '../FieldControl/FieldDef';
 
@@ -160,12 +160,12 @@ class CollectionView extends React.Component {
 
   toggleTable = async (value) => {
     if (!value) {
-      await Prom.unlockTable(this.state.documentDetails[0].collection);
+      await Acsys.unlockTable(this.state.documentDetails[0].collection);
       this.setState({
         locked: false,
       });
     } else {
-      Prom.lockTable(this.state.documentDetails[0].collection);
+      Acsys.lockTable(this.state.documentDetails[0].collection);
       this.setState({
         locked: true,
       });
@@ -208,7 +208,7 @@ class CollectionView extends React.Component {
     tempView['row_num'] = row_num;
     this.toggleTable(lockedValue);
     this.context.setHeld(false);
-    await Prom.updateData('acsys_views', tempView, [['acsys_id', '=', tempView.acsys_id]]);
+    await Acsys.updateData('acsys_views', tempView, [['acsys_id', '=', tempView.acsys_id]]);
     this.setState({
       setViewOpen: false,
       reset: true,
@@ -239,15 +239,15 @@ class CollectionView extends React.Component {
       keys.push(tKeys);
     }
 
-    await Prom.getData(documentDetails[0].collection, keys)
+    await Acsys.getData(documentDetails[0].collection, keys)
       .then(async (result) => {
         if (result.length < 1) {
-          await Prom.deleteData(
+          await Acsys.deleteData(
             'acsys_' + documentDetails[0].collection,
             keys
           );
         } else {
-          await Prom.deleteData(documentDetails[0].collection, keys);
+          await Acsys.deleteData(documentDetails[0].collection, keys);
         }
       })
       .catch(async () => {});
@@ -268,7 +268,7 @@ class CollectionView extends React.Component {
     for (let i = 0; i < table_keys[table_keys.length - 1].length; i++) {
       keys.push([table_keys[0][i].field, '=', table_keys[0][i].value]);
     }
-    const currentData = await Prom.getPage(
+    const currentData = await Acsys.getPage(
       tempDetails[0].collection,
       keys,
       row_num,
@@ -307,7 +307,7 @@ class CollectionView extends React.Component {
         table_keys[table_keys.length - 1][i].value,
       ]);
     }
-    const currentData = await Prom.getPage(
+    const currentData = await Acsys.getPage(
       tempDetails[0].collection,
       keys,
       row_num,
@@ -339,7 +339,7 @@ class CollectionView extends React.Component {
     table_keys = [];
     for (var i = 0; i < tempDetails.length; i++) {
       tempDetails[i].view_order = i;
-      await Prom.updateData('acsys_document_details', tempDetails[i], [
+      await Acsys.updateData('acsys_document_details', tempDetails[i], [
         ['acsys_id', '=', tempDetails[i].acsys_id],
       ]);
     }
@@ -351,7 +351,7 @@ class CollectionView extends React.Component {
     this.setState({
       loading: true,
     });
-    Prom.deleteData('acsys_document_details', [
+    Acsys.deleteData('acsys_document_details', [
       ['content_id', '=', this.state.content_id],
     ])
       .then(async () => {
@@ -409,10 +409,10 @@ class CollectionView extends React.Component {
 
     const content_id = this.props.match.params.content_id;
 
-    const totalRows = await Prom.getTableSize(acsys_id);
+    const totalRows = await Acsys.getTableSize(acsys_id);
 
     try {
-      acsysView = await Prom.getData('acsys_views', [['acsys_id', '=', content_id]]);
+      acsysView = await Acsys.getData('acsys_views', [['acsys_id', '=', content_id]]);
       is_removable = acsysView[0].is_removable;
       row_num = acsysView[0].row_num;
       if (acsysView[0].order_by.length > 0) {
@@ -428,11 +428,11 @@ class CollectionView extends React.Component {
         }
       } catch (error) {}
 
-      details = await Prom.getData('acsys_document_details', [
+      details = await Acsys.getData('acsys_document_details', [
         ['content_id', '=', content_id],
       ]);
 
-      await Prom.getData('acsys_open_tables', [['table_name', '=', acsys_id]])
+      await Acsys.getData('acsys_open_tables', [['table_name', '=', acsys_id]])
         .then((result) => {
           if (result[0].table_name === acsys_id) {
             locked = false;
@@ -454,11 +454,11 @@ class CollectionView extends React.Component {
         }
         if (this.context.isHeld()) {
           let direction = 'none';
-          const dbType = await Prom.getDatabaseType();
+          const dbType = await Acsys.getDatabaseType();
           if (dbType === 'firestore') {
             direction = this.context.getPageDirection();
           }
-          currentData = await Prom.getPage(
+          currentData = await Acsys.getPage(
             this.context.getTable(),
             this.context.getKeys(),
             this.context.getRowsPerPage(),
@@ -469,21 +469,21 @@ class CollectionView extends React.Component {
           );
           page = this.context.getPage();
         } else {
-          currentData = await Prom.getData(acsys_id, [], row_num, order, orderDir);
+          currentData = await Acsys.getData(acsys_id, [], row_num, order, orderDir);
           if(locked) {
-            apiCall = await Prom.getUrl(acsys_id, [], row_num, order, orderDir);
+            apiCall = await Acsys.getUrl(acsys_id, [], row_num, order, orderDir);
           }
           else {
-            apiCall = await Prom.getOpenUrl(acsys_id, [], row_num, order, orderDir);
+            apiCall = await Acsys.getOpenUrl(acsys_id, [], row_num, order, orderDir);
           }
         }
       } else {
-        currentData = await Prom.getData(acsys_id, keys, row_num);
+        currentData = await Acsys.getData(acsys_id, keys, row_num);
         if(locked) {
-          apiCall = await Prom.getUrl(acsys_id, keys, row_num);
+          apiCall = await Acsys.getUrl(acsys_id, keys, row_num);
         }
         else {
-          apiCall = await Prom.getOpenUrl(acsys_id, keys, row_num);
+          apiCall = await Acsys.getOpenUrl(acsys_id, keys, row_num);
         }
         await Promise.all(
           Object.keys(currentData[0]).map(async (value, index) => {
@@ -500,7 +500,7 @@ class CollectionView extends React.Component {
               view_order: index,
               width: 12,
             };
-            await Prom.insertData(
+            await Acsys.insertData(
               'acsys_document_details',
               collectionDetails
             ).then(() => {
@@ -689,7 +689,7 @@ class CollectionView extends React.Component {
                 </IconButton>
               </Tooltip>
             )}
-            {Prom.getMode() !== 'Viewer' && is_removable ? (
+            {Acsys.getMode() !== 'Viewer' && is_removable ? (
               <Tooltip title="Delete Entry">
                 <IconButton
                   edge="start"
@@ -864,7 +864,7 @@ class CollectionView extends React.Component {
                   </Tooltip>
                 </Grid>
 
-                {Prom.getMode() === 'Administrator' ? (
+                {Acsys.getMode() === 'Administrator' ? (
                   <Grid item>
                     <Tooltip title="Change How Data Is Presented">
                       <Button
@@ -879,7 +879,7 @@ class CollectionView extends React.Component {
                 ) : (
                   <div />
                 )}
-                {Prom.getMode() === 'Administrator' ? (
+                {Acsys.getMode() === 'Administrator' ? (
                   <Grid item>
                     <Tooltip title="Change How Data Is Organized">
                       <Button
@@ -895,7 +895,7 @@ class CollectionView extends React.Component {
                   <div />
                 )}
                 <Grid item>
-                  {Prom.getMode() !== 'Viewer' && is_removable ? (
+                  {Acsys.getMode() !== 'Viewer' && is_removable ? (
                     <Tooltip title="Add New Entry To Table">
                       <Button
                         to={{
