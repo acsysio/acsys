@@ -1217,11 +1217,7 @@ router.post('/setEmailConfig', async function (req, res) {
       .then((result, reject) => {
         if (result.length > 0) {
           data
-            .update('acsys_email_settings', configData, [
-              'host',
-              '=',
-              configData.host,
-            ])
+            .update('acsys_email_settings', configData)
             .then((result) => {
               res.send(true);
             })
