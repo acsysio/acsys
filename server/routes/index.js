@@ -982,6 +982,7 @@ router.post('/setInitialMysqlConfig', async function (req, res) {
       database: req.body.database,
       username: req.body.username,
       password: req.body.password,
+      socketPath: req.body.socketPath,
     };
     await config
       .setConfig('mysql', 'mysql')
@@ -1036,6 +1037,7 @@ router.post('/setMysqlConfig', async function (req, res) {
       database: req.body.database,
       username: req.body.username,
       password: req.body.password,
+      socketPath: req.body.socketPath,
     };
     await config
       .setConfig('mysql', 'mysql')

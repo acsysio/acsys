@@ -19,6 +19,7 @@ const INITIAL_STATE = {
   database: '',
   username: '',
   password: '',
+  socketPath: '',
   projectName: '',
   uploadFile: '',
   fileName: '',
@@ -64,6 +65,7 @@ class Configuration extends Component {
         database,
         username,
         password,
+        socketPath,
         uploadFile,
       } = this.state;
 
@@ -96,6 +98,7 @@ class Configuration extends Component {
               database,
               username,
               password,
+              socketPath,
               uploadFile
             );
             await this.sleep(5000);
@@ -152,6 +155,7 @@ class Configuration extends Component {
       database,
       username,
       password,
+      socketPath,
      } = this.state;
 
     if (databaseType === 'local') {
@@ -260,7 +264,19 @@ class Configuration extends Component {
             type="password"
             style={{ marginTop: '20px', width: '96%' }}
           />
-          <p>Upload JSON service account key file. Instructions for creating this file can be found <Link href="https://cloud.google.com/iam/docs/creating-managing-service-account-keys" target="_blank" color="primary" rel="noreferrer">here</Link>.</p>
+          <input
+            id="socketPath"
+            name="socketPath"
+            placeholder="Socket Path (Production only)"
+            defaultValue={socketPath}
+            onKeyDown={this.onKeyDownSI}
+            onChange={this.onChange}
+            style={{ marginTop: '20px', width: '96%' }}
+          />
+          <p>
+            Instructions for binding the socket path can be found <Link href="https://cloud.google.com/sql/docs/mysql/connect-functions" target="_blank" color="primary" rel="noreferrer">here</Link>. 
+            Instructions for creating upload file can be found <Link href="https://cloud.google.com/iam/docs/creating-managing-service-account-keys" target="_blank" color="primary" rel="noreferrer">here</Link>.
+          </p>
             <Grid container>
               <Grid item xs={3}>
                 <input

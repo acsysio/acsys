@@ -340,13 +340,14 @@ export const setFirestoreConfig = async (config) => {
   });
 };
 
-export const setInitialMysqlConfig = async (host, port, database, username, password, config) => {
+export const setInitialMysqlConfig = async (host, port, database, username, password, socketPath, config) => {
   const formData = new FormData();
   formData.append('host', host);
   formData.append('port', port);
   formData.append('database', database);
   formData.append('username', username);
   formData.append('password', password);
+  formData.append('socketPath', socketPath);
   formData.append('file', config);
   return new Promise((resolve, reject) => {
     promFetch('/api/setInitialMysqlConfig', {
@@ -371,7 +372,7 @@ export const setInitialMysqlConfig = async (host, port, database, username, pass
   });
 };
 
-export const setMysqlConfig = async (host, port, database, username, password, config) => {
+export const setMysqlConfig = async (host, port, database, username, password, socketPath, config) => {
   await checkToken();
   const formData = new FormData();
   formData.append('host', host);
@@ -379,6 +380,7 @@ export const setMysqlConfig = async (host, port, database, username, password, c
   formData.append('database', database);
   formData.append('username', username);
   formData.append('password', password);
+  formData.append('socketPath', socketPath);
   formData.append('file', config);
   return new Promise((resolve, reject) => {
     promFetch('/api/setMysqlConfig', {

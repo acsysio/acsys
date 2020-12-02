@@ -20,7 +20,7 @@ class Config {
           'CREATE TABLE IF NOT EXISTS acsys_storeconfig (type TEXT, config TEXT)'
         );
         await db.run(
-          'CREATE TABLE IF NOT EXISTS acsys_mysql_config (host TEXT, port INT, database TEXT, username TEXT, password TEXT)'
+          'CREATE TABLE IF NOT EXISTS acsys_mysql_config (host TEXT, port INT, database TEXT, username TEXT, password TEXT, socketPath TEXT)'
         );
       });
       
@@ -65,13 +65,13 @@ class Config {
       db.serialize(async function () {
         await db.run('DELETE FROM acsys_mysql_config');
         let stmt = await db.prepare(
-          'INSERT INTO acsys_mysql_config VALUES (?, ?, ?, ?, ?)'
+          'INSERT INTO acsys_mysql_config VALUES (?, ?, ?, ?, ?, ?)'
         );
         let port = config.port;
         if(!port) {
           port = 0;
         }
-        stmt.run(config.host, config.port, config.database, config.username, config.password);
+        stmt.run(config.host, config.port, config.database, config.username, config.password, config.socketPath);
         stmt.finalize();
         resolve(true);
       });
@@ -110,6 +110,7 @@ class Config {
                 port: rows[0].port,
                 username: rows[0].username,
                 password: rows[0].password,
+                socketPath: rows[0].socketPath,
               }
               resolve(config);
             } else {

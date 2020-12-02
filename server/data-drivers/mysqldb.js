@@ -90,7 +90,22 @@ class MysqlDriver {
         port     : settings.port,
         database : settings.database,
         user     : settings.username,
-        password : settings.password 
+        password : settings.password,
+        socketPath: settings.socketPath
+      });
+      db.query('SHOW TABLES', (error, rows) => {
+        if(error) {
+          if(error.code === 'ENOENT') {
+            db = mysql.createPool({
+              connectionLimit: 10,
+              host     : settings.host,
+              port     : settings.port,
+              database : settings.database,
+              user     : settings.username,
+              password : settings.password,
+            });
+          }
+        }
       });
       db.query('CREATE TABLE IF NOT EXISTS acsys_users (acsys_id TEXT, email TEXT, username TEXT, role TEXT, mode TEXT, acsys_cd TEXT)', (error, rows) => {
 

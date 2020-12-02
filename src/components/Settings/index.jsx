@@ -25,6 +25,7 @@ const INITIAL_STATE = {
   port: '',
   username: '',
   password: '',
+  socketPath: '',
   dhost: '',
   dport: '',
   database: '',
@@ -147,6 +148,7 @@ class Settings extends React.Component {
         ddatabase: databaseConfig.database,
         dusername: databaseConfig.username,
         dpassword: databaseConfig.password,
+        socketPath: databaseConfig.socketPath,
         type: databaseConfig.type,
         project_id: databaseConfig.project_id,
         private_key_id: databaseConfig.private_key_id,
@@ -199,6 +201,7 @@ class Settings extends React.Component {
       ddatabase,
       dusername,
       dpassword,
+      socketPath,
       uploadFile,
     } = this.state;
     
@@ -231,6 +234,7 @@ class Settings extends React.Component {
           ddatabase,
           dusername,
           dpassword,
+          socketPath,
           uploadFile
         );
       }
@@ -571,6 +575,7 @@ class Settings extends React.Component {
       ddatabase,
       dusername,
       dpassword,
+      socketPath,
     } = this.state;
     return (
       <Grid>
@@ -639,6 +644,14 @@ class Settings extends React.Component {
                   value={dpassword}
                   onChange={this.onChange}
                   type="password"
+                  style={{ marginTop: '20px' }}
+                />
+                <input
+                  id="socketPath"
+                  name="socketPath"
+                  placeholder="Socket Path (May be needed for production environments)"
+                  value={socketPath}
+                  onChange={this.onChange}
                   style={{ marginTop: '20px' }}
                 />
               </Box>
