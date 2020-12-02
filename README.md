@@ -8,9 +8,9 @@
 [![Commit](https://img.shields.io/github/last-commit/aeon-software/acsys)](https://github.com/aeon-software/acsys/commits)
 [![Repo](https://img.shields.io/github/repo-size/aeon-software/acsys)](https://github.com/aeon-software/acsys)
 
-## Acsys [Live Demo](https://demo.acsys.com/)
+## Acsys [Live Demo](https://demo.acsys.io/)
 
-Acsys is a CMS built on NodeJS. This tool was created to fulfill the need for a frontend interface for Cloud Firestore. Acsys allows developers to configure a database through the Acsys web app. Once this is done users can use Acsys as a headless content management system that also configures RESTful APIs (no coding involved). Acsys serves as a simple interface for the Firestore database with the goal of more database support being added soon! Since this project is maintained and used by Aeon it will receive continuous updates.
+Acsys is a CMS built on NodeJS. This tool was created to fulfill the need for a frontend interface for Cloud Firestore. Acsys allows developers to configure a database through the Acsys web app. Once this is done users can use Acsys as a headless content management system that also configures RESTful APIs (no coding involved). Acsys serves as a simple interface for Firestore, MySQL and SQLite databases. Since this project is maintained and used by Aeon it will receive continuous updates.
 
 ## Getting Started
 
@@ -24,10 +24,13 @@ These instructions will get Acsys up and running on your local machine for devel
 ## Currently Supported Databases
 
 - Cloud Firestore
+- MySQL
+- SQLite
 
 ## Currently Supported Storage
 
 - Google Cloud Storage
+- Internal
 
 ## Installing
 
