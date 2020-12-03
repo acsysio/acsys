@@ -115,9 +115,6 @@ class CollectionView extends React.Component {
       this.state.orderDir
     );
     this.context.setPage(1);
-    // this.setState({
-    //   page: 1,
-    // });
     this.mount();
   };
 

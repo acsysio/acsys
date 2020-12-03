@@ -224,11 +224,6 @@ class DocumentView extends React.Component {
             tempDocument[tempDetails[i].field_name] = '';
           }
         }
-        // const result = await Acsys.updateData(
-        //   'acsys_document_details',
-        //   { ...tempDetails[i] },
-        //   [['acsys_id', '=', tempDetails[i].acsys_id]]
-        // );
       }
       const result = await Acsys.updateData(
         'acsys_' + this.state.collection,
@@ -251,11 +246,6 @@ class DocumentView extends React.Component {
             tempDocument[tempDetails[i].field_name] = '';
           }
         }
-        // const result = await Acsys.updateData(
-        //   'acsys_document_details',
-        //   { ...tempDetails[i] },
-        //   [['acsys_id', '=', tempDetails[i].acsys_id]]
-        // );
       }
       const result = await Acsys.insertData(
         'acsys_' + this.state.collection,
@@ -294,11 +284,6 @@ class DocumentView extends React.Component {
             tempDocument[tempDetails[i].field_name] = '';
           }
         }
-        // const result = await Acsys.updateData(
-        //   'acsys_document_details',
-        //   { ...tempDetails[i] },
-        //   [['acsys_id', '=', tempDetails[i].acsys_id]]
-        // );
       }
       if (this.state.draft) {
         for (var i = 0; i < tempDetails.length; i++) {
@@ -344,11 +329,6 @@ class DocumentView extends React.Component {
             tempDocument[tempDetails[i].field_name] = '';
           }
         }
-        // await Acsys.updateData(
-        //   'acsys_document_details',
-        //   { ...tempDetails[i] },
-        //   [['acsys_id', '=', tempDetails[i].acsys_id]]
-        // );
       }
       console.log(fileDoc)
       await Acsys.insertData(this.state.collection, {
