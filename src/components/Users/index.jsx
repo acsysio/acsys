@@ -1,17 +1,17 @@
 import {
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  NativeSelect, Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TablePagination,
-  TableRow,
-  Tooltip,
+    CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    NativeSelect, Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TablePagination,
+    TableRow,
+    Tooltip
 } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
@@ -24,7 +24,7 @@ import Typography from '@material-ui/core/Typography';
 import { Delete as DeleteIcon } from '@material-ui/icons';
 import React from 'react';
 import uniqid from 'uniqid';
-import * as Prom from '../../services/Prometheus/Prom';
+import * as Acsys from '../../services/Acsys/Acsys';
 
 const styles = makeStyles({
   paper: {
@@ -71,7 +71,7 @@ class Users extends React.Component {
   state = { ...INITIAL_STATE };
 
   deleteUser = async () => {
-    await Prom.deleteData('prmths_users', [['id', '=', this.state.userId]])
+    await Acsys.deleteData('acsys_users', [['acsys_id', '=', this.state.userId]])
       .then(() => {
         this.componentDidMount();
       })
@@ -114,10 +114,10 @@ class Users extends React.Component {
 
   componentDidMount = async () => {
     this.props.setHeader('Users');
-    let projectName = await Prom.getProjectName();
+    let projectName = await Acsys.getProjectName();
     let users = [];
     try {
-      users = await Prom.getUsers(Prom.getUser());
+      users = await Acsys.getUsers(Acsys.getUser());
     } catch (error) {}
     this.setState({
       projectName: projectName,
@@ -128,14 +128,14 @@ class Users extends React.Component {
     const { role, username, email, passwordOne } = this.state;
     this.setState({ loading: true });
     const user = {
-      id: uniqid(),
+      acsys_id: uniqid(),
       role: role,
       mode: role,
       username: username,
       email: email,
       password: passwordOne,
     };
-    await Prom.createUser(user)
+    await Acsys.createUser(user)
       .then((result) => {
         if (result === true) {
           this.setState({ ...INITIAL_STATE, loading: false });
@@ -156,9 +156,9 @@ class Users extends React.Component {
     return users
       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
       .map((users) => {
-        const { id, username, email, role } = users;
+        const { acsys_id, username, email, role } = users;
         return (
-          <TableRow key={id}>
+          <TableRow key={acsys_id}>
             <TableCell>{username}</TableCell>
             <TableCell>{role}</TableCell>
             <TableCell>{email}</TableCell>
@@ -168,7 +168,7 @@ class Users extends React.Component {
                   edge="start"
                   color="inherit"
                   aria-label="delete"
-                  onClick={() => this.handleDeleteOpen(id)}
+                  onClick={() => this.handleDeleteOpen(acsys_id)}
                 >
                   <DeleteIcon />
                 </IconButton>

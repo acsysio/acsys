@@ -8,7 +8,7 @@ import {
     ExpansionPanel,
     ExpansionPanelDetails,
     ExpansionPanelSummary,
-    Tooltip,
+    Tooltip
 } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
@@ -16,7 +16,7 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { KeyboardArrowDown } from '@material-ui/icons';
 import React from 'react';
-import * as Prom from '../../services/Prometheus/Prom';
+import * as Acsys from '../../services/Acsys/Acsys';
 
 const INITIAL_STATE = {
   passwordChange: false,
@@ -65,12 +65,12 @@ class Account extends React.Component {
       this.props.setHeader('Account');
       let userData;
       try {
-        userData = await Prom.getData('prmths_users', [
-          ['id', '=', Prom.getId()],
+        userData = await Acsys.getData('acsys_users', [
+          ['acsys_id', '=', Acsys.getId()],
         ]);
       } catch (error) {}
       this.setState({
-        id: userData[0].id,
+        acsys_id: userData[0].acsys_id,
         role: userData[0].role,
         username: userData[0].username,
         email: userData[0].email,
@@ -84,7 +84,7 @@ class Account extends React.Component {
   };
   updateCredentials = async () => {
     const {
-      id,
+      acsys_id,
       role,
       username,
       email,
@@ -94,18 +94,18 @@ class Account extends React.Component {
     } = this.state;
     this.setState({ saving: true, saveLoading: true });
     const user = {
-      id: id,
+      acsys_id: acsys_id,
       role: role,
-      mode: Prom.getMode(),
+      mode: Acsys.getMode(),
       username: username,
       email: email,
-      prmthsCd: password,
+      acsys_cd: password,
     };
-    if (await Prom.verifyPassword(this.state.userData.id, currentPassword)) {
+    if (await Acsys.verifyPassword(this.state.userData.acsys_id, currentPassword)) {
       if (this.state.passwordChange) {
           if (password.length > 0) {
             if (password === verifyPassword) {
-              await Prom.updateUser(user);
+              await Acsys.updateUser(user);
             } else {
               this.setState({
                 setMsgOpen: true,
@@ -119,7 +119,7 @@ class Account extends React.Component {
             });
           }
       } else {
-        await Prom.updateUser(user);
+        await Acsys.updateUser(user);
       }
     } else {
       this.setState({

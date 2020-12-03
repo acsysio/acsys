@@ -1,13 +1,12 @@
 import {
-  Box,
-  Button,
-  CircularProgress,
-  Grid,
-  Hidden,
-  Typography,
+    Box,
+    Button,
+    CircularProgress,
+    Grid,
+    Typography
 } from '@material-ui/core';
 import React, { Component } from 'react';
-import * as Prom from '../../services/Prometheus/Prom';
+import * as Acsys from '../../services/Acsys/Acsys';
 
 const INITIAL_STATE = {
   username: '',
@@ -43,7 +42,7 @@ class PasswordReset extends Component {
 
     this.setState({ loading: true });
 
-    await Prom.resetPassword(this.props.match.params.id, passwordOne)
+    await Acsys.resetPassword(this.props.match.params.id, passwordOne)
       .then((result) => {
         this.setState({
           loading: false,
