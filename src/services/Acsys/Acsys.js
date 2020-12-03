@@ -25,7 +25,7 @@ export const getMode = () => {
 export const setMode = async (newMode) => {
   return new Promise(async (resolve, reject) => {
     await updateUser({
-      id: getId(),
+      acsys_id: getId(),
       username: getUser(),
       email: getEmail(),
       role: getRole(),
@@ -41,7 +41,7 @@ export const setMode = async (newMode) => {
   });
 };
 
-export const getUniqueId = () => {
+export const getUnique_id = () => {
   return uniqid();
 };
 
@@ -83,8 +83,8 @@ export const checkToken = () => {
           .then((json) => {
             token = json.token;
             refreshToken = json.refreshToken;
-            Cookies.set('prmths_session', token);
-            Cookies.set('prmths_refreshToken', refreshToken);
+            Cookies.set('acsys_session', token);
+            Cookies.set('acsys_refreshToken', refreshToken);
             resolve(true);
           })
           .catch((response) => {
@@ -131,13 +131,13 @@ export const getProjectName = async () => {
   });
 };
 
-export const getUrl = async (table, where, limit, orderBy, order) => {
+export const getUrl = async (table, where, limit, order_by, order) => {
   await checkToken();
   return new Promise((resolve, reject) => {
     const apiString = `/api/getUrl?table=${table}&options=${JSON.stringify({
       where,
       limit,
-      orderBy,
+      order_by,
       order,
     })}`;
     promFetch(apiString, {
@@ -169,13 +169,13 @@ export const getUrl = async (table, where, limit, orderBy, order) => {
   });
 };
 
-export const getOpenUrl = async (table, where, limit, orderBy, order) => {
+export const getOpenUrl = async (table, where, limit, order_by, order) => {
   await checkToken();
   return new Promise((resolve, reject) => {
     const apiString = `/api/getOpenUrl?table=${table}&options=${JSON.stringify({
       where,
       limit,
-      orderBy,
+      order_by,
       order,
     })}`;
     promFetch(apiString, {
@@ -324,6 +324,72 @@ export const setFirestoreConfig = async (config) => {
         Authorization: `Bearer ${Session.getToken()}`,
       },
       body: config,
+    })
+      .then((response) => {
+        Session.logOut();
+        if (response.statusText !== 'Unauthorized') {
+          response.json().then((json) => {
+            resolve(json.value);
+          });
+          resolve();
+        } else {
+          reject();
+        }
+      })
+      .catch(reject);
+  });
+};
+
+export const setInitialMysqlConfig = async (host, port, database, username, password, socketPath, config) => {
+  const formData = new FormData();
+  formData.append('host', host);
+  formData.append('port', port);
+  formData.append('database', database);
+  formData.append('username', username);
+  formData.append('password', password);
+  formData.append('socketPath', socketPath);
+  formData.append('file', config);
+  return new Promise((resolve, reject) => {
+    promFetch('/api/setInitialMysqlConfig', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+      },
+      body: formData
+    })
+      .then((response) => {
+        Session.logOut();
+        if (response.statusText !== 'Unauthorized') {
+          response.json().then((json) => {
+            resolve(json.value);
+          });
+          resolve();
+        } else {
+          reject();
+        }
+      })
+      .catch(reject);
+  });
+};
+
+export const setMysqlConfig = async (host, port, database, username, password, socketPath, config) => {
+  await checkToken();
+  const formData = new FormData();
+  formData.append('host', host);
+  formData.append('port', port);
+  formData.append('database', database);
+  formData.append('username', username);
+  formData.append('password', password);
+  formData.append('socketPath', socketPath);
+  formData.append('file', config);
+  return new Promise((resolve, reject) => {
+    promFetch('/api/setMysqlConfig', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${Session.getToken()}`,
+      },
+      body: formData
     })
       .then((response) => {
         Session.logOut();
@@ -497,7 +563,7 @@ export const register = (username, email, password) => {
     let refreshToken;
 
     const userData = {
-      id: uniqid(),
+      acsys_id: uniqid(),
       email,
       username,
       role,
@@ -523,13 +589,13 @@ export const register = (username, email, password) => {
           user = json.username;
           token = json.token;
           refreshToken = json.refreshToken;
-          Cookies.set('prmths_id', userData.id);
-          Cookies.set('prmths_role', userData.role);
-          Cookies.set('prmths_mode', userData.mode);
-          Cookies.set('prmths_user', user);
-          Cookies.set('prmths_email', email);
-          Cookies.set('prmths_session', token);
-          Cookies.set('prmths_refreshToken', refreshToken);
+          Cookies.set('acsys_id', userData.acsys_id);
+          Cookies.set('acsys_role', userData.role);
+          Cookies.set('acsys_mode', userData.mode);
+          Cookies.set('acsys_user', user);
+          Cookies.set('acsys_email', email);
+          Cookies.set('acsys_session', token);
+          Cookies.set('acsys_refreshToken', refreshToken);
           resolve(true);
         }
       })
@@ -562,7 +628,7 @@ export const sendResetLink = async (email) => {
   });
 };
 
-export const resetPassword = async (id, password) => {
+export const resetPassword = async (acsys_id, password) => {
   return new Promise((resolve, reject) => {
     promFetch('/api/resetPassword', {
       method: 'POST',
@@ -571,7 +637,7 @@ export const resetPassword = async (id, password) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        id,
+        acsys_id,
         password,
       }),
     })
@@ -682,7 +748,7 @@ export const getUsers = async (user) => {
 
 export const authenticate = (username, password) => {
   return new Promise((resolve, reject) => {
-    let id;
+    let acsys_id;
     let role;
     let mode;
     let user;
@@ -705,20 +771,20 @@ export const authenticate = (username, password) => {
         if (json.message) {
           resolve(json.message);
         } else {
-          id = json.id;
+          acsys_id = json.acsys_id;
           role = json.role;
           mode = json.mode;
           user = json.username;
           email = json.email;
           token = json.token;
           refreshToken = json.refreshToken;
-          Cookies.set('prmths_id', id);
-          Cookies.set('prmths_role', role);
-          Cookies.set('prmths_mode', mode);
-          Cookies.set('prmths_user', user);
-          Cookies.set('prmths_email', email);
-          Cookies.set('prmths_session', token);
-          Cookies.set('prmths_refreshToken', refreshToken);
+          Cookies.set('acsys_id', acsys_id);
+          Cookies.set('acsys_role', role);
+          Cookies.set('acsys_mode', mode);
+          Cookies.set('acsys_user', user);
+          Cookies.set('acsys_email', email);
+          Cookies.set('acsys_session', token);
+          Cookies.set('acsys_refreshToken', refreshToken);
           resolve(true);
         }
       })
@@ -798,7 +864,7 @@ export const hasAdmin = () => {
   });
 };
 
-export const verifyPassword = async (id, password) => {
+export const verifyPassword = async (acsys_id, password) => {
   await checkToken();
   return new Promise((resolve, reject) => {
     promFetch('/api/verifyPassword', {
@@ -808,7 +874,7 @@ export const verifyPassword = async (id, password) => {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${Session.getToken()}`,
       },
-      body: JSON.stringify({ id, password }),
+      body: JSON.stringify({ acsys_id, password }),
     })
       .then((response) => {
         if (response.statusText !== 'Unauthorized') {
@@ -1032,13 +1098,13 @@ export const dropTable = async (table) => {
   });
 };
 
-export const getData = async (table, where, limit, orderBy, order) => {
+export const getData = async (table, where, limit, order_by, order) => {
   await checkToken();
   return new Promise((resolve, reject) => {
     const apiString = `/api/readData?table=${table}&options=${JSON.stringify({
       where,
       limit,
-      orderBy,
+      order_by,
       order,
     })}`;
     promFetch(apiString, {
@@ -1074,7 +1140,7 @@ export const getPage = async (
   table,
   where,
   limit,
-  orderBy,
+  order_by,
   order,
   direction,
   currentPage
@@ -1084,7 +1150,7 @@ export const getPage = async (
     const apiString = `/api/readPage?table=${table}&options=${JSON.stringify({
       where,
       limit,
-      orderBy,
+      order_by,
       order,
       direction,
       currentPage,
@@ -1202,13 +1268,13 @@ export const deleteData = async (table, entry) => {
   });
 };
 
-export const getOpenData = (table, where, limit, orderBy, order) => {
+export const getOpenData = (table, where, limit, order_by, order) => {
   return new Promise((resolve, reject) => {
     const apiString = `/api/readOpenData?table=${table}&options=${JSON.stringify(
       {
         where,
         limit,
-        orderBy,
+        order_by,
         order,
       }
     )}`;
@@ -1318,7 +1384,7 @@ export const deleteOpenData = (table, entry) => {
   });
 };
 
-export const deleteView = async (viewId) => {
+export const deleteView = async (view_id) => {
   await checkToken();
   return new Promise((resolve, reject) => {
     promFetch('/api/deleteView', {
@@ -1329,7 +1395,7 @@ export const deleteView = async (viewId) => {
         Authorization: `Bearer ${Session.getToken()}`,
       },
       body: JSON.stringify({
-        viewId,
+        view_id,
       }),
     })
       .then((response) => {
@@ -1410,6 +1476,74 @@ export const lockTable = async (table_name) => {
       })
       .catch(() => {
         reject();
+      });
+  });
+};
+
+export const getCurrentBucket = async () => {
+  await checkToken();
+  return new Promise((resolve, reject) => {
+    promFetch('/api/getCurrentBucket', {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Session.getToken()}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        resolve(result);
+      })
+      .catch((error) => {
+        resolve(false);
+      });
+  });
+};
+
+export const setStorageBucket = async (config) => {
+  await checkToken();
+  return new Promise((resolve, reject) => {
+    promFetch('/api/setStorageBucket', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Session.getToken()}`,
+      },
+      body: JSON.stringify(config),
+    })
+      .then((response) => {
+        if (response.statusText !== 'Unauthorized') {
+          response.json().then((json) => {
+            resolve(json.value);
+          });
+        } else {
+          Session.logOut();
+          reject();
+        }
+      })
+      .catch(reject);
+  });
+};
+
+export const getStorageBuckets = async () => {
+  await checkToken();
+  return new Promise((resolve, reject) => {
+    promFetch('/api/getStorageBuckets', {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Session.getToken()}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        resolve(result);
+      })
+      .catch((error) => {
+        resolve(false);
       });
   });
 };

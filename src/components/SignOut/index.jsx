@@ -4,11 +4,11 @@ import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import React from 'react';
 import { logOut } from '../../services/Session/session';
 
-const prmthsOut = () => logOut();
+const acsysOut = () => logOut();
 
 const SignOutButton = () => (
   <Tooltip title="Log Out">
-    <IconButton onClick={prmthsOut} color="inherit">
+    <IconButton onClick={acsysOut} color="inherit">
       <ExitToAppIcon />
     </IconButton>
   </Tooltip>

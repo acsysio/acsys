@@ -1,5 +1,5 @@
-import React from 'react';
 import { Grid, MenuItem, Select } from '@material-ui/core';
+import React from 'react';
 
 function Position(props) {
   if (props.draft) {

@@ -1,12 +1,12 @@
-import React from 'react';
 import { Grid, NativeSelect } from '@material-ui/core';
+import React from 'react';
 
 function NumberEditor(props) {
   return (
     <Grid item xs={props.width}>
       <h3 className="element-header">{props.field_name.toUpperCase()}</h3>
       <NativeSelect
-        defaultValue={props.defaultValue}
+        defaultValue={Boolean(props.defaultValue)}
         onChange={(e) =>
           props.handleChange(props.currentKey, e.target.value == 'true')
         }

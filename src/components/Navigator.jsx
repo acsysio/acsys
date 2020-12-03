@@ -9,16 +9,16 @@ import ListItemText from '@material-ui/core/ListItemText';
 import { createStyles, useTheme, withStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
 import FolderIcon from '@material-ui/icons/Folder';
+import InfoIcon from '@material-ui/icons/Info';
 import PeopleIcon from '@material-ui/icons/People';
 import PermMediaOutlinedIcon from '@material-ui/icons/PhotoSizeSelectActual';
 import SettingsIcon from '@material-ui/icons/Settings';
 import DataBaseIcon from '@material-ui/icons/ViewAgenda';
-import InfoIcon from '@material-ui/icons/Info';
 import clsx from 'clsx';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import * as ROUTES from '../constants/routes';
-import * as Prom from '../services/Acsys/Acsys';
+import * as Acsys from '../services/Acsys/Acsys';
 
 const styles = (theme) =>
   createStyles({
@@ -82,8 +82,8 @@ function Navigator(props) {
   ];
 
   if (
-    Prom.getRole() === 'Administrator' &&
-    Prom.getMode() === 'Administrator'
+    Acsys.getRole() === 'Administrator' &&
+    Acsys.getMode() === 'Administrator'
   ) {
     categories = [
       {
@@ -257,13 +257,13 @@ function Navigator(props) {
             <CloseIcon />
           </IconButton>
           <ListItem className={clsx(classes.categoryHeader)}>
-            {Prom.getRole() !== 'Viewer' ? (
+            {Acsys.getRole() !== 'Viewer' ? (
               <select
-                defaultValue={Prom.getMode()}
+                defaultValue={Acsys.getMode()}
                 onChange={(e) => props.setMode(e.target.value)}
                 className="select-css"
               >
-                {Prom.getRole() === 'Administrator' ? (
+                {Acsys.getRole() === 'Administrator' ? (
                   <option value="Administrator">Administrator</option>
                 ) : (
                   <div />

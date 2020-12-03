@@ -1,6 +1,6 @@
+import { Grid, Hidden } from '@material-ui/core';
 import React from 'react';
 import ReactQuill from 'react-quill';
-import { Grid, Hidden } from '@material-ui/core';
 
 function RichTextEditor(props) {
   const modules = {
@@ -43,7 +43,7 @@ function RichTextEditor(props) {
             props.setQuillRef(el);
           }}
           modules={modules}
-          value={props.defaultValue}
+          value={props.defaultValue || ''}
           onChange={(e) => props.handleChange(props.currentKey, e)}
           style={{
             clear: 'both',

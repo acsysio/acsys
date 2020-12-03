@@ -3,13 +3,14 @@ import Grid from '@material-ui/core/Grid';
 import Hidden from '@material-ui/core/Hidden';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import * as Prom from '../services/Acsys/Acsys';
+import React, { lazy, Suspense } from 'react';
+import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
+import * as ROUTES from '../constants/routes';
+import * as Acsys from '../services/Acsys/Acsys';
 import Footer from './Footer';
 import Header from './Header';
 import Navigator from './Navigator';
-import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
-import * as ROUTES from '../constants/routes';
+
 const Account = lazy(() => import('./Account'));
 const CollectionView = lazy(() => import('./CollectionView'));
 const Database = lazy(() => import('./Database'));
@@ -36,7 +37,7 @@ class Driver extends React.Component {
   };
 
   setMode = async (mode) => {
-    await Prom.setMode(mode);
+    await Acsys.setMode(mode);
     this.setState({ mode: mode });
   };
 
@@ -45,7 +46,7 @@ class Driver extends React.Component {
   };
 
   componentDidMount = async () => {
-    this.setState({ mode: Prom.getMode() });
+    this.setState({ mode: Acsys.getMode() });
   };
 
   render() {
@@ -94,7 +95,7 @@ class Driver extends React.Component {
                       </Typography>
                     </Grid>
                     <Grid item xs />
-                    {Prom.getRole() !== 'Viewer' ? (
+                    {Acsys.getRole() !== 'Viewer' ? (
                       <Grid item>
                         <Typography color="inherit" variant="p">
                           Perspective:
@@ -104,13 +105,13 @@ class Driver extends React.Component {
                       <div />
                     )}
                     <Grid item style={{ width: 150 }}>
-                      {Prom.getRole() !== 'Viewer' ? (
+                      {Acsys.getRole() !== 'Viewer' ? (
                         <select
-                          defaultValue={Prom.getMode()}
+                          defaultValue={Acsys.getMode()}
                           onChange={(e) => this.setMode(e.target.value)}
                           className="select-css"
                         >
-                          {Prom.getRole() === 'Administrator' ? (
+                          {Acsys.getRole() === 'Administrator' ? (
                             <option value={'Administrator'}>
                               Administrator
                             </option>
@@ -166,7 +167,7 @@ class Driver extends React.Component {
                           <Account {...props} setHeader={this.setHeader} />
                         )}
                       />
-                      {Prom.getRole() === 'Administrator' ? (
+                      {Acsys.getRole() === 'Administrator' ? (
                         <div>
                           <Route
                             path={ROUTES.Database}

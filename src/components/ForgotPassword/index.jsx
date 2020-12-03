@@ -2,11 +2,11 @@ import {
     Box,
     Button,
     CircularProgress,
-    Grid, Hidden,
+    Grid,
     Typography
 } from '@material-ui/core';
 import React, { Component } from 'react';
-import * as Prom from '../../services/Acsys/Acsys';
+import * as Acsys from '../../services/Acsys/Acsys';
 
 
 const INITIAL_STATE = {
@@ -45,7 +45,7 @@ class ForgotPassword extends Component {
 
     this.setState({ loading: true });
 
-    await Prom.sendResetLink(email)
+    await Acsys.sendResetLink(email)
       .then((result) => {
         this.setState({
           loading: false,

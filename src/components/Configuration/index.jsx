@@ -1,19 +1,25 @@
 import {
   Box,
   Button,
-  CircularProgress, 
+  CircularProgress,
   Container,
   Grid,
+  Link, 
   NativeSelect,
-  Link,
   Paper,
   Typography
 } from '@material-ui/core';
 import React, { Component } from 'react';
-import * as Prom from '../../services/Acsys/Acsys';
+import * as Acsys from '../../services/Acsys/Acsys';
 
 const INITIAL_STATE = {
   databaseType: 'local',
+  host: '',
+  port: '',
+  database: '',
+  username: '',
+  password: '',
+  socketPath: '',
   projectName: '',
   uploadFile: '',
   fileName: '',
@@ -54,6 +60,13 @@ class Configuration extends Component {
       const {
         databaseType,
         projectName,
+        host,
+        port,
+        database,
+        username,
+        password,
+        socketPath,
+        uploadFile,
       } = this.state;
 
       this.setState({
@@ -68,20 +81,49 @@ class Configuration extends Component {
       }
       else {
         if (databaseType === 'firestore') {
-          await Prom.setInitialFirestoreConfig(
-            this.state.uploadFile
+          await Acsys.setInitialFirestoreConfig(
+            uploadFile
           );
+          await this.sleep(5000);
+          window.location.reload();
+          this.setState({
+            loading: false,
+          });
+        }
+        else if (databaseType === 'mysql') {
+          if(host.length > 0 && database.length > 0 && username.length > 0 && password.length > 0 && uploadFile) {
+            await Acsys.setInitialMysqlConfig(
+              host,
+              port,
+              database,
+              username,
+              password,
+              socketPath,
+              uploadFile
+            );
+            await this.sleep(5000);
+            window.location.reload();
+            this.setState({
+              loading: false,
+            });
+          }
+          else {
+            this.setState({
+              loading: false,
+              message: 'Please complete necessary fields.'
+            })
+          }
         }
         else {
-          await Prom.setInitialLocalDatabaseConfig(
+          await Acsys.setInitialLocalDatabaseConfig(
             projectName
           );
+          await this.sleep(5000);
+          window.location.reload();
+          this.setState({
+            loading: false,
+          });
         }
-        await this.sleep(5000);
-        window.location.reload();
-        this.setState({
-          loading: false,
-        });
       }
     } 
     catch (error) {
@@ -108,6 +150,12 @@ class Configuration extends Component {
       databaseType,
       message,
       projectName,
+      host,
+      port,
+      database,
+      username,
+      password,
+      socketPath,
      } = this.state;
 
     if (databaseType === 'local') {
@@ -129,7 +177,7 @@ class Configuration extends Component {
           >
             {message}
           </Typography>
-          <p>When this option is selected Acsys will use the internal database.</p>
+          <p style={{marginBottom: 0}}>When this option is selected Acsys will use the internal database.</p>
         </div>
       );
     }
@@ -163,6 +211,105 @@ class Configuration extends Component {
                 />
               </Grid>
             </Grid>
+        </div>
+      );
+    }
+    else if (databaseType === 'mysql') {
+      return (
+        <div>
+          <input
+            id="host"
+            name="host"
+            placeholder="Host"
+            defaultValue={host}
+            onKeyDown={this.onKeyDownSI}
+            onChange={this.onChange}
+            style={{ marginTop: '20px', width: '96%' }}
+          />
+          <input
+            id="port"
+            name="port"
+            placeholder="Port (Optional)"
+            defaultValue={port}
+            onKeyDown={this.onKeyDownSI}
+            onChange={this.onChange}
+            type="number"
+            style={{ marginTop: '20px', width: '96%' }}
+          />
+          <input
+            id="database"
+            name="database"
+            placeholder="Database"
+            defaultValue={database}
+            onKeyDown={this.onKeyDownSI}
+            onChange={this.onChange}
+            style={{ marginTop: '20px', width: '96%' }}
+          />
+          <input
+            id="username"
+            name="username"
+            placeholder="Username"
+            defaultValue={username}
+            onKeyDown={this.onKeyDownSI}
+            onChange={this.onChange}
+            style={{ marginTop: '20px', width: '96%' }}
+          />
+          <input
+            id="password"
+            name="password"
+            placeholder="Password"
+            defaultValue={password}
+            onKeyDown={this.onKeyDownSI}
+            onChange={this.onChange}
+            type="password"
+            style={{ marginTop: '20px', width: '96%' }}
+          />
+          <input
+            id="socketPath"
+            name="socketPath"
+            placeholder="Socket Path (Production only)"
+            defaultValue={socketPath}
+            onKeyDown={this.onKeyDownSI}
+            onChange={this.onChange}
+            style={{ marginTop: '20px', width: '96%' }}
+          />
+          <p>
+            Instructions for binding the socket path can be found <Link href="https://cloud.google.com/sql/docs/mysql/connect-functions" target="_blank" color="primary" rel="noreferrer">here</Link>. 
+            Instructions for creating upload file can be found <Link href="https://cloud.google.com/iam/docs/creating-managing-service-account-keys" target="_blank" color="primary" rel="noreferrer">here</Link>.
+          </p>
+            <Grid container>
+              <Grid item xs={3}>
+                <input
+                  id="contained-button-file"
+                  type="file"
+                  style={{ display: 'none' }}
+                  onChange={this.setRef}
+                />
+                <label htmlFor="contained-button-file">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    component="span"
+                    style={{ height: 28}}
+                  >
+                    Upload
+                  </Button>
+                </label>
+              </Grid>
+              <Grid item xs={9}>
+                <input
+                  defaultValue={fileName}
+                  style={{ height: 19}}
+                />
+              </Grid>
+            </Grid>
+            <Typography
+              variant="p"
+              color="secondary"
+              style={{ minHeight: 25}}
+            >
+              {message}
+            </Typography>
         </div>
       );
     }
@@ -201,6 +348,7 @@ class Configuration extends Component {
               >
                 <option value={'local'}>Local</option>
                 <option value={'firestore'}>Firestore</option>
+                <option value={'mysql'}>MySQL</option>
               </NativeSelect>
               {this.renderConfig()}
             </Box>

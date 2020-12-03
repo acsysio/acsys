@@ -8,32 +8,28 @@ import {
   Hidden,
   IconButton,
   MenuItem,
-  NativeSelect,
   Select,
-  Tooltip,
+  Tooltip
 } from '@material-ui/core';
-import {
-  FileCopyOutlined as CopyIcon,
-} from '@material-ui/icons';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
+import {
+  FileCopyOutlined as CopyIcon
+} from '@material-ui/icons';
 import React from 'react';
-import Datetime from 'react-datetime';
 import { DndProvider } from 'react-dnd';
 import Backend from 'react-dnd-html5-backend';
-import ReactQuill from 'react-quill';
 import uniqid from 'uniqid';
-import * as Prom from '../../services/Acsys/Acsys';
+import * as Acsys from '../../services/Acsys/Acsys';
 import AutoGen from '../Controls/AutoGen';
-import TextField from '../Controls/TextField';
-import DateTimePicker from '../Controls/DateTimePicker';
-import NumberEditor from '../Controls/NumberEditor';
-import RichTextEditor from '../Controls/RichTextEditor';
 import BooleanSelect from '../Controls/BooleanSelect';
-import Position from '../Controls/Position';
+import DateTimePicker from '../Controls/DateTimePicker';
 import ImageReference from '../Controls/ImageReference';
 import ImageURL from '../Controls/ImageURL';
+import NumberEditor from '../Controls/NumberEditor';
+import RichTextEditor from '../Controls/RichTextEditor';
+import TextField from '../Controls/TextField';
 import VideoReference from '../Controls/VideoReference';
 import VideoURL from '../Controls/VideoURL';
 import Example from '../FieldControl/FieldDef';
@@ -51,11 +47,12 @@ const INITIAL_STATE = {
   views: [],
   apiCall: '',
   keys: [],
-  prmthsView: [],
+  acsysView: [],
   routed: false,
   position: 0,
   page: 0,
   rowsPerPage: 15,
+  locked: true,
   loading: false,
   deleting: false,
   deleteLoading: false,
@@ -67,13 +64,13 @@ const INITIAL_STATE = {
 };
 
 let initLoad = true;
-let tableKeys = [];
+let table_keys = [];
 let tempDetails = [];
 let tempDocument = [];
 let fileDoc = [];
 let fileRefs = [];
 let mode = '';
-let isRemovable = true;
+let is_removable = true;
 let quillRef = null;
 let quillIndex = 0;
 let quillURL = '';
@@ -150,7 +147,7 @@ class DocumentView extends React.Component {
 
   setReference = async (name, reference) => {
     const field = this.state.control;
-    const url = await Prom.getStorageURL(reference);
+    const url = await Acsys.getStorageURL(reference);
     if (this.state.fileMode === 'quill') {
       quillURL = url;
     } else if (this.state.fileMode === 'ref') {
@@ -189,7 +186,7 @@ class DocumentView extends React.Component {
 
   getMaxPos = async (table, field) => {
     return new Promise(async (resolve, reject) => {
-      const pos = await Prom.getData(table, '', 1, [field], 'desc')
+      const pos = await Acsys.getData(table, '', 1, [field], 'desc')
         .then((result) => {
           resolve(result[0][field]);
         })
@@ -201,7 +198,7 @@ class DocumentView extends React.Component {
 
   increment = async (table, field, start, num) => {
     return new Promise(async (resolve, reject) => {
-      await Prom.increment(table, field, start, num)
+      await Acsys.increment(table, field, start, num)
         .then(() => {
           resolve(true);
         })
@@ -227,14 +224,14 @@ class DocumentView extends React.Component {
             tempDocument[tempDetails[i].field_name] = '';
           }
         }
-        const result = await Prom.updateData(
-          'prmths_document_details',
-          { ...tempDetails[i] },
-          [['id', '=', tempDetails[i].id]]
-        );
+        // const result = await Acsys.updateData(
+        //   'acsys_document_details',
+        //   { ...tempDetails[i] },
+        //   [['acsys_id', '=', tempDetails[i].acsys_id]]
+        // );
       }
-      const result = await Prom.updateData(
-        'prmths_' + this.state.collection,
+      const result = await Acsys.updateData(
+        'acsys_' + this.state.collection,
         { ...tempDocument },
         this.state.keys
       );
@@ -254,27 +251,26 @@ class DocumentView extends React.Component {
             tempDocument[tempDetails[i].field_name] = '';
           }
         }
-        const result = await Prom.updateData(
-          'prmths_document_details',
-          { ...tempDetails[i] },
-          [['id', '=', tempDetails[i].id]]
-        );
+        // const result = await Acsys.updateData(
+        //   'acsys_document_details',
+        //   { ...tempDetails[i] },
+        //   [['acsys_id', '=', tempDetails[i].acsys_id]]
+        // );
       }
-
-      const result = await Prom.insertData(
-        'prmths_' + this.state.collection,
+      const result = await Acsys.insertData(
+        'acsys_' + this.state.collection,
         { ...tempDocument },
         this.state.keys
       );
     }
-    tableKeys = [];
+    table_keys = [];
     for (var i = 0; i < tempDetails.length; i++) {
-      if (tempDetails[i].isKey) {
+      if (tempDetails[i].is_key) {
         const object = {
           field: tempDetails[i].field_name,
           value: tempDocument[tempDetails[i].field_name],
         };
-        tableKeys.push(object);
+        table_keys.push(object);
       }
     }
     mode = 'update';
@@ -286,65 +282,6 @@ class DocumentView extends React.Component {
     this.setState({ saving: true });
     if (mode === 'update') {
       for (var i = 0; i < tempDetails.length; i++) {
-        if (tempDetails[i].control === 'position') {
-          if (
-            tempDocument[tempDetails[i].field_name] !==
-            posArr[tempDetails[i].field_name]
-          ) {
-            if (tempDocument[tempDetails[i].field_name] === highestPos) {
-              tempDocument[tempDetails[i].field_name] =
-                (await this.getMaxPos(
-                  tempDetails[i].collection,
-                  tempDetails[i].field_name
-                )) + 1;
-            } else {
-              let startAt = tempDocument[tempDetails[i].field_name];
-              let end = posArr[tempDetails[i].field_name];
-              if (startAt > initPos) {
-                let stop = false;
-                for (var k = 0; k < this.state.position.length; k++) {
-                  if (
-                    startAt ===
-                      this.state.position[k][tempDetails[i].field_name] &&
-                    !stop
-                  ) {
-                    stop = true;
-                    var next = k + 1;
-                    startAt = this.state.position[next][
-                      tempDetails[i].field_name
-                    ];
-                    end++;
-
-                    tempDocument[tempDetails[i].field_name] = startAt;
-                    if (
-                      !(await this.increment(
-                        tempDetails[i].collection,
-                        tempDetails[i].field_name,
-                        startAt,
-                        startAt
-                      ))
-                    ) {
-                    }
-                  }
-                }
-              } else {
-                if (
-                  !(await this.increment(
-                    tempDetails[i].collection,
-                    tempDetails[i].field_name,
-                    startAt,
-                    startAt
-                  ))
-                ) {
-                  tempDocument[tempDetails[i].field_name] = end;
-                }
-              }
-            }
-            posArr[tempDetails[i].field_name] =
-              tempDocument[tempDetails[i].field_name];
-            initPos = tempDocument[tempDetails[i].field_name];
-          }
-        }
         if (fileDoc[tempDetails[i].field_name] !== undefined) {
           tempDocument[tempDetails[i].field_name] =
             fileDoc[tempDetails[i].field_name];
@@ -357,34 +294,27 @@ class DocumentView extends React.Component {
             tempDocument[tempDetails[i].field_name] = '';
           }
         }
-        const result = await Prom.updateData(
-          'prmths_document_details',
-          { ...tempDetails[i] },
-          [['id', '=', tempDetails[i].id]]
-        );
+        // const result = await Acsys.updateData(
+        //   'acsys_document_details',
+        //   { ...tempDetails[i] },
+        //   [['acsys_id', '=', tempDetails[i].acsys_id]]
+        // );
       }
       if (this.state.draft) {
         for (var i = 0; i < tempDetails.length; i++) {
-          if (tempDetails[i].control === 'position') {
-            tempDocument[tempDetails[i].field_name] =
-              (await this.getMaxPos(
-                tempDetails[i].collection,
-                tempDetails[i].field_name
-              )) + 1;
-          }
-          const result = await Prom.updateData(
-            'prmths_document_details',
+          const result = await Acsys.updateData(
+            'acsys_document_details',
             { ...tempDetails[i] },
-            [['id', '=', tempDetails[i].id]]
+            [['acsys_id', '=', tempDetails[i].acsys_id]]
           );
         }
-        const result = await Prom.insertData(
+        const result = await Acsys.insertData(
           this.state.collection,
           { ...tempDocument },
           this.state.keys
         );
-        await Prom.deleteData(
-          'prmths_' + this.state.collection,
+        await Acsys.deleteData(
+          'acsys_' + this.state.collection,
           this.state.keys
         )
           .then(() => {
@@ -392,7 +322,7 @@ class DocumentView extends React.Component {
           })
           .catch((error) => {});
       } else {
-        const result = await Prom.updateData(
+        const result = await Acsys.updateData(
           this.state.collection,
           { ...tempDocument },
           this.state.keys
@@ -408,36 +338,31 @@ class DocumentView extends React.Component {
         } else if (tempDocument[tempDetails[i].field_name] === undefined) {
           if (tempDetails[i].control === 'numberEditor') {
             tempDocument[tempDetails[i].field_name] = 0;
-          } else if (tempDetails[i].control === 'position') {
-            tempDocument[tempDetails[i].field_name] =
-              (await this.getMaxPos(
-                tempDetails[i].collection,
-                tempDetails[i].field_name
-              )) + 1;
           } else if (tempDetails[i].control === 'booleanSelect') {
             tempDocument[tempDetails[i].field_name] = false;
           } else {
             tempDocument[tempDetails[i].field_name] = '';
           }
         }
-        const result = await Prom.updateData(
-          'prmths_document_details',
-          { ...tempDetails[i] },
-          [['id', '=', tempDetails[i].id]]
-        );
+        // await Acsys.updateData(
+        //   'acsys_document_details',
+        //   { ...tempDetails[i] },
+        //   [['acsys_id', '=', tempDetails[i].acsys_id]]
+        // );
       }
-      const result = await Prom.insertData(this.state.collection, {
+      console.log(fileDoc)
+      await Acsys.insertData(this.state.collection, {
         ...tempDocument,
       });
     }
-    tableKeys = [];
+    table_keys = [];
     for (var i = 0; i < tempDetails.length; i++) {
-      if (tempDetails[i].isKey) {
+      if (tempDetails[i].is_key) {
         const object = {
           field: tempDetails[i].field_name,
           value: tempDocument[tempDetails[i].field_name],
         };
-        tableKeys.push(object);
+        table_keys.push(object);
       }
     }
     mode = 'update';
@@ -449,11 +374,11 @@ class DocumentView extends React.Component {
     this.setState({ filterLoading: true });
 
     for (var i = 0; i < tempDetails.length; i++) {
-      tempDetails[i].viewOrder = i;
-      const result = await Prom.updateData(
-        'prmths_document_details',
+      tempDetails[i].view_order = i;
+      const result = await Acsys.updateData(
+        'acsys_document_details',
         { ...tempDetails[i] },
-        [['id', '=', tempDetails[i].id]]
+        [['acsys_id', '=', tempDetails[i].acsys_id]]
       );
     }
     this.setState({ filterLoading: false });
@@ -463,16 +388,16 @@ class DocumentView extends React.Component {
   saveView = async (value) => {
     this.setState({ loading: true });
 
-    var tempView = this.state.prmthsView;
+    var tempView = this.state.acsysView;
 
     if (value) {
-      tempView['tableKeys'] = this.props.location.state.tableKeys;
+      tempView['table_keys'] = JSON.stringify(this.props.location.state.table_keys);
     } else {
-      tempView['tableKeys'] = [];
+      tempView['table_keys'] = [];
     }
 
     for (var i = 0; i < tempDetails.length; i++) {
-      const result = await Prom.updateData('prmths_logical_content', tempView, [
+      const result = await Acsys.updateData('acsys_logical_content', tempView, [
         ['viewId', '=', this.props.location.state.viewId],
       ]);
     }
@@ -484,11 +409,11 @@ class DocumentView extends React.Component {
     this.setState({ deleteLoading: true });
     let collection;
     if (draft) {
-      collection = 'prmths_' + documentDetails[0].collection;
+      collection = 'acsys_' + documentDetails[0].collection;
     } else {
       collection = documentDetails[0].collection;
     }
-    await Prom.deleteData(collection, this.state.keys)
+    await Acsys.deleteData(collection, this.state.keys)
       .then(() => {
         this.handleClose();
         this.setState({ deleteLoading: false });
@@ -501,28 +426,46 @@ class DocumentView extends React.Component {
   };
 
   componentDidMount = async () => {
+    initLoad = true;
+    table_keys = [];
+    tempDetails = [];
+    tempDocument = [];
+    fileDoc = [];
+    fileRefs = [];
+    mode = '';
+    is_removable = true;
+    quillRef = null;
+    quillIndex = 0;
+    quillURL = '';
+    posArr = [];
+    initPos = 0;
+    highestPos = 0;
     try {
       this.props.setHeader('Content');
-      initLoad = true;
       let tempMode = mode;
       let routed = this.state.routed;
-      const prmthsView = await Prom.getData('prmths_logical_content', [
+      const acsysView = await Acsys.getData('acsys_logical_content', [
         ['viewId', '=', this.props.location.state.viewId],
       ]);
+      if (acsysView[0].table_keys.length > 0) {
+        routed = true;
+      }
       try {
         mode = this.props.location.state.mode;
-        isRemovable = this.props.location.state.isRemovable;
-        tableKeys = this.props.location.state.tableKeys;
+        is_removable = this.props.location.state.is_removable;
+        if(routed) {
+          table_keys = JSON.parse(this.props.location.state.table_keys);
+        }
+        else {
+          table_keys = this.props.location.state.table_keys;
+        }
       } catch (error) {
         mode = tempMode;
-      }
-      if (prmthsView[0].tableKeys.length > 0) {
-        routed = true;
       }
       this.setState({
         loading: true,
         routed: routed,
-        prmthsView: prmthsView[0],
+        acsysView: acsysView[0],
       });
       tempDocument = [];
       fileRefs = [];
@@ -537,8 +480,8 @@ class DocumentView extends React.Component {
   mount = async () => {
     let documentDetails;
     try {
-      documentDetails = await Prom.getData('prmths_document_details', [
-        ['contentId', '=', this.props.location.state.viewId],
+      documentDetails = await Acsys.getData('acsys_document_details', [
+        ['content_id', '=', this.props.location.state.viewId],
       ]);
     } catch (error) {
       documentDetails = this.state.documentDetails;
@@ -550,28 +493,27 @@ class DocumentView extends React.Component {
     let position = 0;
     let open = false;
     try {
-      documentDetails.sort((a, b) => (a.viewOrder > b.viewOrder ? 1 : -1));
+      documentDetails.sort((a, b) => (a.view_order > b.view_order ? 1 : -1));
       tempDetails = documentDetails;
 
       if (mode === 'update') {
         let pullView;
 
-        for (let i = 0; i < tableKeys.length; i++) {
-          keys.push([tableKeys[i].field, '=', tableKeys[i].value]);
+        for (let i = 0; i < table_keys.length; i++) {
+          keys.push([table_keys[i].field, '=', table_keys[i].value]);
         }
-
-        await Prom.getData(table, keys)
+        await Acsys.getData(table, keys)
           .then((result) => {
             pullView = result;
           })
           .catch(async () => {});
         if (pullView.length < 1) {
-          await Prom.getData('prmths_' + table, keys).then((result) => {
+          await Acsys.getData('acsys_' + table, keys).then((result) => {
             pullView = result;
             draft = true;
           });
         }
-        await Prom.getData('prmths_open_tables', [['table_name', '=', table]])
+        await Acsys.getData('acsys_open_tables', [['table_name', '=', table]])
         .then(async (result) => {
           if (result[0].table_name === table) {
             open = true;
@@ -580,10 +522,10 @@ class DocumentView extends React.Component {
         .catch(() => {});
 
         if (open) {
-          apiCall = await Prom.getOpenUrl(table, keys);
+          apiCall = await Acsys.getOpenUrl(table, keys);
         }
         else {
-          apiCall = await Prom.getUrl(table, keys);
+          apiCall = await Acsys.getUrl(table, keys);
         }
 
         let currentView;
@@ -599,7 +541,7 @@ class DocumentView extends React.Component {
             documentDetails[i].control === 'imageReference' ||
             documentDetails[i].control === 'videoReference'
           ) {
-            fileRefs[documentDetails[i].field_name] = await Prom.getStorageURL(
+            fileRefs[documentDetails[i].field_name] = await Acsys.getStorageURL(
               currentView[documentDetails[i].field_name]
             );
             fileDoc[documentDetails[i].field_name] =
@@ -612,16 +554,6 @@ class DocumentView extends React.Component {
               currentView[documentDetails[i].field_name];
             fileDoc[documentDetails[i].field_name] =
               currentView[documentDetails[i].field_name];
-          } else if (documentDetails[i].control === 'position') {
-            position = await Prom.getData(
-              table,
-              '',
-              '',
-              [documentDetails[i].field_name],
-              'asc'
-            );
-            highestPos =
-              position[position.length - 1][documentDetails[i].field_name];
           }
         }
 
@@ -673,7 +605,7 @@ class DocumentView extends React.Component {
                   initLoad = false;
                 }
               }
-              if (currentKey == details.field_name && details.isVisibleOnPage) {
+              if (currentKey == details.field_name && details.is_visible_on_page) {
                 if (details.control == 'autoGen') {
                   return (
                     <AutoGen width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} />
@@ -699,14 +631,6 @@ class DocumentView extends React.Component {
                 } else if (details.control == 'booleanSelect') {
                   return (
                     <BooleanSelect width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} />
-                  );
-                } else if (details.control == 'position') {
-                  if (initLoad) {
-                    initPos = tempDocument[currentKey];
-                    posArr[details.field_name] = tempDocument[currentKey];
-                  }
-                  return (
-                    <Position width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} draft = {this.state.draft} position = {this.state.position} />
                   );
                 } else if (details.control == 'imageReference') {
                   const url = fileRefs[details.field_name];
@@ -744,7 +668,7 @@ class DocumentView extends React.Component {
         <Grid container spacing={3}>
           {Object.values(documentDetails).map((details, dindex) => {
             let currentKey = details.field_name;
-            if (details.isVisibleOnPage) {
+            if (details.is_visible_on_page) {
               if (details.control == 'autoGen') {
                 return (
                   <AutoGen width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} new = {true} />
@@ -774,14 +698,6 @@ class DocumentView extends React.Component {
               } else if (details.control == 'booleanSelect') {
                 return (
                   <BooleanSelect width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} />
-                );
-              } else if (details.control == 'position') {
-                if (initLoad) {
-                  initPos = tempDocument[currentKey];
-                  posArr[details.field_name] = tempDocument[currentKey];
-                }
-                return (
-                  <Position width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} draft = {this.state.draft} position = {this.state.position} />
                 );
               } else if (details.control == 'imageReference') {
                 const url = fileRefs[details.field_name];
@@ -815,9 +731,9 @@ class DocumentView extends React.Component {
     const { filterLoading, draft, deleteLoading, apiCall } = this.state;
     return (
       <div style={{ minHeight: 600 }}>
-        {Prom.getMode() !== 'Viewer' ? (
+        {Acsys.getMode() !== 'Viewer' ? (
           <div>
-            {!this.props.location.state.routed && isRemovable ? (
+            {!this.props.location.state.routed && is_removable ? (
               <Tooltip title="Delete Entry">
                 <Button
                   style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
@@ -855,7 +771,7 @@ class DocumentView extends React.Component {
             ) : (
               <div></div>
             )}
-            {Prom.getMode() === 'Administrator' ? (
+            {Acsys.getMode() === 'Administrator' ? (
               <Tooltip title="Change How Data Is Presented">
                 <Button
                   style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
@@ -869,7 +785,7 @@ class DocumentView extends React.Component {
             ) : (
               <div />
             )}
-            {Prom.getMode() === 'Administrator' ? (
+            {Acsys.getMode() === 'Administrator' ? (
               <Select
                 defaultValue={this.props.location.state.routed}
                 onChange={(e) => this.saveView(e.target.value)}

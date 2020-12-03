@@ -74,20 +74,20 @@ const searchDir = function (dir) {
         const dateCreated = await fs.lstatSync(dir + '/' + files[i]).birthtime;
         const dateUpdated = await fs.lstatSync(dir + '/' + files[i]).mtime;
         const object = {
-          id: tempFileName,
-          fileOrder: order,
+          acsys_id: tempFileName,
+          file_order: order,
           parent: parentName,
           name: fileName,
-          contentType: type,
-          isPublic: false,
-          timeCreated: `${
+          content_type: type,
+          is_public: false,
+          time_created: `${
             monthNames[dateCreated.getMonth()]
           } ${dateCreated.getDate()}, ${dateCreated.getFullYear()}`,
           updated: `${
             monthNames[dateUpdated.getMonth()]
           } ${dateUpdated.getDate()}, ${dateUpdated.getFullYear()}`,
         };
-        await db.insert('prmths_storage_items', object);
+        await db.insert('acsys_storage_items', object);
         if (type === 'Folder') {
           searchDir(dir + '/' + files[i]);
         }
@@ -108,7 +108,7 @@ const removeDir = function (path) {
         async function (err) {
             if (!err) {
                 await db
-                .deleteDocs('prmths_storage_items', [['id', '=', path.substring(8) + filename]]);
+                .deleteDocs('acsys_storage_items', [['acsys_id', '=', path.substring(8) + filename]]);
             }
         });
       }
@@ -117,7 +117,7 @@ const removeDir = function (path) {
       async function (err) {
           if (!err) {
               await db
-              .deleteDocs('prmths_storage_items', [['id', '=', path.substring(8)]]);
+              .deleteDocs('acsys_storage_items', [['acsys_id', '=', path.substring(8)]]);
           }
       });
   }
@@ -135,7 +135,7 @@ class LocalStorageDriver {
 
   syncFiles() {
     return new Promise((resolve) => {
-      db.deleteDocs('prmths_storage_items')
+      db.deleteDocs('acsys_storage_items')
         .then(() => {
           searchDir('./files');
           resolve(true);
@@ -179,13 +179,13 @@ class LocalStorageDriver {
         const dateCreated = new Date();
         const dateUpdated = new Date();
         const object = {
-            id: writeName,
-            fileOrder: order,
+            acsys_id: writeName,
+            file_order: order,
             parent: parentName,
             name: file.name,
-            contentType: type,
-            isPublic: false,
-            timeCreated: `${
+            content_type: type,
+            is_public: false,
+            time_created: `${
             monthNames[dateCreated.getMonth()]
             } ${dateCreated.getDate()}, ${dateCreated.getFullYear()}`,
             updated: `${
@@ -193,7 +193,7 @@ class LocalStorageDriver {
             } ${dateUpdated.getDate()}, ${dateUpdated.getFullYear()}`,
         };
 
-        db.insert('prmths_storage_items', object)
+        db.insert('acsys_storage_items', object)
             .then(() => {
             resolve(true);
             })
@@ -236,13 +236,13 @@ class LocalStorageDriver {
                     const dateCreated = new Date();
                     const dateUpdated = new Date();
                     const object = {
-                        id: writeName,
-                        fileOrder: order,
+                        acsys_id: writeName,
+                        file_order: order,
                         parent: parentName,
                         name: folder,
-                        contentType: type,
-                        isPublic: false,
-                        timeCreated: `${
+                        content_type: type,
+                        is_public: false,
+                        time_created: `${
                         monthNames[dateCreated.getMonth()]
                         } ${dateCreated.getDate()}, ${dateCreated.getFullYear()}`,
                         updated: `${
@@ -250,7 +250,7 @@ class LocalStorageDriver {
                         } ${dateUpdated.getDate()}, ${dateUpdated.getFullYear()}`,
                     };
             
-                    db.insert('prmths_storage_items', object)
+                    db.insert('acsys_storage_items', object)
                         .then(() => {
                           resolve(true);
                         })
@@ -267,9 +267,9 @@ class LocalStorageDriver {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
       const options = {
-        where: [['id', '=', req.query.url]],
+        where: [['acsys_id', '=', req.query.url]],
       };
-      await db.getDocs('prmths_storage_items', options)
+      await db.getDocs('acsys_storage_items', options)
         .then(async (result) => {
           if (Boolean(result.length > 0 && result[0].isPublic)) {
             const url = req.protocol + '://' + req.get('host') + '/api/getFile?file=' + req.query.url;
@@ -290,8 +290,8 @@ class LocalStorageDriver {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
         await db
-        .update('prmths_storage_items', { isPublic: true }, [
-          ['id', '=', referenceName],
+        .update('acsys_storage_items', { is_public: true }, [
+          ['acsys_id', '=', referenceName],
         ])
         .then(() => {
           resolve(true);
@@ -306,8 +306,8 @@ class LocalStorageDriver {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
         await db
-        .update('prmths_storage_items', { isPublic: false }, [
-          ['id', '=', referenceName],
+        .update('acsys_storage_items', { is_public: false }, [
+          ['acsys_id', '=', referenceName],
         ])
         .then(() => {
           resolve(true);
@@ -332,7 +332,7 @@ class LocalStorageDriver {
                 resolve(false);
             } else {
                 await db
-                .deleteDocs('prmths_storage_items', [['id', '=', referenceName]])
+                .deleteDocs('acsys_storage_items', [['acsys_id', '=', referenceName]])
                 .then(() => {
                     resolve(true);
                 })

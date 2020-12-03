@@ -1,31 +1,13 @@
-const sqlite3 = require('sqlite3').verbose();
-const querystring = require('querystring');
+const mysql = require('mysql');
 
 let db;
 
+let dbName;
+
 let connected = false;
 
-const siftRows = function (rows) {
-  let sRows = [];
-  for(let i = 0; i < rows.length; i++) {
-    let obj = {};
-    const values = Object.values(rows[i]);
-    const fields = Object.keys(rows[i]);
-    for(let j = 0; j < values.length; j++) {
-      if(typeof values[j] === 'string') {
-        obj[fields[j]] = querystring.unescape(values[j]);
-      }
-      else {
-        obj[fields[j]] = values[j];
-      }
-    }
-    sRows.push(obj);
-  }
-  return sRows;
-}
-
 const createTable = function (tableName, data) {
-  return new Promise(async (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const insertData = Object.values(data);
 
     const dataKeys = Object.keys(data);
@@ -54,12 +36,12 @@ const createTable = function (tableName, data) {
       }
     }
 
-    let sql = `CREATE TABLE IF NOT EXISTS ${tableName} (${placeholders})`;
+    let sql = `CREATE TABLE ${tableName} (${placeholders})`;
 
-    db.run(sql, function (err) {
+    db.query(sql, function (err) {
       if (err) {
         console.log(err);
-        resolve (false);
+        resolve(false);
       }
 
       let placeholders = '';
@@ -70,7 +52,7 @@ const createTable = function (tableName, data) {
           typeof insertData[i] === 'string' ||
           typeof insertData[i] === 'object'
         ) {
-          insert = `"${querystring.escape(insertData[i])}"`;
+          insert = db.escape(insertData[i]);
           if (insert.length < 1) {
             insert = "''";
           }
@@ -86,54 +68,74 @@ const createTable = function (tableName, data) {
 
       sql = `INSERT INTO ${tableName} VALUES (${placeholders})`;
 
-      db.run(sql, function (err) {
+      db.query(sql, function (err) {
         if (err) {
           console.log(err);
-          resolve (false);
+          resolve(false);
         }
-        resolve (true);
-      });
-    });
-  })
-}
-
-class SqliteDriver {
-  initialize() {
-    return new Promise(async (resolve, reject) => {
-      db = new sqlite3.Database('./dbase.db', (err) => {
-        if (err) {
-          connected = false;
-        }
-        db.serialize(async function () {
-          await db.run(
-            'CREATE TABLE IF NOT EXISTS acsys_users (acsys_id TEXT, email TEXT, username TEXT, role TEXT, mode TEXT, acsys_cd TEXT)'
-          );
-          await db.run(
-            'CREATE TABLE IF NOT EXISTS acsys_logical_content (acsys_id TEXT, name TEXT, description TEXT, viewId TEXT, source_collection TEXT, position INT, table_keys TEXT)'
-          );
-          await db.run(
-            'CREATE TABLE IF NOT EXISTS acsys_views (acsys_id TEXT, is_removable BOOLEAN, is_table_mode BOOLEAN, link_table TEXT, link_view_id TEXT, view_order TEXT, order_by TEXT, row_num INT)'
-          );
-          await db.run(
-            'CREATE TABLE IF NOT EXISTS acsys_document_details (acsys_id TEXT, content_id TEXT, collection TEXT, control TEXT, field_name TEXT, is_visible_on_page BOOLEAN, is_visible_on_table BOOLEAN, type TEXT, is_key BOOLEAN, view_order INT, width INT)'
-          );
-          await db.run(
-            'CREATE TABLE IF NOT EXISTS acsys_email_settings (host TEXT, port INT, username TEXT, password TEXT)'
-          );
-          await db.run(
-            'CREATE TABLE IF NOT EXISTS acsys_open_tables (table_name TEXT)'
-          );
-          await db.run(
-            'CREATE TABLE IF NOT EXISTS acsys_storage_items (acsys_id TEXT, file_order INT, parent TEXT, name TEXT, content_type TEXT, is_public BOOLEAN, time_created TEXT, updated TEXT)'
-          );
-          await db.run(
-            'CREATE TABLE IF NOT EXISTS acsys_user_reset (acsys_id TEXT, user_id Text, expiration_date INT)'
-          );
-        });
-        connected = true;
         resolve(true);
       });
-      resolve(false);
+    });
+  });
+}
+
+class MysqlDriver {
+  initialize(config) {
+    return new Promise(async (resolve, reject) => {
+      const settings = await config.getMysqlConfig();
+      dbName = settings.database;
+      db = mysql.createPool({
+        connectionLimit: 10,
+        host     : settings.host,
+        port     : settings.port,
+        database : settings.database,
+        user     : settings.username,
+        password : settings.password,
+        socketPath: settings.socketPath
+      });
+      db.query('SHOW TABLES', (error, rows) => {
+        if(error) {
+          if(error.code === 'ENOENT') {
+            db = mysql.createPool({
+              connectionLimit: 10,
+              host     : settings.host,
+              port     : settings.port,
+              database : settings.database,
+              user     : settings.username,
+              password : settings.password,
+            });
+          }
+        }
+      });
+      db.query('CREATE TABLE IF NOT EXISTS acsys_users (acsys_id TEXT, email TEXT, username TEXT, role TEXT, mode TEXT, acsys_cd TEXT)', (error, rows) => {
+
+      });
+      db.query('CREATE TABLE IF NOT EXISTS acsys_logical_content (acsys_id TEXT, name TEXT, description TEXT, viewId TEXT, source_collection TEXT, position INT, table_keys TEXT)', (error, rows) => {
+      
+      });
+      db.query('CREATE TABLE IF NOT EXISTS acsys_views (acsys_id TEXT, is_removable BOOLEAN, is_table_mode BOOLEAN, link_table TEXT, link_view_id TEXT, view_order TEXT, order_by TEXT, row_num INT)', (error, rows) => {
+
+      });
+      db.query('CREATE TABLE IF NOT EXISTS acsys_document_details (acsys_id TEXT, content_id TEXT, collection TEXT, control TEXT, field_name TEXT, is_visible_on_page BOOLEAN, is_visible_on_table BOOLEAN, type TEXT, is_key BOOLEAN, view_order INT, width INT)', (error, rows) => {
+
+      });
+      db.query('CREATE TABLE IF NOT EXISTS acsys_email_settings (host TEXT, port INT, username TEXT, password TEXT)', (error, rows) => {
+
+      });
+      db.query('CREATE TABLE IF NOT EXISTS acsys_open_tables (table_name TEXT)', (error, rows) => {
+
+      });
+      db.query('CREATE TABLE IF NOT EXISTS acsys_storage_items (acsys_id TEXT, file_order INT, parent TEXT, name TEXT, content_type TEXT, is_public BOOLEAN, time_created TEXT, updated TEXT)', (error, rows) => {
+
+      });
+      db.query('CREATE TABLE IF NOT EXISTS acsys_user_reset (acsys_id TEXT, user_id Text, expiration_date INT)', (error, rows) => {
+
+      });
+      db.query('CREATE TABLE IF NOT EXISTS acsys_storage_settings (bucket TEXT)', (error, rows) => {
+
+      });
+      connected = true;
+      resolve(true);
     });
   }
 
@@ -143,60 +145,55 @@ class SqliteDriver {
 
   getProjectName() {
     return new Promise(async (resolve, reject) => {
-      const query = 'SELECT CONFIG FROM acsys_CONFIGURATION LIMIT 1';
-      await db.all(query, [], (error, rows) => {
-        if (rows === undefined) {
-          resolve('');
-        } else {
-          let sRows = siftRows(rows);
-          resolve(sRows[0].config);
-        }
-      });
+      resolve(dbName);
     });
   }
 
   createUser(data) {
     return new Promise((resolve, reject) => {
-      db.serialize(async function () {
-        const insertData = Object.values(data);
+      const insertData = Object.values(data);
 
-        let placeholders = '';
+      const values = [];
 
-        for (let i = 0; i < insertData.length; i++) {
-          let insert = '';
-          if (typeof insertData[i] === 'string') {
-            insert = `'${insertData[i]}'`;
-          } else {
-            insert = insertData[i];
+      let placeholders = '';
+
+      for (let i = 0; i < insertData.length; i++) {
+        let insert = '';
+        if (typeof insertData[i] === 'string') {
+          insert = db.escape(insertData[i]);
+          if (insert.length < 1) {
+            insert = "''";
           }
-          if (i === 0) {
-            placeholders += `${insert}`;
-          } else {
-            placeholders += `, ${insert}`;
-          }
+        } else {
+          insert = insertData[i];
         }
+        if (i === 0) {
+          placeholders += `${insert}`;
+        } else {
+          placeholders += `, ${insert}`;
+        }
+      }
 
-        const sql = `INSERT INTO acsys_users VALUES (${placeholders})`;
+      const sql = `INSERT INTO acsys_users VALUES (${placeholders})`;
 
-        db.run(sql, function (err) {
-          if (err) {
-            resolve(false);
-          }
-          resolve(true);
-        });
+      db.query(sql, function (err) {
+        if (err) {
+          console.log(err);
+          resolve(false);
+        }
+        resolve(true);
       });
     });
   }
 
-  verifyPassword(id) {
+  verifyPassword(acsys_id) {
     return new Promise(async (resolve, reject) => {
-      const query = `SELECT * FROM acsys_users WHERE acsys_id = '${id}'`;
-      await db.all(query, [], (error, rows) => {
+      const query = `SELECT * FROM acsys_users WHERE acsys_id = '${acsys_id}'`;
+      await db.query(query, (error, rows) => {
         if (rows === undefined || error) {
           resolve(false);
         } else {
-          let sRows = siftRows(rows);
-          resolve(sRows[0].acsys_cd);
+          resolve(rows[0].acsys_cd);
         }
       });
     });
@@ -205,12 +202,11 @@ class SqliteDriver {
   getUsers(user) {
     return new Promise(async (resolve, reject) => {
       const query = `SELECT * FROM acsys_users WHERE USERNAME != '${user}'`;
-      await db.all(query, [], (error, rows) => {
+      await db.query(query, (error, rows) => {
         if (rows === undefined || error) {
           resolve([]);
         } else {
-          let sRows = siftRows(rows);
-          resolve(sRows);
+          resolve(rows);
         }
       });
     });
@@ -219,18 +215,20 @@ class SqliteDriver {
   async getTableData() {
     return new Promise(async (resolve, reject) => {
       const collectionArr = [];
-      const query = `SELECT NAME FROM SQLITE_MASTER WHERE TYPE = 'table' AND NAME NOT LIKE 'sqlite_%' AND NAME NOT LIKE 'acsys_%'`;
-      await db.all(query, [], async (error, rows) => {
+      const query = `SHOW TABLES`;
+      await db.query(query, async (error, rows) => {
         if (rows === undefined || error) {
           resolve([]);
         } else {
           for (const row of rows) {
-            const count = await this.getTableSize(row.name);
-            const data = {
-              table: row.name,
-              rows: count,
-            };
-            collectionArr.push(data);
+            if(Object.values(row)[0].substring(0, 6) !== 'acsys_') {
+              const count = await this.getTableSize(Object.values(row)[0]);
+              const data = {
+                table: Object.values(row)[0],
+                rows: count,
+              };
+              collectionArr.push(data);
+            }
           }
           resolve(collectionArr);
         }
@@ -241,14 +239,15 @@ class SqliteDriver {
   listTables() {
     return new Promise(async (resolve, reject) => {
       const collectionArr = [];
-      const query = `SELECT NAME FROM SQLITE_MASTER WHERE TYPE = 'table' AND NAME NOT LIKE 'sqlite_%' AND NAME NOT LIKE 'acsys_%'`;
-      await db.all(query, [], (error, rows) => {
+      const query = `SHOW TABLES`;
+      await db.query(query, (error, rows) => {
         if (rows === undefined || error) {
           resolve([]);
         } else {
-          let sRows = siftRows(rows);
-          sRows.forEach((row) => {
-            collectionArr.push(row.name);
+          rows.forEach((row) => {
+            if(Object.values(row)[0].substring(0, 6) !== 'acsys_') {
+              collectionArr.push(Object.values(row)[0]);
+            }
           });
           resolve(collectionArr);
         }
@@ -258,13 +257,12 @@ class SqliteDriver {
 
   getTableSize(collectionName) {
     return new Promise(async (resolve, reject) => {
-      const query = `SELECT COUNT(*) AS NUM FROM '${collectionName}'`;
-      await db.all(query, [], (error, rows) => {
+      const query = `SELECT COUNT(*) AS NUM FROM ${collectionName}`;
+      await db.query(query, (error, rows) => {
         if (rows === undefined || error) {
           resolve(0);
         } else {
-          let sRows = siftRows(rows);
-          resolve(sRows[0].NUM);
+          resolve(rows[0].NUM);
         }
       });
     });
@@ -273,7 +271,7 @@ class SqliteDriver {
   increment(collectionName, options, field, start, num) {
     return new Promise(async (resolve, reject) => {
       const query = `SELECT * FROM ${collectionName} WHERE ${field} >= ${start}`;
-      await db.all(query, [], async (error, rows) => {
+      await db.query(query, async (error, rows) => {
         if (rows === undefined || error) {
           resolve();
         } else {
@@ -293,7 +291,10 @@ class SqliteDriver {
                 typeof updateData[i] === 'string' ||
                 typeof updateData[i] === 'object'
               ) {
-                update = `'${updateData[i]}'`;
+                update = db.escape(updateData[i]);
+                if (update.length < 1) {
+                  update = "''";
+                }
               } else {
                 update = updateData[i];
               }
@@ -316,11 +317,11 @@ class SqliteDriver {
                 options.where.forEach((tuple, index) => {
                   try {
                     let value = '';
-                    // if (tuple[1] == '=') {
-                    //   tuple[1] = '==';
-                    // }
                     if (typeof tuple[2] === 'string') {
-                      value = `'${tuple[2]}'`;
+                      value = db.escape(tuple[2]);
+                      if (value.length < 1) {
+                        value = "''";
+                      }
                     } else {
                       value = tuple[2];
                     }
@@ -350,10 +351,8 @@ class SqliteDriver {
               }
             }
 
-            db.serialize(async function () {
-              await db.run(query, function (err) {
-                console.log(err);
-              });
+            db.query(query, function (err) {
+              console.log(err);
             });
           }
         }
@@ -365,7 +364,7 @@ class SqliteDriver {
   repositionViews(data, old, pos) {
     return new Promise(async (resolve, reject) => {
       const query = 'SELECT * FROM acsys_logical_content ORDER BY POSITION';
-      await db.all(query, [], async (error, rows) => {
+      await db.query(query, async (error, rows) => {
         if (rows === undefined || error) {
           resolve();
         } else {
@@ -378,17 +377,13 @@ class SqliteDriver {
             }
             if (row.acsys_id === data.acsys_id) {
               const sql = `UPDATE acsys_logical_content SET POSITION = ${data.position} WHERE acsys_id = '${row.acsys_id}'`;
-              db.serialize(async function () {
-                await db.run(sql, function (err) {
-                  console.log(err);
-                });
+              db.query(sql, function (err) {
+                console.log(err);
               });
             } else {
               const sql = `UPDATE acsys_logical_content SET POSITION = ${newPos} WHERE acsys_id = '${row.acsys_id}'`;
-              db.serialize(async function () {
-                await db.run(sql, function (err) {
-                  console.log(err);
-                });
+              db.query(sql, function (err) {
+                console.log(err);
               });
               newPos++;
             }
@@ -408,15 +403,14 @@ class SqliteDriver {
     return new Promise(async (resolve, reject) => {
       const query = `SELECT * FROM acsys_logical_content ORDER BY POSITION`;
       let newPos = 1;
-      await db.all(query, [], (error, rows) => {
-        let sRows = siftRows(rows);
-        if (sRows === undefined || error) {
+      await db.query(query, (error, rows) => {
+        if (rows === undefined || error) {
           console.log(error);
           resolve([]);
         } else {
-          for (const row of sRows) {
-            const sql = `UPDATE acsys_logical_content SET POSITION = ${newPos} WHERE acsys_id = '${row.id}'`;
-            db.run(sql, function (err) {
+          for (const row of rows) {
+            const sql = `UPDATE acsys_logical_content SET POSITION = ${newPos} WHERE acsys_id = '${row.acsys_id}'`;
+            db.query(sql, function (err) {
               console.log(err);
             });
             newPos++;
@@ -437,10 +431,10 @@ class SqliteDriver {
   unlockTable(data) {
     return new Promise(async (resolve, reject) => {
       const query = `SELECT * FROM acsys_open_tables WHERE TABLE_NAME = ${data.table_name}`;
-      await db.all(query, [], (error, rows) => {
+      await db.query(query, (error, rows) => {
         if (rows === undefined || error) {
           const sql = `INSERT INTO acsys_open_tables VALUES ('${data.table_name}')`;
-          db.run(sql, function (err) {
+          db.query(sql, function (err) {
             if (err) {
               resolve(false);
             }
@@ -448,7 +442,7 @@ class SqliteDriver {
           });
         } else {
           const sql = `UPDATE acsys_open_tables SET TABLE_NAME = ${data.table_name}`;
-          db.run(sql, function (err) {
+          db.query(sql, function (err) {
             if (err) {
               resolve(false);
             }
@@ -462,7 +456,7 @@ class SqliteDriver {
   lockTable(table) {
     return new Promise(async (resolve, reject) => {
       const query = `DELETE FROM acsys_open_tables WHERE TABLE_NAME = '${table}'`;
-      await db.all(query, [], (error) => {
+      await db.query(query, (error) => {
         if (error) {
           resolve(false);
         } else {
@@ -503,13 +497,12 @@ class SqliteDriver {
           query += `LIMIT ${offset},${options.limit}`;
         }
       }
-      await db.all(query, [], (error, rows) => {
+      await db.query(query, (error, rows) => {
         if (rows === undefined || error) {
           console.log(error);
           resolve([]);
         } else {
-          let sRows = siftRows(rows);
-          resolve(sRows);
+          resolve(rows);
         }
       });
     });
@@ -530,7 +523,7 @@ class SqliteDriver {
             try {
               let value = '';
               if (typeof tuple[2] === 'string') {
-                value = `"${querystring.escape(tuple[2])}"`;
+                value = db.escape(tuple[2]);
                 if (value.length < 1) {
                   value = "''";
                 }
@@ -560,138 +553,108 @@ class SqliteDriver {
           query += `LIMIT 0,${options.limit}`;
         }
       }
-      await db.all(query, [], (error, rows) => {
+
+      await db.query(query, (error, rows) => {
         if (rows === undefined || error) {
           console.log(error);
           resolve([]);
         } else {
-          let sRows = siftRows(rows);
-          resolve(sRows);
+          resolve(rows);
         }
       });
     });
   }
 
   insert(table, data) {
-    return new Promise((resolve, reject) => {
-      db.serialize(async function () {
-        const insertData = Object.values(data);
+    return new Promise(async (resolve, reject) => {
+      const insertData = Object.values(data);
 
-        const dataKeys = Object.keys(data);
+      const dataKeys = Object.keys(data);
 
-        let placeholders = '';
+      let placeholders = '';
 
-        for (let i = 0; i < insertData.length; i++) {
-          let insert = '';
-          if (
-            typeof insertData[i] === 'string' ||
-            typeof insertData[i] === 'object'
-          ) {
-            insert = `"${querystring.escape(insertData[i])}"`;
-            if (insert.length < 1) {
-              insert = "''";
-            }
-          } else {
-            insert = insertData[i];
+      for (let i = 0; i < insertData.length; i++) {
+        let insert = '';
+        if (
+          typeof insertData[i] === 'string' ||
+          typeof insertData[i] === 'object'
+        ) {
+          insert = db.escape(insertData[i]);
+          if (insert.length < 1) {
+            insert = "''";
           }
-          if (i === 0) {
-            placeholders += `${insert}`;
-          } else {
-            placeholders += `, ${insert}`;
+        } 
+        else if (typeof insertData[i] === 'boolean') {
+          if(insertData[i]) {
+            insert = true;
+          }
+          else {
+            insert = false;
           }
         }
+        else {
+          insert = insertData[i];
+        }
+        if (i === 0) {
+          placeholders += `${insert}`;
+        } else {
+          placeholders += `, ${insert}`;
+        }
+      }
 
-        const sql = `INSERT INTO ${table} (${dataKeys.toString()}) VALUES (${placeholders})`;
+      const sql = `INSERT INTO ${table} (${dataKeys.toString()}) VALUES (${placeholders})`;
 
-        db.run(sql, async function (err) {
-          if (err) {
-            if(err.errno === 1) {
-              await createTable(table, data);
-              resolve(true);
-            }
-            console.log(err);
-            resolve(false);
+      await db.query(sql, async function (err) {
+        if (err) {
+          if(err.code === 'ER_NO_SUCH_TABLE') {
+            await createTable(table, data);
+            resolve(true);
           }
-          resolve(true);
-        });
+          console.log(err);
+          resolve(false);
+        }
+        resolve(true);
       });
     });
   }
 
   update(collectionName, data, options) {
-    return new Promise((resolve, reject) => {
-      db.serialize(async function () {
-        const updateData = Object.values(data);
-
-        const dataKeys = Object.keys(data);
-
-        let placeholders = '';
-
-        for (let i = 0; i < updateData.length; i++) {
-          let update = '';
-          if (
-            typeof updateData[i] === 'string' ||
-            typeof updateData[i] === 'object'
-          ) {
-            update = `"${querystring.escape(updateData[i])}"`;
-            if (update.length < 1) {
-              update = "''";
-            }
-          } else {
-            update = updateData[i];
-          }
-          if (i === 0) {
-            placeholders += `${dataKeys[i]} = ${update}`;
-          } else {
-            placeholders += `, ${dataKeys[i]} = ${update}`;
-          }
-        }
-
-        let query = `UPDATE ${collectionName} SET ${placeholders} `;
-
-        if (options) {
-          query += `WHERE `;
-          options.forEach((tuple, index) => {
-            try {
-              let value = '';
-              if (typeof tuple[2] === 'string') {
-                value = `"${querystring.escape(tuple[2])}"`;
-                if (value.length < 1) {
-                  value = "''";
-                }
-              } else {
-                value = tuple[2];
-              }
-              if (index === 0) {
-                query += `${tuple[0]} ${tuple[1]} ${value} `;
-              } else {
-                query += `AND ${tuple[0]} ${tuple[1]} ${value} `;
-              }
-            } catch (error) {}
-          });
-        }
-
-        db.run(query, function (err) {
-          if (err) {
-            console.log(err);
-            resolve(false);
-          }
-          resolve(true);
-        });
-      });
-    });
-  }
-
-  deleteDocs(collectionName, options) {
     return new Promise(async (resolve, reject) => {
-      let query = `DELETE FROM ${collectionName} `;
+      const updateData = Object.values(data);
+
+      const dataKeys = Object.keys(data);
+
+      let placeholders = '';
+
+      for (let i = 0; i < updateData.length; i++) {
+        let update = '';
+        if (
+          typeof updateData[i] === 'string' ||
+          typeof updateData[i] === 'object'
+        ) {
+          update = db.escape(updateData[i]);
+          if (update.length < 1) {
+            update = "''";
+          }
+        } else {
+          update = updateData[i];
+        }
+        if (i === 0) {
+          placeholders += `${dataKeys[i]} = ${update}`;
+        } else {
+          placeholders += `, ${dataKeys[i]} = ${update}`;
+        }
+      }
+
+      let query = `UPDATE ${collectionName} SET ${placeholders} `;
+
       if (options) {
         query += `WHERE `;
         options.forEach((tuple, index) => {
           try {
             let value = '';
             if (typeof tuple[2] === 'string') {
-              value = `"${querystring.escape(tuple[2])}"`;
+              value = db.escape(tuple[2]);
               if (value.length < 1) {
                 value = "''";
               }
@@ -706,10 +669,42 @@ class SqliteDriver {
           } catch (error) {}
         });
       }
-      else {
-        query = `DROP TABLE ${collectionName} `;
+
+      await db.query(query, function (err) {
+        if (err) {
+          console.log(err);
+          resolve(false);
+        }
+        resolve(true);
+      });
+    });
+  }
+
+  deleteDocs(collectionName, options) {
+    return new Promise(async (resolve, reject) => {
+      let query = `DELETE FROM ${collectionName} `;
+      if (options) {
+        query += `WHERE `;
+        options.forEach((tuple, index) => {
+          try {
+            let value = '';
+            if (typeof tuple[2] === 'string') {
+              value = db.escape(tuple[2]);
+              if (value.length < 1) {
+                value = "''";
+              }
+            } else {
+              value = tuple[2];
+            }
+            if (index === 0) {
+              query += `${tuple[0]} ${tuple[1]} ${value} `;
+            } else {
+              query += `AND ${tuple[0]} ${tuple[1]} ${value} `;
+            }
+          } catch (error) {}
+        });
       }
-      await db.all(query, [], (error) => {
+      await db.query(query, (error) => {
         if (error) {
           resolve(false);
         } else {
@@ -722,22 +717,21 @@ class SqliteDriver {
   dropTable(collectionName) {
     return new Promise(async (resolve, reject) => {
       let query = `DROP TABLE ${collectionName} `;
-      await db.all(query, [], (error) => {
+      await db.query(query, (error) => {
         if (error) {
           resolve(false);
         } else {
           resolve(true);
         }
       });
-    });
+    })
   }
 
   checkOpenTable(collectionName) {
     return new Promise(async (resolve, reject) => {
       const query = `SELECT * FROM acsys_open_tables WHERE TABLE_NAME = '${collectionName}'`;
-      await db.all(query, [], (error, rows) => {
-        let sRows = siftRows(rows);
-        if (sRows === undefined || error) {
+      await db.query(query, (error, rows) => {
+        if (rows === undefined || error) {
           resolve(false);
         } else {
           resolve(true);
@@ -747,4 +741,4 @@ class SqliteDriver {
   }
 }
 
-module.exports = SqliteDriver;
+module.exports = MysqlDriver;
