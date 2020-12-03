@@ -1,24 +1,20 @@
 <p align="center">
-  <a href="https://prometheuscms.com">
-    <img alt="Prometheus" src="https://storage.googleapis.com/aeon-262819.appspot.com/prometheus/Prometheus-01.svg">
+  <a href="https://acsys.io">
+    <img alt="Acsys" src="https://storage.googleapis.com/acsys-common-storage/images/acsys-graphic.jpg">
   </a>
 </p>
 
-[![License](https://img.shields.io/github/license/aeon-software/prometheus)](LICENSE.md)
-[![Commit](https://img.shields.io/github/last-commit/aeon-software/prometheus)](https://github.com/aeon-software/prometheus/commits)
-[![Repo](https://img.shields.io/github/repo-size/aeon-software/prometheus)](https://github.com/aeon-software/prometheus)
+[![License](https://img.shields.io/github/license/aeon-software/acsys)](LICENSE.md)
+[![Commit](https://img.shields.io/github/last-commit/aeon-software/acsys)](https://github.com/aeon-software/acsys/commits)
+[![Repo](https://img.shields.io/github/repo-size/aeon-software/acsys)](https://github.com/aeon-software/acsys)
 
-<p align="center">
-  <img alt="Prometheus UI" src="https://storage.googleapis.com/aeon-262819.appspot.com/prometheus/prmths_scrnsht.png">
-</p>
+## Acsys [Live Demo](https://demo.acsys.io/)
 
-## Prometheus [Live Demo](https://demo.prometheuscms.com/)
-
-Prometheus is a CMS built on NodeJS. This tool was created to fulfill the need for a frontend interface for Cloud Firestore. Prometheus allows developers to configure a database through the Prometheus web app. Once this is done users can use Prometheus as a headless content management system that also configures RESTful APIs (no coding involved). Prometheus serves as a simple interface for the Firestore database with the goal of more database support being added soon! Since this project is maintained and used by Aeon it will receive continuous updates.
+Acsys is a CMS built on NodeJS. This tool was created to fulfill the need for a frontend interface for Cloud Firestore. Acsys allows developers to configure a database through the Acsys web app. Once this is done users can use Acsys as a headless content management system that also configures RESTful APIs (no coding involved). Acsys serves as a simple interface for Firestore, MySQL and SQLite databases. Since this project is maintained and used by Aeon it will receive continuous updates.
 
 ## Getting Started
 
-These instructions will get Prometheus up and running on your local machine for development and testing purposes.
+These instructions will get Acsys up and running on your local machine for development and testing purposes.
 
 ## Prerequisites
 
@@ -28,10 +24,13 @@ These instructions will get Prometheus up and running on your local machine for 
 ## Currently Supported Databases
 
 - Cloud Firestore
+- MySQL
+- SQLite
 
 ## Currently Supported Storage Services
 
 - Google Cloud Storage
+- Internal
 
 ## Installing
 
@@ -45,11 +44,11 @@ Run project in production mode by running `npm run start` (executing this after 
 
 ## Configuration
 
-To configure Prometheus you must first upload your service account JSON file. Instructions on how to get this file can be found [here](https://cloud.google.com/iam/docs/creating-managing-service-account-keys). Note that the database must be created with appropriate security rules before Prometheus can be used (Default production rules are recommended).
+To configure Acsys you must first upload your service account JSON file. Instructions on how to get this file can be found [here](https://cloud.google.com/iam/docs/creating-managing-service-account-keys). Note that the database must be created with appropriate security rules before Acsys can be used (Default production rules are recommended).
 
 ## Deployment Tips
 
-In general it is best to configure Prometheus before deploying. This is necessary in a serverless environment due to Prometheus being a stateful application.
+In general it is best to configure Acsys before deploying. This is necessary in a serverless environment due to Acsys being a stateful application.
 
 ## Built With
 
@@ -70,7 +69,3 @@ We encourage you to tell us what you want out of this project! Please read [CONT
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
-
-## Acknowledgements
-
-Special thanks to [Gardy Perez Ruiz](https://www.linkedin.com/in/gardy-perez-ruiz-44234b5b/).

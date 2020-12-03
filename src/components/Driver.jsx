@@ -3,13 +3,14 @@ import Grid from '@material-ui/core/Grid';
 import Hidden from '@material-ui/core/Hidden';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import * as Prom from '../services/Prometheus/Prom';
+import React, { lazy, Suspense } from 'react';
+import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
+import * as ROUTES from '../constants/routes';
+import * as Acsys from '../services/Acsys/Acsys';
 import Footer from './Footer';
 import Header from './Header';
 import Navigator from './Navigator';
-import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
-import * as ROUTES from '../constants/routes';
+
 const Account = lazy(() => import('./Account'));
 const CollectionView = lazy(() => import('./CollectionView'));
 const Database = lazy(() => import('./Database'));
@@ -36,7 +37,7 @@ class Driver extends React.Component {
   };
 
   setMode = async (mode) => {
-    await Prom.setMode(mode);
+    await Acsys.setMode(mode);
     this.setState({ mode: mode });
   };
 
@@ -45,7 +46,7 @@ class Driver extends React.Component {
   };
 
   componentDidMount = async () => {
-    this.setState({ mode: Prom.getMode() });
+    this.setState({ mode: Acsys.getMode() });
   };
 
   render() {
@@ -81,12 +82,12 @@ class Driver extends React.Component {
                   zIndex: 0,
                   color: '#18202c',
                   background: '#eaeff1',
-                  padding: 10,
+                  paddingTop: 20,
                 }}
                 position="static"
                 elevation={0}
               >
-                <Toolbar style={{ paddingLeft: 10 }}>
+                <Toolbar>
                   <Grid container spacing={1} alignItems="center">
                     <Grid item style={{ marginRight: 20 }}>
                       <Typography color="inherit" variant="h4" component="h1">
@@ -94,7 +95,7 @@ class Driver extends React.Component {
                       </Typography>
                     </Grid>
                     <Grid item xs />
-                    {Prom.getRole() !== 'Viewer' ? (
+                    {Acsys.getRole() !== 'Viewer' ? (
                       <Grid item>
                         <Typography color="inherit" variant="p">
                           Perspective:
@@ -104,13 +105,13 @@ class Driver extends React.Component {
                       <div />
                     )}
                     <Grid item style={{ width: 150 }}>
-                      {Prom.getRole() !== 'Viewer' ? (
+                      {Acsys.getRole() !== 'Viewer' ? (
                         <select
-                          defaultValue={Prom.getMode()}
+                          defaultValue={Acsys.getMode()}
                           onChange={(e) => this.setMode(e.target.value)}
                           className="select-css"
                         >
-                          {Prom.getRole() === 'Administrator' ? (
+                          {Acsys.getRole() === 'Administrator' ? (
                             <option value={'Administrator'}>
                               Administrator
                             </option>
@@ -129,7 +130,7 @@ class Driver extends React.Component {
               </AppBar>
             </Hidden>
             <main
-              style={{ flex: 1, padding: '48px 32px', background: '#eaeff1' }}
+              style={{ flex: 1, padding: '48px 26px', background: '#eaeff1' }}
             >
               <div style={{ maxWidth: '80vw', margin: 'auto' }}>
                 <div style={{ flex: 1, maxWidth: 1236, margin: 'auto' }}>
@@ -166,7 +167,7 @@ class Driver extends React.Component {
                           <Account {...props} setHeader={this.setHeader} />
                         )}
                       />
-                      {Prom.getRole() === 'Administrator' ? (
+                      {Acsys.getRole() === 'Administrator' ? (
                         <div>
                           <Route
                             path={ROUTES.Database}

@@ -4,12 +4,10 @@
 .landing-grid {
   min-height: 600px;
   height: 100vh;
-  background: rgb(26, 142, 186);
-  background: linear-gradient(
-    354deg,
-    rgba(26, 142, 186, 1) 23%,
-    rgba(0, 212, 255, 1) 94%
-  );
+  background-color: #b79afe;
+  background-image: url('/landing-background.svg');
+  background-size: cover;
+  /* background by SVGBackgrounds.com */
 }
 .page-div {
   height: 80%;
@@ -90,6 +88,9 @@
 .select-css option {
   font-weight: normal;
   font-size: 10;
+}
+.api-url {
+  color: #b79afe;
 }
 a {
   text-decoration: none;

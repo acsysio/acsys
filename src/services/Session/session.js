@@ -1,37 +1,37 @@
 import Cookies from 'js-cookie';
 
 export const getId = () => {
-  const id = Cookies.get('prmths_id');
+  const id = Cookies.get('acsys_id');
   return id;
 };
 
 export const getRole = () => {
-  const role = Cookies.get('prmths_role');
+  const role = Cookies.get('acsys_role');
   return role;
 };
 
 export const getMode = () => {
-  const mode = Cookies.get('prmths_mode');
+  const mode = Cookies.get('acsys_mode');
   return mode;
 };
 
 export const setMode = (newMode) => {
-  Cookies.remove('prmths_mode');
-  Cookies.set('prmths_mode', newMode);
+  Cookies.remove('acsys_mode');
+  Cookies.set('acsys_mode', newMode);
 };
 
 export const getUser = () => {
-  const user = Cookies.get('prmths_user');
+  const user = Cookies.get('acsys_user');
   return user;
 };
 
 export const getEmail = () => {
-  const email = Cookies.get('prmths_email');
+  const email = Cookies.get('acsys_email');
   return email;
 };
 
 export const getSession = () => {
-  const jwt = Cookies.get('prmths_session');
+  const jwt = Cookies.get('acsys_session');
   let session;
   try {
     if (jwt) {
@@ -51,7 +51,7 @@ export const getSession = () => {
 };
 
 export const getRefreshSession = () => {
-  const jwt = Cookies.get('prmths_refreshToken');
+  const jwt = Cookies.get('acsys_refreshToken');
   let session;
   try {
     if (jwt) {
@@ -71,19 +71,19 @@ export const getRefreshSession = () => {
 };
 
 export const getToken = () => {
-  return Cookies.get('prmths_session');
+  return Cookies.get('acsys_session');
 };
 
 export const getRefreshToken = () => {
-  return Cookies.get('prmths_refreshToken');
+  return Cookies.get('acsys_refreshToken');
 };
 
 export const logOut = () => {
-  Cookies.remove('prmths_id');
-  Cookies.remove('prmths_user');
-  Cookies.remove('prmths_email');
-  Cookies.remove('prmths_mode');
-  Cookies.remove('prmths_session');
-  Cookies.remove('prmths_refreshToken');
-  window.location.reload();
+  Cookies.remove('acsys_id');
+  Cookies.remove('acsys_user');
+  Cookies.remove('acsys_email');
+  Cookies.remove('acsys_mode');
+  Cookies.remove('acsys_session');
+  Cookies.remove('acsys_refreshToken');
+  window.location.href = '/';
 };

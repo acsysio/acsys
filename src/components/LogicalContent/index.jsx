@@ -1,19 +1,19 @@
 import {
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  MenuItem,
-  Select,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TablePagination,
-  TableRow,
-  Tooltip,
+    CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    MenuItem,
+    Select,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TablePagination,
+    TableRow,
+    Tooltip
 } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
@@ -27,7 +27,7 @@ import { Create as CreateIcon, Delete as DeleteIcon } from '@material-ui/icons';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import uniqid from 'uniqid';
-import * as Prom from '../../services/Prometheus/Prom';
+import * as Acsys from '../../services/Acsys/Acsys';
 import { PromConsumer } from '../../services/Session/PromProvider';
 
 const styles = makeStyles({
@@ -92,7 +92,7 @@ class LogicalContent extends React.Component {
   deleteView = async () => {
     this.setState({ deleteLoading: true });
     if (this.state.viewId.length > 0) {
-      await Prom.deleteView(this.state.viewId);
+      await Acsys.deleteView(this.state.viewId);
     }
     this.handleDeleteClose();
     this.componentDidMount();
@@ -105,7 +105,7 @@ class LogicalContent extends React.Component {
   handleClickOpen = async () => {
     let collections = [];
 
-    await Prom.getTables().then((json) => {
+    await Acsys.getTables().then((json) => {
       collections = json;
       this.setState({
         collectionArr: collections,
@@ -140,16 +140,16 @@ class LogicalContent extends React.Component {
       saving: true,
     });
     if (position === tempView.position) {
-      await Prom.updateData('prmths_logical_content', tempView, [
-        ['id', '=', tempView.id],
+      await Acsys.updateData('acsys_logical_content', tempView, [
+        ['acsys_id', '=', tempView.acsys_id],
       ]);
     } else {
       const oldPosition = tempView['position'];
       tempView['position'] = position;
-      await Prom.repositionViews(tempView, oldPosition, position);
+      await Acsys.repositionViews(tempView, oldPosition, position);
       await this.sleep(1000);
     }
-    const currentView = await Prom.getData('prmths_logical_content', [], '', [
+    const currentView = await Acsys.getData('acsys_logical_content', [], '', [
       'position',
     ]);
     this.setState({
@@ -188,14 +188,14 @@ class LogicalContent extends React.Component {
     
     let projectName = '';
 
-    await Prom.getProjectName()
+    await Acsys.getProjectName()
               .then((result) => {
                 projectName = result;
               });
               
     let currentView = [];
 
-    currentView = await Prom.getData('prmths_logical_content', [], '', [
+    currentView = await Acsys.getData('acsys_logical_content', [], '', [
       'position',
     ]);
 
@@ -213,26 +213,26 @@ class LogicalContent extends React.Component {
     const uId = uniqid();
 
     let newView = {
-      id: uId,
-      isTableMode: true,
-      isRemovable: true,
-      linkViewId: '',
-      linkTable: '',
-      orderBy: '',
-      order: '',
-      rowNum: 10,
+      acsys_id: uId,
+      is_table_mode: true,
+      is_removable: true,
+      link_view_id: '',
+      link_table: '',
+      order_by: '',
+      view_order: '',
+      row_num: 10,
     };
-    await Prom.insertData('prmths_views', { ...newView }).then(async () => {
+    await Acsys.insertData('acsys_views', { ...newView }).then(async () => {
       let newEntry = {
-        id: uniqid(),
+        acsys_id: uniqid(),
         name: this.state.name,
         description: this.state.description,
         viewId: uId,
         source_collection: this.state.collection,
         position: this.state.views.length + 1,
-        tableKeys: [],
+        table_keys: [],
       };
-      await Prom.insertData('prmths_logical_content', { ...newEntry });
+      await Acsys.insertData('acsys_logical_content', { ...newEntry });
     });
 
     this.setState({ addLoading: false });
@@ -246,27 +246,27 @@ class LogicalContent extends React.Component {
       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
       .map((views) => {
         const {
-          id,
+          acsys_id,
           name,
           description,
           viewId,
           source_collection,
-          tableKeys,
+          table_keys,
         } = views;
         return (
-          <TableRow key={id}>
-            {tableKeys.length < 1 ? (
+          <TableRow key={acsys_id}>
+            {table_keys.length < 1 ? (
               <TableCell
                 to={{
                   pathname:
                     '/CollectionView/' + source_collection + '/' + viewId,
                   state: {
-                    tableKeys: [],
+                    table_keys: [],
                     view: name,
                   },
                 }}
                 component={Link}
-                style={{ width: 150 }}
+                style={{ minWidth: 150 }}
               >
                 {name}
               </TableCell>
@@ -276,28 +276,29 @@ class LogicalContent extends React.Component {
                   pathname: '/DocumentView',
                   state: {
                     mode: 'update',
-                    tableKeys: views.tableKeys,
+                    table_keys: views.table_keys,
                     routed: true,
                     viewId: views.viewId,
                   },
                 }}
                 component={Link}
-                style={{ width: 150 }}
+                style={{ minWidth: 150 }}
               >
                 {name}
               </TableCell>
             )}
-            {tableKeys.length < 1 ? (
+            {table_keys.length < 1 ? (
               <TableCell
                 to={{
                   pathname:
                     '/CollectionView/' + source_collection + '/' + viewId,
                   state: {
-                    tableKeys: [],
+                    table_keys: [],
                     view: name,
                   },
                 }}
                 component={Link}
+                style={{ width: '100%' }}
               >
                 {description}
               </TableCell>
@@ -307,7 +308,7 @@ class LogicalContent extends React.Component {
                   pathname: '/DocumentView',
                   state: {
                     mode: 'update',
-                    tableKeys: views.tableKeys,
+                    table_keys: views.table_keys,
                     routed: true,
                     viewId: views.viewId,
                   },
@@ -317,8 +318,8 @@ class LogicalContent extends React.Component {
                 {description}
               </TableCell>
             )}
-            {Prom.getMode() === 'Administrator' ? (
-              <TableCell style={{ minWidth: 100 }} align="right">
+            {Acsys.getMode() === 'Administrator' ? (
+              <TableCell style={{ minWidth: 70 }} align="right">
                 <Tooltip title="Edit View">
                   <IconButton
                     edge="start"
@@ -350,7 +351,6 @@ class LogicalContent extends React.Component {
   }
   render() {
     const {
-      error,
       projectName,
       views,
       rowsPerPage,
@@ -379,7 +379,7 @@ class LogicalContent extends React.Component {
               }}
             >
               <Toolbar style={{ margin: 4, paddingLeft: 12, paddingRight: 12 }}>
-                {Prom.getMode() === 'Administrator' ? (
+                {Acsys.getMode() === 'Administrator' ? (
                   <Grid container spacing={1}>
                     <Grid item xs style={{ overflow: 'hidden' }}>
                       <Typography
@@ -444,7 +444,7 @@ class LogicalContent extends React.Component {
                     >
                       DESCRIPTION
                     </TableCell>
-                    {Prom.getMode() === 'Administrator' ? (
+                    {Acsys.getMode() === 'Administrator' ? (
                       <TableCell
                         style={{
                           paddingLeft: 16,
