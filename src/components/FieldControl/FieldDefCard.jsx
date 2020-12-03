@@ -1,9 +1,10 @@
+/* eslint-disable react/jsx-boolean-value */
 import {
-  AppBar,
-  Grid,
-  NativeSelect,
-  Paper,
-  Typography,
+    AppBar,
+    Grid,
+    NativeSelect,
+    Paper,
+    Typography
 } from '@material-ui/core';
 import React, { memo, useMemo, useRef } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
@@ -60,7 +61,7 @@ const Card = memo(({ id, details, moveCard }) => {
 
   if (details.type === 'number') {
     data.push(<option value="numberEditor">numberEditor</option>);
-    data.push(<option value="position">position</option>);
+    data.push(<option value="booleanSelect">boolean</option>);
   }
 
   const width = [];
@@ -73,13 +74,13 @@ const Card = memo(({ id, details, moveCard }) => {
     details.control = event;
   };
   const setKey = (event) => {
-    details.isKey = event;
+    details.is_key = event;
   };
   const showOnTable = (event) => {
-    details.isVisibleOnTable = event;
+    details.is_visible_on_table = event;
   };
   const showOnPage = (event) => {
-    details.isVisibleOnPage = event;
+    details.is_visible_on_page = event;
   };
   const setWidth = (event) => {
     details.width = parseInt(event);
@@ -137,10 +138,10 @@ const Card = memo(({ id, details, moveCard }) => {
           <Grid item xs={2}>
             <div>
               <NativeSelect
-                defaultValue={details.isKey}
+                defaultValue={Boolean(details.is_key)}
                 onChange={(e) => setKey(e.target.value == 'true')}
               >
-                <option value>True</option>
+                <option value={true}>True</option>
                 <option value={false}>False</option>
               </NativeSelect>
             </div>
@@ -148,10 +149,10 @@ const Card = memo(({ id, details, moveCard }) => {
           <Grid item xs={2}>
             <div>
               <NativeSelect
-                defaultValue={details.isVisibleOnTable}
+                defaultValue={Boolean(details.is_visible_on_table)}
                 onChange={(e) => showOnTable(e.target.value == 'true')}
               >
-                <option value>Show</option>
+                <option value={true}>Show</option>
                 <option value={false}>Hide</option>
               </NativeSelect>
             </div>
@@ -159,10 +160,10 @@ const Card = memo(({ id, details, moveCard }) => {
           <Grid item xs={2}>
             <div>
               <NativeSelect
-                defaultValue={details.isVisibleOnPage}
+                defaultValue={Boolean(details.is_visible_on_page)}
                 onChange={(e) => showOnPage(e.target.value == 'true')}
               >
-                <option value>Show</option>
+                <option value={true}>Show</option>
                 <option value={false}>Hide</option>
               </NativeSelect>
             </div>

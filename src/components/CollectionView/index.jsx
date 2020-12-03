@@ -1,17 +1,18 @@
 import {
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  NativeSelect,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Tooltip,
+    CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Hidden,
+    NativeSelect,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableRow,
+    Tooltip
 } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
@@ -21,29 +22,30 @@ import Paper from '@material-ui/core/Paper';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import {
-  Create as CreateIcon,
-  Delete as DeleteIcon,
-  KeyboardArrowLeft,
-  KeyboardArrowRight,
+    Create as CreateIcon,
+    Delete as DeleteIcon, FileCopyOutlined as CopyIcon,
+    KeyboardArrowLeft,
+    KeyboardArrowRight
 } from '@material-ui/icons';
 import React from 'react';
 import { DndProvider } from 'react-dnd';
 import Backend from 'react-dnd-html5-backend';
 import { Link } from 'react-router-dom';
 import uniqid from 'uniqid';
-import * as Prom from '../../services/Prometheus/Prom';
+import * as Acsys from '../../services/Acsys/Acsys';
 import { PromConsumer } from '../../services/Session/PromProvider';
 import Example from '../FieldControl/FieldDef';
 
 const INITIAL_STATE = {
-  contentId: '',
+  content_id: '',
   viewId: 0,
   initialViews: [],
   collectionDetails: [],
   documentDetails: [],
   collectionValues: [],
-  prmthsView: [],
+  acsysView: [],
   tableData: [],
+  apiCall: '',
   draftViews: [],
   totalRows: 0,
   page: 1,
@@ -62,12 +64,12 @@ const INITIAL_STATE = {
 
 let published = true;
 let lockedValue = true;
-let isRemovable = true;
-let tableKeys = [];
+let is_removable = true;
+let table_keys = [];
 let tempDetails = [];
-let viewOrderField = 'none';
-let viewOrder = 'asc';
-let rowNum = 10;
+let view_orderField = 'none';
+let view_order = 'asc';
+let row_num = 10;
 
 class CollectionView extends React.Component {
   state = { ...INITIAL_STATE };
@@ -75,6 +77,15 @@ class CollectionView extends React.Component {
   constructor(props) {
     super(props);
   }
+
+  copy = () => {
+    const el = document.createElement('textarea');
+    el.value = this.state.apiCall;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+  };
 
   openKeyMessage = () => {
     this.setState({
@@ -90,6 +101,20 @@ class CollectionView extends React.Component {
 
   handleViewChange = (value) => {
     published = value;
+    let acsys_id = '';
+    if (published) {
+      acsys_id = this.props.match.params.acsys_id;
+    } else {
+      acsys_id = 'acsys_' + this.props.match.params.acsys_id;
+    }
+    this.context.setPageData(
+      acsys_id,
+      this.context.getKeys(),
+      row_num,
+      this.state.view_order,
+      this.state.orderDir
+    );
+    this.context.setPage(1);
     this.mount();
   };
 
@@ -132,12 +157,12 @@ class CollectionView extends React.Component {
 
   toggleTable = async (value) => {
     if (!value) {
-      await Prom.unlockTable(this.state.documentDetails[0].collection);
+      await Acsys.unlockTable(this.state.documentDetails[0].collection);
       this.setState({
         locked: false,
       });
     } else {
-      Prom.lockTable(this.state.documentDetails[0].collection);
+      Acsys.lockTable(this.state.documentDetails[0].collection);
       this.setState({
         locked: true,
       });
@@ -149,45 +174,45 @@ class CollectionView extends React.Component {
   };
 
   setOrderField = (field) => {
-    viewOrderField = field;
+    view_orderField = field;
   };
 
   setOrder = (order) => {
-    viewOrder = order;
+    view_order = order;
   };
 
   setEntriesPerPage = (value) => {
-    rowNum = value;
+    row_num = value;
   };
 
   setUpdateOnly = (value) => {
-    isRemovable = value;
+    is_removable = value;
   };
 
   saveViewSettings = async () => {
     this.setState({
       loading: true,
     });
-    let tempView = this.state.prmthsView;
-    if (viewOrderField === 'none') {
-      tempView['orderBy'] = '';
-      tempView['order'] = '';
+    let tempView = this.state.acsysView;
+    if (view_orderField === 'none') {
+      tempView['order_by'] = '';
+      tempView['view_order'] = '';
     } else {
-      tempView['orderBy'] = viewOrderField;
-      tempView['order'] = viewOrder;
+      tempView['order_by'] = view_orderField;
+      tempView['view_order'] = view_order;
     }
-    tempView['isRemovable'] = isRemovable;
-    tempView['rowNum'] = rowNum;
+    tempView['is_removable'] = is_removable;
+    tempView['row_num'] = row_num;
     this.toggleTable(lockedValue);
     this.context.setHeld(false);
-    await Prom.updateData('prmths_views', tempView, [['id', '=', tempView.id]]);
+    await Acsys.updateData('acsys_views', tempView, [['acsys_id', '=', tempView.acsys_id]]);
     this.setState({
       setViewOpen: false,
       reset: true,
       totalRows: 0,
       page: 1,
     });
-    tableKeys = [];
+    table_keys = [];
     this.mount();
   };
 
@@ -202,24 +227,24 @@ class CollectionView extends React.Component {
     this.setState({ deleteLoading: true });
 
     let keys = [];
-    for (let i = 0; i < tableKeys[this.state.viewId].length; i++) {
+    for (let i = 0; i < table_keys[this.state.viewId].length; i++) {
       let tKeys = [
-        tableKeys[this.state.viewId][i].field,
+        table_keys[this.state.viewId][i].field,
         '=',
-        tableKeys[this.state.viewId][i].value,
+        table_keys[this.state.viewId][i].value,
       ];
       keys.push(tKeys);
     }
 
-    await Prom.getData(documentDetails[0].collection, keys)
+    await Acsys.getData(documentDetails[0].collection, keys)
       .then(async (result) => {
         if (result.length < 1) {
-          await Prom.deleteData(
-            'prmths_' + documentDetails[0].collection,
+          await Acsys.deleteData(
+            'acsys_' + documentDetails[0].collection,
             keys
           );
         } else {
-          await Prom.deleteData(documentDetails[0].collection, keys);
+          await Acsys.deleteData(documentDetails[0].collection, keys);
         }
       })
       .catch(async () => {});
@@ -227,7 +252,7 @@ class CollectionView extends React.Component {
     this.setState({
       reset: true,
     });
-    tableKeys = [];
+    table_keys = [];
     this.mount();
     this.setState({ deleteLoading: false });
   };
@@ -237,16 +262,17 @@ class CollectionView extends React.Component {
       loading: true,
     });
     let keys = [];
-    for (let i = 0; i < tableKeys[tableKeys.length - 1].length; i++) {
-      keys.push([tableKeys[0][i].field, '=', tableKeys[0][i].value]);
+    for (let i = 0; i < table_keys[table_keys.length - 1].length; i++) {
+      keys.push([table_keys[0][i].field, '=', table_keys[0][i].value]);
     }
-    const currentData = await Prom.getPage(
+    const currentData = await Acsys.getPage(
       tempDetails[0].collection,
       keys,
-      rowNum,
-      this.state.order,
+      row_num,
+      this.state.view_order,
       this.state.orderDir,
-      'prev'
+      'prev',
+      this.state.page,
     );
     this.setState({
       loading: false,
@@ -258,8 +284,8 @@ class CollectionView extends React.Component {
     this.context.setPageData(
       tempDetails[0].collection,
       keys,
-      rowNum,
-      this.state.order,
+      row_num,
+      this.state.view_order,
       this.state.orderDir
     );
     this.context.setPageDirection('prev');
@@ -271,20 +297,21 @@ class CollectionView extends React.Component {
       loading: true,
     });
     let keys = [];
-    for (let i = 0; i < tableKeys[tableKeys.length - 1].length; i++) {
+    for (let i = 0; i < table_keys[table_keys.length - 1].length; i++) {
       keys.push([
-        tableKeys[tableKeys.length - 1][i].field,
+        table_keys[table_keys.length - 1][i].field,
         '=',
-        tableKeys[tableKeys.length - 1][i].value,
+        table_keys[table_keys.length - 1][i].value,
       ]);
     }
-    const currentData = await Prom.getPage(
+    const currentData = await Acsys.getPage(
       tempDetails[0].collection,
       keys,
-      rowNum,
-      this.state.order,
+      row_num,
+      this.state.view_order,
       this.state.orderDir,
-      'next'
+      'next',
+      this.state.page,
     );
     this.setState({
       loading: false,
@@ -296,8 +323,8 @@ class CollectionView extends React.Component {
     this.context.setPageData(
       tempDetails[0].collection,
       keys,
-      rowNum,
-      this.state.order,
+      row_num,
+      this.state.view_order,
       this.state.orderDir
     );
     this.context.setPageDirection('next');
@@ -306,11 +333,11 @@ class CollectionView extends React.Component {
 
   saveSettings = async () => {
     this.setState({ filterLoading: true });
-    tableKeys = [];
+    table_keys = [];
     for (var i = 0; i < tempDetails.length; i++) {
-      tempDetails[i].order = i;
-      await Prom.updateData('prmths_document_details', tempDetails[i], [
-        ['id', '=', tempDetails[i].id],
+      tempDetails[i].view_order = i;
+      await Acsys.updateData('acsys_document_details', tempDetails[i], [
+        ['acsys_id', '=', tempDetails[i].acsys_id],
       ]);
     }
     this.setState({ filterLoading: false });
@@ -321,8 +348,8 @@ class CollectionView extends React.Component {
     this.setState({
       loading: true,
     });
-    Prom.deleteData('prmths_document_details', [
-      ['contentId', '=', this.state.contentId],
+    Acsys.deleteData('acsys_document_details', [
+      ['content_id', '=', this.state.content_id],
     ])
       .then(async () => {
         this.mount();
@@ -336,7 +363,7 @@ class CollectionView extends React.Component {
 
   componentDidUpdate = async () => {
     if (
-      this.state.contentId !== this.props.match.params.contentId &&
+      this.state.content_id !== this.props.match.params.content_id &&
       !this.state.loading
     ) {
       this.mount();
@@ -346,7 +373,7 @@ class CollectionView extends React.Component {
   componentDidMount = async () => {
     this.props.setHeader('Content');
     published = true;
-    tableKeys = [];
+    table_keys = [];
     this.setState({
       loading: true,
     });
@@ -355,132 +382,150 @@ class CollectionView extends React.Component {
 
   mount = async () => {
     let page = this.state.page;
-    let prmthsView;
+    let acsysView;
+    let locked = true;
     let details = [];
     let currentData;
+    let apiCall;
     let order = [];
     let orderDir = 'asc';
     lockedValue = true;
-    isRemovable = true;
-    viewOrderField = 'none';
-    viewOrder = 'asc';
-    rowNum = 10;
+    is_removable = true;
+    view_orderField = 'none';
+    view_order = 'asc';
+    row_num = 10;
     if (!this.state.reset) {
-      tableKeys = this.props.location.state.tableKeys;
+      table_keys = this.props.location.state.table_keys;
     }
-    let id = '';
+    let acsys_id = '';
     if (published) {
-      id = this.props.match.params.id;
+      acsys_id = this.props.match.params.acsys_id;
     } else {
-      id = 'prmths_' + this.props.match.params.id;
+      acsys_id = 'acsys_' + this.props.match.params.acsys_id;
     }
 
-    const contentId = this.props.match.params.contentId;
+    const content_id = this.props.match.params.content_id;
 
-    const totalRows = await Prom.getTableSize(id);
+    const totalRows = await Acsys.getTableSize(acsys_id);
 
     try {
-      prmthsView = await Prom.getData('prmths_views', [['id', '=', contentId]]);
-      isRemovable = prmthsView[0].isRemovable;
-      rowNum = prmthsView[0].rowNum;
-      if (prmthsView[0].orderBy.length > 0) {
-        viewOrderField = prmthsView[0].orderBy;
-        viewOrder = prmthsView[0].order;
+      acsysView = await Acsys.getData('acsys_views', [['acsys_id', '=', content_id]]);
+      is_removable = acsysView[0].is_removable;
+      row_num = acsysView[0].row_num;
+      if (acsysView[0].order_by.length > 0) {
+        view_orderField = acsysView[0].order_by;
+        view_order = acsysView[0].view_order;
       }
 
       let keys = [];
 
       try {
-        for (let i = 0; i < tableKeys.length; i++) {
-          keys.push([tableKeys[i].field, '=', tableKeys[i].value]);
+        for (let i = 0; i < table_keys.length; i++) {
+          keys.push([table_keys[i].field, '=', table_keys[i].value]);
         }
       } catch (error) {}
 
-      details = await Prom.getData('prmths_document_details', [
-        ['contentId', '=', contentId],
+      details = await Acsys.getData('acsys_document_details', [
+        ['content_id', '=', content_id],
       ]);
 
+      await Acsys.getData('acsys_open_tables', [['table_name', '=', acsys_id]])
+        .then((result) => {
+          if (result[0].table_name === acsys_id) {
+            locked = false;
+            lockedValue = false;
+          }
+        })
+        .catch(() => {});
+
       if (details.length > 0) {
-        details.sort((a, b) => (a.order > b.order ? 1 : -1));
-        if (prmthsView[0].orderBy.length > 0) {
-          order.push(prmthsView[0].orderBy);
-          orderDir = prmthsView[0].order;
+        details.sort((a, b) => (a.view_order > b.view_order ? 1 : -1));
+        if (acsysView[0].order_by.length > 0) {
+          order.push(acsysView[0].order_by);
+          orderDir = acsysView[0].view_order;
         }
         for (let i = 0; i < details.length; i++) {
-          if (details[i].isKey) {
+          if (Boolean(details[i].is_key)) {
             order.push(details[i].field_name);
           }
         }
         if (this.context.isHeld()) {
-          currentData = await Prom.getPage(
+          let direction = 'none';
+          const dbType = await Acsys.getDatabaseType();
+          if (dbType === 'firestore') {
+            direction = this.context.getPageDirection();
+          }
+          currentData = await Acsys.getPage(
             this.context.getTable(),
             this.context.getKeys(),
             this.context.getRowsPerPage(),
             this.context.getOrder(),
             this.context.getDirection(),
-            this.context.getPageDirection()
+            direction,
+            this.context.getPage()
           );
           page = this.context.getPage();
         } else {
-          currentData = await Prom.getData(id, [], rowNum, order, orderDir);
+          currentData = await Acsys.getData(acsys_id, [], row_num, order, orderDir);
+          if(locked) {
+            apiCall = await Acsys.getUrl(acsys_id, [], row_num, order, orderDir);
+          }
+          else {
+            apiCall = await Acsys.getOpenUrl(acsys_id, [], row_num, order, orderDir);
+          }
         }
       } else {
-        currentData = await Prom.getData(id, keys, rowNum);
+        currentData = await Acsys.getData(acsys_id, keys, row_num);
+        if(locked) {
+          apiCall = await Acsys.getUrl(acsys_id, keys, row_num);
+        }
+        else {
+          apiCall = await Acsys.getOpenUrl(acsys_id, keys, row_num);
+        }
         await Promise.all(
           Object.keys(currentData[0]).map(async (value, index) => {
             let collectionDetails = {
-              id: uniqid(),
-              contentId: contentId,
-              collection: id,
+              acsys_id: uniqid(),
+              content_id: content_id,
+              collection: acsys_id,
               control: 'none',
               field_name: value,
-              isVisibleOnPage: true,
-              isVisibleOnTable: true,
+              is_visible_on_page: true,
+              is_visible_on_table: true,
               type: typeof currentData[0][value],
-              isKey: false,
-              order: index,
+              is_key: false,
+              view_order: index,
               width: 12,
             };
-
-            await Prom.insertData(
-              'prmths_document_details',
+            await Acsys.insertData(
+              'acsys_document_details',
               collectionDetails
             ).then(() => {
               details.push(collectionDetails);
             });
           })
         ).then(() => {
-          details.sort((a, b) => (a.order > b.order ? 1 : -1));
+          details.sort((a, b) => (a.view_order > b.view_order ? 1 : -1));
         });
       }
     } catch (error) {
       console.log(error);
     }
 
-    let locked = true;
-
-    await Prom.getData('prmths_open_tables', [['table', '=', id]])
-      .then((result) => {
-        if (result[0].table === id) {
-          locked = false;
-          lockedValue = false;
-        }
-      })
-      .catch(() => {});
-
     this.setState({
       reset: false,
       view: this.props.location.state.view,
       loading: false,
       locked: locked,
-      contentId: contentId,
+      content_id: content_id,
       initialViews: currentData,
       tableData: currentData,
-      prmthsView: prmthsView[0],
+      apiCall: apiCall,
+      acsysView: acsysView[0],
       page: page,
       documentDetails: details,
       totalRows: totalRows,
-      order: order,
+      view_order: order,
       orderDir: orderDir,
     });
   };
@@ -491,7 +536,7 @@ class CollectionView extends React.Component {
       return (
         <TableRow>
           {Object.values(details).map((value) => {
-            if (value.isVisibleOnTable) {
+            if (value.is_visible_on_table) {
               return (
                 <TableCell
                   style={{
@@ -528,7 +573,7 @@ class CollectionView extends React.Component {
     });
   }
   renderTableData() {
-    const { contentId, tableData, documentDetails, page } = this.state;
+    const { content_id, tableData, documentDetails, page } = this.state;
 
     return tableData.map((tableData, rowIndex) => {
       let tempKey = [];
@@ -538,15 +583,15 @@ class CollectionView extends React.Component {
             let returnValue = '';
             Object.values(tableData).map((value, index) => {
               if (Object.keys(tableData)[index] == details.field_name) {
-                if (details.isKey && value !== undefined) {
+                if (Boolean(details.is_key) && value !== undefined) {
                   let tempObj = {
                     field: details.field_name,
                     value: value,
                   };
                   tempKey.push(tempObj);
-                  tableKeys[rowIndex] = tempKey;
+                  table_keys[rowIndex] = tempKey;
                 }
-                if (details.isVisibleOnTable) {
+                if (details.is_visible_on_table) {
                   if (details.control == 'dateTimePicker') {
                     const date = new Date(value);
                     const printDate =
@@ -556,6 +601,15 @@ class CollectionView extends React.Component {
                       '/' +
                       date.getFullYear();
                     returnValue = printDate;
+                  } else if (details.control == 'booleanSelect') {
+                    const tmpElement = document.createElement('DIV');
+                    tmpElement.innerHTML = Boolean(value);
+                    const stringLimit = 100;
+                    let valueString = tmpElement.innerText;
+                    if (valueString.length >= stringLimit) {
+                      valueString = valueString.substr(0, stringLimit) + '...';
+                    }
+                    returnValue = valueString;
                   } else {
                     const tmpElement = document.createElement('DIV');
                     tmpElement.innerHTML = value;
@@ -569,17 +623,17 @@ class CollectionView extends React.Component {
                 }
               }
             });
-            if (details.isVisibleOnTable) {
-              return this.state.prmthsView.linkViewId.length > 0 ? (
+            if (details.is_visible_on_table) {
+              return this.state.acsysView.link_view_id.length > 0 ? (
                 <TableCell
                   to={{
                     pathname:
                       '/CollectionView/' +
-                      this.state.prmthsView.linkTable +
+                      this.state.acsysView.link_table +
                       '/' +
-                      this.state.prmthsView.linkViewId,
+                      this.state.acsysView.link_view_id,
                     state: {
-                      tableKeys: tableKeys[rowIndex],
+                      table_keys: table_keys[rowIndex],
                     },
                   }}
                   component={Link}
@@ -597,7 +651,7 @@ class CollectionView extends React.Component {
             }
           })}
           <TableCell align="right" style={{ minWidth: 100 }}>
-            {tableKeys.length > 0 ? (
+            {table_keys.length > 0 ? (
               <Tooltip title="Edit Entry">
                 <IconButton
                   edge="start"
@@ -607,10 +661,10 @@ class CollectionView extends React.Component {
                     pathname: '/DocumentView',
                     state: {
                       mode: 'update',
-                      isRemovable: isRemovable,
-                      tableKeys: tableKeys[rowIndex],
+                      is_removable: is_removable,
+                      table_keys: table_keys[rowIndex],
                       routed: false,
-                      viewId: documentDetails[0].contentId,
+                      viewId: documentDetails[0].content_id,
                     },
                   }}
                   component={Link}
@@ -632,7 +686,7 @@ class CollectionView extends React.Component {
                 </IconButton>
               </Tooltip>
             )}
-            {Prom.getMode() !== 'Viewer' && isRemovable ? (
+            {Acsys.getMode() !== 'Viewer' && is_removable ? (
               <Tooltip title="Delete Entry">
                 <IconButton
                   edge="start"
@@ -658,9 +712,9 @@ class CollectionView extends React.Component {
     const { tableData, page, totalRows } = this.state;
     let startingElement = 0;
     if (totalRows > 0) {
-      startingElement = page * rowNum - rowNum + 1;
+      startingElement = page * row_num - row_num + 1;
     }
-    const endingElement = page * rowNum - rowNum + 1 + tableData.length - 1;
+    const endingElement = page * row_num - row_num + 1 + tableData.length - 1;
     return paginate ? (
       <Grid style={{ width: 190, float: 'right' }} container>
         <Grid style={{ float: 'right' }} item xs>
@@ -681,7 +735,7 @@ class CollectionView extends React.Component {
               />
             </IconButton>
           )}
-          {page * rowNum < totalRows ? (
+          {page * row_num < totalRows ? (
             <IconButton onClick={() => this.handleChangeNextPage()}>
               <KeyboardArrowRight color="inherit" />
             </IconButton>
@@ -732,9 +786,10 @@ class CollectionView extends React.Component {
   render() {
     const {
       locked,
+      apiCall,
       view,
       deleteLoading,
-      prmthsView,
+      acsysView,
       filterLoading,
       documentDetails,
     } = this.state;
@@ -746,7 +801,7 @@ class CollectionView extends React.Component {
     let paginate = false;
 
     try {
-      projectId = prmthsView.id;
+      projectId = acsysView.acsys_id;
     } catch (error) {}
 
     try {
@@ -754,7 +809,7 @@ class CollectionView extends React.Component {
     } catch (error) {}
 
     for (let i = 0; i < documentDetails.length; i++) {
-      if (documentDetails[i].isKey) {
+      if (Boolean(documentDetails[i].is_key)) {
         let tempObj = {
           field: documentDetails[i].field_name,
         };
@@ -806,7 +861,7 @@ class CollectionView extends React.Component {
                   </Tooltip>
                 </Grid>
 
-                {Prom.getMode() === 'Administrator' ? (
+                {Acsys.getMode() === 'Administrator' ? (
                   <Grid item>
                     <Tooltip title="Change How Data Is Presented">
                       <Button
@@ -821,7 +876,7 @@ class CollectionView extends React.Component {
                 ) : (
                   <div />
                 )}
-                {Prom.getMode() === 'Administrator' ? (
+                {Acsys.getMode() === 'Administrator' ? (
                   <Grid item>
                     <Tooltip title="Change How Data Is Organized">
                       <Button
@@ -837,14 +892,14 @@ class CollectionView extends React.Component {
                   <div />
                 )}
                 <Grid item>
-                  {Prom.getMode() !== 'Viewer' && isRemovable ? (
+                  {Acsys.getMode() !== 'Viewer' && is_removable ? (
                     <Tooltip title="Add New Entry To Table">
                       <Button
                         to={{
                           pathname: '/DocumentView',
                           state: {
                             mode: 'add',
-                            tableKeys: tempKeys[0],
+                            table_keys: tempKeys[0],
                             routed: false,
                             viewId: projectId,
                           },
@@ -1006,7 +1061,7 @@ class CollectionView extends React.Component {
                   <Grid item xs={3}>
                     <div>
                       <NativeSelect
-                        defaultValue={viewOrderField}
+                        defaultValue={view_orderField}
                         onChange={(e) => this.setOrderField(e.target.value)}
                       >
                         <option value="none">none</option>
@@ -1023,7 +1078,7 @@ class CollectionView extends React.Component {
                   <Grid item xs={3}>
                     <div>
                       <NativeSelect
-                        defaultValue={viewOrder}
+                        defaultValue={view_order}
                         onChange={(e) => this.setOrder(e.target.value)}
                       >
                         <option value={'asc'}>asc</option>
@@ -1034,7 +1089,7 @@ class CollectionView extends React.Component {
                   <Grid item xs={3}>
                     <div>
                       <NativeSelect
-                        defaultValue={rowNum}
+                        defaultValue={row_num}
                         onChange={(e) =>
                           this.setEntriesPerPage(parseInt(e.target.value))
                         }
@@ -1051,7 +1106,7 @@ class CollectionView extends React.Component {
                   <Grid item xs={3}>
                     <div>
                       <NativeSelect
-                        defaultValue={isRemovable}
+                        defaultValue={is_removable}
                         onChange={(e) =>
                           this.setUpdateOnly('true' == e.target.value)
                         }
@@ -1095,6 +1150,26 @@ class CollectionView extends React.Component {
             </DialogActions>
           </Dialog>
         </Paper>
+        <Hidden smDown implementation="css">
+          {!this.state.locked ?
+          <div style={{clear: 'both'}}>
+            API Call: <a className='api-url' href={apiCall} target="_blank">{apiCall}</a>
+            <Tooltip title="Copy To Clipboard">
+              <IconButton
+                edge="start"
+                color="inherit"
+                aria-label="edit"
+                onClick={this.copy}
+                style={{ marginLeft: 5 }}
+              >
+                <CopyIcon style={{ height: 15 }}/>
+              </IconButton>
+            </Tooltip>
+          </div>
+          :
+          <div/>
+          }
+        </Hidden>
       </div>
     );
   }

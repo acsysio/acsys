@@ -6,21 +6,32 @@ import {
   DialogContentText,
   DialogTitle,
   Hidden,
+  IconButton,
   MenuItem,
-  NativeSelect,
   Select,
-  Tooltip,
+  Tooltip
 } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
+import {
+  FileCopyOutlined as CopyIcon
+} from '@material-ui/icons';
 import React from 'react';
-import Datetime from 'react-datetime';
 import { DndProvider } from 'react-dnd';
 import Backend from 'react-dnd-html5-backend';
-import ReactQuill from 'react-quill';
 import uniqid from 'uniqid';
-import * as Prom from '../../services/Prometheus/Prom';
+import * as Acsys from '../../services/Acsys/Acsys';
+import AutoGen from '../Controls/AutoGen';
+import BooleanSelect from '../Controls/BooleanSelect';
+import DateTimePicker from '../Controls/DateTimePicker';
+import ImageReference from '../Controls/ImageReference';
+import ImageURL from '../Controls/ImageURL';
+import NumberEditor from '../Controls/NumberEditor';
+import RichTextEditor from '../Controls/RichTextEditor';
+import TextField from '../Controls/TextField';
+import VideoReference from '../Controls/VideoReference';
+import VideoURL from '../Controls/VideoURL';
 import Example from '../FieldControl/FieldDef';
 import Storage from '../Storage';
 
@@ -34,12 +45,14 @@ const INITIAL_STATE = {
   draft: false,
   document: [],
   views: [],
+  apiCall: '',
   keys: [],
-  prmthsView: [],
+  acsysView: [],
   routed: false,
   position: 0,
   page: 0,
   rowsPerPage: 15,
+  locked: true,
   loading: false,
   deleting: false,
   deleteLoading: false,
@@ -51,13 +64,13 @@ const INITIAL_STATE = {
 };
 
 let initLoad = true;
-let tableKeys = [];
+let table_keys = [];
 let tempDetails = [];
 let tempDocument = [];
 let fileDoc = [];
 let fileRefs = [];
 let mode = '';
-let isRemovable = true;
+let is_removable = true;
 let quillRef = null;
 let quillIndex = 0;
 let quillURL = '';
@@ -71,6 +84,15 @@ class DocumentView extends React.Component {
   constructor(props) {
     super(props);
   }
+
+  copy = () => {
+    const el = document.createElement('textarea');
+    el.value = this.state.apiCall;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+  };
 
   imageHandler = async () => {
     const quill = quillRef.getEditor();
@@ -111,9 +133,21 @@ class DocumentView extends React.Component {
     });
   };
 
+  setQuillRef = (ref) => {
+    quillRef = ref;
+  };
+
+  setQuillIndex = (index) => {
+    quillIndex = index;
+  };
+
+  setQuillURL = (url) => {
+    quillURL = url;
+  };
+
   setReference = async (name, reference) => {
     const field = this.state.control;
-    const url = await Prom.getStorageURL(reference);
+    const url = await Acsys.getStorageURL(reference);
     if (this.state.fileMode === 'quill') {
       quillURL = url;
     } else if (this.state.fileMode === 'ref') {
@@ -152,7 +186,7 @@ class DocumentView extends React.Component {
 
   getMaxPos = async (table, field) => {
     return new Promise(async (resolve, reject) => {
-      const pos = await Prom.getData(table, '', 1, [field], 'desc')
+      const pos = await Acsys.getData(table, '', 1, [field], 'desc')
         .then((result) => {
           resolve(result[0][field]);
         })
@@ -164,7 +198,7 @@ class DocumentView extends React.Component {
 
   increment = async (table, field, start, num) => {
     return new Promise(async (resolve, reject) => {
-      await Prom.increment(table, field, start, num)
+      await Acsys.increment(table, field, start, num)
         .then(() => {
           resolve(true);
         })
@@ -190,14 +224,9 @@ class DocumentView extends React.Component {
             tempDocument[tempDetails[i].field_name] = '';
           }
         }
-        const result = await Prom.updateData(
-          'prmths_document_details',
-          { ...tempDetails[i] },
-          [['id', '=', tempDetails[i].id]]
-        );
       }
-      const result = await Prom.updateData(
-        'prmths_' + this.state.collection,
+      const result = await Acsys.updateData(
+        'acsys_' + this.state.collection,
         { ...tempDocument },
         this.state.keys
       );
@@ -217,27 +246,21 @@ class DocumentView extends React.Component {
             tempDocument[tempDetails[i].field_name] = '';
           }
         }
-        const result = await Prom.updateData(
-          'prmths_document_details',
-          { ...tempDetails[i] },
-          [['id', '=', tempDetails[i].id]]
-        );
       }
-
-      const result = await Prom.insertData(
-        'prmths_' + this.state.collection,
+      const result = await Acsys.insertData(
+        'acsys_' + this.state.collection,
         { ...tempDocument },
         this.state.keys
       );
     }
-    tableKeys = [];
+    table_keys = [];
     for (var i = 0; i < tempDetails.length; i++) {
-      if (tempDetails[i].isKey) {
+      if (tempDetails[i].is_key) {
         const object = {
           field: tempDetails[i].field_name,
           value: tempDocument[tempDetails[i].field_name],
         };
-        tableKeys.push(object);
+        table_keys.push(object);
       }
     }
     mode = 'update';
@@ -249,65 +272,6 @@ class DocumentView extends React.Component {
     this.setState({ saving: true });
     if (mode === 'update') {
       for (var i = 0; i < tempDetails.length; i++) {
-        if (tempDetails[i].control === 'position') {
-          if (
-            tempDocument[tempDetails[i].field_name] !==
-            posArr[tempDetails[i].field_name]
-          ) {
-            if (tempDocument[tempDetails[i].field_name] === highestPos) {
-              tempDocument[tempDetails[i].field_name] =
-                (await this.getMaxPos(
-                  tempDetails[i].collection,
-                  tempDetails[i].field_name
-                )) + 1;
-            } else {
-              let startAt = tempDocument[tempDetails[i].field_name];
-              let end = posArr[tempDetails[i].field_name];
-              if (startAt > initPos) {
-                let stop = false;
-                for (var k = 0; k < this.state.position.length; k++) {
-                  if (
-                    startAt ===
-                      this.state.position[k][tempDetails[i].field_name] &&
-                    !stop
-                  ) {
-                    stop = true;
-                    var next = k + 1;
-                    startAt = this.state.position[next][
-                      tempDetails[i].field_name
-                    ];
-                    end++;
-
-                    tempDocument[tempDetails[i].field_name] = startAt;
-                    if (
-                      !(await this.increment(
-                        tempDetails[i].collection,
-                        tempDetails[i].field_name,
-                        startAt,
-                        startAt
-                      ))
-                    ) {
-                    }
-                  }
-                }
-              } else {
-                if (
-                  !(await this.increment(
-                    tempDetails[i].collection,
-                    tempDetails[i].field_name,
-                    startAt,
-                    startAt
-                  ))
-                ) {
-                  tempDocument[tempDetails[i].field_name] = end;
-                }
-              }
-            }
-            posArr[tempDetails[i].field_name] =
-              tempDocument[tempDetails[i].field_name];
-            initPos = tempDocument[tempDetails[i].field_name];
-          }
-        }
         if (fileDoc[tempDetails[i].field_name] !== undefined) {
           tempDocument[tempDetails[i].field_name] =
             fileDoc[tempDetails[i].field_name];
@@ -320,34 +284,22 @@ class DocumentView extends React.Component {
             tempDocument[tempDetails[i].field_name] = '';
           }
         }
-        const result = await Prom.updateData(
-          'prmths_document_details',
-          { ...tempDetails[i] },
-          [['id', '=', tempDetails[i].id]]
-        );
       }
       if (this.state.draft) {
         for (var i = 0; i < tempDetails.length; i++) {
-          if (tempDetails[i].control === 'position') {
-            tempDocument[tempDetails[i].field_name] =
-              (await this.getMaxPos(
-                tempDetails[i].collection,
-                tempDetails[i].field_name
-              )) + 1;
-          }
-          const result = await Prom.updateData(
-            'prmths_document_details',
+          const result = await Acsys.updateData(
+            'acsys_document_details',
             { ...tempDetails[i] },
-            [['id', '=', tempDetails[i].id]]
+            [['acsys_id', '=', tempDetails[i].acsys_id]]
           );
         }
-        const result = await Prom.insertData(
+        const result = await Acsys.insertData(
           this.state.collection,
           { ...tempDocument },
           this.state.keys
         );
-        await Prom.deleteData(
-          'prmths_' + this.state.collection,
+        await Acsys.deleteData(
+          'acsys_' + this.state.collection,
           this.state.keys
         )
           .then(() => {
@@ -355,7 +307,7 @@ class DocumentView extends React.Component {
           })
           .catch((error) => {});
       } else {
-        const result = await Prom.updateData(
+        const result = await Acsys.updateData(
           this.state.collection,
           { ...tempDocument },
           this.state.keys
@@ -371,36 +323,26 @@ class DocumentView extends React.Component {
         } else if (tempDocument[tempDetails[i].field_name] === undefined) {
           if (tempDetails[i].control === 'numberEditor') {
             tempDocument[tempDetails[i].field_name] = 0;
-          } else if (tempDetails[i].control === 'position') {
-            tempDocument[tempDetails[i].field_name] =
-              (await this.getMaxPos(
-                tempDetails[i].collection,
-                tempDetails[i].field_name
-              )) + 1;
           } else if (tempDetails[i].control === 'booleanSelect') {
             tempDocument[tempDetails[i].field_name] = false;
           } else {
             tempDocument[tempDetails[i].field_name] = '';
           }
         }
-        const result = await Prom.updateData(
-          'prmths_document_details',
-          { ...tempDetails[i] },
-          [['id', '=', tempDetails[i].id]]
-        );
       }
-      const result = await Prom.insertData(this.state.collection, {
+      console.log(fileDoc)
+      await Acsys.insertData(this.state.collection, {
         ...tempDocument,
       });
     }
-    tableKeys = [];
+    table_keys = [];
     for (var i = 0; i < tempDetails.length; i++) {
-      if (tempDetails[i].isKey) {
+      if (tempDetails[i].is_key) {
         const object = {
           field: tempDetails[i].field_name,
           value: tempDocument[tempDetails[i].field_name],
         };
-        tableKeys.push(object);
+        table_keys.push(object);
       }
     }
     mode = 'update';
@@ -412,11 +354,11 @@ class DocumentView extends React.Component {
     this.setState({ filterLoading: true });
 
     for (var i = 0; i < tempDetails.length; i++) {
-      tempDetails[i].order = i;
-      const result = await Prom.updateData(
-        'prmths_document_details',
+      tempDetails[i].view_order = i;
+      const result = await Acsys.updateData(
+        'acsys_document_details',
         { ...tempDetails[i] },
-        [['id', '=', tempDetails[i].id]]
+        [['acsys_id', '=', tempDetails[i].acsys_id]]
       );
     }
     this.setState({ filterLoading: false });
@@ -426,16 +368,16 @@ class DocumentView extends React.Component {
   saveView = async (value) => {
     this.setState({ loading: true });
 
-    var tempView = this.state.prmthsView;
+    var tempView = this.state.acsysView;
 
     if (value) {
-      tempView['tableKeys'] = this.props.location.state.tableKeys;
+      tempView['table_keys'] = JSON.stringify(this.props.location.state.table_keys);
     } else {
-      tempView['tableKeys'] = [];
+      tempView['table_keys'] = [];
     }
 
     for (var i = 0; i < tempDetails.length; i++) {
-      const result = await Prom.updateData('prmths_logical_content', tempView, [
+      const result = await Acsys.updateData('acsys_logical_content', tempView, [
         ['viewId', '=', this.props.location.state.viewId],
       ]);
     }
@@ -447,11 +389,11 @@ class DocumentView extends React.Component {
     this.setState({ deleteLoading: true });
     let collection;
     if (draft) {
-      collection = 'prmths_' + documentDetails[0].collection;
+      collection = 'acsys_' + documentDetails[0].collection;
     } else {
       collection = documentDetails[0].collection;
     }
-    await Prom.deleteData(collection, this.state.keys)
+    await Acsys.deleteData(collection, this.state.keys)
       .then(() => {
         this.handleClose();
         this.setState({ deleteLoading: false });
@@ -464,28 +406,46 @@ class DocumentView extends React.Component {
   };
 
   componentDidMount = async () => {
+    initLoad = true;
+    table_keys = [];
+    tempDetails = [];
+    tempDocument = [];
+    fileDoc = [];
+    fileRefs = [];
+    mode = '';
+    is_removable = true;
+    quillRef = null;
+    quillIndex = 0;
+    quillURL = '';
+    posArr = [];
+    initPos = 0;
+    highestPos = 0;
     try {
       this.props.setHeader('Content');
-      initLoad = true;
       let tempMode = mode;
       let routed = this.state.routed;
-      const prmthsView = await Prom.getData('prmths_logical_content', [
+      const acsysView = await Acsys.getData('acsys_logical_content', [
         ['viewId', '=', this.props.location.state.viewId],
       ]);
+      if (acsysView[0].table_keys.length > 0) {
+        routed = true;
+      }
       try {
         mode = this.props.location.state.mode;
-        isRemovable = this.props.location.state.isRemovable;
-        tableKeys = this.props.location.state.tableKeys;
+        is_removable = this.props.location.state.is_removable;
+        if(routed) {
+          table_keys = JSON.parse(this.props.location.state.table_keys);
+        }
+        else {
+          table_keys = this.props.location.state.table_keys;
+        }
       } catch (error) {
         mode = tempMode;
-      }
-      if (prmthsView[0].tableKeys.length > 0) {
-        routed = true;
       }
       this.setState({
         loading: true,
         routed: routed,
-        prmthsView: prmthsView[0],
+        acsysView: acsysView[0],
       });
       tempDocument = [];
       fileRefs = [];
@@ -500,8 +460,8 @@ class DocumentView extends React.Component {
   mount = async () => {
     let documentDetails;
     try {
-      documentDetails = await Prom.getData('prmths_document_details', [
-        ['contentId', '=', this.props.location.state.viewId],
+      documentDetails = await Acsys.getData('acsys_document_details', [
+        ['content_id', '=', this.props.location.state.viewId],
       ]);
     } catch (error) {
       documentDetails = this.state.documentDetails;
@@ -509,28 +469,43 @@ class DocumentView extends React.Component {
     let table = documentDetails[0].collection;
     let draft = false;
     let keys = [];
+    let apiCall;
     let position = 0;
+    let open = false;
     try {
-      documentDetails.sort((a, b) => (a.order > b.order ? 1 : -1));
+      documentDetails.sort((a, b) => (a.view_order > b.view_order ? 1 : -1));
       tempDetails = documentDetails;
 
       if (mode === 'update') {
         let pullView;
 
-        for (let i = 0; i < tableKeys.length; i++) {
-          keys.push([tableKeys[i].field, '=', tableKeys[i].value]);
+        for (let i = 0; i < table_keys.length; i++) {
+          keys.push([table_keys[i].field, '=', table_keys[i].value]);
         }
-
-        await Prom.getData(table, keys)
+        await Acsys.getData(table, keys)
           .then((result) => {
             pullView = result;
           })
           .catch(async () => {});
         if (pullView.length < 1) {
-          await Prom.getData('prmths_' + table, keys).then((result) => {
+          await Acsys.getData('acsys_' + table, keys).then((result) => {
             pullView = result;
             draft = true;
           });
+        }
+        await Acsys.getData('acsys_open_tables', [['table_name', '=', table]])
+        .then(async (result) => {
+          if (result[0].table_name === table) {
+            open = true;
+          }
+        })
+        .catch(() => {});
+
+        if (open) {
+          apiCall = await Acsys.getOpenUrl(table, keys);
+        }
+        else {
+          apiCall = await Acsys.getUrl(table, keys);
         }
 
         let currentView;
@@ -546,7 +521,7 @@ class DocumentView extends React.Component {
             documentDetails[i].control === 'imageReference' ||
             documentDetails[i].control === 'videoReference'
           ) {
-            fileRefs[documentDetails[i].field_name] = await Prom.getStorageURL(
+            fileRefs[documentDetails[i].field_name] = await Acsys.getStorageURL(
               currentView[documentDetails[i].field_name]
             );
             fileDoc[documentDetails[i].field_name] =
@@ -559,16 +534,6 @@ class DocumentView extends React.Component {
               currentView[documentDetails[i].field_name];
             fileDoc[documentDetails[i].field_name] =
               currentView[documentDetails[i].field_name];
-          } else if (documentDetails[i].control === 'position') {
-            position = await Prom.getData(
-              table,
-              '',
-              '',
-              [documentDetails[i].field_name],
-              'asc'
-            );
-            highestPos =
-              position[position.length - 1][documentDetails[i].field_name];
           }
         }
 
@@ -584,7 +549,9 @@ class DocumentView extends React.Component {
         draft: draft,
         saving: false,
         documentDetails: documentDetails,
+        locked: !open,
         collection: table,
+        apiCall: apiCall,
         keys: keys,
         position: position,
       });
@@ -618,448 +585,53 @@ class DocumentView extends React.Component {
                   initLoad = false;
                 }
               }
-              if (currentKey == details.field_name && details.isVisibleOnPage) {
+              if (currentKey == details.field_name && details.is_visible_on_page) {
                 if (details.control == 'autoGen') {
                   return (
-                    <Grid item xs={details.width}>
-                      <h3 class="element-header">
-                        {details.field_name.toUpperCase()}
-                      </h3>
-                      <input
-                        placeholder="Enter value here"
-                        defaultValue={tempDocument[currentKey]}
-                        readOnly
-                        type="text"
-                        style={{ width: '100%' }}
-                      />
-                    </Grid>
+                    <AutoGen width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} />
                   );
                 } else if (details.control == 'textEditor') {
                   return (
-                    <Grid item xs={details.width}>
-                      <h3 class="element-header">
-                        {details.field_name.toUpperCase()}
-                      </h3>
-                      <input
-                        placeholder="Enter value here"
-                        defaultValue={tempDocument[currentKey]}
-                        onChange={(e) =>
-                          this.handleChange(currentKey, e.target.value)
-                        }
-                        type="text"
-                        style={{ width: '100%' }}
-                      />
-                    </Grid>
+                    <TextField width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} />
                   );
                 } else if (details.control == 'dateTimePicker') {
                   let tempStr = value._seconds + '.' + value._nanoseconds;
                   const date = new Date(value);
                   return (
-                    <Grid item xs={details.width}>
-                      <Grid container spacing={0}>
-                        <Grid item xs={4}>
-                          <h3 class="element-header">
-                            {details.field_name.toUpperCase()}
-                          </h3>
-                        </Grid>
-                        <Grid item xs={12}>
-                          <Datetime
-                            margin="normal"
-                            defaultValue={date}
-                            onChange={(e) =>
-                              this.handleChange(currentKey, e.toDate())
-                            }
-                            style={{ width: '100%' }}
-                          />
-                        </Grid>
-                      </Grid>
-                    </Grid>
+                    <DateTimePicker width = {details.width} field_name = {details.field_name} defaultValue = {date} handleChange = {this.handleChange} currentKey = {currentKey} />
                   );
                 } else if (details.control == 'numberEditor') {
                   return (
-                    <Grid item xs={details.width}>
-                      <h3 class="element-header">
-                        {details.field_name.toUpperCase()}
-                      </h3>
-                      <input
-                        placeholder="Enter value here"
-                        defaultValue={tempDocument[currentKey]}
-                        onChange={(e) =>
-                          this.handleChange(
-                            currentKey,
-                            parseInt(e.target.value)
-                          )
-                        }
-                        type="number"
-                        style={{ width: '100%' }}
-                      />
-                    </Grid>
+                    <NumberEditor width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} />
                   );
                 } else if (details.control == 'richTextEditor') {
-                  const modules = {
-                    toolbar: {
-                      container: [
-                        [{ font: [] }, { size: [] }],
-                        ['bold', 'italic', 'underline', 'strike'],
-                        [{ color: [] }, { background: [] }],
-                        [{ script: 'super' }, { script: 'sub' }],
-                        [
-                          { header: '1' },
-                          { header: '2' },
-                          'blockquote',
-                          'code-block',
-                        ],
-                        [
-                          { list: 'ordered' },
-                          { list: 'bullet' },
-                          { indent: '-1' },
-                          { indent: '+1' },
-                        ],
-                        ['direction', { align: [] }],
-                        ['link', 'image', 'video', 'formula'],
-                        ['clean'],
-                      ],
-                      handlers: {
-                        image: this.imageHandler,
-                      },
-                    },
-                    clipboard: {
-                      matchVisual: false,
-                    },
-                  };
-                  if (quillURL.length > 0) {
-                    const quill = quillRef.getEditor();
-                    quill.insertEmbed(quillIndex, 'image', quillURL);
-                    quillURL = '';
-                  }
                   return (
-                    <Grid item xs={details.width}>
-                      <h3 class="element-header">
-                        {details.field_name.toUpperCase()}
-                      </h3>
-                      <div class="quill-container">
-                        <ReactQuill
-                          ref={(el) => {
-                            quillRef = el;
-                          }}
-                          value={tempDocument[currentKey]}
-                          modules={modules}
-                          onChange={(e) => this.handleChange(currentKey, e)}
-                          style={{
-                            clear: 'both',
-                            height: 400,
-                            marginBottom: 40,
-                          }}
-                        />
-                      </div>
-                      <Hidden mdUp implementation="css">
-                        <div style={{ height: 50 }} />
-                      </Hidden>
-                      <Hidden smUp implementation="css">
-                        <div style={{ height: 20 }} />
-                      </Hidden>
-                    </Grid>
+                    <RichTextEditor width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} imageHandler = {this.imageHandler} setQuillRef = {this.setQuillRef} setQuillIndex = {this.setQuillIndex} setQuillURL = {this.setQuillURL} index = {quillIndex} quillRef = {quillRef} url = {quillURL} />
                   );
                 } else if (details.control == 'booleanSelect') {
                   return (
-                    <Grid item xs={details.width}>
-                      <h3 class="element-header">
-                        {details.field_name.toUpperCase()}
-                      </h3>
-                      <NativeSelect
-                        defaultValue={tempDocument[currentKey]}
-                        onChange={(e) =>
-                          this.handleChange(
-                            currentKey,
-                            'true' == e.target.value
-                          )
-                        }
-                        inputProps={{
-                          name: currentKey,
-                        }}
-                        style={{ width: '100%' }}
-                      >
-                        <option value={true}>True</option>
-                        <option value={false}>False</option>
-                      </NativeSelect>
-                    </Grid>
+                    <BooleanSelect width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} />
                   );
-                } else if (details.control == 'position') {
-                  if (initLoad) {
-                    initPos = tempDocument[currentKey];
-                    posArr[details.field_name] = tempDocument[currentKey];
-                  }
-                  if (this.state.draft) {
-                    return (
-                      <Grid item xs={details.width}>
-                        <h3 class="element-header">
-                          {details.field_name.toUpperCase()}
-                        </h3>
-                        <input
-                          value="Auto generated on publish"
-                          readonly
-                          style={{ width: '100%' }}
-                        />
-                      </Grid>
-                    );
-                  } else {
-                    return (
-                      <Grid item xs={details.width}>
-                        <h3 class="element-header">
-                          {details.field_name.toUpperCase()}
-                        </h3>
-                        <Select
-                          defaultValue={tempDocument[currentKey]}
-                          onChange={(e) =>
-                            this.handleChange(
-                              currentKey,
-                              parseInt(e.target.value)
-                            )
-                          }
-                          inputProps={{
-                            name: currentKey,
-                          }}
-                          style={{ width: '100%', textAlign: 'left' }}
-                        >
-                          {Object.values(this.state.position).map(
-                            (pos, index) => {
-                              return (
-                                <MenuItem value={pos[details.field_name]}>
-                                  {index + 1}
-                                </MenuItem>
-                              );
-                            }
-                          )}
-                        </Select>
-                      </Grid>
-                    );
-                  }
                 } else if (details.control == 'imageReference') {
                   const url = fileRefs[details.field_name];
-                  if (url === undefined || url === '') {
-                    return (
-                      <Grid item xs={details.width}>
-                        <h3 class="element-header">
-                          {details.field_name.toUpperCase()}
-                        </h3>
-                        <Button
-                          style={{ width: '100%' }}
-                          variant="contained"
-                          color="primary"
-                          onClick={(e) =>
-                            this.openSelector('ref', details.field_name)
-                          }
-                        >
-                          Select File
-                        </Button>
-                      </Grid>
-                    );
-                  } else {
-                    return (
-                      <Grid item xs={details.width}>
-                        <h3 class="element-header">
-                          {details.field_name.toUpperCase()}
-                        </h3>
-                        <div class="image-container">
-                          <img
-                            src={url}
-                            style={{ maxHeight: 500, maxWidth: '100%' }}
-                          />
-                        </div>
-                        <div>
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            style={{ minWidth: 100, marginRight: 20 }}
-                            onClick={(e) =>
-                              this.openSelector('ref', details.field_name)
-                            }
-                          >
-                            Select
-                          </Button>
-                          <Button
-                            variant="contained"
-                            color="secondary"
-                            style={{ minWidth: 100, marginLeft: 20 }}
-                            onClick={(e) => this.removeFile(details.field_name)}
-                          >
-                            Remove
-                          </Button>
-                        </div>
-                      </Grid>
-                    );
-                  }
+                  return (
+                    <ImageReference width = {details.width} field_name = {details.field_name} url = {url} openSelector = {this.openSelector} removeFile = {this.removeFile} />
+                  );
                 } else if (details.control == 'imageURL') {
                   const url = fileRefs[details.field_name];
-                  if (url === undefined || url === '') {
-                    return (
-                      <Grid item xs={details.width}>
-                        <h3 class="element-header">
-                          {details.field_name.toUpperCase()}
-                        </h3>
-                        <Button
-                          style={{ width: '100%' }}
-                          variant="contained"
-                          color="primary"
-                          onClick={(e) =>
-                            this.openSelector('url', details.field_name)
-                          }
-                        >
-                          Select File
-                        </Button>
-                      </Grid>
-                    );
-                  } else {
-                    return (
-                      <Grid item xs={details.width}>
-                        <h3 class="element-header">
-                          {details.field_name.toUpperCase()}
-                        </h3>
-                        <div class="image-container">
-                          <img
-                            src={url}
-                            style={{ maxHeight: 500, maxWidth: '100%' }}
-                          />
-                        </div>
-                        <div>
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            style={{ minWidth: 100, marginRight: 20 }}
-                            onClick={(e) =>
-                              this.openSelector('url', details.field_name)
-                            }
-                          >
-                            Select
-                          </Button>
-                          <Button
-                            variant="contained"
-                            color="secondary"
-                            style={{ minWidth: 100, marginLeft: 20 }}
-                            onClick={(e) => this.removeFile(details.field_name)}
-                          >
-                            Remove
-                          </Button>
-                        </div>
-                      </Grid>
-                    );
-                  }
+                  return (
+                    <ImageURL width = {details.width} field_name = {details.field_name} url = {url} openSelector = {this.openSelector} removeFile = {this.removeFile} />
+                  );
                 } else if (details.control == 'videoReference') {
                   const url = fileRefs[details.field_name];
-                  if (url === undefined || url === '') {
-                    return (
-                      <Grid item xs={details.width}>
-                        <h3 class="element-header">
-                          {details.field_name.toUpperCase()}
-                        </h3>
-                        <Button
-                          style={{ width: '100%' }}
-                          variant="contained"
-                          color="primary"
-                          onClick={(e) =>
-                            this.openSelector('ref', details.field_name)
-                          }
-                        >
-                          Select File
-                        </Button>
-                      </Grid>
-                    );
-                  } else {
-                    return (
-                      <Grid item xs={details.width}>
-                        <h3 class="element-header">
-                          {details.field_name.toUpperCase()}
-                        </h3>
-                        <video
-                          style={{ width: '100%', marginBottom: 15 }}
-                          id="background-video"
-                          loop
-                          autoPlay
-                        >
-                          <source src={url} type="video/mp4" />
-                          Your browser does not support the video tag.
-                        </video>
-                        <div>
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            style={{ minWidth: 100, marginRight: 20 }}
-                            onClick={(e) =>
-                              this.openSelector('ref', details.field_name)
-                            }
-                          >
-                            Select
-                          </Button>
-                          <Button
-                            variant="contained"
-                            color="secondary"
-                            style={{ minWidth: 100, marginLeft: 20 }}
-                            onClick={(e) => this.removeFile(details.field_name)}
-                          >
-                            Remove
-                          </Button>
-                        </div>
-                      </Grid>
-                    );
-                  }
+                  return (
+                    <VideoReference width = {details.width} field_name = {details.field_name} url = {url} openSelector = {this.openSelector} removeFile = {this.removeFile} />
+                  );
                 } else if (details.control == 'videoURL') {
                   const url = fileRefs[details.field_name];
-                  if (url === undefined || url === '') {
-                    return (
-                      <Grid item xs={details.width}>
-                        <h3 class="element-header">
-                          {details.field_name.toUpperCase()}
-                        </h3>
-                        <Button
-                          style={{ width: '100%' }}
-                          variant="contained"
-                          color="primary"
-                          onClick={(e) =>
-                            this.openSelector('url', details.field_name)
-                          }
-                        >
-                          Select File
-                        </Button>
-                      </Grid>
-                    );
-                  } else {
-                    return (
-                      <Grid item xs={details.width}>
-                        <h3 class="element-header">
-                          {details.field_name.toUpperCase()}
-                        </h3>
-                        <video
-                          style={{ width: '100%', marginBottom: 15 }}
-                          id="background-video"
-                          loop
-                          autoPlay
-                        >
-                          <source src={url} type="video/mp4" />
-                          Your browser does not support the video tag.
-                        </video>
-                        <div>
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            style={{ minWidth: 100, marginRight: 20 }}
-                            onClick={(e) =>
-                              this.openSelector('url', details.field_name)
-                            }
-                          >
-                            Select
-                          </Button>
-                          <Button
-                            variant="contained"
-                            color="secondary"
-                            style={{ minWidth: 100, marginLeft: 20 }}
-                            onClick={(e) => this.removeFile(details.field_name)}
-                          >
-                            Remove
-                          </Button>
-                        </div>
-                      </Grid>
-                    );
-                  }
+                  return (
+                    <VideoURL width = {details.width} field_name = {details.field_name} url = {url} openSelector = {this.openSelector} removeFile = {this.removeFile} />
+                  );
                 }
               }
             });
@@ -1070,52 +642,22 @@ class DocumentView extends React.Component {
   }
 
   renderNoId() {
-    const { views, documentDetails, rowsPerPage, page } = this.state;
+    const { documentDetails } = this.state;
     return (
       <div class="element-container">
         <Grid container spacing={3}>
           {Object.values(documentDetails).map((details, dindex) => {
             let currentKey = details.field_name;
-            if (details.isVisibleOnPage) {
+            if (details.is_visible_on_page) {
               if (details.control == 'autoGen') {
                 return (
-                  <Grid item xs={details.width}>
-                    <h3 class="element-header">
-                      {details.field_name.toUpperCase()}
-                    </h3>
-                    <input
-                      placeholder="Value is autogenerated"
-                      value="Value is autogenerated"
-                      readonly
-                      type="text"
-                      style={{ width: '100%' }}
-                    />
-                  </Grid>
+                  <AutoGen width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} new = {true} />
                 );
-              }
-              if (details.control == 'booleanSelect') {
+              } else if (details.control == 'textEditor') {
                 return (
-                  <Grid item xs={details.width}>
-                    <h3 class="element-header">
-                      {details.field_name.toUpperCase()}
-                    </h3>
-                    <NativeSelect
-                      defaultValue={false}
-                      onChange={(e) =>
-                        this.handleChange(currentKey, 'true' == e.target.value)
-                      }
-                      inputProps={{
-                        name: currentKey,
-                      }}
-                      style={{ width: '100%' }}
-                    >
-                      <option value={true}>True</option>
-                      <option value={false}>False</option>
-                    </NativeSelect>
-                  </Grid>
+                  <TextField width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} />
                 );
-              }
-              if (details.control == 'dateTimePicker') {
+              } else if (details.control == 'dateTimePicker') {
                 if (initLoad) {
                   this.handleChange(currentKey, new Date());
                   if (documentDetails.length - 1 === dindex) {
@@ -1123,373 +665,39 @@ class DocumentView extends React.Component {
                   }
                 }
                 return (
-                  <Grid item xs={details.width}>
-                    <Grid container spacing={0}>
-                      <Grid item xs={4}>
-                        <h3 class="element-header">
-                          {details.field_name.toUpperCase()}
-                        </h3>
-                      </Grid>
-                      <Grid item xs={12}>
-                        <Datetime
-                          margin="normal"
-                          defaultValue={new Date()}
-                          onChange={(e) =>
-                            this.handleChange(currentKey, e.toDate())
-                          }
-                          style={{ width: '100%' }}
-                        />
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                );
-              }
-              if (details.control == 'textEditor') {
-                return (
-                  <Grid item xs={details.width}>
-                    <h3 class="element-header">
-                      {details.field_name.toUpperCase()}
-                    </h3>
-                    <input
-                      placeholder="Enter value here"
-                      onChange={(e) =>
-                        this.handleChange(currentKey, e.target.value)
-                      }
-                      type="text"
-                      style={{ width: '100%' }}
-                    />
-                  </Grid>
-                );
-              } else if (details.control == 'richTextEditor') {
-                const modules = {
-                  toolbar: {
-                    container: [
-                      [{ font: [] }, { size: [] }],
-                      ['bold', 'italic', 'underline', 'strike'],
-                      [{ color: [] }, { background: [] }],
-                      [{ script: 'super' }, { script: 'sub' }],
-                      [
-                        { header: '1' },
-                        { header: '2' },
-                        'blockquote',
-                        'code-block',
-                      ],
-                      [
-                        { list: 'ordered' },
-                        { list: 'bullet' },
-                        { indent: '-1' },
-                        { indent: '+1' },
-                      ],
-                      ['direction', { align: [] }],
-                      ['link', 'image', 'video', 'formula'],
-                      ['clean'],
-                    ],
-                    handlers: {
-                      image: this.imageHandler,
-                    },
-                  },
-                  clipboard: {
-                    matchVisual: false,
-                  },
-                };
-                if (quillURL.length > 0) {
-                  const quill = quillRef.getEditor();
-                  quill.insertEmbed(quillIndex, 'image', quillURL);
-                  quillURL = '';
-                }
-                return (
-                  <Grid item xs={details.width}>
-                    <h3 class="element-header">
-                      {details.field_name.toUpperCase()}
-                    </h3>
-                    <div class="quill-container">
-                      <ReactQuill
-                        ref={(el) => {
-                          quillRef = el;
-                        }}
-                        modules={modules}
-                        onChange={(e) => this.handleChange(currentKey, e)}
-                        style={{ clear: 'both', height: 400, marginBottom: 40 }}
-                      />
-                    </div>
-                    <Hidden mdUp implementation="css">
-                      <div style={{ height: 50 }} />
-                    </Hidden>
-                    <Hidden smUp implementation="css">
-                      <div style={{ height: 20 }} />
-                    </Hidden>
-                  </Grid>
+                  <DateTimePicker width = {details.width} field_name = {details.field_name} defaultValue = {new Date} handleChange = {this.handleChange} currentKey = {currentKey} />
                 );
               } else if (details.control == 'numberEditor') {
                 return (
-                  <Grid item xs={details.width}>
-                    <h3 class="element-header">
-                      {details.field_name.toUpperCase()}
-                    </h3>
-                    <input
-                      placeholder="Enter value here"
-                      onChange={(e) =>
-                        this.handleChange(currentKey, parseInt(e.target.value))
-                      }
-                      type="number"
-                      style={{ width: '100%' }}
-                    />
-                  </Grid>
+                  <NumberEditor width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} />
                 );
-              } else if (details.control == 'position') {
+              } else if (details.control == 'richTextEditor') {
                 return (
-                  <Grid item xs={details.width}>
-                    <h3 class="element-header">
-                      {details.field_name.toUpperCase()}
-                    </h3>
-                    <input
-                      value="Auto generated on publish"
-                      readonly
-                      style={{ width: '100%' }}
-                    />
-                  </Grid>
+                  <RichTextEditor width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} imageHandler = {this.imageHandler} setQuillRef = {this.setQuillRef} setQuillIndex = {this.setQuillIndex} setQuillURL = {this.setQuillURL} index = {quillIndex} quillRef = {quillRef} url = {quillURL} />
+                );
+              } else if (details.control == 'booleanSelect') {
+                return (
+                  <BooleanSelect width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} />
                 );
               } else if (details.control == 'imageReference') {
                 const url = fileRefs[details.field_name];
-                if (url === undefined || url === '') {
-                  return (
-                    <Grid item xs={details.width}>
-                      <h3 class="element-header">
-                        {details.field_name.toUpperCase()}
-                      </h3>
-                      <Button
-                        style={{ width: '100%' }}
-                        variant="contained"
-                        color="primary"
-                        onClick={(e) =>
-                          this.openSelector('ref', details.field_name)
-                        }
-                      >
-                        Select File
-                      </Button>
-                    </Grid>
-                  );
-                } else {
-                  return (
-                    <Grid item xs={details.width}>
-                      <h3 class="element-header">
-                        {details.field_name.toUpperCase()}
-                      </h3>
-                      <div class="image-container">
-                        <img
-                          src={url}
-                          style={{ maxHeight: 500, maxWidth: '100%' }}
-                        />
-                      </div>
-                      <div>
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          style={{ minWidth: 100, marginRight: 20 }}
-                          onClick={(e) =>
-                            this.openSelector('ref', details.field_name)
-                          }
-                        >
-                          Select
-                        </Button>
-                        <Button
-                          variant="contained"
-                          color="secondary"
-                          style={{ minWidth: 100, marginLeft: 20 }}
-                          onClick={(e) => this.removeFile(details.field_name)}
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                    </Grid>
-                  );
-                }
+                return (
+                  <ImageReference width = {details.width} field_name = {details.field_name} url = {url} openSelector = {this.openSelector} removeFile = {this.removeFile} />
+                );
               } else if (details.control == 'imageURL') {
                 const url = fileRefs[details.field_name];
-                if (url === undefined || url === '') {
-                  return (
-                    <Grid item xs={details.width}>
-                      <h3 class="element-header">
-                        {details.field_name.toUpperCase()}
-                      </h3>
-                      <Button
-                        style={{ width: '100%' }}
-                        variant="contained"
-                        color="primary"
-                        onClick={(e) =>
-                          this.openSelector('url', details.field_name)
-                        }
-                      >
-                        Select File
-                      </Button>
-                    </Grid>
-                  );
-                } else {
-                  return (
-                    <Grid item xs={details.width}>
-                      <h3 class="element-header">
-                        {details.field_name.toUpperCase()}
-                      </h3>
-                      <div class="image-container">
-                        <img
-                          src={url}
-                          style={{ maxHeight: 500, maxWidth: '100%' }}
-                        />
-                      </div>
-                      <div>
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          style={{ minWidth: 100, marginRight: 20 }}
-                          onClick={(e) =>
-                            this.openSelector('url', details.field_name)
-                          }
-                        >
-                          Select
-                        </Button>
-                        <Button
-                          variant="contained"
-                          color="secondary"
-                          style={{ minWidth: 100, marginLeft: 20 }}
-                          onClick={(e) => this.removeFile(details.field_name)}
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                    </Grid>
-                  );
-                }
+                return (
+                  <ImageURL width = {details.width} field_name = {details.field_name} url = {url} openSelector = {this.openSelector} removeFile = {this.removeFile} />
+                );
               } else if (details.control == 'videoReference') {
                 const url = fileRefs[details.field_name];
-                if (url === undefined || url === '') {
-                  return (
-                    <Grid item xs={details.width}>
-                      <h3 class="element-header">
-                        {details.field_name.toUpperCase()}
-                      </h3>
-                      <Button
-                        style={{ width: '100%' }}
-                        variant="contained"
-                        color="primary"
-                        onClick={(e) =>
-                          this.openSelector('ref', details.field_name)
-                        }
-                      >
-                        Select File
-                      </Button>
-                    </Grid>
-                  );
-                } else {
-                  return (
-                    <Grid item xs={details.width}>
-                      <h3 class="element-header">
-                        {details.field_name.toUpperCase()}
-                      </h3>
-                      <video
-                        style={{ width: '100%', marginBottom: 15 }}
-                        id="background-video"
-                        loop
-                        autoPlay
-                      >
-                        <source src={url} type="video/mp4" />
-                        Your browser does not support the video tag.
-                      </video>
-                      <div>
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          style={{ minWidth: 100, marginRight: 20 }}
-                          onClick={(e) =>
-                            this.openSelector('ref', details.field_name)
-                          }
-                        >
-                          Select
-                        </Button>
-                        <Button
-                          variant="contained"
-                          color="secondary"
-                          style={{ minWidth: 100, marginLeft: 20 }}
-                          onClick={(e) => this.removeFile(details.field_name)}
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                    </Grid>
-                  );
-                }
+                return (
+                  <VideoReference width = {details.width} field_name = {details.field_name} url = {url} openSelector = {this.openSelector} removeFile = {this.removeFile} />
+                );
               } else if (details.control == 'videoURL') {
                 const url = fileRefs[details.field_name];
-                if (url === undefined || url === '') {
-                  return (
-                    <Grid item xs={details.width}>
-                      <h3 class="element-header">
-                        {details.field_name.toUpperCase()}
-                      </h3>
-                      <Button
-                        style={{ width: '100%' }}
-                        variant="contained"
-                        color="primary"
-                        onClick={(e) =>
-                          this.openSelector('url', details.field_name)
-                        }
-                      >
-                        Select File
-                      </Button>
-                    </Grid>
-                  );
-                } else {
-                  return (
-                    <Grid item xs={details.width}>
-                      <h3 class="element-header">
-                        {details.field_name.toUpperCase()}
-                      </h3>
-                      <video
-                        style={{ width: '100%', marginBottom: 15 }}
-                        id="background-video"
-                        loop
-                        autoPlay
-                      >
-                        <source src={url} type="video/mp4" />
-                        Your browser does not support the video tag.
-                      </video>
-                      <div>
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          style={{ minWidth: 100, marginRight: 20 }}
-                          onClick={(e) =>
-                            this.openSelector('url', details.field_name)
-                          }
-                        >
-                          Select
-                        </Button>
-                        <Button
-                          variant="contained"
-                          color="secondary"
-                          style={{ minWidth: 100, marginLeft: 20 }}
-                          onClick={(e) => this.removeFile(details.field_name)}
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                    </Grid>
-                  );
-                }
-              } else {
                 return (
-                  <Grid item xs={details.width}>
-                    <h3 class="element-header">
-                      {details.field_name.toUpperCase()}
-                    </h3>
-                    <input
-                      placeholder="Enter value here"
-                      onChange={(e) =>
-                        this.handleChange(currentKey, e.target.value)
-                      }
-                      type="text"
-                      style={{ width: '100%' }}
-                    />
-                  </Grid>
+                  <VideoURL width = {details.width} field_name = {details.field_name} url = {url} openSelector = {this.openSelector} removeFile = {this.removeFile} />
                 );
               }
             }
@@ -1500,12 +708,12 @@ class DocumentView extends React.Component {
   }
 
   render() {
-    const { filterLoading, draft, deleteLoading, routed } = this.state;
+    const { filterLoading, draft, deleteLoading, apiCall } = this.state;
     return (
       <div style={{ minHeight: 600 }}>
-        {Prom.getMode() !== 'Viewer' ? (
+        {Acsys.getMode() !== 'Viewer' ? (
           <div>
-            {!this.props.location.state.routed && isRemovable ? (
+            {!this.props.location.state.routed && is_removable ? (
               <Tooltip title="Delete Entry">
                 <Button
                   style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
@@ -1543,7 +751,7 @@ class DocumentView extends React.Component {
             ) : (
               <div></div>
             )}
-            {Prom.getMode() === 'Administrator' ? (
+            {Acsys.getMode() === 'Administrator' ? (
               <Tooltip title="Change How Data Is Presented">
                 <Button
                   style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
@@ -1557,17 +765,15 @@ class DocumentView extends React.Component {
             ) : (
               <div />
             )}
-            {Prom.getMode() === 'Administrator' ? (
-              <Tooltip title="Determines If Entry Is Accessed Directly From View Or Table">
-                <Select
-                  defaultValue={this.props.location.state.routed}
-                  onChange={(e) => this.saveView(e.target.value)}
-                  style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
-                >
-                  <MenuItem value={false}>Accessed From Table</MenuItem>
-                  <MenuItem value={true}>Accessed From View</MenuItem>
-                </Select>
-              </Tooltip>
+            {Acsys.getMode() === 'Administrator' ? (
+              <Select
+                defaultValue={this.props.location.state.routed}
+                onChange={(e) => this.saveView(e.target.value)}
+                style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
+              >
+                <MenuItem value={false}>Accessed From Table</MenuItem>
+                <MenuItem value={true}>Accessed From View</MenuItem>
+              </Select>
             ) : (
               <div />
             )}
@@ -1707,9 +913,28 @@ class DocumentView extends React.Component {
             </DialogActions>
           </Dialog>
         </Paper>
+        <Hidden smDown implementation="css">
+          {!this.state.locked ?
+          <div style={{clear: 'both'}}>
+            API Call: <a className='api-url' href={apiCall} target="_blank">{apiCall}</a>
+            <Tooltip title="Copy To Clipboard">
+              <IconButton
+                edge="start"
+                color="inherit"
+                aria-label="edit"
+                onClick={this.copy}
+                style={{ marginLeft: 5 }}
+              >
+                <CopyIcon style={{ height: 15 }}/>
+              </IconButton>
+            </Tooltip>
+          </div>
+          :
+          <div/>
+          }
+        </Hidden>
       </div>
     );
   }
 }
-const condition = (authUser) => authUser != null;
 export default DocumentView;

@@ -3,13 +3,12 @@ import Grid from '@material-ui/core/Grid';
 import Hidden from '@material-ui/core/Hidden';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '@material-ui/core/Typography';
 import { AccountCircle as AccountCircleIcon } from '@material-ui/icons';
 import MenuIcon from '@material-ui/icons/Menu';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import * as ROUTES from '../constants/routes';
-import * as Prom from '../services/Prometheus/Prom';
+import * as Acsys from '../services/Acsys/Acsys';
 import { PromConsumer } from '../services/Session/PromProvider';
 import SignOutButton from './SignOut';
 
@@ -37,7 +36,7 @@ class Header extends React.Component {
         >
           <Grid container spacing={1} alignItems="center">
             <Hidden smDown implementation="css">
-              <img src="/prometheus-header.svg" alt="" style={{height: 45}} />
+              <img src="/acsys-logo.svg" alt="" style={{height: 45, marginLeft: 10}} />
             </Hidden>
             <Hidden mdUp implementation="css">
               <Grid item>
@@ -51,7 +50,7 @@ class Header extends React.Component {
               </Grid>
             </Hidden>
             <Grid item xs />
-            <Grid item>{Prom.getUser()}</Grid>
+            <Grid item>{Acsys.getUser()}</Grid>
             <Grid item>
               <Tooltip title="My Account">
                 <IconButton

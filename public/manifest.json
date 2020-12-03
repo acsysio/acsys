@@ -1,19 +1,19 @@
 {
-  "short_name": "Prometheus",
-  "name": "Prometheus",
+  "short_name": "Acsys",
+  "name": "Acsys",
   "icons": [
     {
-      "src": "prometheus-logo.svg",
+      "src": "acsys-icon.svg",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
     },
     {
-      "src": "prometheus-logo.svg",
+      "src": "acsys-icon.svg",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "prometheus-logo.svg",
+      "src": "acsys-icon.svg",
       "type": "image/png",
       "sizes": "512x512"
     }

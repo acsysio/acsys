@@ -1,11 +1,11 @@
-import React, { Suspense, lazy } from 'react';
+import React, { lazy, Suspense } from 'react';
 import 'react-quill/dist/quill.snow.css';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import '../../css/prometheus.css';
+import '../../css/acsys.css';
 import '../../css/react-datetime.css';
 import { getRefreshSession } from '../../services/Session/session';
-import './App.css';
 import Loading from '../Loading';
+import './App.css';
 
 const SignInPage = lazy(() => import('../SignIn'));
 const PasswordReset = lazy(() => import('../PasswordReset'));

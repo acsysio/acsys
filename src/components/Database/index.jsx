@@ -11,7 +11,7 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  Tooltip,
+  Tooltip
 } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
@@ -25,7 +25,7 @@ import { Delete as DeleteIcon } from '@material-ui/icons';
 import React from 'react';
 import { DndProvider } from 'react-dnd';
 import Backend from 'react-dnd-html5-backend';
-import * as Prom from '../../services/Prometheus/Prom';
+import * as Acsys from '../../services/Acsys/Acsys';
 import { PromConsumer } from '../../services/Session/PromProvider';
 import TableControl from '../TableControl';
 
@@ -89,7 +89,7 @@ class LogicalContent extends React.Component {
   deleteTable = async () => {
     this.setState({ deleteLoading: true });
     if (this.state.viewId.length > 0) {
-      await Prom.dropTable(this.state.viewId);
+      await Acsys.dropTable(this.state.viewId);
     }
     this.handleDeleteClose();
     this.componentDidMount();
@@ -144,10 +144,10 @@ class LogicalContent extends React.Component {
     this.setState({
       saving: true,
     });
-    await Prom.updateData('prmths_logical_content', tempView, [
-      ['id', '=', tempView.id],
+    await Acsys.updateData('acsys_logical_content', tempView, [
+      ['acsys_id', '=', tempView.acsys_id],
     ]);
-    const currentView = await Prom.getData('prmths_logical_content');
+    const currentView = await Acsys.getData('acsys_logical_content');
     this.setState({
       saving: false,
       saveLoading: false,
@@ -177,10 +177,10 @@ class LogicalContent extends React.Component {
     this.setState({
       loading: true,
     });
-    let projectName = await Prom.getProjectName();
+    let projectName = await Acsys.getProjectName();
     let currentView = [];
 
-    currentView = await Prom.getTableData();
+    currentView = await Acsys.getTableData();
 
     this.setState({
       projectName: projectName,
@@ -225,7 +225,7 @@ class LogicalContent extends React.Component {
       })
     }
     else {
-      await Prom.createTable(tableName, newEntry);
+      await Acsys.createTable(tableName, newEntry);
       this.handleClose();
       this.componentDidMount();
     }
@@ -236,9 +236,9 @@ class LogicalContent extends React.Component {
     return views
       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
       .map((views) => {
-        const { id, table, rows, viewId, source_collection, tableKeys } = views;
+        const { acsys_id, table, rows, viewId, source_collection, table_keys } = views;
         return (
-          <TableRow key={id}>
+          <TableRow key={acsys_id}>
             <TableCell>{table}</TableCell>
             <TableCell style={{ width: 50 }}>{rows}</TableCell>
             <TableCell style={{ width: 100 }} align="right">

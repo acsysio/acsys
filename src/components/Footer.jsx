@@ -4,8 +4,7 @@ import React from 'react';
 function Footer() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © '}
-      Aeon LLC. All Rights Reserved.
+      Acsys Data Management Tool
     </Typography>
   );
 }

@@ -1,10 +1,10 @@
 import {
-  AppBar,
-  Grid,
-  IconButton,
-  NativeSelect,
-  Paper,
-  Typography,
+    AppBar,
+    Grid,
+    IconButton,
+    NativeSelect,
+    Paper,
+    Typography
 } from '@material-ui/core';
 import { Close } from '@material-ui/icons';
 import React, { memo, useMemo, useRef } from 'react';
@@ -41,7 +41,6 @@ const Card = memo(({ id, entry, deleteField }) => {
   const setValue = (event) => {
     entry.value = event;
   };
-  console.log(entry);
 
   return (
     <Paper style={{ maxHeight: 160, marginBottom: 30 }}>

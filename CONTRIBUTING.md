@@ -1,16 +1,16 @@
 # Contributing
 
-Prometheus has an active and growing open-source community.
+Acsys has an active and growing open-source community.
 All work on the open-source framework occurs in the GitHub organization.
 
 ## Governance
 
-The Prometheus project governance model follows the spirit and tradition of open-source
+The Acsys project governance model follows the spirit and tradition of open-source
 by embracing consensus, forking, and individual ownership.
 
 ### Principles
 
-Prometheus is an open, inclusive, and tolerant community of people working together
+Acsys is an open, inclusive, and tolerant community of people working together
 to build a world-class Node.js framework and tools. We value diversity of individuals and
 opinions, and seek to operate on consensus whenever possible.
 We strive to maintain a welcoming, inclusive, and harassment-free environment,
@@ -21,7 +21,7 @@ individual module and maintainer.
 
 ## Contributing
 
-There are many ways you can contribute to the Prometheus project.
+There are many ways you can contribute to the Acsys project.
 All contributions are welcome!
 
 ### Submitting a pull request

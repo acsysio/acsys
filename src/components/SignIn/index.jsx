@@ -5,9 +5,9 @@ import {
     Grid, Hidden,
     Typography
 } from '@material-ui/core';
-import { Link } from 'react-router-dom';
 import React, { Component } from 'react';
-import * as Prom from '../../services/Prometheus/Prom';
+import { Link } from 'react-router-dom';
+import * as Acsys from '../../services/Acsys/Acsys';
 
 
 const INITIAL_STATE = {
@@ -25,7 +25,7 @@ class SignInPage extends Component {
   state = { ...INITIAL_STATE };
 
   componentDidMount = async () => {
-    const installed = await Prom.hasAdmin();
+    const installed = await Acsys.hasAdmin();
 
     this.setState({
       isInstalled: installed,
@@ -64,7 +64,7 @@ class SignInPage extends Component {
 
     this.setState({ loading: true });
 
-    await Prom.authenticate(username, passwordOne)
+    await Acsys.authenticate(username, passwordOne)
       .then((result) => {
         if (result === true) {
           window.location.reload(false);
@@ -84,7 +84,7 @@ class SignInPage extends Component {
 
     this.setState({ loading: true });
 
-    await Prom.register(username, email, passwordOne)
+    await Acsys.register(username, email, passwordOne)
       .then((result) => {
         if (result === true) {
           window.location.reload(false);
@@ -103,7 +103,7 @@ class SignInPage extends Component {
     this.setState({ [event.target.name]: event.target.value });
   };
 
-  render() {
+  getRegister() {
     const {
       username,
       email,
@@ -120,184 +120,193 @@ class SignInPage extends Component {
       email === '' ||
       username === '';
 
+    return (
+      <Box
+        margin="auto"
+        width="80%"
+        display="flex"
+        flexDirection="column"
+        textAlign="center"
+        padding="16px"
+      >
+        <Typography
+          variant="h4"
+          color="primary"
+          style={{ marginTop: '50px' }}
+        >
+          Register
+        </Typography>
+
+        <Typography
+          variant="p"
+          color="secondary"
+          style={{ minHeight: 25, marginTop: '60px' }}
+        >
+          {message}
+        </Typography>
+
+        <input
+          id="email"
+          name="email"
+          placeholder="Email"
+          margin="normal"
+          color="primary"
+          variant="outlined"
+          value={email}
+          onKeyDown={this.onKeyDownRG}
+          onChange={this.onChange}
+        />
+
+        <input
+          id="username"
+          name="username"
+          placeholder="Username"
+          margin="normal"
+          color="primary"
+          variant="outlined"
+          style={{ marginTop: '20px' }}
+          value={username}
+          onKeyDown={this.onKeyDownRG}
+          onChange={this.onChange}
+        />
+
+        <input
+          id="passwordOne"
+          name="passwordOne"
+          placeholder="Password"
+          margin="normal"
+          color="primary"
+          variant="outlined"
+          type="password"
+          style={{ marginTop: '20px' }}
+          value={passwordOne}
+          onKeyDown={this.onKeyDownRG}
+          onChange={this.onChange}
+        />
+
+        <input
+          id="passwordTwo"
+          name="passwordTwo"
+          placeholder="Confirm Password"
+          margin="normal"
+          color="primary"
+          variant="outlined"
+          type="password"
+          style={{ marginTop: '20px' }}
+          value={passwordTwo}
+          onKeyDown={this.onKeyDownRG}
+          onChange={this.onChange}
+        />
+
+        <Button
+          disabled={isInvalidInitial || loading}
+          type="submit"
+          style={{ marginTop: '20px' }}
+          onClick={this.onSubmitInitial}
+          variant="contained"
+          color="primary"
+        >
+          {loading && <CircularProgress size={24} />}
+          {!loading && 'Register'}
+        </Button>
+
+        {error && (
+          <Typography variant="body1" color="error">
+            {error.message}
+          </Typography>
+        )}
+      </Box>
+    );
+  };
+
+  getSignIn() {
+    const {
+      username,
+      passwordOne,
+      message,
+      loading,
+      error,
+    } = this.state;
+
     const isInvalid = passwordOne === '' || username === '';
 
-    let initialComponent;
-
-    if (this.state.isInstalled) {
-      initialComponent = (
-        <Box
-          margin="auto"
-          width="80%"
-          display="flex"
-          flexDirection="column"
-          textAlign="center"
-          padding="16px"
+    return (
+      <Box
+        margin="auto"
+        width="80%"
+        display="flex"
+        flexDirection="column"
+        textAlign="center"
+        padding="16px"
+      >
+        <Typography
+          variant="h4"
+          color="primary"
+          style={{ marginTop: '50px' }}
         >
-          <Typography
-            variant="h4"
-            color="primary"
-            style={{ marginTop: '50px' }}
-          >
-            Sign in to your account
-          </Typography>
+          Sign in to your account
+        </Typography>
 
-          <Typography
-            variant="p"
-            color="secondary"
-            style={{ minHeight: 25, marginTop: '60px' }}
-          >
-            {message}
-          </Typography>
-
-          <input
-            id="username"
-            name="username"
-            placeholder="Username"
-            margin="normal"
-            color="primary"
-            variant="outlined"
-            value={username}
-            onKeyDown={this.onKeyDownSI}
-            onChange={this.onChange}
-          />
-
-          <input
-            id="passwordOne"
-            name="passwordOne"
-            placeholder="Password"
-            margin="normal"
-            color="primary"
-            variant="outlined"
-            type="password"
-            style={{ marginTop: '20px' }}
-            value={passwordOne}
-            onKeyDown={this.onKeyDownSI}
-            onChange={this.onChange}
-          />
-
-          <Button
-            disabled={isInvalid || loading}
-            type="submit"
-            style={{ marginTop: '20px' }}
-            onClick={this.onSubmit}
-            variant="contained"
-            color="primary"
-          >
-            {loading && <CircularProgress color="white" size={24} />}
-            {!loading && 'Sign In'}
-          </Button>
-
-          <Typography variant='body2' color="primary" style={{marginTop: '20px'}} to={"/ForgotPassword"} component={Link}>
-            Forgot Password?
-          </Typography>
-
-          {error && (
-            <Typography variant="body1" color="error">
-              {error.message}
-            </Typography>
-          )}
-        </Box>
-      );
-    } else {
-      initialComponent = (
-        <Box
-          margin="auto"
-          width="80%"
-          display="flex"
-          flexDirection="column"
-          textAlign="center"
-          padding="16px"
+        <Typography
+          variant="p"
+          color="secondary"
+          style={{ minHeight: 25, marginTop: '60px' }}
         >
-          <Typography
-            variant="h4"
-            color="primary"
-            style={{ marginTop: '50px' }}
-          >
-            Register
+          {message}
+        </Typography>
+
+        <input
+          id="username"
+          name="username"
+          placeholder="Username"
+          margin="normal"
+          color="primary"
+          variant="outlined"
+          value={username}
+          onKeyDown={this.onKeyDownSI}
+          onChange={this.onChange}
+        />
+
+        <input
+          id="passwordOne"
+          name="passwordOne"
+          placeholder="Password"
+          margin="normal"
+          color="primary"
+          variant="outlined"
+          type="password"
+          style={{ marginTop: '20px' }}
+          value={passwordOne}
+          onKeyDown={this.onKeyDownSI}
+          onChange={this.onChange}
+        />
+
+        <Button
+          disabled={isInvalid || loading}
+          type="submit"
+          style={{ marginTop: '20px' }}
+          onClick={this.onSubmit}
+          variant="contained"
+          color="primary"
+        >
+          {loading && <CircularProgress color="white" size={24} />}
+          {!loading && 'Sign In'}
+        </Button>
+
+        <Typography variant='body2' color="primary" style={{marginTop: '20px'}} to={"/ForgotPassword"} component={Link}>
+          Forgot Password?
+        </Typography>
+
+        {error && (
+          <Typography variant="body1" color="error">
+            {error.message}
           </Typography>
+        )}
+      </Box>
+    );
+  };
 
-          <Typography
-            variant="p"
-            color="secondary"
-            style={{ minHeight: 25, marginTop: '60px' }}
-          >
-            {message}
-          </Typography>
-
-          <input
-            id="email"
-            name="email"
-            placeholder="Email"
-            margin="normal"
-            color="primary"
-            variant="outlined"
-            value={email}
-            onKeyDown={this.onKeyDownRG}
-            onChange={this.onChange}
-          />
-
-          <input
-            id="username"
-            name="username"
-            placeholder="Username"
-            margin="normal"
-            color="primary"
-            variant="outlined"
-            style={{ marginTop: '20px' }}
-            value={username}
-            onKeyDown={this.onKeyDownRG}
-            onChange={this.onChange}
-          />
-
-          <input
-            id="passwordOne"
-            name="passwordOne"
-            placeholder="Password"
-            margin="normal"
-            color="primary"
-            variant="outlined"
-            type="password"
-            style={{ marginTop: '20px' }}
-            value={passwordOne}
-            onKeyDown={this.onKeyDownRG}
-            onChange={this.onChange}
-          />
-
-          <input
-            id="passwordTwo"
-            name="passwordTwo"
-            placeholder="Confirm Password"
-            margin="normal"
-            color="primary"
-            variant="outlined"
-            type="password"
-            style={{ marginTop: '20px' }}
-            value={passwordTwo}
-            onKeyDown={this.onKeyDownRG}
-            onChange={this.onChange}
-          />
-
-          <Button
-            disabled={isInvalidInitial || loading}
-            type="submit"
-            style={{ marginTop: '20px' }}
-            onClick={this.onSubmitInitial}
-            variant="contained"
-            color="primary"
-          >
-            {loading && <CircularProgress size={24} />}
-            {!loading && 'Register'}
-          </Button>
-
-          {error && (
-            <Typography variant="body1" color="error">
-              {error.message}
-            </Typography>
-          )}
-        </Box>
-      );
-    }
+  render() {
     return (
       <Grid
         className="landing-grid"
@@ -325,7 +334,7 @@ class SignInPage extends Component {
                   flexDirection="column"
                   padding="16px"
                 >
-                  <img src="/prometheus-banner.svg" alt="" />
+                  <img src="/acsys-logo.svg" alt="" style={{width: '50%', marginTop: 35, marginBottom: 25}} />
                   <Typography
                     variant="h4"
                     style={{
@@ -334,7 +343,7 @@ class SignInPage extends Component {
                       marginTop: '20px',
                     }}
                   >
-                    Prometheus CMS
+                    The streamlined data tool
                   </Typography>
                   <Typography
                     variant="p"
@@ -344,18 +353,22 @@ class SignInPage extends Component {
                       marginTop: '20px',
                     }}
                   >
-                    Prometheus is a data management system that automates many
-                    of the backend processes involved in web development.
-                    Prometheus allows developers to configure a database through
-                    the Prometheus web app. Once this is done users can then use
-                    Prometheus as a headless content management system that also
-                    configures restful apis (no coding involved).
+                    Acsys is a data management tool that automates backend 
+                    processes to streamline development. Acsys allows developers 
+                    to configure a database through the Acsys web app.
+                    Once this is done users can then use Acsys as a headless 
+                    content management system that creates restful APIs to bridge 
+                    data between applications.
                   </Typography>
                 </Box>
               </Hidden>
             </Grid>
             <Grid item xs={12} sm={12} md={6} elevation={6} square style={{background: '#ffffff'}}>
-              {initialComponent}
+            {this.state.isInstalled ?
+              this.getSignIn()
+            :
+              this.getRegister()
+            }
               <div style={{ marginBottom: '150px' }} />
             </Grid>
           </Grid>
