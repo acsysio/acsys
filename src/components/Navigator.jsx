@@ -40,9 +40,7 @@ const styles = (theme) =>
     },
     itemCategory: {
       backgroundColor: '#232f3e',
-      // boxShadow: '0 -1px 0 #404854 inset',
       paddingTop: theme.spacing(2),
-      // paddingBottom: theme.spacing(2),
     },
     firebase: {
       fontSize: 24,
@@ -60,8 +58,6 @@ const styles = (theme) =>
       marginTop: theme.spacing(2),
     },
   });
-
-// export interface NavigatorProps extends Omit<DrawerProps, 'classes'>, WithStyles<typeof styles> {}
 
 function Navigator(props) {
   const { classes, ...other } = props;

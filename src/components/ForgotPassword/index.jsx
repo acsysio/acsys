@@ -108,7 +108,6 @@ class ForgotPassword extends Component {
         <Typography
           variant="p"
           color="secondary"
-          // style={{ minHeight: 25, marginTop: '60px' }}
         >
           {message}
         </Typography>

@@ -133,7 +133,6 @@ class DataDriver {
               };
               collectionArr.push(row);
             }
-            // collectionArr.push(collection.id);
           }
           resolve(collectionArr);
         })
@@ -153,7 +152,6 @@ class DataDriver {
             if (!expr.test(`${collection.id}`)) {
               collectionArr.push(collection.id);
             }
-            // collectionArr.push(collection.id);
           }
           resolve(collectionArr);
         })

@@ -31,7 +31,7 @@ These instructions will get Acsys up and running on your local machine for devel
 - MySQL
 - SQLite
 
-## Currently Supported Storage
+## Currently Supported Storage Services
 
 - Google Cloud Storage
 - Internal
@@ -68,7 +68,7 @@ There are many ways in which you can participate in the project, for example:
 - Review source code changes
 - Review the documentation
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+We encourage you to tell us what you want out of this project! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## License
 
