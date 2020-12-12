@@ -282,7 +282,7 @@ class Settings extends React.Component {
         this.state.updateStorage) &&
       this.state.loading
     ) {
-      await this.sleep(5000);
+      await this.sleep(7500);
       window.location.reload();
     }
     this.setState({
