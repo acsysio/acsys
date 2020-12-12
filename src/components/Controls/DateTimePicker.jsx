@@ -12,7 +12,7 @@ function DateTimePicker(props) {
         <Grid item xs={12}>
           <Datetime
             margin="normal"
-            defaultValue={props.defaultValue}
+            initialValue={props.defaultValue}
             onChange={(e) => props.handleChange(props.currentKey, e.toDate())}
             style={{ width: '100%' }}
           />
