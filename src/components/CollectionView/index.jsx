@@ -35,6 +35,7 @@ import { Link } from 'react-router-dom';
 import uniqid from 'uniqid';
 import * as Acsys from '../../services/Acsys/Acsys';
 import { PromConsumer } from '../../services/Session/PromProvider';
+import LoadingDialog from '../Dialogs/LoadingDialog';
 import Example from '../FieldControl/FieldDef';
 
 const INITIAL_STATE = {
@@ -940,28 +941,7 @@ class CollectionView extends React.Component {
             </Toolbar>
           </AppBar>
           {this.renderTable(paginate)}
-          <Dialog
-            open={this.state.loading}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-            maxWidth={'md'}
-          >
-            <DialogTitle id="alert-dialog-title" style={{ margin: 'auto' }}>
-              Loading
-            </DialogTitle>
-            <DialogContent
-              style={{
-                minHeight: 150,
-                minWidth: 400,
-                margin: 'auto',
-                overflow: 'hidden',
-              }}
-            >
-              <div style={{ width: 124, margin: 'auto' }}>
-                <CircularProgress size={124} />
-              </div>
-            </DialogContent>
-          </Dialog>
+          <LoadingDialog loading={this.state.loading} />
           <Dialog
             open={this.state.openKeyMessage}
             onClose={this.closeKeyMessage}

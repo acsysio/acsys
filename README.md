@@ -48,7 +48,7 @@ Run project in production mode by running `npm run start` (executing this after 
 
 ## Configuration
 
-To configure Acsys you must first upload your service account JSON file. Instructions on how to get this file can be found [here](https://cloud.google.com/iam/docs/creating-managing-service-account-keys). Note that the database must be created with appropriate security rules before Acsys can be used (Default production rules are recommended).
+To configure Acsys you must first upload your service account JSON file. Instructions on how to get this file can be found [here](https://cloud.google.com/iam/docs/creating-managing-service-account-keys). Note that the database must be created with appropriate security rules before Acsys can be used (Default production rules are recommended). If at any point the configuration needs to be manually reset you can do so by stopping the server and deleting the dbase.db and acsys.service.config.json files.
 
 ## Deployment Tips
 

@@ -8,6 +8,7 @@
     "lint": "./node_modules/.bin/eslint app.js",
     "react": "react-scripts start",
     "start": "node server/server.js",
+    "format": "prettier --write **/*.jsx && prettier --write **/*.js",
     "test-react": "react-scripts test --env=jsdom"
   },
   "browserslist": {
