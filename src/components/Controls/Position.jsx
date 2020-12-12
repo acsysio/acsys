@@ -20,7 +20,8 @@ function Position(props) {
       <Select
         defaultValue={props.defaultValue}
         onChange={(e) =>
-          props.handleChange(props.currentKey, parseInt(e.target.value))}
+          props.handleChange(props.currentKey, parseInt(e.target.value))
+        }
         inputProps={{
           name: props.currentKey,
         }}

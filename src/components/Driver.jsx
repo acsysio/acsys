@@ -4,7 +4,12 @@ import Hidden from '@material-ui/core/Hidden';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import React, { lazy, Suspense } from 'react';
-import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Redirect,
+  Route,
+  Switch,
+} from 'react-router-dom';
 import * as ROUTES from '../constants/routes';
 import * as Acsys from '../services/Acsys/Acsys';
 import Footer from './Footer';
@@ -135,18 +140,24 @@ class Driver extends React.Component {
               <div style={{ maxWidth: '80vw', margin: 'auto' }}>
                 <div style={{ flex: 1, maxWidth: 1236, margin: 'auto' }}>
                   <Redirect from="/" to={ROUTES.LogicalContent} />
-                  <Suspense fallback={<div/>}>
+                  <Suspense fallback={<div />}>
                     <Switch>
                       <Route
                         path={ROUTES.LogicalContent}
                         render={(props) => (
-                          <LogicalContent {...props} setHeader={this.setHeader} />
+                          <LogicalContent
+                            {...props}
+                            setHeader={this.setHeader}
+                          />
                         )}
                       />
                       <Route
                         path={ROUTES.CollectionView}
                         render={(props) => (
-                          <CollectionView {...props} setHeader={this.setHeader} />
+                          <CollectionView
+                            {...props}
+                            setHeader={this.setHeader}
+                          />
                         )}
                       />
                       <Route

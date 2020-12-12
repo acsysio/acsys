@@ -228,9 +228,7 @@ export const restart = async () => {
   });
 };
 
-export const setInitialLocalDatabaseConfig = async (
-  projectName
-) => {
+export const setInitialLocalDatabaseConfig = async (projectName) => {
   return new Promise((resolve, reject) => {
     promFetch('/api/setInitialLocalDatabaseConfig', {
       method: 'POST',
@@ -257,9 +255,7 @@ export const setInitialLocalDatabaseConfig = async (
   });
 };
 
-export const setLocalDatabaseConfig = async (
-  projectName
-) => {
+export const setLocalDatabaseConfig = async (projectName) => {
   await checkToken();
   return new Promise((resolve, reject) => {
     promFetch('/api/setLocalDatabaseConfig', {
@@ -340,7 +336,15 @@ export const setFirestoreConfig = async (config) => {
   });
 };
 
-export const setInitialMysqlConfig = async (host, port, database, username, password, socketPath, config) => {
+export const setInitialMysqlConfig = async (
+  host,
+  port,
+  database,
+  username,
+  password,
+  socketPath,
+  config
+) => {
   const formData = new FormData();
   formData.append('host', host);
   formData.append('port', port);
@@ -355,7 +359,7 @@ export const setInitialMysqlConfig = async (host, port, database, username, pass
       headers: {
         Accept: 'application/json',
       },
-      body: formData
+      body: formData,
     })
       .then((response) => {
         Session.logOut();
@@ -372,7 +376,15 @@ export const setInitialMysqlConfig = async (host, port, database, username, pass
   });
 };
 
-export const setMysqlConfig = async (host, port, database, username, password, socketPath, config) => {
+export const setMysqlConfig = async (
+  host,
+  port,
+  database,
+  username,
+  password,
+  socketPath,
+  config
+) => {
   await checkToken();
   const formData = new FormData();
   formData.append('host', host);
@@ -389,7 +401,7 @@ export const setMysqlConfig = async (host, port, database, username, password, s
         Accept: 'application/json',
         Authorization: `Bearer ${Session.getToken()}`,
       },
-      body: formData
+      body: formData,
     })
       .then((response) => {
         Session.logOut();

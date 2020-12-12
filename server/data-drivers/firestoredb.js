@@ -247,9 +247,7 @@ class DataDriver {
           snapshot.forEach((doc) => {
             const newEntry = doc.data();
             newEntry.position = newPos;
-            db.collection('acsys_logical_content')
-              .doc(doc.id)
-              .update(newEntry);
+            db.collection('acsys_logical_content').doc(doc.id).update(newEntry);
             newPos++;
           });
           resolve();

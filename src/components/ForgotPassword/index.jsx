@@ -1,13 +1,12 @@
 import {
-    Box,
-    Button,
-    CircularProgress,
-    Grid,
-    Typography
+  Box,
+  Button,
+  CircularProgress,
+  Grid,
+  Typography,
 } from '@material-ui/core';
 import React, { Component } from 'react';
 import * as Acsys from '../../services/Acsys/Acsys';
-
 
 const INITIAL_STATE = {
   username: '',
@@ -23,16 +22,10 @@ const INITIAL_STATE = {
 class ForgotPassword extends Component {
   state = { ...INITIAL_STATE };
 
-  componentDidMount = async () => {
-    
-  };
+  componentDidMount = async () => {};
 
   onKeyDownSI = (event) => {
-    const {
-      username,
-      email,
-      passwordOne,
-    } = this.state;
+    const { username, email, passwordOne } = this.state;
     if (event.key === 'Enter' && !(passwordOne === '' || username === '')) {
       event.preventDefault();
       event.stopPropagation();
@@ -89,26 +82,16 @@ class ForgotPassword extends Component {
         textAlign="center"
         padding="16px"
       >
-
-        <Typography
-          variant="h4"
-          color="primary"
-        >
+        <Typography variant="h4" color="primary">
           Reset your password
         </Typography>
 
-        <Typography
-          variant="h6"
-          color="#000000"
-          style={{ marginTop: '10px' }}
-        >
-          Enter your verified email address and a reset link will be sent to you.
+        <Typography variant="h6" color="#000000" style={{ marginTop: '10px' }}>
+          Enter your verified email address and a reset link will be sent to
+          you.
         </Typography>
 
-        <Typography
-          variant="p"
-          color="secondary"
-        >
+        <Typography variant="p" color="secondary">
           {message}
         </Typography>
 
@@ -156,7 +139,12 @@ class ForgotPassword extends Component {
         <Box boxShadow={3} style={{ margin: 'auto' }}>
           <Grid
             container
-            style={{ maxWidth: '80vw', width: 500, minHeight: 300, background: '#ffffff' }}
+            style={{
+              maxWidth: '80vw',
+              width: 500,
+              minHeight: 300,
+              background: '#ffffff',
+            }}
           >
             {initialComponent}
             <div style={{ marginBottom: '150px' }} />

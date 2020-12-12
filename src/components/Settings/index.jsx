@@ -1,16 +1,16 @@
 import {
-    Box,
-    CircularProgress,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-    ExpansionPanel,
-    ExpansionPanelDetails,
-    ExpansionPanelSummary,
-    NativeSelect,
-    Tooltip
+  Box,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  ExpansionPanel,
+  ExpansionPanelDetails,
+  ExpansionPanelSummary,
+  NativeSelect,
+  Tooltip,
 } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
@@ -71,7 +71,12 @@ class Settings extends React.Component {
   };
 
   handleClickOpen = () => {
-    if (this.state.updateDatabase || this.state.updateStorage || this.state.updateEmail || this.state.updateBucket) {
+    if (
+      this.state.updateDatabase ||
+      this.state.updateStorage ||
+      this.state.updateEmail ||
+      this.state.updateBucket
+    ) {
       this.setState({
         setOpen: true,
       });
@@ -114,11 +119,10 @@ class Settings extends React.Component {
         databaseType: databaseType,
         project_name: databaseConfig.project_name,
       });
-    }
-    else if (databaseType === 'firestore') {
+    } else if (databaseType === 'firestore') {
       const currentBucket = await Acsys.getCurrentBucket();
       const buckets = await Acsys.getStorageBuckets();
-      
+
       this.setState({
         bucket: currentBucket,
         buckets: buckets,
@@ -134,11 +138,10 @@ class Settings extends React.Component {
         auth_provider_x509_cert_url: databaseConfig.auth_provider_x509_cert_url,
         client_x509_cert_url: databaseConfig.client_x509_cert_url,
       });
-    }
-    else if (databaseType === 'mysql') {
+    } else if (databaseType === 'mysql') {
       const currentBucket = await Acsys.getCurrentBucket();
       const buckets = await Acsys.getStorageBuckets();
-      
+
       this.setState({
         bucket: currentBucket,
         buckets: buckets,
@@ -204,7 +207,7 @@ class Settings extends React.Component {
       socketPath,
       uploadFile,
     } = this.state;
-    
+
     if (databaseType === 'firestore') {
       if (uploadFile === undefined) {
         this.setState({
@@ -213,21 +216,25 @@ class Settings extends React.Component {
           message: 'Please select a configuration to upload.',
           loading: false,
         });
-      }
-      else {
+      } else {
         await Acsys.setFirestoreConfig(uploadFile);
       }
-    }
-    else if (databaseType === 'mysql') {
-      if (dhost < 1 || ddatabase < 1 || dusername < 1 || dpassword < 1 || uploadFile === undefined) {
+    } else if (databaseType === 'mysql') {
+      if (
+        dhost < 1 ||
+        ddatabase < 1 ||
+        dusername < 1 ||
+        dpassword < 1 ||
+        uploadFile === undefined
+      ) {
         this.setState({
           setMessageOpen: true,
           setOpen: false,
-          message: 'Please complete all necessary database fields and storage settings.',
+          message:
+            'Please complete all necessary database fields and storage settings.',
           loading: false,
         });
-      }
-      else {
+      } else {
         await Acsys.setMysqlConfig(
           dhost,
           dport,
@@ -238,8 +245,7 @@ class Settings extends React.Component {
           uploadFile
         );
       }
-    }
-    else if (databaseType === 'local') {
+    } else if (databaseType === 'local') {
       if (project_name.length < 1) {
         this.setState({
           setMessageOpen: true,
@@ -247,11 +253,8 @@ class Settings extends React.Component {
           message: 'Please enter a project name.',
           loading: false,
         });
-      }
-      else {
-        await Acsys.setLocalDatabaseConfig(
-          project_name
-        );
+      } else {
+        await Acsys.setLocalDatabaseConfig(project_name);
       }
     }
   };
@@ -273,7 +276,12 @@ class Settings extends React.Component {
       this.setDatabase();
       await this.sleep(5000);
     }
-    if ((this.state.updateDatabase || this.state.updateEmail || this.state.updateStorage) && this.state.loading) {
+    if (
+      (this.state.updateDatabase ||
+        this.state.updateEmail ||
+        this.state.updateStorage) &&
+      this.state.loading
+    ) {
       await this.sleep(5000);
       window.location.reload();
     }
@@ -287,17 +295,14 @@ class Settings extends React.Component {
     fileReader.onload = (event) => this.loadFields(event);
     try {
       fileReader.readAsText(ref.target.files[0]);
-    }
-    catch (error) {
-
-    }
+    } catch (error) {}
     this.setState({
       fileName: ref.target.files[0].name,
       uploadFile: ref.target.files[0],
     });
   };
 
-  loadFields (event) {
+  loadFields(event) {
     try {
       const settings = JSON.parse(event.target.result);
       this.setState({
@@ -312,10 +317,7 @@ class Settings extends React.Component {
         auth_provider_x509_cert_url: settings.auth_provider_x509_cert_url,
         client_x509_cert_url: settings.client_x509_cert_url,
       });
-    }
-    catch (error) {
-
-    }
+    } catch (error) {}
   }
 
   sleep(time) {
@@ -327,10 +329,7 @@ class Settings extends React.Component {
   };
 
   getBucketPanel() {
-    const {
-      bucket,
-      buckets,
-    } = this.state;
+    const { bucket, buckets } = this.state;
     return (
       <ExpansionPanel
         style={{ clear: 'both' }}
@@ -358,9 +357,7 @@ class Settings extends React.Component {
           >
             <NativeSelect
               value={bucket}
-              onChange={(e) =>
-                this.selectBucket(e.target.value)
-              }
+              onChange={(e) => this.selectBucket(e.target.value)}
               style={{ width: '100%', paddingTop: 7 }}
             >
               {buckets.map((bucketName) => (
@@ -371,12 +368,10 @@ class Settings extends React.Component {
         </ExpansionPanelDetails>
       </ExpansionPanel>
     );
-  };
+  }
 
   getLocalPanel() {
-    const {
-      project_name,
-    } = this.state;
+    const { project_name } = this.state;
     return (
       <ExpansionPanel
         style={{ clear: 'both' }}
@@ -414,7 +409,7 @@ class Settings extends React.Component {
         </ExpansionPanelDetails>
       </ExpansionPanel>
     );
-  };
+  }
 
   getFirestorePanel(name) {
     const {
@@ -432,12 +427,8 @@ class Settings extends React.Component {
     } = this.state;
     return (
       <Grid>
-        <Grid item xs={12} style={{marginBottom: 30}}>
-          {this.state.bucket.length > 0 ?
-            this.getBucketPanel()
-            :
-            null
-          }
+        <Grid item xs={12} style={{ marginBottom: 30 }}>
+          {this.state.bucket.length > 0 ? this.getBucketPanel() : null}
         </Grid>
         <Grid item xs={12}>
           <ExpansionPanel
@@ -536,10 +527,7 @@ class Settings extends React.Component {
                 />
                 <Grid container style={{ marginTop: '20px' }}>
                   <Grid item xs>
-                    <input
-                      defaultValue={fileName}
-                      style={{ width: '100%'}}
-                    />
+                    <input defaultValue={fileName} style={{ width: '100%' }} />
                   </Grid>
                   <Grid item>
                     <input
@@ -553,7 +541,7 @@ class Settings extends React.Component {
                         variant="contained"
                         color="primary"
                         component="span"
-                        style={{marginLeft: 28, height: 32}}
+                        style={{ marginLeft: 28, height: 32 }}
                       >
                         New Config
                       </Button>
@@ -566,7 +554,7 @@ class Settings extends React.Component {
         </Grid>
       </Grid>
     );
-  };
+  }
 
   getMysqlPanel() {
     const {
@@ -663,26 +651,16 @@ class Settings extends React.Component {
         </Grid>
       </Grid>
     );
-  };
+  }
 
   getConfigPanel() {
-    const {
-      databaseType,
-    } = this.state;
-    if(databaseType === 'local') {
-      return (
-        this.getLocalPanel()
-      )
-    }
-    else if(databaseType === 'firestore') {
-      return (
-        this.getFirestorePanel('Firestore')
-      )
-    }
-    else if(databaseType === 'mysql') {
-      return (
-        this.getMysqlPanel()
-      )
+    const { databaseType } = this.state;
+    if (databaseType === 'local') {
+      return this.getLocalPanel();
+    } else if (databaseType === 'firestore') {
+      return this.getFirestorePanel('Firestore');
+    } else if (databaseType === 'mysql') {
+      return this.getMysqlPanel();
     }
   }
 
@@ -723,15 +701,15 @@ class Settings extends React.Component {
                 <Grid item xs={12}>
                   <Grid container>
                     <Grid item xs={9}>
-                      <h1 class="element-header" style={{ marginTop: 0 }}>Configuration</h1>
+                      <h1 class="element-header" style={{ marginTop: 0 }}>
+                        Configuration
+                      </h1>
                     </Grid>
                     <Grid item xs={3}>
                       <Tooltip title="Sets Database Type For Project">
                         <NativeSelect
                           value={databaseType}
-                          onChange={(e) =>
-                            this.setDatabaseType(e.target.value)
-                          }
+                          onChange={(e) => this.setDatabaseType(e.target.value)}
                           style={{ width: '100%', paddingTop: 7 }}
                         >
                           <option value={'local'}>Local</option>
@@ -846,7 +824,8 @@ class Settings extends React.Component {
             </DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description">
-              Are you sure you want to update the configuration? Doing so will overwrite current settings.
+                Are you sure you want to update the configuration? Doing so will
+                overwrite current settings.
               </DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -870,12 +849,10 @@ class Settings extends React.Component {
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
           >
-            <DialogTitle id="alert-dialog-title">
-              {'Error'}
-            </DialogTitle>
+            <DialogTitle id="alert-dialog-title">{'Error'}</DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description">
-              {message}
+                {message}
               </DialogContentText>
             </DialogContent>
             <DialogActions>

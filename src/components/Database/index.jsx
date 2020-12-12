@@ -11,7 +11,7 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  Tooltip
+  Tooltip,
 } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
@@ -24,7 +24,7 @@ import Typography from '@material-ui/core/Typography';
 import { Delete as DeleteIcon } from '@material-ui/icons';
 import React from 'react';
 import { DndProvider } from 'react-dnd';
-import Backend from 'react-dnd-html5-backend';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import * as Acsys from '../../services/Acsys/Acsys';
 import { PromConsumer } from '../../services/Session/PromProvider';
 import TableControl from '../TableControl';
@@ -217,14 +217,13 @@ class LogicalContent extends React.Component {
       }
     });
 
-    if(error || tableName.length < 1) {
+    if (error || tableName.length < 1) {
       this.setState({
         addLoading: false,
         openMessage: true,
-        message: 'All fields must be filled before submitting.'
-      })
-    }
-    else {
+        message: 'All fields must be filled before submitting.',
+      });
+    } else {
       await Acsys.createTable(tableName, newEntry);
       this.handleClose();
       this.componentDidMount();
@@ -236,7 +235,14 @@ class LogicalContent extends React.Component {
     return views
       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
       .map((views) => {
-        const { acsys_id, table, rows, viewId, source_collection, table_keys } = views;
+        const {
+          acsys_id,
+          table,
+          rows,
+          viewId,
+          source_collection,
+          table_keys,
+        } = views;
         return (
           <TableRow key={acsys_id}>
             <TableCell>{table}</TableCell>
@@ -403,24 +409,16 @@ class LogicalContent extends React.Component {
               <DialogTitle id="alert-dialog-title">{'Add Table'}</DialogTitle>
               <DialogContent>
                 <DialogContentText id="alert-dialog-description"></DialogContentText>
-                <DndProvider backend={Backend}>
+                <DndProvider backend={HTML5Backend}>
                   <TableControl setName={this.setName} entry={entry} />
                 </DndProvider>
               </DialogContent>
               <DialogActions>
-                <Button
-                  onClick={this.addTable}
-                  color="primary"
-                  autoFocus
-                >
+                <Button onClick={this.addTable} color="primary" autoFocus>
                   {addLoading && <CircularProgress size={24} />}
                   {!addLoading && 'Add'}
                 </Button>
-                <Button
-                  onClick={this.handleClose}
-                  color="primary"
-                  autoFocus
-                >
+                <Button onClick={this.handleClose} color="primary" autoFocus>
                   Cancel
                 </Button>
               </DialogActions>
@@ -453,11 +451,7 @@ class LogicalContent extends React.Component {
                 </div>
               </DialogContent>
               <DialogActions>
-                <Button
-                  onClick={this.editView}
-                  color="primary"
-                  autoFocus
-                >
+                <Button onClick={this.editView} color="primary" autoFocus>
                   {saveLoading && <CircularProgress size={24} />}
                   {!saveLoading && 'Update'}
                 </Button>
@@ -469,7 +463,9 @@ class LogicalContent extends React.Component {
               aria-labelledby="alert-dialog-title"
               aria-describedby="alert-dialog-description"
             >
-              <DialogTitle id="alert-dialog-title">{'Delete data?'}</DialogTitle>
+              <DialogTitle id="alert-dialog-title">
+                {'Delete data?'}
+              </DialogTitle>
               <DialogContent>
                 <DialogContentText id="alert-dialog-description">
                   Are you sure you want to delete this data?
@@ -511,8 +507,7 @@ class LogicalContent extends React.Component {
           </Paper>
         </div>
       );
-    }
-    catch (error) {
+    } catch (error) {
       return (
         <div style={{ maxWidth: 1236, margin: 'auto' }}>
           <Paper style={{ height: 40 }}>

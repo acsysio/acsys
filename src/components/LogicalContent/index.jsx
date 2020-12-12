@@ -1,19 +1,19 @@
 import {
-    CircularProgress,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-    MenuItem,
-    Select,
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TablePagination,
-    TableRow,
-    Tooltip
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  MenuItem,
+  Select,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TablePagination,
+  TableRow,
+  Tooltip,
 } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
@@ -185,14 +185,13 @@ class LogicalContent extends React.Component {
     this.setState({
       loading: true,
     });
-    
+
     let projectName = '';
 
-    await Acsys.getProjectName()
-              .then((result) => {
-                projectName = result;
-              });
-              
+    await Acsys.getProjectName().then((result) => {
+      projectName = result;
+    });
+
     let currentView = [];
 
     currentView = await Acsys.getData('acsys_logical_content', [], '', [
@@ -560,19 +559,11 @@ class LogicalContent extends React.Component {
                 </div>
               </DialogContent>
               <DialogActions>
-                <Button
-                  onClick={this.addView}
-                  color="primary"
-                  autoFocus
-                >
+                <Button onClick={this.addView} color="primary" autoFocus>
                   {addLoading && <CircularProgress size={24} />}
                   {!addLoading && 'Add'}
                 </Button>
-                <Button
-                  onClick={this.handleClose}
-                  color="primary"
-                  autoFocus
-                >
+                <Button onClick={this.handleClose} color="primary" autoFocus>
                   Cancel
                 </Button>
               </DialogActions>
@@ -621,11 +612,7 @@ class LogicalContent extends React.Component {
                 </div>
               </DialogContent>
               <DialogActions>
-                <Button
-                  onClick={this.editView}
-                  color="primary"
-                  autoFocus
-                >
+                <Button onClick={this.editView} color="primary" autoFocus>
                   {saveLoading && <CircularProgress size={24} />}
                   {!saveLoading && 'Update'}
                 </Button>
@@ -644,7 +631,9 @@ class LogicalContent extends React.Component {
               aria-labelledby="alert-dialog-title"
               aria-describedby="alert-dialog-description"
             >
-              <DialogTitle id="alert-dialog-title">{'Delete data?'}</DialogTitle>
+              <DialogTitle id="alert-dialog-title">
+                {'Delete data?'}
+              </DialogTitle>
               <DialogContent>
                 <DialogContentText id="alert-dialog-description">
                   Are you sure you want to delete this data?
@@ -668,8 +657,7 @@ class LogicalContent extends React.Component {
           </Paper>
         </div>
       );
-    }
-    catch (error) {
+    } catch (error) {
       return (
         <div style={{ maxWidth: 1236, margin: 'auto' }}>
           <Paper style={{ height: 40 }}>

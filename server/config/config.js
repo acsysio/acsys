@@ -23,7 +23,7 @@ class Config {
           'CREATE TABLE IF NOT EXISTS acsys_mysql_config (host TEXT, port INT, database TEXT, username TEXT, password TEXT, socketPath TEXT)'
         );
       });
-      
+
       resolve(true);
     });
   }
@@ -36,9 +36,7 @@ class Config {
           resolve([]);
         } else {
           for (const row of rows) {
-            await db.run(
-              `DROP TABLE IF EXISTS ${row.name}`
-            );
+            await db.run(`DROP TABLE IF EXISTS ${row.name}`);
           }
         }
       });
@@ -68,10 +66,17 @@ class Config {
           'INSERT INTO acsys_mysql_config VALUES (?, ?, ?, ?, ?, ?)'
         );
         let port = config.port;
-        if(!port) {
+        if (!port) {
           port = 0;
         }
-        stmt.run(config.host, config.port, config.database, config.username, config.password, config.socketPath);
+        stmt.run(
+          config.host,
+          config.port,
+          config.database,
+          config.username,
+          config.password,
+          config.socketPath
+        );
         stmt.finalize();
         resolve(true);
       });
@@ -111,7 +116,7 @@ class Config {
                 username: rows[0].username,
                 password: rows[0].password,
                 socketPath: rows[0].socketPath,
-              }
+              };
               resolve(config);
             } else {
               resolve(err);
@@ -127,10 +132,7 @@ class Config {
   getDatabaseType() {
     return new Promise((resolve, reject) => {
       db.serialize(async function () {
-        await db.each('SELECT * FROM acsys_configuration', function (
-          err,
-          row
-        ) {
+        await db.each('SELECT * FROM acsys_configuration', function (err, row) {
           if (row.config.length > 0) {
             resolve(row.type);
           } else {
@@ -186,15 +188,18 @@ class Config {
 
   getSecret() {
     return new Promise((resolve, reject) => {
-      fs.readFile('server/config/config.json', {encoding:'utf8', flag:'r'}, (err, data) => {
-        if (err) {
-          resolve('default-key');
+      fs.readFile(
+        'server/config/config.json',
+        { encoding: 'utf8', flag: 'r' },
+        (err, data) => {
+          if (err) {
+            resolve('default-key');
+          } else {
+            const key = JSON.parse(data);
+            resolve(key.secret);
+          }
         }
-        else {
-          const key = JSON.parse(data);
-          resolve(key.secret);
-        }
-      });
+      );
     });
   }
 }

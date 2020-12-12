@@ -1,14 +1,14 @@
 import {
-    Box,
-    Button,
-    CircularProgress,
-    Grid, Hidden,
-    Typography
+  Box,
+  Button,
+  CircularProgress,
+  Grid,
+  Hidden,
+  Typography,
 } from '@material-ui/core';
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import * as Acsys from '../../services/Acsys/Acsys';
-
 
 const INITIAL_STATE = {
   username: '',
@@ -33,11 +33,7 @@ class SignInPage extends Component {
   };
 
   onKeyDownSI = (event) => {
-    const {
-      username,
-      email,
-      passwordOne,
-    } = this.state;
+    const { username, email, passwordOne } = this.state;
     if (event.key === 'Enter' && !(passwordOne === '' || username === '')) {
       event.preventDefault();
       event.stopPropagation();
@@ -46,13 +42,16 @@ class SignInPage extends Component {
   };
 
   onKeyDownRG = (event) => {
-    const {
-      username,
-      email,
-      passwordOne,
-      passwordTwo,
-    } = this.state;
-    if (event.key === 'Enter' && !(passwordOne !== passwordTwo || passwordOne === '' || email === '' || username === '')) {
+    const { username, email, passwordOne, passwordTwo } = this.state;
+    if (
+      event.key === 'Enter' &&
+      !(
+        passwordOne !== passwordTwo ||
+        passwordOne === '' ||
+        email === '' ||
+        username === ''
+      )
+    ) {
       event.preventDefault();
       event.stopPropagation();
       this.onSubmitInitial();
@@ -129,11 +128,7 @@ class SignInPage extends Component {
         textAlign="center"
         padding="16px"
       >
-        <Typography
-          variant="h4"
-          color="primary"
-          style={{ marginTop: '50px' }}
-        >
+        <Typography variant="h4" color="primary" style={{ marginTop: '50px' }}>
           Register
         </Typography>
 
@@ -217,16 +212,10 @@ class SignInPage extends Component {
         )}
       </Box>
     );
-  };
+  }
 
   getSignIn() {
-    const {
-      username,
-      passwordOne,
-      message,
-      loading,
-      error,
-    } = this.state;
+    const { username, passwordOne, message, loading, error } = this.state;
 
     const isInvalid = passwordOne === '' || username === '';
 
@@ -239,11 +228,7 @@ class SignInPage extends Component {
         textAlign="center"
         padding="16px"
       >
-        <Typography
-          variant="h4"
-          color="primary"
-          style={{ marginTop: '50px' }}
-        >
+        <Typography variant="h4" color="primary" style={{ marginTop: '50px' }}>
           Sign in to your account
         </Typography>
 
@@ -293,7 +278,13 @@ class SignInPage extends Component {
           {!loading && 'Sign In'}
         </Button>
 
-        <Typography variant='body2' color="primary" style={{marginTop: '20px'}} to={"/ForgotPassword"} component={Link}>
+        <Typography
+          variant="body2"
+          color="primary"
+          style={{ marginTop: '20px' }}
+          to={'/ForgotPassword'}
+          component={Link}
+        >
           Forgot Password?
         </Typography>
 
@@ -304,7 +295,7 @@ class SignInPage extends Component {
         )}
       </Box>
     );
-  };
+  }
 
   render() {
     return (
@@ -334,7 +325,11 @@ class SignInPage extends Component {
                   flexDirection="column"
                   padding="16px"
                 >
-                  <img src="/acsys-logo.svg" alt="" style={{width: '50%', marginTop: 35, marginBottom: 25}} />
+                  <img
+                    src="/acsys-logo.svg"
+                    alt=""
+                    style={{ width: '50%', marginTop: 35, marginBottom: 25 }}
+                  />
                   <Typography
                     variant="h4"
                     style={{
@@ -353,22 +348,26 @@ class SignInPage extends Component {
                       marginTop: '20px',
                     }}
                   >
-                    Acsys is a data management tool that automates backend 
-                    processes to streamline development. Acsys allows developers 
-                    to configure a database through the Acsys web app.
-                    Once this is done users can then use Acsys as a headless 
-                    content management system that creates restful APIs to bridge 
-                    data between applications.
+                    Acsys is a data management tool that automates backend
+                    processes to streamline development. Acsys allows developers
+                    to configure a database through the Acsys web app. Once this
+                    is done users can then use Acsys as a headless content
+                    management system that creates restful APIs to bridge data
+                    between applications.
                   </Typography>
                 </Box>
               </Hidden>
             </Grid>
-            <Grid item xs={12} sm={12} md={6} elevation={6} square style={{background: '#ffffff'}}>
-            {this.state.isInstalled ?
-              this.getSignIn()
-            :
-              this.getRegister()
-            }
+            <Grid
+              item
+              xs={12}
+              sm={12}
+              md={6}
+              elevation={6}
+              square
+              style={{ background: '#ffffff' }}
+            >
+              {this.state.isInstalled ? this.getSignIn() : this.getRegister()}
               <div style={{ marginBottom: '150px' }} />
             </Grid>
           </Grid>
