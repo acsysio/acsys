@@ -116,7 +116,7 @@ class Configuration extends Component {
           }
         } else {
           await Acsys.setInitialLocalDatabaseConfig(projectName);
-          await this.sleep(5000);
+          await this.sleep(7500);
           window.location.reload();
           this.setState({
             loading: false,
