@@ -1,18 +1,18 @@
 import {
-    CircularProgress,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-    Hidden,
-    NativeSelect,
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableRow,
-    Tooltip
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Hidden,
+  NativeSelect,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Tooltip,
 } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
@@ -22,14 +22,15 @@ import Paper from '@material-ui/core/Paper';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import {
-    Create as CreateIcon,
-    Delete as DeleteIcon, FileCopyOutlined as CopyIcon,
-    KeyboardArrowLeft,
-    KeyboardArrowRight
+  Create as CreateIcon,
+  Delete as DeleteIcon,
+  FileCopyOutlined as CopyIcon,
+  KeyboardArrowLeft,
+  KeyboardArrowRight,
 } from '@material-ui/icons';
 import React from 'react';
 import { DndProvider } from 'react-dnd';
-import Backend from 'react-dnd-html5-backend';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Link } from 'react-router-dom';
 import uniqid from 'uniqid';
 import * as Acsys from '../../services/Acsys/Acsys';
@@ -205,7 +206,9 @@ class CollectionView extends React.Component {
     tempView['row_num'] = row_num;
     this.toggleTable(lockedValue);
     this.context.setHeld(false);
-    await Acsys.updateData('acsys_views', tempView, [['acsys_id', '=', tempView.acsys_id]]);
+    await Acsys.updateData('acsys_views', tempView, [
+      ['acsys_id', '=', tempView.acsys_id],
+    ]);
     this.setState({
       setViewOpen: false,
       reset: true,
@@ -272,7 +275,7 @@ class CollectionView extends React.Component {
       this.state.view_order,
       this.state.orderDir,
       'prev',
-      this.state.page,
+      this.state.page
     );
     this.setState({
       loading: false,
@@ -311,7 +314,7 @@ class CollectionView extends React.Component {
       this.state.view_order,
       this.state.orderDir,
       'next',
-      this.state.page,
+      this.state.page
     );
     this.setState({
       loading: false,
@@ -409,7 +412,9 @@ class CollectionView extends React.Component {
     const totalRows = await Acsys.getTableSize(acsys_id);
 
     try {
-      acsysView = await Acsys.getData('acsys_views', [['acsys_id', '=', content_id]]);
+      acsysView = await Acsys.getData('acsys_views', [
+        ['acsys_id', '=', content_id],
+      ]);
       is_removable = acsysView[0].is_removable;
       row_num = acsysView[0].row_num;
       if (acsysView[0].order_by.length > 0) {
@@ -466,20 +471,36 @@ class CollectionView extends React.Component {
           );
           page = this.context.getPage();
         } else {
-          currentData = await Acsys.getData(acsys_id, [], row_num, order, orderDir);
-          if(locked) {
-            apiCall = await Acsys.getUrl(acsys_id, [], row_num, order, orderDir);
-          }
-          else {
-            apiCall = await Acsys.getOpenUrl(acsys_id, [], row_num, order, orderDir);
+          currentData = await Acsys.getData(
+            acsys_id,
+            [],
+            row_num,
+            order,
+            orderDir
+          );
+          if (locked) {
+            apiCall = await Acsys.getUrl(
+              acsys_id,
+              [],
+              row_num,
+              order,
+              orderDir
+            );
+          } else {
+            apiCall = await Acsys.getOpenUrl(
+              acsys_id,
+              [],
+              row_num,
+              order,
+              orderDir
+            );
           }
         }
       } else {
         currentData = await Acsys.getData(acsys_id, keys, row_num);
-        if(locked) {
+        if (locked) {
           apiCall = await Acsys.getUrl(acsys_id, keys, row_num);
-        }
-        else {
+        } else {
           apiCall = await Acsys.getOpenUrl(acsys_id, keys, row_num);
         }
         await Promise.all(
@@ -1004,7 +1025,7 @@ class CollectionView extends React.Component {
             <DialogContent>
               <DialogContentText id="alert-dialog-description"></DialogContentText>
               <div>
-                <DndProvider backend={Backend}>
+                <DndProvider backend={HTML5Backend}>
                   <Example
                     docDetails={tempDetails}
                     handleClick={this.saveSettings}
@@ -1151,24 +1172,27 @@ class CollectionView extends React.Component {
           </Dialog>
         </Paper>
         <Hidden smDown implementation="css">
-          {!this.state.locked ?
-          <div style={{clear: 'both'}}>
-            API Call: <a className='api-url' href={apiCall} target="_blank">{apiCall}</a>
-            <Tooltip title="Copy To Clipboard">
-              <IconButton
-                edge="start"
-                color="inherit"
-                aria-label="edit"
-                onClick={this.copy}
-                style={{ marginLeft: 5 }}
-              >
-                <CopyIcon style={{ height: 15 }}/>
-              </IconButton>
-            </Tooltip>
-          </div>
-          :
-          <div/>
-          }
+          {!this.state.locked ? (
+            <div style={{ clear: 'both' }}>
+              API Call:{' '}
+              <a className="api-url" href={apiCall} target="_blank">
+                {apiCall}
+              </a>
+              <Tooltip title="Copy To Clipboard">
+                <IconButton
+                  edge="start"
+                  color="inherit"
+                  aria-label="edit"
+                  onClick={this.copy}
+                  style={{ marginLeft: 5 }}
+                >
+                  <CopyIcon style={{ height: 15 }} />
+                </IconButton>
+              </Tooltip>
+            </div>
+          ) : (
+            <div />
+          )}
         </Hidden>
       </div>
     );

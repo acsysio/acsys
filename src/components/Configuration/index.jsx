@@ -4,10 +4,10 @@ import {
   CircularProgress,
   Container,
   Grid,
-  Link, 
+  Link,
   NativeSelect,
   Paper,
-  Typography
+  Typography,
 } from '@material-ui/core';
 import React, { Component } from 'react';
 import * as Acsys from '../../services/Acsys/Acsys';
@@ -37,9 +37,9 @@ class Configuration extends Component {
 
   setDatabase = async (type) => {
     this.setState({
-      databaseType: type
+      databaseType: type,
     });
-  }
+  };
   setRef = (ref) => {
     this.setState({
       fileName: ref.target.files[0].name,
@@ -76,22 +76,24 @@ class Configuration extends Component {
       if (databaseType === 'local' && projectName.length < 1) {
         this.setState({
           loading: false,
-          message: 'Please enter a project name.'
-        })
-      }
-      else {
+          message: 'Please enter a project name.',
+        });
+      } else {
         if (databaseType === 'firestore') {
-          await Acsys.setInitialFirestoreConfig(
-            uploadFile
-          );
+          await Acsys.setInitialFirestoreConfig(uploadFile);
           await this.sleep(5000);
           window.location.reload();
           this.setState({
             loading: false,
           });
-        }
-        else if (databaseType === 'mysql') {
-          if(host.length > 0 && database.length > 0 && username.length > 0 && password.length > 0 && uploadFile) {
+        } else if (databaseType === 'mysql') {
+          if (
+            host.length > 0 &&
+            database.length > 0 &&
+            username.length > 0 &&
+            password.length > 0 &&
+            uploadFile
+          ) {
             await Acsys.setInitialMysqlConfig(
               host,
               port,
@@ -106,18 +108,14 @@ class Configuration extends Component {
             this.setState({
               loading: false,
             });
-          }
-          else {
+          } else {
             this.setState({
               loading: false,
-              message: 'Please complete necessary fields.'
-            })
+              message: 'Please complete necessary fields.',
+            });
           }
-        }
-        else {
-          await Acsys.setInitialLocalDatabaseConfig(
-            projectName
-          );
+        } else {
+          await Acsys.setInitialLocalDatabaseConfig(projectName);
           await this.sleep(5000);
           window.location.reload();
           this.setState({
@@ -125,8 +123,7 @@ class Configuration extends Component {
           });
         }
       }
-    } 
-    catch (error) {
+    } catch (error) {
       await this.sleep(5000);
       window.location.reload();
       this.setState({
@@ -156,7 +153,7 @@ class Configuration extends Component {
       username,
       password,
       socketPath,
-     } = this.state;
+    } = this.state;
 
     if (databaseType === 'local') {
       return (
@@ -170,51 +167,56 @@ class Configuration extends Component {
             onChange={this.onChange}
             style={{ marginTop: '20px', width: '96%' }}
           />
-          <Typography
-            variant="p"
-            color="secondary"
-            style={{ minHeight: 25}}
-          >
+          <Typography variant="p" color="secondary" style={{ minHeight: 25 }}>
             {message}
           </Typography>
-          <p style={{marginBottom: 0}}>When this option is selected Acsys will use the internal database.</p>
+          <p style={{ marginBottom: 0 }}>
+            When this option is selected Acsys will use the internal database.
+          </p>
         </div>
       );
-    }
-    else if (databaseType === 'firestore') {
+    } else if (databaseType === 'firestore') {
       return (
         <div>
-          <p>Upload JSON service account key file. Instructions for creating this file can be found <Link href="https://cloud.google.com/iam/docs/creating-managing-service-account-keys" target="_blank" color="primary" rel="noreferrer">here</Link>.</p>
-            <Grid container>
-              <Grid item xs={3}>
-                <input
-                  id="contained-button-file"
-                  type="file"
-                  style={{ display: 'none' }}
-                  onChange={this.setRef}
-                />
-                <label htmlFor="contained-button-file">
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    component="span"
-                    style={{ height: 28}}
-                  >
-                    Upload
-                  </Button>
-                </label>
-              </Grid>
-              <Grid item xs={9}>
-                <input
-                  defaultValue={fileName}
-                  style={{ height: 19}}
-                />
-              </Grid>
+          <p>
+            Upload JSON service account key file. Instructions for creating this
+            file can be found{' '}
+            <Link
+              href="https://cloud.google.com/iam/docs/creating-managing-service-account-keys"
+              target="_blank"
+              color="primary"
+              rel="noreferrer"
+            >
+              here
+            </Link>
+            .
+          </p>
+          <Grid container>
+            <Grid item xs={3}>
+              <input
+                id="contained-button-file"
+                type="file"
+                style={{ display: 'none' }}
+                onChange={this.setRef}
+              />
+              <label htmlFor="contained-button-file">
+                <Button
+                  variant="contained"
+                  color="primary"
+                  component="span"
+                  style={{ height: 28 }}
+                >
+                  Upload
+                </Button>
+              </label>
             </Grid>
+            <Grid item xs={9}>
+              <input defaultValue={fileName} style={{ height: 19 }} />
+            </Grid>
+          </Grid>
         </div>
       );
-    }
-    else if (databaseType === 'mysql') {
+    } else if (databaseType === 'mysql') {
       return (
         <div>
           <input
@@ -274,52 +276,59 @@ class Configuration extends Component {
             style={{ marginTop: '20px', width: '96%' }}
           />
           <p>
-            Instructions for binding the socket path can be found <Link href="https://cloud.google.com/sql/docs/mysql/connect-functions" target="_blank" color="primary" rel="noreferrer">here</Link>. 
-            Instructions for creating upload file can be found <Link href="https://cloud.google.com/iam/docs/creating-managing-service-account-keys" target="_blank" color="primary" rel="noreferrer">here</Link>.
-          </p>
-            <Grid container>
-              <Grid item xs={3}>
-                <input
-                  id="contained-button-file"
-                  type="file"
-                  style={{ display: 'none' }}
-                  onChange={this.setRef}
-                />
-                <label htmlFor="contained-button-file">
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    component="span"
-                    style={{ height: 28}}
-                  >
-                    Upload
-                  </Button>
-                </label>
-              </Grid>
-              <Grid item xs={9}>
-                <input
-                  defaultValue={fileName}
-                  style={{ height: 19}}
-                />
-              </Grid>
-            </Grid>
-            <Typography
-              variant="p"
-              color="secondary"
-              style={{ minHeight: 25}}
+            Instructions for binding the socket path can be found{' '}
+            <Link
+              href="https://cloud.google.com/sql/docs/mysql/connect-functions"
+              target="_blank"
+              color="primary"
+              rel="noreferrer"
             >
-              {message}
-            </Typography>
+              here
+            </Link>
+            . Instructions for creating upload file can be found{' '}
+            <Link
+              href="https://cloud.google.com/iam/docs/creating-managing-service-account-keys"
+              target="_blank"
+              color="primary"
+              rel="noreferrer"
+            >
+              here
+            </Link>
+            .
+          </p>
+          <Grid container>
+            <Grid item xs={3}>
+              <input
+                id="contained-button-file"
+                type="file"
+                style={{ display: 'none' }}
+                onChange={this.setRef}
+              />
+              <label htmlFor="contained-button-file">
+                <Button
+                  variant="contained"
+                  color="primary"
+                  component="span"
+                  style={{ height: 28 }}
+                >
+                  Upload
+                </Button>
+              </label>
+            </Grid>
+            <Grid item xs={9}>
+              <input defaultValue={fileName} style={{ height: 19 }} />
+            </Grid>
+          </Grid>
+          <Typography variant="p" color="secondary" style={{ minHeight: 25 }}>
+            {message}
+          </Typography>
         </div>
       );
     }
   }
 
   render() {
-    const {
-      loading,
-      error,
-    } = this.state;
+    const { loading, error } = this.state;
 
     return (
       <Grid

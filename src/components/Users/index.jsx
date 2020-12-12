@@ -1,17 +1,18 @@
 import {
-    CircularProgress,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-    NativeSelect, Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TablePagination,
-    TableRow,
-    Tooltip
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  NativeSelect,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TablePagination,
+  TableRow,
+  Tooltip,
 } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
@@ -71,7 +72,9 @@ class Users extends React.Component {
   state = { ...INITIAL_STATE };
 
   deleteUser = async () => {
-    await Acsys.deleteData('acsys_users', [['acsys_id', '=', this.state.userId]])
+    await Acsys.deleteData('acsys_users', [
+      ['acsys_id', '=', this.state.userId],
+    ])
       .then(() => {
         this.componentDidMount();
       })
@@ -394,19 +397,11 @@ class Users extends React.Component {
                 />
               </DialogContent>
               <DialogActions>
-                <Button
-                  onClick={this.addUser}
-                  color="primary"
-                  autoFocus
-                >
+                <Button onClick={this.addUser} color="primary" autoFocus>
                   {addLoading && <CircularProgress size={24} />}
                   {!addLoading && 'Add'}
                 </Button>
-                <Button
-                  onClick={this.handleClose}
-                  color="primary"
-                  autoFocus
-                >
+                <Button onClick={this.handleClose} color="primary" autoFocus>
                   Cancel
                 </Button>
               </DialogActions>
@@ -417,7 +412,9 @@ class Users extends React.Component {
               aria-labelledby="alert-dialog-title"
               aria-describedby="alert-dialog-description"
             >
-              <DialogTitle id="alert-dialog-title">{'Delete data?'}</DialogTitle>
+              <DialogTitle id="alert-dialog-title">
+                {'Delete data?'}
+              </DialogTitle>
               <DialogContent>
                 <DialogContentText id="alert-dialog-description">
                   Are you sure you want to delete this user?
@@ -441,8 +438,7 @@ class Users extends React.Component {
           </Paper>
         </div>
       );
-    }
-    catch (error) {
+    } catch (error) {
       return (
         <div style={{ maxWidth: 1236, margin: 'auto' }}>
           <Paper style={{ height: 40 }}>

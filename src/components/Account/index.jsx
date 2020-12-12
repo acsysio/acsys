@@ -1,14 +1,14 @@
 import {
-    CircularProgress,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-    ExpansionPanel,
-    ExpansionPanelDetails,
-    ExpansionPanelSummary,
-    Tooltip
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  ExpansionPanel,
+  ExpansionPanelDetails,
+  ExpansionPanelSummary,
+  Tooltip,
 } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
@@ -77,10 +77,7 @@ class Account extends React.Component {
         password: userData[0].prmthCd,
         userData: userData[0],
       });
-    }
-    catch (error) {
-
-    }
+    } catch (error) {}
   };
   updateCredentials = async () => {
     const {
@@ -101,23 +98,25 @@ class Account extends React.Component {
       email: email,
       acsys_cd: password,
     };
-    if (await Acsys.verifyPassword(this.state.userData.acsys_id, currentPassword)) {
+    if (
+      await Acsys.verifyPassword(this.state.userData.acsys_id, currentPassword)
+    ) {
       if (this.state.passwordChange) {
-          if (password.length > 0) {
-            if (password === verifyPassword) {
-              await Acsys.updateUser(user);
-            } else {
-              this.setState({
-                setMsgOpen: true,
-                message: 'Passwords do not match.',
-              });
-            }
+        if (password.length > 0) {
+          if (password === verifyPassword) {
+            await Acsys.updateUser(user);
           } else {
             this.setState({
               setMsgOpen: true,
-              message: 'Password cannot be left blank.',
+              message: 'Passwords do not match.',
             });
           }
+        } else {
+          this.setState({
+            setMsgOpen: true,
+            message: 'Password cannot be left blank.',
+          });
+        }
       } else {
         await Acsys.updateUser(user);
       }

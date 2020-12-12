@@ -7,22 +7,21 @@ let connected = false;
 
 const siftRows = function (rows) {
   let sRows = [];
-  for(let i = 0; i < rows.length; i++) {
+  for (let i = 0; i < rows.length; i++) {
     let obj = {};
     const values = Object.values(rows[i]);
     const fields = Object.keys(rows[i]);
-    for(let j = 0; j < values.length; j++) {
-      if(typeof values[j] === 'string') {
+    for (let j = 0; j < values.length; j++) {
+      if (typeof values[j] === 'string') {
         obj[fields[j]] = querystring.unescape(values[j]);
-      }
-      else {
+      } else {
         obj[fields[j]] = values[j];
       }
     }
     sRows.push(obj);
   }
   return sRows;
-}
+};
 
 const createTable = function (tableName, data) {
   return new Promise(async (resolve, reject) => {
@@ -59,7 +58,7 @@ const createTable = function (tableName, data) {
     db.run(sql, function (err) {
       if (err) {
         console.log(err);
-        resolve (false);
+        resolve(false);
       }
 
       let placeholders = '';
@@ -89,13 +88,13 @@ const createTable = function (tableName, data) {
       db.run(sql, function (err) {
         if (err) {
           console.log(err);
-          resolve (false);
+          resolve(false);
         }
-        resolve (true);
+        resolve(true);
       });
     });
-  })
-}
+  });
+};
 
 class SqliteDriver {
   initialize() {
@@ -481,7 +480,9 @@ class SqliteDriver {
         if (options.order_by !== undefined && options.order_by) {
           if (options.order_by !== undefined && options.order_by.length > 0) {
             if (options.order) {
-              query += `ORDER BY ${options.order_by.toString()} ${options.order} `;
+              query += `ORDER BY ${options.order_by.toString()} ${
+                options.order
+              } `;
             } else {
               query += `ORDER BY ${options.order_by.toString()} `;
             }
@@ -549,7 +550,9 @@ class SqliteDriver {
         if (options.order_by !== undefined && options.order_by) {
           if (options.order_by !== undefined && options.order_by.length > 0) {
             if (options.order) {
-              query += `ORDER BY ${options.order_by.toString()} ${options.order} `;
+              query += `ORDER BY ${options.order_by.toString()} ${
+                options.order
+              } `;
             } else {
               query += `ORDER BY ${options.order_by.toString()} `;
             }
@@ -605,7 +608,7 @@ class SqliteDriver {
 
         db.run(sql, async function (err) {
           if (err) {
-            if(err.errno === 1) {
+            if (err.errno === 1) {
               await createTable(table, data);
               resolve(true);
             }
@@ -705,8 +708,7 @@ class SqliteDriver {
             }
           } catch (error) {}
         });
-      }
-      else {
+      } else {
         query = `DROP TABLE ${collectionName} `;
       }
       await db.all(query, [], (error) => {

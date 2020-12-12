@@ -1,9 +1,9 @@
 import {
-    Box,
-    Button,
-    CircularProgress,
-    Grid,
-    Typography
+  Box,
+  Button,
+  CircularProgress,
+  Grid,
+  Typography,
 } from '@material-ui/core';
 import React, { Component } from 'react';
 import * as Acsys from '../../services/Acsys/Acsys';
@@ -88,10 +88,7 @@ class PasswordReset extends Component {
           Enter the new password for your account.
         </Typography>
 
-        <Typography
-          variant="p"
-          color="secondary"
-        >
+        <Typography variant="p" color="secondary">
           {message}
         </Typography>
 
