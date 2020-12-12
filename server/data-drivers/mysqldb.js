@@ -77,7 +77,7 @@ const createTable = function (tableName, data) {
       });
     });
   });
-}
+};
 
 class MysqlDriver {
   initialize(config) {
@@ -86,54 +86,63 @@ class MysqlDriver {
       dbName = settings.database;
       db = mysql.createPool({
         connectionLimit: 10,
-        host     : settings.host,
-        port     : settings.port,
-        database : settings.database,
-        user     : settings.username,
-        password : settings.password,
-        socketPath: settings.socketPath
+        host: settings.host,
+        port: settings.port,
+        database: settings.database,
+        user: settings.username,
+        password: settings.password,
+        socketPath: settings.socketPath,
       });
       db.query('SHOW TABLES', (error, rows) => {
-        if(error) {
-          if(error.code === 'ENOENT') {
+        if (error) {
+          if (error.code === 'ENOENT') {
             db = mysql.createPool({
               connectionLimit: 10,
-              host     : settings.host,
-              port     : settings.port,
-              database : settings.database,
-              user     : settings.username,
-              password : settings.password,
+              host: settings.host,
+              port: settings.port,
+              database: settings.database,
+              user: settings.username,
+              password: settings.password,
             });
           }
         }
       });
-      db.query('CREATE TABLE IF NOT EXISTS acsys_users (acsys_id TEXT, email TEXT, username TEXT, role TEXT, mode TEXT, acsys_cd TEXT)', (error, rows) => {
-
-      });
-      db.query('CREATE TABLE IF NOT EXISTS acsys_logical_content (acsys_id TEXT, name TEXT, description TEXT, viewId TEXT, source_collection TEXT, position INT, table_keys TEXT)', (error, rows) => {
-      
-      });
-      db.query('CREATE TABLE IF NOT EXISTS acsys_views (acsys_id TEXT, is_removable BOOLEAN, is_table_mode BOOLEAN, link_table TEXT, link_view_id TEXT, view_order TEXT, order_by TEXT, row_num INT)', (error, rows) => {
-
-      });
-      db.query('CREATE TABLE IF NOT EXISTS acsys_document_details (acsys_id TEXT, content_id TEXT, collection TEXT, control TEXT, field_name TEXT, is_visible_on_page BOOLEAN, is_visible_on_table BOOLEAN, type TEXT, is_key BOOLEAN, view_order INT, width INT)', (error, rows) => {
-
-      });
-      db.query('CREATE TABLE IF NOT EXISTS acsys_email_settings (host TEXT, port INT, username TEXT, password TEXT)', (error, rows) => {
-
-      });
-      db.query('CREATE TABLE IF NOT EXISTS acsys_open_tables (table_name TEXT)', (error, rows) => {
-
-      });
-      db.query('CREATE TABLE IF NOT EXISTS acsys_storage_items (acsys_id TEXT, file_order INT, parent TEXT, name TEXT, content_type TEXT, is_public BOOLEAN, time_created TEXT, updated TEXT)', (error, rows) => {
-
-      });
-      db.query('CREATE TABLE IF NOT EXISTS acsys_user_reset (acsys_id TEXT, user_id Text, expiration_date INT)', (error, rows) => {
-
-      });
-      db.query('CREATE TABLE IF NOT EXISTS acsys_storage_settings (bucket TEXT)', (error, rows) => {
-
-      });
+      db.query(
+        'CREATE TABLE IF NOT EXISTS acsys_users (acsys_id TEXT, email TEXT, username TEXT, role TEXT, mode TEXT, acsys_cd TEXT)',
+        (error, rows) => {}
+      );
+      db.query(
+        'CREATE TABLE IF NOT EXISTS acsys_logical_content (acsys_id TEXT, name TEXT, description TEXT, viewId TEXT, source_collection TEXT, position INT, table_keys TEXT)',
+        (error, rows) => {}
+      );
+      db.query(
+        'CREATE TABLE IF NOT EXISTS acsys_views (acsys_id TEXT, is_removable BOOLEAN, is_table_mode BOOLEAN, link_table TEXT, link_view_id TEXT, view_order TEXT, order_by TEXT, row_num INT)',
+        (error, rows) => {}
+      );
+      db.query(
+        'CREATE TABLE IF NOT EXISTS acsys_document_details (acsys_id TEXT, content_id TEXT, collection TEXT, control TEXT, field_name TEXT, is_visible_on_page BOOLEAN, is_visible_on_table BOOLEAN, type TEXT, is_key BOOLEAN, view_order INT, width INT)',
+        (error, rows) => {}
+      );
+      db.query(
+        'CREATE TABLE IF NOT EXISTS acsys_email_settings (host TEXT, port INT, username TEXT, password TEXT)',
+        (error, rows) => {}
+      );
+      db.query(
+        'CREATE TABLE IF NOT EXISTS acsys_open_tables (table_name TEXT)',
+        (error, rows) => {}
+      );
+      db.query(
+        'CREATE TABLE IF NOT EXISTS acsys_storage_items (acsys_id TEXT, file_order INT, parent TEXT, name TEXT, content_type TEXT, is_public BOOLEAN, time_created TEXT, updated TEXT)',
+        (error, rows) => {}
+      );
+      db.query(
+        'CREATE TABLE IF NOT EXISTS acsys_user_reset (acsys_id TEXT, user_id Text, expiration_date INT)',
+        (error, rows) => {}
+      );
+      db.query(
+        'CREATE TABLE IF NOT EXISTS acsys_storage_settings (bucket TEXT)',
+        (error, rows) => {}
+      );
       connected = true;
       resolve(true);
     });
@@ -221,7 +230,7 @@ class MysqlDriver {
           resolve([]);
         } else {
           for (const row of rows) {
-            if(Object.values(row)[0].substring(0, 6) !== 'acsys_') {
+            if (Object.values(row)[0].substring(0, 6) !== 'acsys_') {
               const count = await this.getTableSize(Object.values(row)[0]);
               const data = {
                 table: Object.values(row)[0],
@@ -245,7 +254,7 @@ class MysqlDriver {
           resolve([]);
         } else {
           rows.forEach((row) => {
-            if(Object.values(row)[0].substring(0, 6) !== 'acsys_') {
+            if (Object.values(row)[0].substring(0, 6) !== 'acsys_') {
               collectionArr.push(Object.values(row)[0]);
             }
           });
@@ -475,7 +484,9 @@ class MysqlDriver {
         if (options.order_by !== undefined && options.order_by) {
           if (options.order_by !== undefined && options.order_by.length > 0) {
             if (options.order) {
-              query += `ORDER BY ${options.order_by.toString()} ${options.order} `;
+              query += `ORDER BY ${options.order_by.toString()} ${
+                options.order
+              } `;
             } else {
               query += `ORDER BY ${options.order_by.toString()} `;
             }
@@ -542,7 +553,9 @@ class MysqlDriver {
         if (options.order_by !== undefined && options.order_by) {
           if (options.order_by !== undefined && options.order_by.length > 0) {
             if (options.order) {
-              query += `ORDER BY ${options.order_by.toString()} ${options.order} `;
+              query += `ORDER BY ${options.order_by.toString()} ${
+                options.order
+              } `;
             } else {
               query += `ORDER BY ${options.order_by.toString()} `;
             }
@@ -583,16 +596,13 @@ class MysqlDriver {
           if (insert.length < 1) {
             insert = "''";
           }
-        } 
-        else if (typeof insertData[i] === 'boolean') {
-          if(insertData[i]) {
+        } else if (typeof insertData[i] === 'boolean') {
+          if (insertData[i]) {
             insert = true;
-          }
-          else {
+          } else {
             insert = false;
           }
-        }
-        else {
+        } else {
           insert = insertData[i];
         }
         if (i === 0) {
@@ -606,7 +616,7 @@ class MysqlDriver {
 
       await db.query(sql, async function (err) {
         if (err) {
-          if(err.code === 'ER_NO_SUCH_TABLE') {
+          if (err.code === 'ER_NO_SUCH_TABLE') {
             await createTable(table, data);
             resolve(true);
           }
@@ -724,7 +734,7 @@ class MysqlDriver {
           resolve(true);
         }
       });
-    })
+    });
   }
 
   checkOpenTable(collectionName) {

@@ -19,20 +19,20 @@ const config = new Config();
 let data;
 let storage;
 
-function removeDir (path) {
+function removeDir(path) {
   if (fs.existsSync(path)) {
     const files = fs.readdirSync(path);
 
-    files.forEach(function(filename) {
-      if (fs.statSync(path + "/" + filename).isDirectory()) {
-        removeDir(path + "/" + filename);
+    files.forEach(function (filename) {
+      if (fs.statSync(path + '/' + filename).isDirectory()) {
+        removeDir(path + '/' + filename);
       } else {
-        fs.unlinkSync(path + "/" + filename);
+        fs.unlinkSync(path + '/' + filename);
       }
     });
     fs.rmdirSync(path);
   } else {
-    console.log("Directory path not found.")
+    console.log('Directory path not found.');
   }
 }
 
@@ -128,9 +128,13 @@ router.post('/register', function (req, res) {
               const token = jwt.sign({ sub: hash }, await config.getSecret(), {
                 expiresIn: '1d',
               });
-              const refreshToken = jwt.sign({ sub: hash }, await config.getSecret(), {
-                expiresIn: '3d',
-              });
+              const refreshToken = jwt.sign(
+                { sub: hash },
+                await config.getSecret(),
+                {
+                  expiresIn: '3d',
+                }
+              );
               res.json({
                 acsys_id: dataModel.acsys_id,
                 role: dataModel.role,
@@ -385,7 +389,7 @@ router.post('/createUser', function (req, res) {
                 data
                   .insert('acsys_users', dataModel)
                   .then((result) => {
-                    console.log(result)
+                    console.log(result);
                     res.send(true);
                   })
                   .catch((result) => {
@@ -447,37 +451,41 @@ router.post('/authenticate', function (req, res) {
   data
     .getDocs('acsys_users', options)
     .then((result) => {
-      bcrypt.compare(cPassword, result[0].acsys_cd, async function (err, outcome) {
-        if (outcome) {
-          const token = jwt.sign(
-            { sub: result[0].acsys_cd },
-            await config.getSecret(),
-            {
-              expiresIn: '1d',
-            }
-          );
-          const refreshToken = jwt.sign(
-            { sub: result[0].acsys_cd },
-            await config.getSecret(),
-            {
-              expiresIn: '3d',
-            }
-          );
-          res.json({
-            acsys_id: result[0].acsys_id,
-            role: result[0].role,
-            mode: result[0].mode,
-            username: result[0].username,
-            email: result[0].email,
-            token,
-            refreshToken,
-          });
-        } else {
-          res.status(400).json({
-            message: 'Username or password is incorrect.',
-          });
+      bcrypt.compare(
+        cPassword,
+        result[0].acsys_cd,
+        async function (err, outcome) {
+          if (outcome) {
+            const token = jwt.sign(
+              { sub: result[0].acsys_cd },
+              await config.getSecret(),
+              {
+                expiresIn: '1d',
+              }
+            );
+            const refreshToken = jwt.sign(
+              { sub: result[0].acsys_cd },
+              await config.getSecret(),
+              {
+                expiresIn: '3d',
+              }
+            );
+            res.json({
+              acsys_id: result[0].acsys_id,
+              role: result[0].role,
+              mode: result[0].mode,
+              username: result[0].username,
+              email: result[0].email,
+              token,
+              refreshToken,
+            });
+          } else {
+            res.status(400).json({
+              message: 'Username or password is incorrect.',
+            });
+          }
         }
-      });
+      );
     })
     .catch((result) => {
       res.status(400).json({
@@ -487,12 +495,20 @@ router.post('/authenticate', function (req, res) {
 });
 
 router.post('/refresh', async function (req, res) {
-  const token = jwt.sign({ sub: await config.getSecret() }, await config.getSecret(), {
-    expiresIn: '1d',
-  });
-  const refreshToken = jwt.sign({ sub: await config.getSecret() }, await config.getSecret(), {
-    expiresIn: '3d',
-  });
+  const token = jwt.sign(
+    { sub: await config.getSecret() },
+    await config.getSecret(),
+    {
+      expiresIn: '1d',
+    }
+  );
+  const refreshToken = jwt.sign(
+    { sub: await config.getSecret() },
+    await config.getSecret(),
+    {
+      expiresIn: '3d',
+    }
+  );
   res.json({ token, refreshToken });
 });
 
@@ -508,13 +524,27 @@ router.get('/getProjectName', function (req, res) {
 });
 
 router.get('/getUrl', function (req, res) {
-  const url = req.protocol + '://' + req.get('host') + '/api/readData?table=' + req.query.table + '&options=' + req.query.options;
-  res.send((rdata = {url: url}));
+  const url =
+    req.protocol +
+    '://' +
+    req.get('host') +
+    '/api/readData?table=' +
+    req.query.table +
+    '&options=' +
+    req.query.options;
+  res.send((rdata = { url: url }));
 });
 
 router.get('/getOpenUrl', function (req, res) {
-  const url = req.protocol + '://' + req.get('host') + '/api/readOpenData?table=' + req.query.table + '&options=' + req.query.options;
-  res.send((rdata = {url: url}));
+  const url =
+    req.protocol +
+    '://' +
+    req.get('host') +
+    '/api/readOpenData?table=' +
+    req.query.table +
+    '&options=' +
+    req.query.options;
+  res.send((rdata = { url: url }));
 });
 
 router.get('/getAll', function (req, res) {
@@ -563,12 +593,14 @@ router.post('/createTable', function (req, res) {
 router.post('/dropTable', function (req, res) {
   deleteData = req.body;
   data.dropTable(deleteData.table).then((result) => {
-    data.dropTable('acsys_' + deleteData.table).then(() => {
-      res.send(result);
-    })
-    .catch(() => {
-      res.send(result);
-    })
+    data
+      .dropTable('acsys_' + deleteData.table)
+      .then(() => {
+        res.send(result);
+      })
+      .catch(() => {
+        res.send(result);
+      });
   });
 });
 
@@ -770,7 +802,7 @@ router.get('/getStorageURL', function (req, res) {
 
 router.get('/getFile', async function (req, res) {
   const file = path.resolve('files/' + req.query.file);
-  if(req.query.token !== undefined) {
+  if (req.query.token !== undefined) {
     const token = req.query.token;
     try {
       const decoded = jwt.verify(token, await config.getSecret());
@@ -781,15 +813,13 @@ router.get('/getFile', async function (req, res) {
           res.send('Link has expired.');
         }
         res.sendFile(file);
-      }
-      else {
+      } else {
         res.send('File could not be retrieved.');
       }
     } catch (error) {
       res.send('File could not be retrieved.');
     }
-  }
-  else {
+  } else {
     res.sendFile(file);
   }
 });
@@ -843,7 +873,7 @@ router.post('/setInitialLocalDatabaseConfig', async function (req, res) {
       .catch(() => {
         res.send(false);
       });
-      await config
+    await config
       .setStorageConfig('local')
       .then(async () => {
         storage.initialize(config, data);
@@ -851,7 +881,7 @@ router.post('/setInitialLocalDatabaseConfig', async function (req, res) {
       .catch(() => {
         res.send(false);
       });
-      res.send(true);
+    res.send(true);
   } catch (error) {
     res.send(false);
   }
@@ -874,7 +904,7 @@ router.post('/setLocalDatabaseConfig', async function (req, res) {
       .catch(() => {
         res.send(false);
       });
-      await config
+    await config
       .setStorageConfig('local')
       .then(async () => {
         storage.initialize(config, data);
@@ -882,7 +912,7 @@ router.post('/setLocalDatabaseConfig', async function (req, res) {
       .catch(() => {
         res.send(false);
       });
-      res.send(true);
+    res.send(true);
   } catch (error) {
     res.send(false);
   }
@@ -1006,18 +1036,15 @@ router.post('/setInitialMysqlConfig', async function (req, res) {
       .catch(() => {
         res.send(false);
       });
-    req.files.file.mv(
-      './acsys.service.config.json',
-      async function (err) {
-        if (err) {
-          res.send(err);
-        } else {
-          data.initialize(config);
-          storage.initialize(config, data);
-          res.send(true);
-        }
+    req.files.file.mv('./acsys.service.config.json', async function (err) {
+      if (err) {
+        res.send(err);
+      } else {
+        data.initialize(config);
+        storage.initialize(config, data);
+        res.send(true);
       }
-    );
+    });
   } catch (error) {
     res.send(false);
   }
@@ -1061,18 +1088,15 @@ router.post('/setMysqlConfig', async function (req, res) {
       .catch(() => {
         res.send(false);
       });
-    req.files.file.mv(
-      './acsys.service.config.json',
-      async function (err) {
-        if (err) {
-          res.send(err);
-        } else {
-          data.initialize(config);
-          storage.initialize(config, data);
-          res.send(true);
-        }
+    req.files.file.mv('./acsys.service.config.json', async function (err) {
+      if (err) {
+        res.send(err);
+      } else {
+        data.initialize(config);
+        storage.initialize(config, data);
+        res.send(true);
       }
-    );
+    });
   } catch (error) {
     res.send(false);
   }
@@ -1123,15 +1147,15 @@ router.get('/getDatabaseConfig', async function (req, res) {
           res.send((rData = { value: false }));
         } else {
           await config
-          .getMysqlConfig()
-          .then((dataConfig) => {
-            const storageObject = JSON.parse(result);
-            const response = Object.assign(dataConfig, storageObject);
-            res.send((response));
-          })
-          .catch(() => {
-            res.send((rData = { value: false }));
-          });
+            .getMysqlConfig()
+            .then((dataConfig) => {
+              const storageObject = JSON.parse(result);
+              const response = Object.assign(dataConfig, storageObject);
+              res.send(response);
+            })
+            .catch(() => {
+              res.send((rData = { value: false }));
+            });
         }
       });
     } catch (error) {
@@ -1144,12 +1168,9 @@ router.get('/getDatabaseConfig', async function (req, res) {
 
 router.get('/loadStorageConfig', async function (req, res) {
   const type = await config.getStorageType();
-  if ((type) === 'gcp') {
+  if (type === 'gcp') {
     try {
-      fs.readFile('./acsys.service.config.json', function (
-        err,
-        dataConfig
-      ) {
+      fs.readFile('./acsys.service.config.json', function (err, dataConfig) {
         if (err) {
           res.send((rData = { value: false }));
         } else {
@@ -1166,11 +1187,9 @@ router.get('/loadStorageConfig', async function (req, res) {
     } catch (error) {
       res.send((rData = { value: false }));
     }
-  } 
-  else if((type) === 'local') {
+  } else if (type === 'local') {
     res.send((rData = { value: true }));
-  }
-  else {
+  } else {
     res.send((rData = { value: false }));
   }
 });
@@ -1182,22 +1201,19 @@ router.get('/getCurrentBucket', async function (req, res) {
 
 router.post('/setStorageBucket', async function (req, res) {
   const bucket = req.body.bucket;
-  data.deleteDocs('acsys_storage_settings')
-    .then(() => {
-      const configData = {
-        bucket: bucket
-      };
-      data.insert('acsys_storage_settings', configData)
-        .then(() => {
-          storage.setBucket(bucket)
-          .then(() => {
-            storage.syncFiles().then((result, reject) => {
-              res.send(result);
-            });
-          })
-        })
-    })
-    res.send(false);
+  data.deleteDocs('acsys_storage_settings').then(() => {
+    const configData = {
+      bucket: bucket,
+    };
+    data.insert('acsys_storage_settings', configData).then(() => {
+      storage.setBucket(bucket).then(() => {
+        storage.syncFiles().then((result, reject) => {
+          res.send(result);
+        });
+      });
+    });
+  });
+  res.send(false);
 });
 
 router.get('/getStorageBuckets', async function (req, res) {

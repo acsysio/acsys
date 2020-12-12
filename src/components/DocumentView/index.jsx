@@ -9,17 +9,15 @@ import {
   IconButton,
   MenuItem,
   Select,
-  Tooltip
+  Tooltip,
 } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-import {
-  FileCopyOutlined as CopyIcon
-} from '@material-ui/icons';
+import { FileCopyOutlined as CopyIcon } from '@material-ui/icons';
 import React from 'react';
 import { DndProvider } from 'react-dnd';
-import Backend from 'react-dnd-html5-backend';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import uniqid from 'uniqid';
 import * as Acsys from '../../services/Acsys/Acsys';
 import AutoGen from '../Controls/AutoGen';
@@ -330,7 +328,7 @@ class DocumentView extends React.Component {
           }
         }
       }
-      console.log(fileDoc)
+      console.log(fileDoc);
       await Acsys.insertData(this.state.collection, {
         ...tempDocument,
       });
@@ -371,7 +369,9 @@ class DocumentView extends React.Component {
     var tempView = this.state.acsysView;
 
     if (value) {
-      tempView['table_keys'] = JSON.stringify(this.props.location.state.table_keys);
+      tempView['table_keys'] = JSON.stringify(
+        this.props.location.state.table_keys
+      );
     } else {
       tempView['table_keys'] = [];
     }
@@ -433,10 +433,9 @@ class DocumentView extends React.Component {
       try {
         mode = this.props.location.state.mode;
         is_removable = this.props.location.state.is_removable;
-        if(routed) {
+        if (routed) {
           table_keys = JSON.parse(this.props.location.state.table_keys);
-        }
-        else {
+        } else {
           table_keys = this.props.location.state.table_keys;
         }
       } catch (error) {
@@ -451,10 +450,7 @@ class DocumentView extends React.Component {
       fileRefs = [];
       highestPos = 0;
       this.mount();
-    }
-    catch (error) {
-
-    }
+    } catch (error) {}
   };
 
   mount = async () => {
@@ -494,17 +490,16 @@ class DocumentView extends React.Component {
           });
         }
         await Acsys.getData('acsys_open_tables', [['table_name', '=', table]])
-        .then(async (result) => {
-          if (result[0].table_name === table) {
-            open = true;
-          }
-        })
-        .catch(() => {});
+          .then(async (result) => {
+            if (result[0].table_name === table) {
+              open = true;
+            }
+          })
+          .catch(() => {});
 
         if (open) {
           apiCall = await Acsys.getOpenUrl(table, keys);
-        }
-        else {
+        } else {
           apiCall = await Acsys.getUrl(table, keys);
         }
 
@@ -585,52 +580,120 @@ class DocumentView extends React.Component {
                   initLoad = false;
                 }
               }
-              if (currentKey == details.field_name && details.is_visible_on_page) {
+              if (
+                currentKey == details.field_name &&
+                details.is_visible_on_page
+              ) {
                 if (details.control == 'autoGen') {
                   return (
-                    <AutoGen width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} />
+                    <AutoGen
+                      width={details.width}
+                      field_name={details.field_name}
+                      defaultValue={tempDocument[currentKey]}
+                    />
                   );
                 } else if (details.control == 'textEditor') {
                   return (
-                    <TextField width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} />
+                    <TextField
+                      width={details.width}
+                      field_name={details.field_name}
+                      defaultValue={tempDocument[currentKey]}
+                      handleChange={this.handleChange}
+                      currentKey={currentKey}
+                    />
                   );
                 } else if (details.control == 'dateTimePicker') {
                   let tempStr = value._seconds + '.' + value._nanoseconds;
                   const date = new Date(value);
                   return (
-                    <DateTimePicker width = {details.width} field_name = {details.field_name} defaultValue = {date} handleChange = {this.handleChange} currentKey = {currentKey} />
+                    <DateTimePicker
+                      width={details.width}
+                      field_name={details.field_name}
+                      defaultValue={date}
+                      handleChange={this.handleChange}
+                      currentKey={currentKey}
+                    />
                   );
                 } else if (details.control == 'numberEditor') {
                   return (
-                    <NumberEditor width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} />
+                    <NumberEditor
+                      width={details.width}
+                      field_name={details.field_name}
+                      defaultValue={tempDocument[currentKey]}
+                      handleChange={this.handleChange}
+                      currentKey={currentKey}
+                    />
                   );
                 } else if (details.control == 'richTextEditor') {
                   return (
-                    <RichTextEditor width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} imageHandler = {this.imageHandler} setQuillRef = {this.setQuillRef} setQuillIndex = {this.setQuillIndex} setQuillURL = {this.setQuillURL} index = {quillIndex} quillRef = {quillRef} url = {quillURL} />
+                    <RichTextEditor
+                      width={details.width}
+                      field_name={details.field_name}
+                      defaultValue={tempDocument[currentKey]}
+                      handleChange={this.handleChange}
+                      currentKey={currentKey}
+                      imageHandler={this.imageHandler}
+                      setQuillRef={this.setQuillRef}
+                      setQuillIndex={this.setQuillIndex}
+                      setQuillURL={this.setQuillURL}
+                      index={quillIndex}
+                      quillRef={quillRef}
+                      url={quillURL}
+                    />
                   );
                 } else if (details.control == 'booleanSelect') {
                   return (
-                    <BooleanSelect width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} />
+                    <BooleanSelect
+                      width={details.width}
+                      field_name={details.field_name}
+                      defaultValue={tempDocument[currentKey]}
+                      handleChange={this.handleChange}
+                      currentKey={currentKey}
+                    />
                   );
                 } else if (details.control == 'imageReference') {
                   const url = fileRefs[details.field_name];
                   return (
-                    <ImageReference width = {details.width} field_name = {details.field_name} url = {url} openSelector = {this.openSelector} removeFile = {this.removeFile} />
+                    <ImageReference
+                      width={details.width}
+                      field_name={details.field_name}
+                      url={url}
+                      openSelector={this.openSelector}
+                      removeFile={this.removeFile}
+                    />
                   );
                 } else if (details.control == 'imageURL') {
                   const url = fileRefs[details.field_name];
                   return (
-                    <ImageURL width = {details.width} field_name = {details.field_name} url = {url} openSelector = {this.openSelector} removeFile = {this.removeFile} />
+                    <ImageURL
+                      width={details.width}
+                      field_name={details.field_name}
+                      url={url}
+                      openSelector={this.openSelector}
+                      removeFile={this.removeFile}
+                    />
                   );
                 } else if (details.control == 'videoReference') {
                   const url = fileRefs[details.field_name];
                   return (
-                    <VideoReference width = {details.width} field_name = {details.field_name} url = {url} openSelector = {this.openSelector} removeFile = {this.removeFile} />
+                    <VideoReference
+                      width={details.width}
+                      field_name={details.field_name}
+                      url={url}
+                      openSelector={this.openSelector}
+                      removeFile={this.removeFile}
+                    />
                   );
                 } else if (details.control == 'videoURL') {
                   const url = fileRefs[details.field_name];
                   return (
-                    <VideoURL width = {details.width} field_name = {details.field_name} url = {url} openSelector = {this.openSelector} removeFile = {this.removeFile} />
+                    <VideoURL
+                      width={details.width}
+                      field_name={details.field_name}
+                      url={url}
+                      openSelector={this.openSelector}
+                      removeFile={this.removeFile}
+                    />
                   );
                 }
               }
@@ -651,11 +714,22 @@ class DocumentView extends React.Component {
             if (details.is_visible_on_page) {
               if (details.control == 'autoGen') {
                 return (
-                  <AutoGen width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} new = {true} />
+                  <AutoGen
+                    width={details.width}
+                    field_name={details.field_name}
+                    defaultValue={tempDocument[currentKey]}
+                    new={true}
+                  />
                 );
               } else if (details.control == 'textEditor') {
                 return (
-                  <TextField width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} />
+                  <TextField
+                    width={details.width}
+                    field_name={details.field_name}
+                    defaultValue={tempDocument[currentKey]}
+                    handleChange={this.handleChange}
+                    currentKey={currentKey}
+                  />
                 );
               } else if (details.control == 'dateTimePicker') {
                 if (initLoad) {
@@ -665,39 +739,94 @@ class DocumentView extends React.Component {
                   }
                 }
                 return (
-                  <DateTimePicker width = {details.width} field_name = {details.field_name} defaultValue = {new Date} handleChange = {this.handleChange} currentKey = {currentKey} />
+                  <DateTimePicker
+                    width={details.width}
+                    field_name={details.field_name}
+                    defaultValue={new Date()}
+                    handleChange={this.handleChange}
+                    currentKey={currentKey}
+                  />
                 );
               } else if (details.control == 'numberEditor') {
                 return (
-                  <NumberEditor width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} />
+                  <NumberEditor
+                    width={details.width}
+                    field_name={details.field_name}
+                    defaultValue={tempDocument[currentKey]}
+                    handleChange={this.handleChange}
+                    currentKey={currentKey}
+                  />
                 );
               } else if (details.control == 'richTextEditor') {
                 return (
-                  <RichTextEditor width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} imageHandler = {this.imageHandler} setQuillRef = {this.setQuillRef} setQuillIndex = {this.setQuillIndex} setQuillURL = {this.setQuillURL} index = {quillIndex} quillRef = {quillRef} url = {quillURL} />
+                  <RichTextEditor
+                    width={details.width}
+                    field_name={details.field_name}
+                    defaultValue={tempDocument[currentKey]}
+                    handleChange={this.handleChange}
+                    currentKey={currentKey}
+                    imageHandler={this.imageHandler}
+                    setQuillRef={this.setQuillRef}
+                    setQuillIndex={this.setQuillIndex}
+                    setQuillURL={this.setQuillURL}
+                    index={quillIndex}
+                    quillRef={quillRef}
+                    url={quillURL}
+                  />
                 );
               } else if (details.control == 'booleanSelect') {
                 return (
-                  <BooleanSelect width = {details.width} field_name = {details.field_name} defaultValue = {tempDocument[currentKey]} handleChange = {this.handleChange} currentKey = {currentKey} />
+                  <BooleanSelect
+                    width={details.width}
+                    field_name={details.field_name}
+                    defaultValue={tempDocument[currentKey]}
+                    handleChange={this.handleChange}
+                    currentKey={currentKey}
+                  />
                 );
               } else if (details.control == 'imageReference') {
                 const url = fileRefs[details.field_name];
                 return (
-                  <ImageReference width = {details.width} field_name = {details.field_name} url = {url} openSelector = {this.openSelector} removeFile = {this.removeFile} />
+                  <ImageReference
+                    width={details.width}
+                    field_name={details.field_name}
+                    url={url}
+                    openSelector={this.openSelector}
+                    removeFile={this.removeFile}
+                  />
                 );
               } else if (details.control == 'imageURL') {
                 const url = fileRefs[details.field_name];
                 return (
-                  <ImageURL width = {details.width} field_name = {details.field_name} url = {url} openSelector = {this.openSelector} removeFile = {this.removeFile} />
+                  <ImageURL
+                    width={details.width}
+                    field_name={details.field_name}
+                    url={url}
+                    openSelector={this.openSelector}
+                    removeFile={this.removeFile}
+                  />
                 );
               } else if (details.control == 'videoReference') {
                 const url = fileRefs[details.field_name];
                 return (
-                  <VideoReference width = {details.width} field_name = {details.field_name} url = {url} openSelector = {this.openSelector} removeFile = {this.removeFile} />
+                  <VideoReference
+                    width={details.width}
+                    field_name={details.field_name}
+                    url={url}
+                    openSelector={this.openSelector}
+                    removeFile={this.removeFile}
+                  />
                 );
               } else if (details.control == 'videoURL') {
                 const url = fileRefs[details.field_name];
                 return (
-                  <VideoURL width = {details.width} field_name = {details.field_name} url = {url} openSelector = {this.openSelector} removeFile = {this.removeFile} />
+                  <VideoURL
+                    width={details.width}
+                    field_name={details.field_name}
+                    url={url}
+                    openSelector={this.openSelector}
+                    removeFile={this.removeFile}
+                  />
                 );
               }
             }
@@ -821,7 +950,7 @@ class DocumentView extends React.Component {
             <DialogContent>
               <DialogContentText id="alert-dialog-description"></DialogContentText>
               <div>
-                <DndProvider backend={Backend}>
+                <DndProvider backend={HTML5Backend}>
                   <Example
                     docDetails={tempDetails}
                     handleClick={this.saveSettings}
@@ -830,19 +959,11 @@ class DocumentView extends React.Component {
               </div>
             </DialogContent>
             <DialogActions>
-              <Button
-                onClick={this.saveSettings}
-                color="primary"
-                autoFocus
-              >
+              <Button onClick={this.saveSettings} color="primary" autoFocus>
                 {filterLoading && <CircularProgress size={24} />}
                 {!filterLoading && 'Save'}
               </Button>
-              <Button
-                onClick={this.handleClose}
-                color="primary"
-                autoFocus
-              >
+              <Button onClick={this.handleClose} color="primary" autoFocus>
                 Cancel
               </Button>
             </DialogActions>
@@ -914,24 +1035,27 @@ class DocumentView extends React.Component {
           </Dialog>
         </Paper>
         <Hidden smDown implementation="css">
-          {!this.state.locked ?
-          <div style={{clear: 'both'}}>
-            API Call: <a className='api-url' href={apiCall} target="_blank">{apiCall}</a>
-            <Tooltip title="Copy To Clipboard">
-              <IconButton
-                edge="start"
-                color="inherit"
-                aria-label="edit"
-                onClick={this.copy}
-                style={{ marginLeft: 5 }}
-              >
-                <CopyIcon style={{ height: 15 }}/>
-              </IconButton>
-            </Tooltip>
-          </div>
-          :
-          <div/>
-          }
+          {!this.state.locked ? (
+            <div style={{ clear: 'both' }}>
+              API Call:{' '}
+              <a className="api-url" href={apiCall} target="_blank">
+                {apiCall}
+              </a>
+              <Tooltip title="Copy To Clipboard">
+                <IconButton
+                  edge="start"
+                  color="inherit"
+                  aria-label="edit"
+                  onClick={this.copy}
+                  style={{ marginLeft: 5 }}
+                >
+                  <CopyIcon style={{ height: 15 }} />
+                </IconButton>
+              </Tooltip>
+            </div>
+          ) : (
+            <div />
+          )}
         </Hidden>
       </div>
     );

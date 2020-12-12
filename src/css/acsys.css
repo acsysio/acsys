@@ -5,7 +5,7 @@
   min-height: 600px;
   height: 100vh;
   background-color: #b79afe;
-  background-image: url('/landing-background.svg');
+  background-image: url('../images/landing-background.svg');
   background-size: cover;
   /* background by SVGBackgrounds.com */
 }

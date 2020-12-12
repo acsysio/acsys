@@ -15,50 +15,51 @@ class StorageDriver {
   initialize(config, database) {
     return new Promise((resolve) => {
       try {
-        fs.readFile('./acsys.service.config.json', 'utf8', function (
-          err,
-          data
-        ) {
-          if (err) {
-            console.log(err);
-          } else {
-            fs.realpath('./acsys.service.config.json', 'utf8', async function (
-              _error,
-              path
-            ) {
-              try {
-                const config = JSON.parse(data);
-                gStorage = new Storage({
-                  projectId: config.project_id,
-                  keyFilename: path.replace(/\\/g, '/'),
-                });
-                buckets = [];
-                await gStorage.getBuckets()
-                  .then((bckts) => {
-                    bckts[0].forEach((bckt) => {
-                      buckets.push(bckt.id);
-                    })
-                  })
-                db = database;
-                await db.getDocs('acsys_storage_settings')
-                  .then((result) => {
-                    if(result.length > 0) {
-                      currentBucket = result[0].bucket;                
-                    }
-                    else {
-                      currentBucket = buckets[0];
-                    }
-                    storage = gStorage.bucket(currentBucket);
-                  })
-                projectId = config.project_id;
-              } catch (error2) {
-                console.log(error2);
-              }
-            });
+        fs.readFile(
+          './acsys.service.config.json',
+          'utf8',
+          function (err, data) {
+            if (err) {
+              console.log(err);
+            } else {
+              fs.realpath(
+                './acsys.service.config.json',
+                'utf8',
+                async function (_error, path) {
+                  try {
+                    const config = JSON.parse(data);
+                    gStorage = new Storage({
+                      projectId: config.project_id,
+                      keyFilename: path.replace(/\\/g, '/'),
+                    });
+                    buckets = [];
+                    await gStorage.getBuckets().then((bckts) => {
+                      bckts[0].forEach((bckt) => {
+                        buckets.push(bckt.id);
+                      });
+                    });
+                    db = database;
+                    await db
+                      .getDocs('acsys_storage_settings')
+                      .then((result) => {
+                        if (result.length > 0) {
+                          currentBucket = result[0].bucket;
+                        } else {
+                          currentBucket = buckets[0];
+                        }
+                        storage = gStorage.bucket(currentBucket);
+                      });
+                    projectId = config.project_id;
+                  } catch (error2) {
+                    console.log(error2);
+                  }
+                }
+              );
 
-            resolve(true);
+              resolve(true);
+            }
           }
-        });
+        );
       } catch (error) {
         resolve(false);
       }
@@ -69,12 +70,11 @@ class StorageDriver {
     return new Promise(async (resolve) => {
       storage = gStorage.bucket(bckt);
       buckets = [];
-      await gStorage.getBuckets()
-              .then((bckts) => {
-                bckts[0].forEach((bckt) => {
-                  buckets.push(bckt.id);
-                });
-              });
+      await gStorage.getBuckets().then((bckts) => {
+        bckts[0].forEach((bckt) => {
+          buckets.push(bckt.id);
+        });
+      });
       resolve(true);
     });
   }
@@ -93,7 +93,8 @@ class StorageDriver {
 
   syncFiles() {
     return new Promise(async (resolve) => {
-      await db.deleteDocs('acsys_storage_items')
+      await db
+        .deleteDocs('acsys_storage_items')
         .then(async () => {
           await storage.getFiles(
             {
@@ -443,7 +444,9 @@ class StorageDriver {
           }
           await blob.delete(async function () {
             await db
-              .deleteDocs('acsys_storage_items', [['acsys_id', '=', referenceName]])
+              .deleteDocs('acsys_storage_items', [
+                ['acsys_id', '=', referenceName],
+              ])
               .then(() => {
                 resolve(true);
               })

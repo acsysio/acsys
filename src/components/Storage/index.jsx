@@ -1,17 +1,17 @@
 import {
-    AppBar,
-    CircularProgress,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TablePagination,
-    TableRow
+  AppBar,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TablePagination,
+  TableRow,
 } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
@@ -21,9 +21,12 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import {
-    Delete,
-    Description, FolderOpen, KeyboardArrowLeft, Lock,
-    LockOpen
+  Delete,
+  Description,
+  FolderOpen,
+  KeyboardArrowLeft,
+  Lock,
+  LockOpen,
 } from '@material-ui/icons';
 import React from 'react';
 import * as Acsys from '../../services/Acsys/Acsys';
@@ -224,14 +227,14 @@ class Storage extends React.Component {
     this.setState({
       openImg: true,
       imgUrl: url,
-    })
+    });
   };
 
   handleImgClose = () => {
     this.setState({
       openImg: false,
-    })
-  }
+    });
+  };
 
   handleChange = (event) => {
     newFolderName = event;
@@ -471,7 +474,7 @@ class Storage extends React.Component {
     } else {
       return (
         <TableCell style={{ width: 40, paddingRight: 0 }}>
-          <Description 
+          <Description
             style={{ cursor: 'pointer', height: 40, width: 40, margin: 0 }}
             onClick={() => window.open(url, '_blank')}
           />
@@ -495,10 +498,7 @@ class Storage extends React.Component {
       } else {
         return (
           <TableCell>
-            <a 
-              onClick={() => this.openDir(id)} 
-              style={{ cursor: 'pointer' }}
-            >
+            <a onClick={() => this.openDir(id)} style={{ cursor: 'pointer' }}>
               {name}
             </a>
           </TableCell>
@@ -584,12 +584,21 @@ class Storage extends React.Component {
       });
   }
   render() {
-    const { deleteLoading, files, rowsPerPage, page, currentDir, con } = this.state;
+    const {
+      deleteLoading,
+      files,
+      rowsPerPage,
+      page,
+      currentDir,
+      con,
+    } = this.state;
     if (con) {
       try {
         return (
           <div>
-            <Paper style={{ margin: 'auto', overflow: 'hidden', clear: 'both' }}>
+            <Paper
+              style={{ margin: 'auto', overflow: 'hidden', clear: 'both' }}
+            >
               <AppBar
                 position="static"
                 elevation={0}
@@ -598,7 +607,9 @@ class Storage extends React.Component {
                   borderBottom: '1px solid #dcdcdc',
                 }}
               >
-                <Toolbar style={{ margin: 4, paddingLeft: 12, paddingRight: 12 }}>
+                <Toolbar
+                  style={{ margin: 4, paddingLeft: 12, paddingRight: 12 }}
+                >
                   {Acsys.getMode() !== 'Viewer' ? (
                     <Grid container spacing={1}>
                       <Grid item xs style={{ overflow: 'hidden' }}>
@@ -773,21 +784,20 @@ class Storage extends React.Component {
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
               >
-                <DialogTitle id="alert-dialog-title">{'Sync files?'}</DialogTitle>
+                <DialogTitle id="alert-dialog-title">
+                  {'Sync files?'}
+                </DialogTitle>
                 <DialogContent>
                   <DialogContentText id="alert-dialog-description">
-                    Are you sure you want to resync files? This operation can require multiple writes.
+                    Are you sure you want to resync files? This operation can
+                    require multiple writes.
                   </DialogContentText>
                 </DialogContent>
                 <DialogActions>
                   <Button onClick={this.handleSyncClose} color="primary">
                     No
                   </Button>
-                  <Button
-                    onClick={this.syncFiles}
-                    color="primary"
-                    autoFocus
-                  >
+                  <Button onClick={this.syncFiles} color="primary" autoFocus>
                     Yes
                   </Button>
                 </DialogActions>
@@ -799,10 +809,8 @@ class Storage extends React.Component {
                 aria-describedby="alert-dialog-description"
                 maxWidth={'lg'}
               >
-                
                 <DialogContent
                   style={{
-                    
                     margin: 'auto',
                     overflow: 'hidden',
                   }}
@@ -863,7 +871,9 @@ class Storage extends React.Component {
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
               >
-                <DialogTitle id="alert-dialog-title">{'Delete file?'}</DialogTitle>
+                <DialogTitle id="alert-dialog-title">
+                  {'Delete file?'}
+                </DialogTitle>
                 <DialogContent>
                   <DialogContentText id="alert-dialog-description">
                     Are you sure you want to delete this file?
@@ -887,8 +897,7 @@ class Storage extends React.Component {
             </Paper>
           </div>
         );
-      }
-      catch (error) {
+      } catch (error) {
         return (
           <div style={{ maxWidth: 1236, margin: 'auto' }}>
             <Paper style={{ height: 40 }}>

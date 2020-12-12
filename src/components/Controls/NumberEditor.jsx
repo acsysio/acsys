@@ -8,7 +8,9 @@ function NumberEditor(props) {
       <input
         placeholder="Enter value here"
         defaultValue={props.defaultValue}
-        onChange={(e) => props.handleChange(props.currentKey, parseInt(e.target.value))}
+        onChange={(e) =>
+          props.handleChange(props.currentKey, parseInt(e.target.value))
+        }
         type="number"
         style={{ width: '100%' }}
       />
