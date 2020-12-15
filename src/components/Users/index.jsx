@@ -5,6 +5,7 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  Toolbar,
   Tooltip,
 } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
