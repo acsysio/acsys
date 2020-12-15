@@ -1,10 +1,4 @@
 import {
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
   Hidden,
   NativeSelect,
   Table,
@@ -29,14 +23,16 @@ import {
   KeyboardArrowRight,
 } from '@material-ui/icons';
 import React from 'react';
-import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Link } from 'react-router-dom';
 import uniqid from 'uniqid';
 import * as Acsys from '../../services/Acsys/Acsys';
 import { PromConsumer } from '../../services/Session/PromProvider';
+import FieldControlDialog from '../Dialogs/FieldControlDialog';
 import LoadingDialog from '../Dialogs/LoadingDialog';
-import Example from '../FieldControl/FieldDef';
+import MessageDialog from '../Dialogs/MessageDialog';
+import YesNoDialog from '../Dialogs/YesNoDialog';
+import ViewDialog from '../Dialogs/ViewDialog';
 
 const INITIAL_STATE = {
   content_id: '',
@@ -60,6 +56,8 @@ const INITIAL_STATE = {
   setDetailOpen: false,
   setViewOpen: false,
   filterLoading: false,
+  messageTitle: '',
+  message: '',
   error: '',
   deleteLoading: false,
 };
@@ -92,6 +90,8 @@ class CollectionView extends React.Component {
   openKeyMessage = () => {
     this.setState({
       openKeyMessage: true,
+      messageTitle: 'Error',
+      message: 'No keys set. Please set unique key for data.',
     });
   };
 
@@ -230,28 +230,33 @@ class CollectionView extends React.Component {
     const { documentDetails } = this.state;
     this.setState({ deleteLoading: true });
 
-    let keys = [];
-    for (let i = 0; i < table_keys[this.state.viewId].length; i++) {
-      let tKeys = [
-        table_keys[this.state.viewId][i].field,
-        '=',
-        table_keys[this.state.viewId][i].value,
-      ];
-      keys.push(tKeys);
+    if (table_keys[this.state.viewId]) {
+      let keys = [];
+      for (let i = 0; i < table_keys[this.state.viewId].length; i++) {
+        let tKeys = [
+          table_keys[this.state.viewId][i].field,
+          '=',
+          table_keys[this.state.viewId][i].value,
+        ];
+        keys.push(tKeys);
+      }
+
+      await Acsys.getData(documentDetails[0].collection, keys)
+        .then(async (result) => {
+          if (result.length < 1) {
+            await Acsys.deleteData(
+              'acsys_' + documentDetails[0].collection,
+              keys
+            );
+          } else {
+            await Acsys.deleteData(documentDetails[0].collection, keys);
+          }
+        })
+        .catch(async () => {});
+    } else {
+      this.openKeyMessage();
     }
 
-    await Acsys.getData(documentDetails[0].collection, keys)
-      .then(async (result) => {
-        if (result.length < 1) {
-          await Acsys.deleteData(
-            'acsys_' + documentDetails[0].collection,
-            keys
-          );
-        } else {
-          await Acsys.deleteData(documentDetails[0].collection, keys);
-        }
-      })
-      .catch(async () => {});
     this.handleClose();
     this.setState({
       reset: true,
@@ -942,214 +947,46 @@ class CollectionView extends React.Component {
           </AppBar>
           {this.renderTable(paginate)}
           <LoadingDialog loading={this.state.loading} />
-          <Dialog
+          <MessageDialog
             open={this.state.openKeyMessage}
-            onClose={this.closeKeyMessage}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-            maxWidth={'md'}
-            style={{
-              minHeight: 200,
-              minWidth: 1100,
-              margin: 'auto',
-              overflow: 'hidden',
-            }}
-          >
-            <DialogTitle id="alert-dialog-title">{'Error'}</DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                No keys set. Please set unique key for data.
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={this.closeKeyMessage} color="primary">
-                Close
-              </Button>
-            </DialogActions>
-          </Dialog>
-          <Dialog
+            closeDialog={this.closeKeyMessage}
+            title={this.state.messageTitle}
+            message={this.state.message}
+          />
+          <YesNoDialog
             open={this.state.setOpen}
-            onClose={this.handleClose}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-          >
-            <DialogTitle id="alert-dialog-title">{'Delete data?'}</DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                Are you sure you want to delete this data?
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={this.handleClose} color="primary">
-                No
-              </Button>
-              <Button
-                onClick={this.deleteView}
-                color="primary"
-                disabled={deleteLoading}
-                autoFocus
-              >
-                {deleteLoading && <CircularProgress size={24} />}
-                {!deleteLoading && 'Yes'}
-              </Button>
-            </DialogActions>
-          </Dialog>
-          <Dialog
+            closeDialog={this.handleClose}
+            title={'Delete data?'}
+            message={'Are you sure you want to delete this data?'}
+            action={this.deleteView}
+            actionProcess={deleteLoading}
+          />
+          <FieldControlDialog
             open={this.state.setDetailOpen}
-            onClose={this.handleDetailClose}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-            maxWidth={'lg'}
-          >
-            <DialogTitle id="alert-dialog-title">Field Controls</DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description"></DialogContentText>
-              <div>
-                <DndProvider backend={HTML5Backend}>
-                  <Example
-                    docDetails={tempDetails}
-                    handleClick={this.saveSettings}
-                  />
-                </DndProvider>
-              </div>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={this.saveSettings} color="primary" autoFocus>
-                {filterLoading && <CircularProgress size={24} />}
-                {!filterLoading && 'Save'}
-              </Button>
-              <Button
-                onClick={this.handleDetailClose}
-                color="primary"
-                autoFocus
-              >
-                Cancel
-              </Button>
-            </DialogActions>
-          </Dialog>
-          <Dialog
+            closeDialog={this.handleDetailClose}
+            backend={HTML5Backend}
+            docDetails={tempDetails}
+            action={this.saveSettings}
+            actionProcess={filterLoading}
+          />
+          <ViewDialog
             open={this.state.setViewOpen}
-            onClose={this.handleViewClose}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-            maxWidth={'sm'}
-          >
-            <DialogTitle id="alert-dialog-title">View Settings</DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description"></DialogContentText>
-              <div>
-                <Grid container spacing={0}>
-                  <Grid item xs={3}>
-                    <div>
-                      <Typography>Order By Field</Typography>
-                    </div>
-                  </Grid>
-                  <Grid item xs={3}>
-                    <div>
-                      <Typography>Order</Typography>
-                    </div>
-                  </Grid>
-                  <Grid item xs={3}>
-                    <div>
-                      <Typography>Entries Per Page</Typography>
-                    </div>
-                  </Grid>
-                  <Grid item xs={3}>
-                    <div>
-                      <Typography>Update Mode</Typography>
-                    </div>
-                  </Grid>
-                  <Grid item xs={3}>
-                    <div>
-                      <NativeSelect
-                        defaultValue={view_orderField}
-                        onChange={(e) => this.setOrderField(e.target.value)}
-                      >
-                        <option value="none">none</option>
-                        {Object.values(tempDetails).map((detail) => {
-                          return (
-                            <option value={detail.field_name}>
-                              {detail.field_name}
-                            </option>
-                          );
-                        })}
-                      </NativeSelect>
-                    </div>
-                  </Grid>
-                  <Grid item xs={3}>
-                    <div>
-                      <NativeSelect
-                        defaultValue={view_order}
-                        onChange={(e) => this.setOrder(e.target.value)}
-                      >
-                        <option value={'asc'}>asc</option>
-                        <option value={'desc'}>desc</option>
-                      </NativeSelect>
-                    </div>
-                  </Grid>
-                  <Grid item xs={3}>
-                    <div>
-                      <NativeSelect
-                        defaultValue={row_num}
-                        onChange={(e) =>
-                          this.setEntriesPerPage(parseInt(e.target.value))
-                        }
-                      >
-                        <option value={5}>5</option>
-                        <option value={10}>10</option>
-                        <option value={15}>15</option>
-                        <option value={20}>20</option>
-                        <option value={50}>50</option>
-                        <option value={100}>100</option>
-                      </NativeSelect>
-                    </div>
-                  </Grid>
-                  <Grid item xs={3}>
-                    <div>
-                      <NativeSelect
-                        defaultValue={is_removable}
-                        onChange={(e) =>
-                          this.setUpdateOnly('true' == e.target.value)
-                        }
-                        style={{ width: '100%' }}
-                      >
-                        <option value={true}>Add/Remove</option>
-                        <option value={false}>Update Only</option>
-                      </NativeSelect>
-                    </div>
-                  </Grid>
-                  <Grid item xs={12} style={{ marginTop: 20 }}>
-                    <div>
-                      <Typography>Status For Table [{viewTable}]</Typography>
-                    </div>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <div>
-                      <NativeSelect
-                        defaultValue={locked}
-                        onChange={(e) =>
-                          this.setLockedValue('true' == e.target.value)
-                        }
-                        style={{ width: '100%' }}
-                      >
-                        <option value={true}>Locked (No API Access)</option>
-                        <option value={false}>Unlocked (API Access)</option>
-                      </NativeSelect>
-                    </div>
-                  </Grid>
-                </Grid>
-              </div>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={this.saveViewSettings} color="primary" autoFocus>
-                {filterLoading && <CircularProgress size={24} />}
-                {!filterLoading && 'Save'}
-              </Button>
-              <Button onClick={this.handleViewClose} color="primary" autoFocus>
-                Cancel
-              </Button>
-            </DialogActions>
-          </Dialog>
+            closeDialog={this.handleViewClose}
+            viewOrderField={view_orderField}
+            setOrderField={this.setOrderField}
+            docDetails={tempDetails}
+            viewOrder={view_order}
+            setOrder={this.setOrder}
+            rowNum={row_num}
+            setEntriesPerPage={this.setEntriesPerPage}
+            isRemovable={is_removable}
+            setUpdateOnly={this.setUpdateOnly}
+            viewTable={viewTable}
+            locked={locked}
+            setLockedValue={this.setLockedValue}
+            action={this.saveViewSettings}
+            actionProcess={filterLoading}
+          />
         </Paper>
         <Hidden smDown implementation="css">
           {!this.state.locked ? (
