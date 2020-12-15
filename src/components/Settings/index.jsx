@@ -1,11 +1,5 @@
 import {
   Box,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
   ExpansionPanel,
   ExpansionPanelDetails,
   ExpansionPanelSummary,
@@ -19,6 +13,9 @@ import Typography from '@material-ui/core/Typography';
 import { KeyboardArrowDown } from '@material-ui/icons';
 import React from 'react';
 import * as Acsys from '../../services/Acsys/Acsys';
+import LoadingDialog from '../Dialogs/LoadingDialog';
+import MessageDialog from '../Dialogs/MessageDialog';
+import YesNoDialog from '../Dialogs/YesNoDialog';
 
 const INITIAL_STATE = {
   host: '',
@@ -791,76 +788,26 @@ class Settings extends React.Component {
               <div style={{ height: 40 }}></div>
             </div>
           </div>
-          <Dialog
-            open={this.state.loading}
-            onClose={this.closeDialog}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-          >
-            <DialogTitle id="alert-dialog-title" style={{ margin: 'auto' }}>
-              Saving Settings
-            </DialogTitle>
-            <DialogContent
-              style={{
-                minHeight: 150,
-                minWidth: 400,
-                margin: 'auto',
-                overflow: 'hidden',
-              }}
-            >
-              <div style={{ width: 124, margin: 'auto' }}>
-                <CircularProgress size={124} />
-              </div>
-            </DialogContent>
-          </Dialog>
-          <Dialog
+          <LoadingDialog
+            loading={this.state.loading}
+            message={'Saving Settings'}
+          />
+          <YesNoDialog
             open={this.state.setOpen}
-            onClose={this.handleClose}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-          >
-            <DialogTitle id="alert-dialog-title">
-              {'Update configuration?'}
-            </DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                Are you sure you want to update the configuration? Doing so will
-                overwrite current settings.
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={this.handleClose} color="primary">
-                No
-              </Button>
-              <Button
-                onClick={this.setConfig}
-                color="primary"
-                disabled={loading}
-                autoFocus
-              >
-                {loading && <CircularProgress size={24} />}
-                {!loading && 'Yes'}
-              </Button>
-            </DialogActions>
-          </Dialog>
-          <Dialog
+            closeDialog={this.handleClose}
+            title={'Update configuration?'}
+            message={
+              'Are you sure you want to update the configuration? Doing so will overwrite current settings.'
+            }
+            action={this.setConfig}
+            actionProcess={loading}
+          />
+          <MessageDialog
             open={this.state.setMessageOpen}
-            onClose={this.handleMessageClose}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-          >
-            <DialogTitle id="alert-dialog-title">{'Error'}</DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                {message}
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={this.handleMessageClose} color="primary">
-                Okay
-              </Button>
-            </DialogActions>
-          </Dialog>
+            closeDialog={this.handleMessageClose}
+            title={'Error'}
+            message={message}
+          />
         </Paper>
       </div>
     );

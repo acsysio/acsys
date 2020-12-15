@@ -47,19 +47,15 @@ class DataDriver {
   doCreateInitialUserWithEmailAndPassword(username, email, password) {
     auth
       .createUserWithEmailAndPassword(email, password)
-      .then(
-        (
-          authUser // Create a user in firestore to allow for additional configuration
-        ) => {
-          if (authUser.user)
-            return setDoc('acsys_users', {
-              uid: authUser.user.uid,
-              role: 'Administrator',
-              username,
-              email,
-            });
-        }
-      )
+      .then((authUser) => {
+        if (authUser.user)
+          return setDoc('acsys_users', {
+            uid: authUser.user.uid,
+            role: 'Administrator',
+            username,
+            email,
+          });
+      })
       .catch();
   }
 
@@ -197,8 +193,6 @@ class DataDriver {
   repositionViews(data, old, pos) {
     return new Promise((resolve, reject) => {
       let newPos = 1;
-      const posFound = false;
-      const entryFound = false;
       let query;
       query = db.collection('acsys_logical_content');
       query = query.orderBy('position');
@@ -211,7 +205,7 @@ class DataDriver {
                 newPos++;
               }
             }
-            if (doc.data().id === data.id) {
+            if (doc.data().acsys_id === data.acsys_id) {
               db.collection('acsys_logical_content').doc(doc.id).update(data);
             } else {
               const newEntry = doc.data();

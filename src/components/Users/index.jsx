@@ -1,17 +1,11 @@
 import {
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  NativeSelect,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TablePagination,
   TableRow,
+  Toolbar,
   Tooltip,
 } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
@@ -19,32 +13,13 @@ import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
-import { makeStyles } from '@material-ui/core/styles';
-import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { Delete as DeleteIcon } from '@material-ui/icons';
 import React from 'react';
 import uniqid from 'uniqid';
 import * as Acsys from '../../services/Acsys/Acsys';
-
-const styles = makeStyles({
-  paper: {
-    maxWidth: 1236,
-    margin: 'auto',
-    overflow: 'hidden',
-  },
-  row: {
-    width: '100%',
-  },
-  searchBar: {
-    flexGrow: 1,
-    borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
-  },
-  block: {
-    display: 'block',
-  },
-  contentWrapper: {},
-});
+import NewUserDialog from '../Dialogs/NewUserDialog';
+import YesNoDialog from '../Dialogs/YesNoDialog';
 
 const INITIAL_STATE = {
   userId: 0,
@@ -70,6 +45,36 @@ const INITIAL_STATE = {
 
 class Users extends React.Component {
   state = { ...INITIAL_STATE };
+
+  setRole = (value) => {
+    this.setState({
+      role: value,
+    });
+  };
+
+  setEmail = (value) => {
+    this.setState({
+      email: value,
+    });
+  };
+
+  setUsername = (value) => {
+    this.setState({
+      username: value,
+    });
+  };
+
+  setPasswordOne = (value) => {
+    this.setState({
+      passwordOne: value,
+    });
+  };
+
+  setPasswordTwo = (value) => {
+    this.setState({
+      passwordTwo: value,
+    });
+  };
 
   deleteUser = async () => {
     await Acsys.deleteData('acsys_users', [
@@ -183,7 +188,6 @@ class Users extends React.Component {
   }
   render() {
     const {
-      error,
       projectName,
       users,
       rowsPerPage,
@@ -306,135 +310,30 @@ class Users extends React.Component {
               onChangePage={this.handleChangePage}
               onChangeRowsPerPage={this.handleChangeRowsPerPage}
             />
-            <Dialog
+            <NewUserDialog
               open={this.state.setOpen}
-              onClose={this.handleClose}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-            >
-              <DialogTitle id="alert-dialog-title">{'Add User'}</DialogTitle>
-              <DialogContent>
-                <Typography variant="p" color="secondary">
-                  {message}
-                </Typography>
-                <NativeSelect
-                  onChange={(e) =>
-                    this.setState({
-                      role: e.target.value,
-                    })
-                  }
-                  style={{ width: '97%' }}
-                >
-                  <option value={'Administrator'}>Administrator</option>
-                  <option value={'Standard User'}>Standard User</option>
-                  <option value={'Contributor'}>Viewer</option>
-                </NativeSelect>
-
-                <input
-                  id="email"
-                  name="email"
-                  placeholder="Email"
-                  margin="normal"
-                  color="primary"
-                  variant="outlined"
-                  style={{ width: '97%', marginTop: '20px' }}
-                  value={email}
-                  onChange={(e) =>
-                    this.setState({
-                      email: e.target.value,
-                    })
-                  }
-                />
-
-                <input
-                  id="username"
-                  name="username"
-                  placeholder="Username"
-                  margin="normal"
-                  color="primary"
-                  variant="outlined"
-                  style={{ width: '97%', marginTop: '20px' }}
-                  value={username}
-                  onChange={(e) =>
-                    this.setState({
-                      username: e.target.value,
-                    })
-                  }
-                />
-
-                <input
-                  id="passwordOne"
-                  name="passwordOne"
-                  placeholder="Password"
-                  margin="normal"
-                  color="primary"
-                  variant="outlined"
-                  type="password"
-                  style={{ width: '97%', marginTop: '20px' }}
-                  value={passwordOne}
-                  onChange={(e) =>
-                    this.setState({
-                      passwordOne: e.target.value,
-                    })
-                  }
-                />
-
-                <input
-                  id="passwordTwo"
-                  name="passwordTwo"
-                  placeholder="Confirm Password"
-                  margin="normal"
-                  color="primary"
-                  variant="outlined"
-                  type="password"
-                  style={{ width: '97%', marginTop: '20px' }}
-                  value={passwordTwo}
-                  onChange={(e) =>
-                    this.setState({
-                      passwordTwo: e.target.value,
-                    })
-                  }
-                />
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={this.addUser} color="primary" autoFocus>
-                  {addLoading && <CircularProgress size={24} />}
-                  {!addLoading && 'Add'}
-                </Button>
-                <Button onClick={this.handleClose} color="primary" autoFocus>
-                  Cancel
-                </Button>
-              </DialogActions>
-            </Dialog>
-            <Dialog
+              closeDialog={this.handleClose}
+              message={message}
+              setRole={this.setRole}
+              email={email}
+              setEmail={this.setEmail}
+              username={username}
+              setUsername={this.setUsername}
+              passwordOne={passwordOne}
+              setPasswordOne={this.setPasswordOne}
+              passwordTwo={passwordTwo}
+              setPasswordTwo={this.setPasswordTwo}
+              action={this.addUser}
+              actionProcess={addLoading}
+            />
+            <YesNoDialog
               open={this.state.deleting}
-              onClose={this.handleDeleteClose}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-            >
-              <DialogTitle id="alert-dialog-title">
-                {'Delete data?'}
-              </DialogTitle>
-              <DialogContent>
-                <DialogContentText id="alert-dialog-description">
-                  Are you sure you want to delete this user?
-                </DialogContentText>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={this.handleDeleteClose} color="primary">
-                  No
-                </Button>
-                <Button
-                  onClick={this.deleteUser}
-                  color="primary"
-                  disabled={deleteLoading}
-                  autoFocus
-                >
-                  {deleteLoading && <CircularProgress size={24} />}
-                  {!deleteLoading && 'Yes'}
-                </Button>
-              </DialogActions>
-            </Dialog>
+              closeDialog={this.handleDeleteClose}
+              title={'Delete data?'}
+              message={'Are you sure you want to delete this user?'}
+              action={this.deleteUser}
+              actionProcess={deleteLoading}
+            />
           </Paper>
         </div>
       );
@@ -451,5 +350,4 @@ class Users extends React.Component {
     }
   }
 }
-const condition = (authUser) => authUser != null;
 export default Users;

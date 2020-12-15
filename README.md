@@ -42,13 +42,13 @@ Run `npm install`
 
 Start development by running `npm run dev`
 
-Build project by running `npm run build`
+Build project by running `npm run build` (`npm run build-linux` for Linux)
 
-Run project in production mode by running `npm run start` (executing this after building will run the project at http://localhost)
+Run project in production mode by running `npm run start` (executing this after building will run the project at http://localhost:8080)
 
 ## Configuration
 
-To configure Acsys you must first upload your service account JSON file. Instructions on how to get this file can be found [here](https://cloud.google.com/iam/docs/creating-managing-service-account-keys). Note that the database must be created with appropriate security rules before Acsys can be used (Default production rules are recommended).
+To configure Acsys for Firestore or MySQL you must first upload your service account JSON file. Instructions on how to get this file can be found [here](https://cloud.google.com/iam/docs/creating-managing-service-account-keys). Note that the database must be created with appropriate security rules before Acsys can be used (Default production rules are recommended). Local installations only require a project name. If at any point the configuration needs to be manually reset you can do so by stopping the server and deleting the dbase.db and acsys.service.config.json files.
 
 ## Deployment Tips
 
@@ -58,6 +58,7 @@ In general it is best to configure Acsys before deploying. This is necessary in 
 
 - NodeJS (https://nodejs.org/en/)
 - ReactJS (https://reactjs.org/)
+- ExpressJS (https://expressjs.com/)
 
 ## Contributing
 
