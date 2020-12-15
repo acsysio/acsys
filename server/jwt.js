@@ -30,6 +30,7 @@ function jwt() {
       '/api/setInitialFirestoreConfig',
       '/api/setInitialMysqlConfig',
       '/api/readOpenData',
+      '/api/readOpenPage',
       '/api/insertOpenData',
       '/api/updateOpenData',
       '/api/deleteOpenData',
