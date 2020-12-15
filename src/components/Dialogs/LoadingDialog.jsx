@@ -15,7 +15,7 @@ export default function LoadingDialog(props) {
       maxWidth={'md'}
     >
       <DialogTitle id="alert-dialog-title" style={{ margin: 'auto' }}>
-        Loading
+        {props.message}
       </DialogTitle>
       <DialogContent
         style={{

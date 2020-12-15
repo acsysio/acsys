@@ -28,6 +28,7 @@ import { Link } from 'react-router-dom';
 import uniqid from 'uniqid';
 import * as Acsys from '../../services/Acsys/Acsys';
 import { PromConsumer } from '../../services/Session/PromProvider';
+import FieldDef from '../FieldControl/FieldDef';
 import FieldControlDialog from '../Dialogs/FieldControlDialog';
 import LoadingDialog from '../Dialogs/LoadingDialog';
 import MessageDialog from '../Dialogs/MessageDialog';
@@ -283,9 +284,19 @@ class CollectionView extends React.Component {
       'prev',
       this.state.page
     );
+    const apiCall = await Acsys.getOpenPageUrl(
+      tempDetails[0].collection,
+      keys,
+      row_num,
+      this.state.view_order,
+      this.state.orderDir,
+      'prev',
+      this.state.page
+    );
     this.setState({
       loading: false,
       tableData: currentData,
+      apiCall: apiCall,
       page: this.state.page - 1,
     });
     this.context.setHeld(true);
@@ -322,9 +333,19 @@ class CollectionView extends React.Component {
       'next',
       this.state.page
     );
+    const apiCall = await Acsys.getOpenPageUrl(
+      tempDetails[0].collection,
+      keys,
+      row_num,
+      this.state.view_order,
+      this.state.orderDir,
+      'next',
+      this.state.page
+    );
     this.setState({
       loading: false,
       tableData: currentData,
+      apiCall: apiCall,
       page: this.state.page + 1,
     });
     this.context.setHeld(true);
@@ -484,31 +505,17 @@ class CollectionView extends React.Component {
             order,
             orderDir
           );
-          if (locked) {
-            apiCall = await Acsys.getUrl(
-              acsys_id,
-              [],
-              row_num,
-              order,
-              orderDir
-            );
-          } else {
-            apiCall = await Acsys.getOpenUrl(
-              acsys_id,
-              [],
-              row_num,
-              order,
-              orderDir
-            );
-          }
+          apiCall = await Acsys.getOpenUrl(
+            acsys_id,
+            [],
+            row_num,
+            order,
+            orderDir
+          );
         }
       } else {
         currentData = await Acsys.getData(acsys_id, keys, row_num);
-        if (locked) {
-          apiCall = await Acsys.getUrl(acsys_id, keys, row_num);
-        } else {
-          apiCall = await Acsys.getOpenUrl(acsys_id, keys, row_num);
-        }
+        apiCall = await Acsys.getOpenUrl(acsys_id, keys, row_num);
         await Promise.all(
           Object.keys(currentData[0]).map(async (value, index) => {
             let collectionDetails = {
@@ -946,7 +953,7 @@ class CollectionView extends React.Component {
             </Toolbar>
           </AppBar>
           {this.renderTable(paginate)}
-          <LoadingDialog loading={this.state.loading} />
+          <LoadingDialog loading={this.state.loading} message={'Loading'} />
           <MessageDialog
             open={this.state.openKeyMessage}
             closeDialog={this.closeKeyMessage}
@@ -964,8 +971,14 @@ class CollectionView extends React.Component {
           <FieldControlDialog
             open={this.state.setDetailOpen}
             closeDialog={this.handleDetailClose}
+            title={'Field Controls'}
             backend={HTML5Backend}
-            docDetails={tempDetails}
+            component={
+              <FieldDef
+                docDetails={tempDetails}
+                handleClick={this.saveSettings}
+              />
+            }
             action={this.saveSettings}
             actionProcess={filterLoading}
           />

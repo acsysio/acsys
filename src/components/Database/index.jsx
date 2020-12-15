@@ -23,11 +23,14 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { Delete as DeleteIcon } from '@material-ui/icons';
 import React from 'react';
-import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import * as Acsys from '../../services/Acsys/Acsys';
 import { PromConsumer } from '../../services/Session/PromProvider';
 import TableControl from '../TableControl';
+import FieldControlDialog from '../Dialogs/FieldControlDialog';
+import LoadingDialog from '../Dialogs/LoadingDialog';
+import MessageDialog from '../Dialogs/MessageDialog';
+import YesNoDialog from '../Dialogs/YesNoDialog';
 
 const styles = makeStyles({
   paper: {
@@ -377,133 +380,30 @@ class LogicalContent extends React.Component {
               onChangePage={this.handleChangePage}
               onChangeRowsPerPage={this.handleChangeRowsPerPage}
             />
-            <Dialog
-              open={this.state.loading}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-              maxWidth={'lg'}
-            >
-              <DialogTitle id="alert-dialog-title" style={{ margin: 'auto' }}>
-                Loading
-              </DialogTitle>
-              <DialogContent
-                style={{
-                  minHeight: 150,
-                  minWidth: 400,
-                  margin: 'auto',
-                  overflow: 'hidden',
-                }}
-              >
-                <div style={{ width: 124, margin: 'auto' }}>
-                  <CircularProgress size={124} />
-                </div>
-              </DialogContent>
-            </Dialog>
-            <Dialog
+            <LoadingDialog loading={this.state.loading} message={'Loading'} />
+            <FieldControlDialog
               open={this.state.setOpen}
-              onClose={this.handleClose}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-              maxWidth={'md'}
-            >
-              <DialogTitle id="alert-dialog-title">{'Add Table'}</DialogTitle>
-              <DialogContent>
-                <DialogContentText id="alert-dialog-description"></DialogContentText>
-                <DndProvider backend={HTML5Backend}>
-                  <TableControl setName={this.setName} entry={entry} />
-                </DndProvider>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={this.addTable} color="primary" autoFocus>
-                  {addLoading && <CircularProgress size={24} />}
-                  {!addLoading && 'Add'}
-                </Button>
-                <Button onClick={this.handleClose} color="primary" autoFocus>
-                  Cancel
-                </Button>
-              </DialogActions>
-            </Dialog>
-            <Dialog
-              open={this.state.setEditOpen}
-              onClose={this.handleEditClose}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-            >
-              <DialogTitle id="alert-dialog-title">
-                {'Edit Logical View'}
-              </DialogTitle>
-              <DialogContent>
-                <div class="dialog-input">
-                  <input
-                    placeholder="Enter view name here"
-                    type="text"
-                    defaultValue={tempView.name}
-                    onChange={(e) => (tempView['name'] = e.target.value)}
-                  />
-                </div>
-                <div class="dialog-input">
-                  <input
-                    placeholder="Enter description here"
-                    type="text"
-                    defaultValue={tempView.description}
-                    onChange={(e) => (tempView['description'] = e.target.value)}
-                  />
-                </div>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={this.editView} color="primary" autoFocus>
-                  {saveLoading && <CircularProgress size={24} />}
-                  {!saveLoading && 'Update'}
-                </Button>
-              </DialogActions>
-            </Dialog>
-            <Dialog
+              closeDialog={this.handleClose}
+              title={'Add Table'}
+              backend={HTML5Backend}
+              component={<TableControl setName={this.setName} entry={entry} />}
+              action={this.addTable}
+              actionProcess={addLoading}
+            />
+            <YesNoDialog
               open={this.state.deleting}
-              onClose={this.handleDeleteClose}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-            >
-              <DialogTitle id="alert-dialog-title">
-                {'Delete data?'}
-              </DialogTitle>
-              <DialogContent>
-                <DialogContentText id="alert-dialog-description">
-                  Are you sure you want to delete this data?
-                </DialogContentText>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={this.handleDeleteClose} color="primary">
-                  No
-                </Button>
-                <Button
-                  onClick={this.deleteTable}
-                  color="primary"
-                  disabled={deleteLoading}
-                  autoFocus
-                >
-                  {deleteLoading && <CircularProgress size={24} />}
-                  {!deleteLoading && 'Yes'}
-                </Button>
-              </DialogActions>
-            </Dialog>
-            <Dialog
+              closeDialog={this.handleDeleteClose}
+              title={'Delete data?'}
+              message={'Are you sure you want to delete this data?'}
+              action={this.deleteTable}
+              actionProcess={deleteLoading}
+            />
+            <MessageDialog
               open={this.state.openMessage}
-              onClose={this.handleMessageClose}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-            >
-              <DialogTitle id="alert-dialog-title">{'Error'}</DialogTitle>
-              <DialogContent>
-                <DialogContentText id="alert-dialog-description">
-                  {message}
-                </DialogContentText>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={this.handleMessageClose} color="primary">
-                  Okay
-                </Button>
-              </DialogActions>
-            </Dialog>
+              closeDialog={this.handleMessageClose}
+              title={'Error'}
+              message={message}
+            />
           </Paper>
         </div>
       );

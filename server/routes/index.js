@@ -389,7 +389,6 @@ router.post('/createUser', function (req, res) {
                 data
                   .insert('acsys_users', dataModel)
                   .then((result) => {
-                    console.log(result);
                     res.send(true);
                   })
                   .catch((result) => {
@@ -523,12 +522,12 @@ router.get('/getProjectName', function (req, res) {
     });
 });
 
-router.get('/getUrl', function (req, res) {
+router.get('/getOpenPageUrl', function (req, res) {
   const url =
     req.protocol +
     '://' +
     req.get('host') +
-    '/api/readData?table=' +
+    '/api/readOpenPage?table=' +
     req.query.table +
     '&options=' +
     req.query.options;
@@ -650,6 +649,26 @@ router.get('/readOpenData', function (req, res) {
         data.getDocs(table, options).then((result, reject) => {
           res.send(result);
         });
+      } else {
+        res.send('Error: Table must be unlocked before it can be accessed.');
+      }
+    })
+    .catch(() => {
+      res.send(false);
+    });
+});
+
+router.get('/readOpenPage', function (req, res) {
+  const { table } = req.query;
+  data
+    .checkOpenTable(table)
+    .then((result) => {
+      if (result) {
+        data
+          .getPage(req.query.table, req.query.options)
+          .then((result, reject) => {
+            res.send(result);
+          });
       } else {
         res.send('Error: Table must be unlocked before it can be accessed.');
       }

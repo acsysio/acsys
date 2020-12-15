@@ -131,15 +131,27 @@ export const getProjectName = async () => {
   });
 };
 
-export const getUrl = async (table, where, limit, order_by, order) => {
+export const getOpenPageUrl = async (
+  table,
+  where,
+  limit,
+  order_by,
+  order,
+  direction,
+  currentPage
+) => {
   await checkToken();
   return new Promise((resolve, reject) => {
-    const apiString = `/api/getUrl?table=${table}&options=${JSON.stringify({
-      where,
-      limit,
-      order_by,
-      order,
-    })}`;
+    const apiString = `/api/getOpenPageUrl?table=${table}&options=${JSON.stringify(
+      {
+        where,
+        limit,
+        order_by,
+        order,
+        direction,
+        currentPage,
+      }
+    )}`;
     promFetch(apiString, {
       method: 'GET',
       headers: {

@@ -20,7 +20,6 @@ import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
-import { makeStyles } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { Create as CreateIcon, Delete as DeleteIcon } from '@material-ui/icons';
@@ -29,25 +28,10 @@ import { Link } from 'react-router-dom';
 import uniqid from 'uniqid';
 import * as Acsys from '../../services/Acsys/Acsys';
 import { PromConsumer } from '../../services/Session/PromProvider';
-
-const styles = makeStyles({
-  paper: {
-    maxWidth: 1236,
-    margin: 'auto',
-    overflow: 'hidden',
-  },
-  row: {
-    width: '100%',
-  },
-  searchBar: {
-    flexGrow: 1,
-    borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
-  },
-  block: {
-    display: 'block',
-  },
-  contentWrapper: {},
-});
+import AddViewDialog from '../Dialogs/AddViewDialog';
+import EditViewDialog from '../Dialogs/EditViewDialog';
+import LoadingDialog from '../Dialogs/LoadingDialog';
+import YesNoDialog from '../Dialogs/YesNoDialog';
 
 const INITIAL_STATE = {
   viewId: '',
@@ -87,6 +71,32 @@ class LogicalContent extends React.Component {
 
   setPosition = (pos) => {
     position = pos;
+  };
+
+  setCollection = (value) => {
+    this.setState({
+      collection: value,
+    });
+  };
+
+  setName = (value) => {
+    this.setState({
+      name: value,
+    });
+  };
+
+  setDescription = (value) => {
+    this.setState({
+      description: value,
+    });
+  };
+
+  setTempName = (value) => {
+    tempView['name'] = value;
+  };
+
+  setTempDescription = (value) => {
+    tempView['description'] = value;
   };
 
   deleteView = async () => {
@@ -478,182 +488,40 @@ class LogicalContent extends React.Component {
               onChangePage={this.handleChangePage}
               onChangeRowsPerPage={this.handleChangeRowsPerPage}
             />
-            <Dialog
-              open={this.state.loading}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-              maxWidth={'md'}
-            >
-              <DialogTitle id="alert-dialog-title" style={{ margin: 'auto' }}>
-                Loading
-              </DialogTitle>
-              <DialogContent
-                style={{
-                  minHeight: 150,
-                  minWidth: 400,
-                  margin: 'auto',
-                  overflow: 'hidden',
-                }}
-              >
-                <div style={{ width: 124, margin: 'auto' }}>
-                  <CircularProgress size={124} />
-                </div>
-              </DialogContent>
-            </Dialog>
-            <Dialog
+            <LoadingDialog loading={this.state.loading} message={'Loading'} />
+            <AddViewDialog
               open={this.state.setOpen}
-              onClose={this.handleClose}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-              maxWidth={'lg'}
-            >
-              <DialogTitle id="alert-dialog-title">
-                {'Add Logical View'}
-              </DialogTitle>
-              <DialogContent style={{ width: 400 }}>
-                <div class="dialog-input">
-                  <Select
-                    displayEmpty
-                    onChange={(e) => {
-                      this.setState({
-                        collection: e.target.value,
-                      });
-                    }}
-                    style={{ width: '100%' }}
-                  >
-                    {this.state.collectionArr.map((value) => {
-                      return <MenuItem value={value}>{value}</MenuItem>;
-                    })}
-                  </Select>
-                </div>
-                <div class="dialog-input">
-                  <input
-                    value="Position generated on publish"
-                    readonly
-                    style={{ width: '97%' }}
-                  />
-                </div>
-                <div class="dialog-input">
-                  <input
-                    placeholder="Enter view name here"
-                    type="text"
-                    style={{ width: '97%' }}
-                    onChange={(e) =>
-                      this.setState({
-                        name: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div class="dialog-input">
-                  <input
-                    placeholder="Enter description here"
-                    type="text"
-                    style={{ width: '97%' }}
-                    onChange={(e) =>
-                      this.setState({
-                        description: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={this.addView} color="primary" autoFocus>
-                  {addLoading && <CircularProgress size={24} />}
-                  {!addLoading && 'Add'}
-                </Button>
-                <Button onClick={this.handleClose} color="primary" autoFocus>
-                  Cancel
-                </Button>
-              </DialogActions>
-            </Dialog>
-            <Dialog
+              closeDialog={this.handleClose}
+              title={'Add Logical View'}
+              setCollection={this.setCollection}
+              collectionArr={this.state.collectionArr}
+              setName={this.setName}
+              setDescription={this.setDescription}
+              action={this.addView}
+              actionProcess={addLoading}
+            />
+            <EditViewDialog
               open={this.state.setEditOpen}
-              onClose={this.handleEditClose}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-              maxWidth={'lg'}
-            >
-              <DialogTitle id="alert-dialog-title">
-                {'Edit Logical View'}
-              </DialogTitle>
-              <DialogContent style={{ width: 400 }}>
-                <div class="dialog-input">
-                  <Select
-                    defaultValue={tempView.position}
-                    style={{ width: '100%' }}
-                    onChange={(e) => this.setPosition(parseInt(e.target.value))}
-                  >
-                    {Object.values(this.state.views).map((view, index) => {
-                      return (
-                        <MenuItem value={view.position}>{index + 1}</MenuItem>
-                      );
-                    })}
-                  </Select>
-                </div>
-                <div class="dialog-input">
-                  <input
-                    placeholder="Enter view name here"
-                    type="text"
-                    style={{ width: '97%' }}
-                    defaultValue={tempView.name}
-                    onChange={(e) => (tempView['name'] = e.target.value)}
-                  />
-                </div>
-                <div class="dialog-input">
-                  <input
-                    placeholder="Enter description here"
-                    type="text"
-                    style={{ width: '97%' }}
-                    defaultValue={tempView.description}
-                    onChange={(e) => (tempView['description'] = e.target.value)}
-                  />
-                </div>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={this.editView} color="primary" autoFocus>
-                  {saveLoading && <CircularProgress size={24} />}
-                  {!saveLoading && 'Update'}
-                </Button>
-                <Button
-                  onClick={this.handleEditClose}
-                  color="primary"
-                  autoFocus
-                >
-                  Cancel
-                </Button>
-              </DialogActions>
-            </Dialog>
-            <Dialog
+              closeDialog={this.handleEditClose}
+              title={'Edit Logical View'}
+              position={tempView.position}
+              setPosition={this.setPosition}
+              views={this.state.views}
+              name={tempView.name}
+              setName={this.setTempName}
+              description={tempView.description}
+              setDescription={this.setTempDescription}
+              action={this.editView}
+              actionProcess={saveLoading}
+            />
+            <YesNoDialog
               open={this.state.deleting}
-              onClose={this.handleDeleteClose}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-            >
-              <DialogTitle id="alert-dialog-title">
-                {'Delete data?'}
-              </DialogTitle>
-              <DialogContent>
-                <DialogContentText id="alert-dialog-description">
-                  Are you sure you want to delete this data?
-                </DialogContentText>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={this.handleDeleteClose} color="primary">
-                  No
-                </Button>
-                <Button
-                  onClick={this.deleteView}
-                  color="primary"
-                  disabled={deleteLoading}
-                  autoFocus
-                >
-                  {deleteLoading && <CircularProgress size={24} />}
-                  {!deleteLoading && 'Yes'}
-                </Button>
-              </DialogActions>
-            </Dialog>
+              closeDialog={this.handleDeleteClose}
+              title={'Delete data?'}
+              message={'Are you sure you want to delete this data?'}
+              action={this.deleteView}
+              actionProcess={deleteLoading}
+            />
           </Paper>
         </div>
       );

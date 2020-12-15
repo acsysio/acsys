@@ -73,5 +73,5 @@
     "eslint-plugin-react-hooks": "^4.0.5",
     "nodemon": "2.0.6"
   },
-  "proxy": "http://localhost:80"
+  "proxy": "http://localhost:8080"
 }

@@ -42,9 +42,9 @@ Run `npm install`
 
 Start development by running `npm run dev`
 
-Build project by running `npm run build`
+Build project by running `npm run build` (`npm run build-linux` for linux)
 
-Run project in production mode by running `npm run start` (executing this after building will run the project at http://localhost)
+Run project in production mode by running `npm run start` (executing this after building will run the project at http://localhost:8080)
 
 ## Configuration
 
@@ -58,6 +58,7 @@ In general it is best to configure Acsys before deploying. This is necessary in 
 
 - NodeJS (https://nodejs.org/en/)
 - ReactJS (https://reactjs.org/)
+- ExpressJS (https://expressjs.com/)
 
 ## Contributing
 

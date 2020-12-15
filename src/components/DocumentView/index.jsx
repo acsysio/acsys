@@ -1,10 +1,4 @@
 import {
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
   Hidden,
   IconButton,
   MenuItem,
@@ -16,7 +10,6 @@ import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import { FileCopyOutlined as CopyIcon } from '@material-ui/icons';
 import React from 'react';
-import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import uniqid from 'uniqid';
 import * as Acsys from '../../services/Acsys/Acsys';
@@ -30,8 +23,11 @@ import RichTextEditor from '../Controls/RichTextEditor';
 import TextField from '../Controls/TextField';
 import VideoReference from '../Controls/VideoReference';
 import VideoURL from '../Controls/VideoURL';
-import Example from '../FieldControl/FieldDef';
-import Storage from '../Storage';
+import FieldDef from '../FieldControl/FieldDef';
+import FieldControlDialog from '../Dialogs/FieldControlDialog';
+import LoadingDialog from '../Dialogs/LoadingDialog';
+import StorageDialog from '../Dialogs/StorageDialog';
+import YesNoDialog from '../Dialogs/YesNoDialog';
 
 const INITIAL_STATE = {
   viewId: 0,
@@ -72,9 +68,6 @@ let is_removable = true;
 let quillRef = null;
 let quillIndex = 0;
 let quillURL = '';
-let posArr = [];
-let initPos = 0;
-let highestPos = 0;
 
 class DocumentView extends React.Component {
   state = { ...INITIAL_STATE };
@@ -417,9 +410,6 @@ class DocumentView extends React.Component {
     quillRef = null;
     quillIndex = 0;
     quillURL = '';
-    posArr = [];
-    initPos = 0;
-    highestPos = 0;
     try {
       this.props.setHeader('Content');
       let tempMode = mode;
@@ -448,7 +438,6 @@ class DocumentView extends React.Component {
       });
       tempDocument = [];
       fileRefs = [];
-      highestPos = 0;
       this.mount();
     } catch (error) {}
   };
@@ -497,11 +486,7 @@ class DocumentView extends React.Component {
           })
           .catch(() => {});
 
-        if (open) {
-          apiCall = await Acsys.getOpenUrl(table, keys);
-        } else {
-          apiCall = await Acsys.getUrl(table, keys);
-        }
+        apiCall = await Acsys.getOpenUrl(table, keys);
 
         let currentView;
 
@@ -917,122 +902,38 @@ class DocumentView extends React.Component {
               <div style={{ height: 40 }}></div>
             </div>
           </div>
-          <Dialog
-            open={this.state.loading}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-            maxWidth={'md'}
-          >
-            <DialogTitle id="alert-dialog-title" style={{ margin: 'auto' }}>
-              Loading
-            </DialogTitle>
-            <DialogContent
-              style={{
-                minHeight: 150,
-                minWidth: 400,
-                margin: 'auto',
-                overflow: 'hidden',
-              }}
-            >
-              <div style={{ width: 124, margin: 'auto' }}>
-                <CircularProgress size={124} />
-              </div>
-            </DialogContent>
-          </Dialog>
-          <Dialog
+          <LoadingDialog loading={this.state.loading} message={'Loading'} />
+          <LoadingDialog loading={this.state.saving} message={'Saving'} />
+          <FieldControlDialog
             open={this.state.setOpen}
-            onClose={this.handleClose}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-            maxWidth={'lg'}
-          >
-            <DialogTitle id="alert-dialog-title">Field Controls</DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description"></DialogContentText>
-              <div>
-                <DndProvider backend={HTML5Backend}>
-                  <Example
-                    docDetails={tempDetails}
-                    handleClick={this.saveSettings}
-                  />
-                </DndProvider>
-              </div>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={this.saveSettings} color="primary" autoFocus>
-                {filterLoading && <CircularProgress size={24} />}
-                {!filterLoading && 'Save'}
-              </Button>
-              <Button onClick={this.handleClose} color="primary" autoFocus>
-                Cancel
-              </Button>
-            </DialogActions>
-          </Dialog>
-          <Dialog
-            open={this.state.saving}
-            onClose={this.handleSaveClose}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-            maxWidth={'md'}
-          >
-            <DialogTitle id="alert-dialog-title" style={{ margin: 'auto' }}>
-              Saving
-            </DialogTitle>
-            <DialogContent
-              style={{
-                minHeight: 150,
-                minWidth: 400,
-                margin: 'auto',
-                overflow: 'hidden',
-              }}
-            >
-              <div style={{ width: 124, margin: 'auto' }}>
-                <CircularProgress size={124} />
-              </div>
-            </DialogContent>
-          </Dialog>
-          <Dialog
+            closeDialog={this.handleClose}
+            title={'Field Controls'}
+            backend={HTML5Backend}
+            component={
+              <FieldDef
+                docDetails={tempDetails}
+                handleClick={this.saveSettings}
+              />
+            }
+            action={this.saveSettings}
+            actionProcess={filterLoading}
+          />
+          <StorageDialog
             open={this.state.fileSelect}
-            onClose={this.handleSelectClose}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-            maxWidth={'md'}
-            fullWidth={true}
-          >
-            <Storage
-              mode={this.state.fileMode}
-              doc={tempDocument}
-              control={this.state.control}
-              setFile={this.setReference}
-            />
-          </Dialog>
-          <Dialog
+            closeDialog={this.handleSelectClose}
+            fileMode={this.state.fileMode}
+            docDetails={tempDetails}
+            control={this.state.control}
+            setReference={this.setReference}
+          />
+          <YesNoDialog
             open={this.state.deleting}
-            onClose={this.handleDeleteClose}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-          >
-            <DialogTitle id="alert-dialog-title">{'Delete data?'}</DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                Are you sure you want to delete this entry?
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={this.handleDeleteClose} color="primary">
-                No
-              </Button>
-              <Button
-                onClick={this.deleteView}
-                color="primary"
-                disabled={deleteLoading}
-                autoFocus
-              >
-                {deleteLoading && <CircularProgress size={24} />}
-                {!deleteLoading && 'Yes'}
-              </Button>
-            </DialogActions>
-          </Dialog>
+            closeDialog={this.handleDeleteClose}
+            title={'Delete data?'}
+            message={'Are you sure you want to delete this entry?'}
+            action={this.deleteView}
+            actionProcess={deleteLoading}
+          />
         </Paper>
         <Hidden smDown implementation="css">
           {!this.state.locked ? (

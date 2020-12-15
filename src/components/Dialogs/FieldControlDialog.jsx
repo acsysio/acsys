@@ -1,5 +1,4 @@
 import { DndProvider } from 'react-dnd';
-import FieldDef from '../FieldControl/FieldDef';
 import React from 'react';
 import {
   Button,
@@ -20,16 +19,11 @@ export default function FieldControlDialog(props) {
       aria-describedby="alert-dialog-description"
       maxWidth={'lg'}
     >
-      <DialogTitle id="alert-dialog-title">Field Controls</DialogTitle>
+      <DialogTitle id="alert-dialog-title">{props.title}</DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-description"></DialogContentText>
         <div>
-          <DndProvider backend={props.backend}>
-            <FieldDef
-              docDetails={props.docDetails}
-              handleClick={props.action}
-            />
-          </DndProvider>
+          <DndProvider backend={props.backend}>{props.component}</DndProvider>
         </div>
       </DialogContent>
       <DialogActions>

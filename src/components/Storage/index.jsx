@@ -1,11 +1,5 @@
 import {
   AppBar,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
   Table,
   TableBody,
   TableCell,
@@ -30,6 +24,11 @@ import {
 } from '@material-ui/icons';
 import React from 'react';
 import * as Acsys from '../../services/Acsys/Acsys';
+import LoadingDialog from '../Dialogs/LoadingDialog';
+import MessageDialog from '../Dialogs/MessageDialog';
+import ImageDialog from '../Dialogs/ImageDialog';
+import YesNoDialog from '../Dialogs/YesNoDialog';
+import NewFolderDialog from '../Dialogs/NewFolderDialog';
 
 const INITIAL_STATE = {
   locked: true,
@@ -61,6 +60,7 @@ const INITIAL_STATE = {
   draftViews: [],
   page: 0,
   rowsPerPage: 15,
+  openMessage: false,
   loading: false,
   syncing: false,
   newFolder: false,
@@ -68,13 +68,13 @@ const INITIAL_STATE = {
   setDetailOpen: false,
   loading: false,
   filterLoading: false,
+  messageTitle: '',
+  message: '',
   error: '',
   deleteLoading: false,
   deleteing: false,
 };
 
-let tempUrl = '';
-let tempReference = '';
 let newFolderName;
 class Storage extends React.Component {
   state = { ...INITIAL_STATE };
@@ -91,6 +91,12 @@ class Storage extends React.Component {
 
   onChange = (event) => {
     this.setState({ [event.target.name]: event.target.value });
+  };
+
+  closeMessage = () => {
+    this.setState({
+      openMessage: false,
+    });
   };
 
   openDir = async (dir) => {
@@ -253,15 +259,24 @@ class Storage extends React.Component {
   };
 
   createNewFolder = async () => {
-    this.setState({
-      loading: true,
-      newFolder: false,
-    });
-    await Acsys.createNewFolder(newFolderName, this.state.currentDir);
-    await this.loadFiles();
-    this.setState({
-      loading: false,
-    });
+    if (newFolderName.indexOf(' ') >= 0) {
+      this.setState({
+        newFolder: false,
+        openMessage: true,
+        messageTitle: 'Error',
+        message: 'Folder name cannot contain spaces.',
+      });
+    } else {
+      this.setState({
+        loading: true,
+        newFolder: false,
+      });
+      await Acsys.createNewFolder(newFolderName, this.state.currentDir);
+      await this.loadFiles();
+      this.setState({
+        loading: false,
+      });
+    }
   };
 
   makeFilePublic = async (fileName) => {
@@ -756,144 +771,41 @@ class Storage extends React.Component {
                 onChangePage={this.handleChangePage}
                 onChangeRowsPerPage={this.handleChangeRowsPerPage}
               />
-              <Dialog
-                open={this.state.loading}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-                maxWidth={'md'}
-              >
-                <DialogTitle id="alert-dialog-title" style={{ margin: 'auto' }}>
-                  Loading
-                </DialogTitle>
-                <DialogContent
-                  style={{
-                    minHeight: 150,
-                    minWidth: 400,
-                    margin: 'auto',
-                    overflow: 'hidden',
-                  }}
-                >
-                  <div style={{ width: 124, margin: 'auto' }}>
-                    <CircularProgress size={124} />
-                  </div>
-                </DialogContent>
-              </Dialog>
-              <Dialog
+              <LoadingDialog loading={this.state.loading} message={'Loading'} />
+              <MessageDialog
+                open={this.state.openMessage}
+                closeDialog={this.closeMessage}
+                title={this.state.messageTitle}
+                message={this.state.message}
+              />
+              <YesNoDialog
                 open={this.state.syncing}
-                onClose={this.handleSyncClose}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-              >
-                <DialogTitle id="alert-dialog-title">
-                  {'Sync files?'}
-                </DialogTitle>
-                <DialogContent>
-                  <DialogContentText id="alert-dialog-description">
-                    Are you sure you want to resync files? This operation can
-                    require multiple writes.
-                  </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={this.handleSyncClose} color="primary">
-                    No
-                  </Button>
-                  <Button onClick={this.syncFiles} color="primary" autoFocus>
-                    Yes
-                  </Button>
-                </DialogActions>
-              </Dialog>
-              <Dialog
+                closeDialog={this.handleSyncClose}
+                title={'Sync files?'}
+                message={
+                  'Are you sure you want to resync files? This operation can require multiple writes.'
+                }
+                action={this.syncFiles}
+              />
+              <ImageDialog
                 open={this.state.openImg}
-                onClose={this.handleImgClose}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-                maxWidth={'lg'}
-              >
-                <DialogContent
-                  style={{
-                    margin: 'auto',
-                    overflow: 'hidden',
-                  }}
-                >
-                  <div class="image-container">
-                    <img
-                      src={this.state.imgUrl}
-                      style={{ height: '50vh', maxWidth: '50vw' }}
-                    />
-                  </div>
-                </DialogContent>
-              </Dialog>
-              <Dialog
+                closeDialog={this.handleImgClose}
+                imgUrl={this.state.imgUrl}
+              />
+              <NewFolderDialog
                 open={this.state.newFolder}
-                onClose={this.newFolderClose}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-                maxWidth={'md'}
-              >
-                <DialogTitle id="alert-dialog-title" style={{ margin: 'auto' }}>
-                  New Folder
-                </DialogTitle>
-                <DialogContent>
-                  <div style={{ width: 600, margin: 'auto' }}>
-                    <input
-                      placeholder="Enter folder name here"
-                      onChange={(e) => this.handleChange(e.target.value)}
-                      type="text"
-                      style={{ width: '100%', marginBottom: 10 }}
-                    />
-                    <Grid container spacing={1}>
-                      <Grid item xs></Grid>
-                      <Grid item>
-                        <Button
-                          color="primary"
-                          component="span"
-                          onClick={this.createNewFolder}
-                        >
-                          Save
-                        </Button>
-                      </Grid>
-                      <Grid item>
-                        <Button
-                          color="primary"
-                          component="span"
-                          onClick={this.newFolderClose}
-                        >
-                          Cancel
-                        </Button>
-                      </Grid>
-                    </Grid>
-                  </div>
-                </DialogContent>
-              </Dialog>
-              <Dialog
+                closeDialog={this.newFolderClose}
+                handleChange={this.handleChange}
+                createNewFolder={this.createNewFolder}
+              />
+              <YesNoDialog
                 open={this.state.deleting}
-                onClose={this.handleDeleteClose}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-              >
-                <DialogTitle id="alert-dialog-title">
-                  {'Delete file?'}
-                </DialogTitle>
-                <DialogContent>
-                  <DialogContentText id="alert-dialog-description">
-                    Are you sure you want to delete this file?
-                  </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={this.handleDeleteClose} color="primary">
-                    No
-                  </Button>
-                  <Button
-                    onClick={this.deleteFile}
-                    color="primary"
-                    disabled={deleteLoading}
-                    autoFocus
-                  >
-                    {deleteLoading && <CircularProgress size={24} />}
-                    {!deleteLoading && 'Yes'}
-                  </Button>
-                </DialogActions>
-              </Dialog>
+                closeDialog={this.handleDeleteClose}
+                title={'Delete file?'}
+                message={'Are you sure you want to delete this file?'}
+                action={this.deleteFile}
+                actionProcess={deleteLoading}
+              />
             </Paper>
           </div>
         );
