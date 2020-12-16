@@ -569,118 +569,8 @@ class DocumentView extends React.Component {
                 currentKey == details.field_name &&
                 details.is_visible_on_page
               ) {
-                if (details.control == 'autoGen') {
-                  return (
-                    <AutoGen
-                      width={details.width}
-                      field_name={details.field_name}
-                      defaultValue={tempDocument[currentKey]}
-                    />
-                  );
-                } else if (details.control == 'textEditor') {
-                  return (
-                    <TextField
-                      width={details.width}
-                      field_name={details.field_name}
-                      defaultValue={tempDocument[currentKey]}
-                      handleChange={this.handleChange}
-                      currentKey={currentKey}
-                    />
-                  );
-                } else if (details.control == 'dateTimePicker') {
-                  let tempStr = value._seconds + '.' + value._nanoseconds;
-                  const date = new Date(value);
-                  return (
-                    <DateTimePicker
-                      width={details.width}
-                      field_name={details.field_name}
-                      defaultValue={date}
-                      handleChange={this.handleChange}
-                      currentKey={currentKey}
-                    />
-                  );
-                } else if (details.control == 'numberEditor') {
-                  return (
-                    <NumberEditor
-                      width={details.width}
-                      field_name={details.field_name}
-                      defaultValue={tempDocument[currentKey]}
-                      handleChange={this.handleChange}
-                      currentKey={currentKey}
-                    />
-                  );
-                } else if (details.control == 'richTextEditor') {
-                  return (
-                    <RichTextEditor
-                      width={details.width}
-                      field_name={details.field_name}
-                      defaultValue={tempDocument[currentKey]}
-                      handleChange={this.handleChange}
-                      currentKey={currentKey}
-                      imageHandler={this.imageHandler}
-                      setQuillRef={this.setQuillRef}
-                      setQuillIndex={this.setQuillIndex}
-                      setQuillURL={this.setQuillURL}
-                      index={quillIndex}
-                      quillRef={quillRef}
-                      url={quillURL}
-                    />
-                  );
-                } else if (details.control == 'booleanSelect') {
-                  return (
-                    <BooleanSelect
-                      width={details.width}
-                      field_name={details.field_name}
-                      defaultValue={tempDocument[currentKey]}
-                      handleChange={this.handleChange}
-                      currentKey={currentKey}
-                    />
-                  );
-                } else if (details.control == 'imageReference') {
-                  const url = fileRefs[details.field_name];
-                  return (
-                    <ImageReference
-                      width={details.width}
-                      field_name={details.field_name}
-                      url={url}
-                      openSelector={this.openSelector}
-                      removeFile={this.removeFile}
-                    />
-                  );
-                } else if (details.control == 'imageURL') {
-                  const url = fileRefs[details.field_name];
-                  return (
-                    <ImageURL
-                      width={details.width}
-                      field_name={details.field_name}
-                      url={url}
-                      openSelector={this.openSelector}
-                      removeFile={this.removeFile}
-                    />
-                  );
-                } else if (details.control == 'videoReference') {
-                  const url = fileRefs[details.field_name];
-                  return (
-                    <VideoReference
-                      width={details.width}
-                      field_name={details.field_name}
-                      url={url}
-                      openSelector={this.openSelector}
-                      removeFile={this.removeFile}
-                    />
-                  );
-                } else if (details.control == 'videoURL') {
-                  const url = fileRefs[details.field_name];
-                  return (
-                    <VideoURL
-                      width={details.width}
-                      field_name={details.field_name}
-                      url={url}
-                      openSelector={this.openSelector}
-                      removeFile={this.removeFile}
-                    />
-                  );
-                }
+                const date = new Date(value);
+                return this.renderComponent(details, currentKey, date);
               }
             });
           })}
@@ -697,128 +587,135 @@ class DocumentView extends React.Component {
           {Object.values(documentDetails).map((details, dindex) => {
             let currentKey = details.field_name;
             if (details.is_visible_on_page) {
-              if (details.control == 'autoGen') {
-                return (
-                  <AutoGen
-                    width={details.width}
-                    field_name={details.field_name}
-                    defaultValue={tempDocument[currentKey]}
-                    new={true}
-                  />
-                );
-              } else if (details.control == 'textEditor') {
-                return (
-                  <TextField
-                    width={details.width}
-                    field_name={details.field_name}
-                    defaultValue={tempDocument[currentKey]}
-                    handleChange={this.handleChange}
-                    currentKey={currentKey}
-                  />
-                );
-              } else if (details.control == 'dateTimePicker') {
-                if (initLoad) {
-                  this.handleChange(currentKey, new Date());
-                  if (documentDetails.length - 1 === dindex) {
-                    initLoad = false;
-                  }
+              let date;
+              if (initLoad) {
+                date = new Date();
+                this.handleChange(currentKey, date);
+                if (documentDetails.length - 1 === dindex) {
+                  initLoad = false;
                 }
-                return (
-                  <DateTimePicker
-                    width={details.width}
-                    field_name={details.field_name}
-                    defaultValue={new Date()}
-                    handleChange={this.handleChange}
-                    currentKey={currentKey}
-                  />
-                );
-              } else if (details.control == 'numberEditor') {
-                return (
-                  <NumberEditor
-                    width={details.width}
-                    field_name={details.field_name}
-                    defaultValue={tempDocument[currentKey]}
-                    handleChange={this.handleChange}
-                    currentKey={currentKey}
-                  />
-                );
-              } else if (details.control == 'richTextEditor') {
-                return (
-                  <RichTextEditor
-                    width={details.width}
-                    field_name={details.field_name}
-                    defaultValue={tempDocument[currentKey]}
-                    handleChange={this.handleChange}
-                    currentKey={currentKey}
-                    imageHandler={this.imageHandler}
-                    setQuillRef={this.setQuillRef}
-                    setQuillIndex={this.setQuillIndex}
-                    setQuillURL={this.setQuillURL}
-                    index={quillIndex}
-                    quillRef={quillRef}
-                    url={quillURL}
-                  />
-                );
-              } else if (details.control == 'booleanSelect') {
-                return (
-                  <BooleanSelect
-                    width={details.width}
-                    field_name={details.field_name}
-                    defaultValue={tempDocument[currentKey]}
-                    handleChange={this.handleChange}
-                    currentKey={currentKey}
-                  />
-                );
-              } else if (details.control == 'imageReference') {
-                const url = fileRefs[details.field_name];
-                return (
-                  <ImageReference
-                    width={details.width}
-                    field_name={details.field_name}
-                    url={url}
-                    openSelector={this.openSelector}
-                    removeFile={this.removeFile}
-                  />
-                );
-              } else if (details.control == 'imageURL') {
-                const url = fileRefs[details.field_name];
-                return (
-                  <ImageURL
-                    width={details.width}
-                    field_name={details.field_name}
-                    url={url}
-                    openSelector={this.openSelector}
-                    removeFile={this.removeFile}
-                  />
-                );
-              } else if (details.control == 'videoReference') {
-                const url = fileRefs[details.field_name];
-                return (
-                  <VideoReference
-                    width={details.width}
-                    field_name={details.field_name}
-                    url={url}
-                    openSelector={this.openSelector}
-                    removeFile={this.removeFile}
-                  />
-                );
-              } else if (details.control == 'videoURL') {
-                const url = fileRefs[details.field_name];
-                return (
-                  <VideoURL
-                    width={details.width}
-                    field_name={details.field_name}
-                    url={url}
-                    openSelector={this.openSelector}
-                    removeFile={this.removeFile}
-                  />
-                );
+              } else {
+                date = tempDocument[currentKey];
               }
+              return this.renderComponent(details, currentKey, date);
             }
           })}
         </Grid>
       </div>
     );
+  }
+
+  renderComponent(details, currentKey, date) {
+    if (details.control == 'autoGen') {
+      return (
+        <AutoGen
+          width={details.width}
+          field_name={details.field_name}
+          defaultValue={tempDocument[currentKey]}
+        />
+      );
+    } else if (details.control == 'textEditor') {
+      return (
+        <TextField
+          width={details.width}
+          field_name={details.field_name}
+          defaultValue={tempDocument[currentKey]}
+          handleChange={this.handleChange}
+          currentKey={currentKey}
+        />
+      );
+    } else if (details.control == 'dateTimePicker') {
+      return (
+        <DateTimePicker
+          width={details.width}
+          field_name={details.field_name}
+          defaultValue={date}
+          handleChange={this.handleChange}
+          currentKey={currentKey}
+        />
+      );
+    } else if (details.control == 'numberEditor') {
+      return (
+        <NumberEditor
+          width={details.width}
+          field_name={details.field_name}
+          defaultValue={tempDocument[currentKey]}
+          handleChange={this.handleChange}
+          currentKey={currentKey}
+        />
+      );
+    } else if (details.control == 'richTextEditor') {
+      return (
+        <RichTextEditor
+          width={details.width}
+          field_name={details.field_name}
+          defaultValue={tempDocument[currentKey]}
+          handleChange={this.handleChange}
+          currentKey={currentKey}
+          imageHandler={this.imageHandler}
+          setQuillRef={this.setQuillRef}
+          setQuillIndex={this.setQuillIndex}
+          setQuillURL={this.setQuillURL}
+          index={quillIndex}
+          quillRef={quillRef}
+          url={quillURL}
+        />
+      );
+    } else if (details.control == 'booleanSelect') {
+      return (
+        <BooleanSelect
+          width={details.width}
+          field_name={details.field_name}
+          defaultValue={tempDocument[currentKey]}
+          handleChange={this.handleChange}
+          currentKey={currentKey}
+        />
+      );
+    } else if (details.control == 'imageReference') {
+      const url = fileRefs[details.field_name];
+      return (
+        <ImageReference
+          width={details.width}
+          field_name={details.field_name}
+          url={url}
+          openSelector={this.openSelector}
+          removeFile={this.removeFile}
+        />
+      );
+    } else if (details.control == 'imageURL') {
+      const url = fileRefs[details.field_name];
+      return (
+        <ImageURL
+          width={details.width}
+          field_name={details.field_name}
+          url={url}
+          openSelector={this.openSelector}
+          removeFile={this.removeFile}
+        />
+      );
+    } else if (details.control == 'videoReference') {
+      const url = fileRefs[details.field_name];
+      return (
+        <VideoReference
+          width={details.width}
+          field_name={details.field_name}
+          url={url}
+          openSelector={this.openSelector}
+          removeFile={this.removeFile}
+        />
+      );
+    } else if (details.control == 'videoURL') {
+      const url = fileRefs[details.field_name];
+      return (
+        <VideoURL
+          width={details.width}
+          field_name={details.field_name}
+          url={url}
+          openSelector={this.openSelector}
+          removeFile={this.removeFile}
+        />
+      );
+    }
   }
 
   render() {
