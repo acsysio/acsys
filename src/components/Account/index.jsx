@@ -15,6 +15,8 @@ import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { KeyboardArrowDown } from '@material-ui/icons';
+import LoadingDialog from '../Dialogs/LoadingDialog';
+import MessageDialog from '../Dialogs/MessageDialog';
 import React from 'react';
 import * as Acsys from '../../services/Acsys/Acsys';
 
@@ -229,28 +231,6 @@ class Account extends React.Component {
             </div>
           </div>
           <Dialog
-            open={this.state.saveLoading}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-            maxWidth={'md'}
-          >
-            <DialogTitle id="alert-dialog-title" style={{ margin: 'auto' }}>
-              Saving
-            </DialogTitle>
-            <DialogContent
-              style={{
-                minHeight: 150,
-                minWidth: 400,
-                margin: 'auto',
-                overflow: 'hidden',
-              }}
-            >
-              <div style={{ width: 124, margin: 'auto' }}>
-                <CircularProgress size={124} />
-              </div>
-            </DialogContent>
-          </Dialog>
-          <Dialog
             open={this.state.setOpen}
             onClose={this.handleClose}
             aria-labelledby="alert-dialog-title"
@@ -287,24 +267,13 @@ class Account extends React.Component {
               </Button>
             </DialogActions>
           </Dialog>
-          <Dialog
+          <LoadingDialog loading={this.state.saveLoading} message={'Saving'} />
+          <MessageDialog
             open={this.state.setMsgOpen}
-            onClose={this.handleMsgClose}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-          >
-            <DialogTitle id="alert-dialog-title">{'Error!'}</DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                {message}
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={this.handleMsgClose} color="primary">
-                Okay
-              </Button>
-            </DialogActions>
-          </Dialog>
+            closeDialog={this.handleMsgClose}
+            title={'Error!'}
+            message={message}
+          />
         </Paper>
       </div>
     );

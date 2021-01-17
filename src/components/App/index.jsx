@@ -13,7 +13,7 @@ const ForgotPassword = lazy(() => import('../ForgotPassword'));
 
 const Driver = lazy(() => import('../Driver'));
 
-function App() {
+export default function App() {
   return (
     <div className="App">
       <Router>
@@ -34,5 +34,3 @@ function App() {
     </div>
   );
 }
-
-export default App;

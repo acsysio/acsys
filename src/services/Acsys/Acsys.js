@@ -46,7 +46,7 @@ export const getUnique_id = () => {
 };
 
 const promFetch = (url, options = {}) => {
-  const { timeout = 10000, ...rest } = options;
+  const { timeout = 15000, ...rest } = options;
   if (rest.signal)
     throw new Error('Signal not supported in timeoutable promFetch');
   const controller = new AbortController();
