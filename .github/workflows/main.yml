@@ -22,7 +22,7 @@ jobs:
         run: |
           docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
       - name: Create Dockerfile
-        run: echo -e "FROM node:alpine\nWORKDIR /app\nCOPY ./ /app\nRUN npm install --force\nRUN npm run build-linux\nEXPOSE 8080\nCMD [\"npm\", \"start\"]" >> Dockerfile
+        run: echo -e "FROM node:alpine\nWORKDIR /app\nCOPY ./ /app\nRUN npm install --legacy-peer-deps\nRUN npm run build-linux\nEXPOSE 8080\nCMD [\"npm\", \"start\"]" >> Dockerfile
       - name: View file
         run: cat Dockerfile
       - name: Build the Docker image
