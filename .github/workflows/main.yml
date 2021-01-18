@@ -22,14 +22,7 @@ jobs:
         run: |
           docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
       - name: Create Dockerfile
-        run: echo "
-            FROM node:10-slim
-            WORKDIR /app
-            RUN npm install
-            RUN npm run build
-            EXPOSE 8080:80
-            CMD ['npm', 'start']
-            " >> Dockerfile
+        run: echo "FROM node:10-slim\nWORKDIR /app\nRUN npm install\nRUN npm run build\nEXPOSE 8080:80\nCMD ['npm', 'start']" >> Dockerfile
       - name: View file
         run: cat Dockerfile
       - name: Build the Docker image
