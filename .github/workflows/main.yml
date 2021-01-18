@@ -15,16 +15,21 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: "finnp/create-file-action@master"
-        env:
-          FILE_NAME: "Dockerfile"
-          FILE_DATA: "FROM node:10-slim$'\n'WORKDIR /app$'\n'RUN npm install$'\n'RUN npm run build$'\n'EXPOSE 8080:80$'\n'CMD ['npm', 'start']"
       - name: docker login
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}   
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}  
         run: |
           docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+      - name: Create Dockerfile
+        run: echo "
+            FROM node:10-slim
+            WORKDIR /app
+            RUN npm install
+            RUN npm run build
+            EXPOSE 8080:80
+            CMD ['npm', 'start']
+            " >> Dockerfile
       - name: View file
         run: cat Dockerfile
       - name: Build the Docker image
