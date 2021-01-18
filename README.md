@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://acsys.io">
-    <img alt="Acsys" src="https://storage.googleapis.com/acsys-common-storage/images/acsys-graphic.jpg">
+    <img alt="Acsys" src="https://storage.googleapis.com/acsys-294722.appspot.com/media/acsys-banner_image.png">
   </a>
 </p>
 
