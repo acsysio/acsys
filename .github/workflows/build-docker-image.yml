@@ -3,9 +3,9 @@ name: Docker Image CI
 on:
   workflow_dispatch:
   push:
-    branches: [ develop ]
+    branches: [ master ]
   pull_request:
-    branches: [ develop ]
+    branches: [ master ]
 
 jobs:
 
@@ -23,10 +23,8 @@ jobs:
           docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
       - name: Create Dockerfile
         run: echo -e "FROM node:alpine\nWORKDIR /app\nCOPY ./ /app\nRUN npm install --legacy-peer-deps\nRUN npm run build-linux\nEXPOSE 8080\nCMD [\"npm\", \"start\"]" >> Dockerfile
-      - name: View file
-        run: cat Dockerfile
       - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+        run: docker build . --file Dockerfile --tag acsysio/acsys
       - name: docker push
         run: |
           docker push acsysio/acsys
