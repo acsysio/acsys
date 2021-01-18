@@ -19,12 +19,12 @@ jobs:
         with:
           path: ${{ env.home}}/Dockerfile
           contents: |
-            echo "FROM node:10-slim"
-            echo "WORKDIR /app"
-            echo "RUN npm install"
-            echo "RUN npm run build"
-            echo "EXPOSE 8080:80"
-            echo "CMD ['npm', 'start']"
+            echo "FROM node:10-slim
+            WORKDIR /app
+            RUN npm install
+            RUN npm run build
+            EXPOSE 8080:80
+            CMD ['npm', 'start']"
           write-mode: overwrite
       - name: docker login
         env:
