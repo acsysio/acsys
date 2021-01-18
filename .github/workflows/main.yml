@@ -1,0 +1,38 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: DamianReeves/write-file-action
+        with:
+          path: ${{ env.home}}/Dockerfile
+          contents: |
+            echo "FROM node:10-slim"
+            echo "WORKDIR /app"
+            echo "RUN npm install"
+            echo "RUN npm run build"
+            echo "EXPOSE 8080:80"
+            echo "CMD ['npm', 'start']"
+          write-mode: overwrite
+      - name: docker login
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}   
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}  
+        run: |
+          docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+      - name: Build the Docker image
+        run: docker build . --file ${{ env.home}}/Dockerfile --tag my-image-name:$(date +%s)
+      - name: docker push
+        run: |
+          docker push acsysio/acsys
