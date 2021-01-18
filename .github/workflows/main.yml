@@ -18,7 +18,7 @@ jobs:
       - uses: "finnp/create-file-action@master"
         env:
           FILE_NAME: "Dockerfile"
-          FILE_DATA: "FROM node:10-slim\nWORKDIR /app\nRUN npm install\nRUN npm run build\nEXPOSE 8080:80\nCMD ['npm', 'start']"
+          FILE_DATA: "FROM node:10-slim$'\n'WORKDIR /app$'\n'RUN npm install$'\n'RUN npm run build$'\n'EXPOSE 8080:80$'\n'CMD ['npm', 'start']"
       - name: docker login
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}   
