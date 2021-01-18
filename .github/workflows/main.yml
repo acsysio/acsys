@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: DamianReeves/write-file-action
         with:
-          path: ${{ env.home}}/Dockerfile
+          path: Dockerfile
           contents: |
             echo "FROM node:10-slim
             WORKDIR /app
@@ -33,7 +33,7 @@ jobs:
         run: |
           docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
       - name: Build the Docker image
-        run: docker build . --file ${{ env.home}}/Dockerfile --tag my-image-name:$(date +%s)
+        run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
       - name: docker push
         run: |
           docker push acsysio/acsys
