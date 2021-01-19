@@ -38,6 +38,8 @@ These instructions will get Acsys up and running on your local machine for devel
 
 ## Installing
 
+Start Acsys locally using these commands:
+
 Run `npm install`
 
 Start development by running `npm run dev`
@@ -45,6 +47,20 @@ Start development by running `npm run dev`
 Build project by running `npm run build` (`npm run build-linux` for Linux)
 
 Run project in production mode by running `npm run start` (executing this after building will run the project at http://localhost:8080)
+
+**or**
+
+Pull the Docker image by using this command:
+
+```bash
+docker pull acsysio/acsys
+```
+
+Then run using:
+
+```bash
+docker run -p 8080:8080 acsysio/acsys
+```
 
 ## Configuration
 
