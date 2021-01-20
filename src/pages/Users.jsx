@@ -17,9 +17,9 @@ import Typography from '@material-ui/core/Typography';
 import { Delete as DeleteIcon } from '@material-ui/icons';
 import React from 'react';
 import uniqid from 'uniqid';
-import * as Acsys from '../../services/Acsys/Acsys';
-import NewUserDialog from '../Dialogs/NewUserDialog';
-import YesNoDialog from '../Dialogs/YesNoDialog';
+import * as Acsys from '../utils/Acsys/Acsys';
+import NewUserDialog from '../components/Dialogs/NewUserDialog';
+import YesNoDialog from '../components/Dialogs/YesNoDialog';
 
 const INITIAL_STATE = {
   userId: 0,

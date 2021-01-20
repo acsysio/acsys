@@ -1,5 +1,6 @@
 #root {
   height: 100%;
+  text-align: center;
 }
 .landing-grid {
   min-height: 600px;

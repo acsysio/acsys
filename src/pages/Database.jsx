@@ -24,13 +24,13 @@ import Typography from '@material-ui/core/Typography';
 import { Delete as DeleteIcon } from '@material-ui/icons';
 import React from 'react';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import * as Acsys from '../../services/Acsys/Acsys';
-import { PromConsumer } from '../../services/Session/PromProvider';
-import TableControl from '../TableControl';
-import FieldControlDialog from '../Dialogs/FieldControlDialog';
-import LoadingDialog from '../Dialogs/LoadingDialog';
-import MessageDialog from '../Dialogs/MessageDialog';
-import YesNoDialog from '../Dialogs/YesNoDialog';
+import * as Acsys from '../utils/Acsys/Acsys';
+import { PromConsumer } from '../utils/Session/PromProvider';
+import TableControl from '../components/TableControl';
+import FieldControlDialog from '../components/Dialogs/FieldControlDialog';
+import LoadingDialog from '../components/Dialogs/LoadingDialog';
+import MessageDialog from '../components/Dialogs/MessageDialog';
+import YesNoDialog from '../components/Dialogs/YesNoDialog';
 
 const styles = makeStyles({
   paper: {

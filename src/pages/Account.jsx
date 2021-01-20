@@ -15,10 +15,10 @@ import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { KeyboardArrowDown } from '@material-ui/icons';
-import LoadingDialog from '../Dialogs/LoadingDialog';
-import MessageDialog from '../Dialogs/MessageDialog';
+import LoadingDialog from '../components/Dialogs/LoadingDialog';
+import MessageDialog from '../components/Dialogs/MessageDialog';
 import React from 'react';
-import * as Acsys from '../../services/Acsys/Acsys';
+import * as Acsys from '../utils/Acsys/Acsys';
 
 const INITIAL_STATE = {
   passwordChange: false,

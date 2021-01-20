@@ -8,8 +8,8 @@ import MenuIcon from '@material-ui/icons/Menu';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import * as ROUTES from '../constants/routes';
-import * as Acsys from '../services/Acsys/Acsys';
-import SignOutButton from './SignOut';
+import * as Acsys from '../utils/Acsys/Acsys';
+import SignOutButton from '../pages/SignOut';
 
 export default function Header(props) {
   return (

@@ -26,14 +26,14 @@ import React from 'react';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Link } from 'react-router-dom';
 import uniqid from 'uniqid';
-import * as Acsys from '../../services/Acsys/Acsys';
-import { PromConsumer } from '../../services/Session/PromProvider';
-import FieldDef from '../FieldControl/FieldDef';
-import FieldControlDialog from '../Dialogs/FieldControlDialog';
-import LoadingDialog from '../Dialogs/LoadingDialog';
-import MessageDialog from '../Dialogs/MessageDialog';
-import YesNoDialog from '../Dialogs/YesNoDialog';
-import ViewDialog from '../Dialogs/ViewDialog';
+import * as Acsys from '../utils/Acsys/Acsys';
+import { PromConsumer } from '../utils/Session/PromProvider';
+import FieldDef from '../components/FieldControl/FieldDef';
+import FieldControlDialog from '../components/Dialogs/FieldControlDialog';
+import LoadingDialog from '../components/Dialogs/LoadingDialog';
+import MessageDialog from '../components/Dialogs/MessageDialog';
+import YesNoDialog from '../components/Dialogs/YesNoDialog';
+import ViewDialog from '../components/Dialogs/ViewDialog';
 
 const INITIAL_STATE = {
   content_id: '',

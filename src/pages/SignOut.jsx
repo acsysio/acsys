@@ -2,7 +2,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import React from 'react';
-import { logOut } from '../../services/Session/session';
+import { logOut } from '../utils/Session/session';
 
 const acsysOut = () => logOut();
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Dialog } from '@material-ui/core';
-import Storage from '../Storage';
+import Storage from '../../pages/Storage';
 
 export default function StorageDialog(props) {
   return (

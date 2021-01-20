@@ -2,10 +2,10 @@ import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './components/App';
-import Configuration from './components/Configuration';
+import Configuration from './pages/Configuration';
 import './index.css';
-import * as Acsys from './services/Acsys/Acsys';
-import { PromProvider } from './services/Session/PromProvider';
+import * as Acsys from './utils/Acsys/Acsys';
+import { PromProvider } from './utils/Session/PromProvider';
 import * as serviceWorker from './serviceWorker';
 
 let theme = createMuiTheme({

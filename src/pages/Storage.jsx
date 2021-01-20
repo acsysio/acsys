@@ -23,12 +23,12 @@ import {
   LockOpen,
 } from '@material-ui/icons';
 import React from 'react';
-import * as Acsys from '../../services/Acsys/Acsys';
-import LoadingDialog from '../Dialogs/LoadingDialog';
-import MessageDialog from '../Dialogs/MessageDialog';
-import ImageDialog from '../Dialogs/ImageDialog';
-import YesNoDialog from '../Dialogs/YesNoDialog';
-import NewFolderDialog from '../Dialogs/NewFolderDialog';
+import * as Acsys from '../utils/Acsys/Acsys';
+import LoadingDialog from '../components/Dialogs/LoadingDialog';
+import MessageDialog from '../components/Dialogs/MessageDialog';
+import ImageDialog from '../components/Dialogs/ImageDialog';
+import YesNoDialog from '../components/Dialogs/YesNoDialog';
+import NewFolderDialog from '../components/Dialogs/NewFolderDialog';
 
 const INITIAL_STATE = {
   locked: true,

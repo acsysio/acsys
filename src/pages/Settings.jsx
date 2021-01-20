@@ -12,10 +12,10 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { KeyboardArrowDown } from '@material-ui/icons';
 import React from 'react';
-import * as Acsys from '../../services/Acsys/Acsys';
-import LoadingDialog from '../Dialogs/LoadingDialog';
-import MessageDialog from '../Dialogs/MessageDialog';
-import YesNoDialog from '../Dialogs/YesNoDialog';
+import * as Acsys from '../utils/Acsys/Acsys';
+import LoadingDialog from '../components/Dialogs/LoadingDialog';
+import MessageDialog from '../components/Dialogs/MessageDialog';
+import YesNoDialog from '../components/Dialogs/YesNoDialog';
 
 const INITIAL_STATE = {
   host: '',

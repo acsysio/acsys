@@ -12,22 +12,22 @@ import { FileCopyOutlined as CopyIcon } from '@material-ui/icons';
 import React from 'react';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import uniqid from 'uniqid';
-import * as Acsys from '../../services/Acsys/Acsys';
-import AutoGen from '../Controls/AutoGen';
-import BooleanSelect from '../Controls/BooleanSelect';
-import DateTimePicker from '../Controls/DateTimePicker';
-import ImageReference from '../Controls/ImageReference';
-import ImageURL from '../Controls/ImageURL';
-import NumberEditor from '../Controls/NumberEditor';
-import RichTextEditor from '../Controls/RichTextEditor';
-import TextField from '../Controls/TextField';
-import VideoReference from '../Controls/VideoReference';
-import VideoURL from '../Controls/VideoURL';
-import FieldDef from '../FieldControl/FieldDef';
-import FieldControlDialog from '../Dialogs/FieldControlDialog';
-import LoadingDialog from '../Dialogs/LoadingDialog';
-import StorageDialog from '../Dialogs/StorageDialog';
-import YesNoDialog from '../Dialogs/YesNoDialog';
+import * as Acsys from '../utils/Acsys/Acsys';
+import AutoGen from '../components/Controls/AutoGen';
+import BooleanSelect from '../components/Controls/BooleanSelect';
+import DateTimePicker from '../components/Controls/DateTimePicker';
+import ImageReference from '../components/Controls/ImageReference';
+import ImageURL from '../components/Controls/ImageURL';
+import NumberEditor from '../components/Controls/NumberEditor';
+import RichTextEditor from '../components/Controls/RichTextEditor';
+import TextField from '../components/Controls/TextField';
+import VideoReference from '../components/Controls/VideoReference';
+import VideoURL from '../components/Controls/VideoURL';
+import FieldDef from '../components/FieldControl/FieldDef';
+import FieldControlDialog from '../components/Dialogs/FieldControlDialog';
+import LoadingDialog from '../components/Dialogs/LoadingDialog';
+import StorageDialog from '../components/Dialogs/StorageDialog';
+import YesNoDialog from '../components/Dialogs/YesNoDialog';
 
 const INITIAL_STATE = {
   viewId: 0,

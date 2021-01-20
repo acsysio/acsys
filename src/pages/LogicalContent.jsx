@@ -26,12 +26,12 @@ import { Create as CreateIcon, Delete as DeleteIcon } from '@material-ui/icons';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import uniqid from 'uniqid';
-import * as Acsys from '../../services/Acsys/Acsys';
-import { PromConsumer } from '../../services/Session/PromProvider';
-import AddViewDialog from '../Dialogs/AddViewDialog';
-import EditViewDialog from '../Dialogs/EditViewDialog';
-import LoadingDialog from '../Dialogs/LoadingDialog';
-import YesNoDialog from '../Dialogs/YesNoDialog';
+import * as Acsys from '../utils/Acsys/Acsys';
+import { PromConsumer } from '../utils/Session/PromProvider';
+import AddViewDialog from '../components/Dialogs/AddViewDialog';
+import EditViewDialog from '../components/Dialogs/EditViewDialog';
+import LoadingDialog from '../components/Dialogs/LoadingDialog';
+import YesNoDialog from '../components/Dialogs/YesNoDialog';
 
 const INITIAL_STATE = {
   viewId: '',

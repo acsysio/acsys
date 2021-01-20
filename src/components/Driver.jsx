@@ -11,19 +11,19 @@ import {
   Switch,
 } from 'react-router-dom';
 import * as ROUTES from '../constants/routes';
-import * as Acsys from '../services/Acsys/Acsys';
+import * as Acsys from '../utils/Acsys/Acsys';
 import Footer from './Footer';
 import Header from './Header';
 import Navigator from './Navigator';
 
-const Account = lazy(() => import('./Account'));
-const CollectionView = lazy(() => import('./CollectionView'));
-const Database = lazy(() => import('./Database'));
-const DocumentView = lazy(() => import('./DocumentView'));
-const LogicalContent = lazy(() => import('./LogicalContent'));
-const Settings = lazy(() => import('./Settings'));
-const Storage = lazy(() => import('./Storage'));
-const Users = lazy(() => import('./Users'));
+const Account = lazy(() => import('../pages/Account'));
+const CollectionView = lazy(() => import('../pages/CollectionView'));
+const Database = lazy(() => import('../pages/Database'));
+const DocumentView = lazy(() => import('../pages/DocumentView'));
+const LogicalContent = lazy(() => import('../pages/LogicalContent'));
+const Settings = lazy(() => import('../pages/Settings'));
+const Storage = lazy(() => import('../pages/Storage'));
+const Users = lazy(() => import('../pages/Users'));
 
 export default function Driver(props) {
   const [header, setHeader] = useState('');
