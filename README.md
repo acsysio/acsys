@@ -7,6 +7,7 @@
 [![License](https://img.shields.io/github/license/aeon-software/acsys)](LICENSE.md)
 [![Commit](https://img.shields.io/github/last-commit/aeon-software/acsys)](https://github.com/aeon-software/acsys/commits)
 [![Repo](https://img.shields.io/github/repo-size/aeon-software/acsys)](https://github.com/aeon-software/acsys)
+[![Docker Build](https://img.shields.io/github/workflow/status/aeon-software/acsys/Docker%20Image%20CI)](https://github.com/aeon-software/acsys/actions?query=workflow%3A%22Docker+Image+CI%22)
 
 ## Acsys [Live Demo](https://demo.acsys.io/)
 
