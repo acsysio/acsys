@@ -27,7 +27,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Link } from 'react-router-dom';
 import uniqid from 'uniqid';
 import * as Acsys from '../utils/Acsys/Acsys';
-import { PromConsumer } from '../utils/Session/PromProvider';
+import { AcsysConsumer } from '../utils/Session/AcsysProvider';
 import FieldDef from '../components/FieldControl/FieldDef';
 import FieldControlDialog from '../components/Dialogs/FieldControlDialog';
 import LoadingDialog from '../components/Dialogs/LoadingDialog';
@@ -1028,5 +1028,5 @@ class CollectionView extends React.Component {
     );
   }
 }
-CollectionView.contextType = PromConsumer;
+CollectionView.contextType = AcsysConsumer;
 export default CollectionView;

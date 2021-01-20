@@ -1,10 +1,4 @@
 import {
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
   Table,
   TableBody,
   TableCell,
@@ -25,7 +19,7 @@ import { Delete as DeleteIcon } from '@material-ui/icons';
 import React from 'react';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import * as Acsys from '../utils/Acsys/Acsys';
-import { PromConsumer } from '../utils/Session/PromProvider';
+import { AcsysConsumer } from '../utils/Session/AcsysProvider';
 import TableControl from '../components/TableControl';
 import FieldControlDialog from '../components/Dialogs/FieldControlDialog';
 import LoadingDialog from '../components/Dialogs/LoadingDialog';
@@ -420,5 +414,5 @@ class LogicalContent extends React.Component {
     }
   }
 }
-LogicalContent.contextType = PromConsumer;
+LogicalContent.contextType = AcsysConsumer;
 export default LogicalContent;

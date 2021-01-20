@@ -3,9 +3,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './components/App';
 import Configuration from './pages/Configuration';
-import './index.css';
 import * as Acsys from './utils/Acsys/Acsys';
-import { PromProvider } from './utils/Session/PromProvider';
+import { AcsysProvider } from './utils/Session/AcsysProvider';
 import * as serviceWorker from './serviceWorker';
 
 let theme = createMuiTheme({
@@ -125,9 +124,9 @@ const init = async () => {
     ReactDOM.render(
       <body>
         <ThemeProvider theme={theme}>
-          <PromProvider>
+          <AcsysProvider>
             <App />
-          </PromProvider>
+          </AcsysProvider>
         </ThemeProvider>
       </body>,
       document.getElementById('root')

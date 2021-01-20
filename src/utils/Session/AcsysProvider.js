@@ -2,7 +2,7 @@ import React from 'react';
 const Context = React.createContext();
 const { Provider, Consumer } = Context;
 
-class PromProvider extends React.Component {
+class AcsysProvider extends React.Component {
   state = {
     header: '',
     mode: '',
@@ -111,4 +111,4 @@ class PromProvider extends React.Component {
     );
   }
 }
-export { PromProvider, Context as PromContext, Consumer as PromConsumer };
+export { AcsysProvider, Context as AcsysContext, Consumer as AcsysConsumer };

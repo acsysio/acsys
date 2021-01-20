@@ -27,7 +27,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import uniqid from 'uniqid';
 import * as Acsys from '../utils/Acsys/Acsys';
-import { PromConsumer } from '../utils/Session/PromProvider';
+import { AcsysConsumer } from '../utils/Session/AcsysProvider';
 import AddViewDialog from '../components/Dialogs/AddViewDialog';
 import EditViewDialog from '../components/Dialogs/EditViewDialog';
 import LoadingDialog from '../components/Dialogs/LoadingDialog';
@@ -538,5 +538,5 @@ class LogicalContent extends React.Component {
     }
   }
 }
-LogicalContent.contextType = PromConsumer;
+LogicalContent.contextType = AcsysConsumer;
 export default LogicalContent;
