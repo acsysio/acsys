@@ -1,7 +1,7 @@
 import { Button, Grid } from '@material-ui/core';
 import React from 'react';
 
-function ImageURL(props) {
+export default function ImageURL(props) {
   if (props.url === undefined || props.url === '') {
     return (
       <Grid item xs={props.width}>
@@ -44,4 +44,3 @@ function ImageURL(props) {
     </Grid>
   );
 }
-export default ImageURL;

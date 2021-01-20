@@ -1,7 +1,7 @@
 import { Grid } from '@material-ui/core';
 import React from 'react';
 
-function TextField(props) {
+export default function TextField(props) {
   return (
     <Grid item xs={props.width}>
       <h3 className="element-header">{props.field_name.toUpperCase()}</h3>
@@ -15,4 +15,3 @@ function TextField(props) {
     </Grid>
   );
 }
-export default TextField;

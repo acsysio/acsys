@@ -2,7 +2,7 @@ import { Grid } from '@material-ui/core';
 import React from 'react';
 import Datetime from 'react-datetime';
 
-function DateTimePicker(props) {
+export default function DateTimePicker(props) {
   return (
     <Grid item xs={props.width}>
       <Grid container spacing={0}>
@@ -21,4 +21,3 @@ function DateTimePicker(props) {
     </Grid>
   );
 }
-export default DateTimePicker;

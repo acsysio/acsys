@@ -1,7 +1,7 @@
 import { Button, Grid } from '@material-ui/core';
 import React from 'react';
 
-function ImageReference(props) {
+export default function ImageReference(props) {
   if (props.url === undefined || props.url === '') {
     return (
       <Grid item xs={props.width}>
@@ -44,4 +44,3 @@ function ImageReference(props) {
     </Grid>
   );
 }
-export default ImageReference;

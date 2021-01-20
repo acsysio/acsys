@@ -1,7 +1,7 @@
 import { Grid, MenuItem, Select } from '@material-ui/core';
 import React from 'react';
 
-function Position(props) {
+export default function Position(props) {
   if (props.draft) {
     return (
       <Grid item xs={props.width}>
@@ -34,4 +34,3 @@ function Position(props) {
     </Grid>
   );
 }
-export default Position;

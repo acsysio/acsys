@@ -20,7 +20,7 @@ import React from 'react';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import * as Acsys from '../utils/Acsys/Acsys';
 import { AcsysConsumer } from '../utils/Session/AcsysProvider';
-import TableControl from '../components/TableControl';
+import TableControl from '../components/TableControl/TableControl';
 import FieldControlDialog from '../components/Dialogs/FieldControlDialog';
 import LoadingDialog from '../components/Dialogs/LoadingDialog';
 import MessageDialog from '../components/Dialogs/MessageDialog';

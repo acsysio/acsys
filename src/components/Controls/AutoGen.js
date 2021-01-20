@@ -1,7 +1,7 @@
 import { Grid } from '@material-ui/core';
 import React from 'react';
 
-function AutoGen(props) {
+export default function AutoGen(props) {
   if (props.new) {
     return (
       <Grid item xs={props.width}>
@@ -30,4 +30,3 @@ function AutoGen(props) {
     </Grid>
   );
 }
-export default AutoGen;

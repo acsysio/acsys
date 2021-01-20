@@ -1,7 +1,7 @@
 import { Grid } from '@material-ui/core';
 import React from 'react';
 
-function NumberEditor(props) {
+export default function NumberEditor(props) {
   return (
     <Grid item xs={props.width}>
       <h3 className="element-header">{props.field_name.toUpperCase()}</h3>
@@ -17,4 +17,3 @@ function NumberEditor(props) {
     </Grid>
   );
 }
-export default NumberEditor;

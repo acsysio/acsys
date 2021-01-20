@@ -2,7 +2,7 @@ import { Grid, Hidden } from '@material-ui/core';
 import React from 'react';
 import ReactQuill from 'react-quill';
 
-function RichTextEditor(props) {
+export default function RichTextEditor(props) {
   const modules = {
     toolbar: {
       container: [
@@ -61,4 +61,3 @@ function RichTextEditor(props) {
     </Grid>
   );
 }
-export default RichTextEditor;
