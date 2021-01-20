@@ -104,9 +104,6 @@ function Navigator(props) {
     ];
   }
 
-  const container =
-    window !== undefined ? () => window().document.body : undefined;
-
   const drawer = (
     <List disablePadding style={{ width: 256 }}>
       {categories.map(({ id, children }) => (

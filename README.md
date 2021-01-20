@@ -1,12 +1,13 @@
 <p align="center">
   <a href="https://acsys.io">
-    <img alt="Acsys" src="https://storage.googleapis.com/acsys-common-storage/images/acsys-graphic.jpg">
+    <img alt="Acsys" src="https://storage.googleapis.com/acsys-294722.appspot.com/media/acsys-banner_image.png">
   </a>
 </p>
 
 [![License](https://img.shields.io/github/license/aeon-software/acsys)](LICENSE.md)
 [![Commit](https://img.shields.io/github/last-commit/aeon-software/acsys)](https://github.com/aeon-software/acsys/commits)
 [![Repo](https://img.shields.io/github/repo-size/aeon-software/acsys)](https://github.com/aeon-software/acsys)
+[![Docker Build](https://img.shields.io/github/workflow/status/aeon-software/acsys/Docker%20Image%20CI)](https://github.com/aeon-software/acsys/actions?query=workflow%3A%22Docker+Image+CI%22)
 
 ## Acsys [Live Demo](https://demo.acsys.io/)
 
@@ -38,6 +39,8 @@ These instructions will get Acsys up and running on your local machine for devel
 
 ## Installing
 
+Start Acsys locally using these commands:
+
 Run `npm install`
 
 Start development by running `npm run dev`
@@ -45,6 +48,20 @@ Start development by running `npm run dev`
 Build project by running `npm run build` (`npm run build-linux` for Linux)
 
 Run project in production mode by running `npm run start` (executing this after building will run the project at http://localhost:8080)
+
+**or**
+
+Pull the Docker image by using this command:
+
+```bash
+docker pull acsysio/acsys
+```
+
+Then run using:
+
+```bash
+docker run -p 8080:8080 acsysio/acsys
+```
 
 ## Configuration
 
