@@ -100,6 +100,7 @@ class Settings extends React.Component {
 
   componentDidMount = async () => {
     this.props.setHeader('Settings');
+    const isStateless = await Acsys.isStateless();
     const emailConfig = await Acsys.getEmailConfig();
     if (emailConfig.length > 0) {
       this.setState({
@@ -110,57 +111,62 @@ class Settings extends React.Component {
       });
     }
     const databaseType = await Acsys.getDatabaseType();
-    const databaseConfig = await Acsys.getDatabaseConfig();
-    if (databaseType === 'local') {
-      this.setState({
-        databaseType: databaseType,
-        project_name: databaseConfig.project_name,
-      });
-    } else if (databaseType === 'firestore') {
-      const currentBucket = await Acsys.getCurrentBucket();
-      const buckets = await Acsys.getStorageBuckets();
+    if (!isStateless) {
+      const databaseConfig = await Acsys.getDatabaseConfig();
+      if (databaseType === 'local') {
+        this.setState({
+          project_name: databaseConfig.project_name,
+        });
+      } else if (databaseType === 'firestore') {
+        const currentBucket = await Acsys.getCurrentBucket();
+        const buckets = await Acsys.getStorageBuckets();
 
-      this.setState({
-        bucket: currentBucket,
-        buckets: buckets,
-        databaseType: databaseType,
-        type: databaseConfig.type,
-        project_id: databaseConfig.project_id,
-        private_key_id: databaseConfig.private_key_id,
-        private_key: databaseConfig.private_key,
-        client_email: databaseConfig.client_email,
-        client_id: databaseConfig.client_id,
-        auth_uri: databaseConfig.auth_uri,
-        token_uri: databaseConfig.token_uri,
-        auth_provider_x509_cert_url: databaseConfig.auth_provider_x509_cert_url,
-        client_x509_cert_url: databaseConfig.client_x509_cert_url,
-      });
-    } else if (databaseType === 'mysql') {
-      const currentBucket = await Acsys.getCurrentBucket();
-      const buckets = await Acsys.getStorageBuckets();
+        this.setState({
+          bucket: currentBucket,
+          buckets: buckets,
+          type: databaseConfig.type,
+          project_id: databaseConfig.project_id,
+          private_key_id: databaseConfig.private_key_id,
+          private_key: databaseConfig.private_key,
+          client_email: databaseConfig.client_email,
+          client_id: databaseConfig.client_id,
+          auth_uri: databaseConfig.auth_uri,
+          token_uri: databaseConfig.token_uri,
+          auth_provider_x509_cert_url:
+            databaseConfig.auth_provider_x509_cert_url,
+          client_x509_cert_url: databaseConfig.client_x509_cert_url,
+        });
+      } else if (databaseType === 'mysql') {
+        const currentBucket = await Acsys.getCurrentBucket();
+        const buckets = await Acsys.getStorageBuckets();
 
-      this.setState({
-        bucket: currentBucket,
-        buckets: buckets,
-        databaseType: databaseType,
-        dhost: databaseConfig.host,
-        dport: databaseConfig.port,
-        ddatabase: databaseConfig.database,
-        dusername: databaseConfig.username,
-        dpassword: databaseConfig.password,
-        socketPath: databaseConfig.socketPath,
-        type: databaseConfig.type,
-        project_id: databaseConfig.project_id,
-        private_key_id: databaseConfig.private_key_id,
-        private_key: databaseConfig.private_key,
-        client_email: databaseConfig.client_email,
-        client_id: databaseConfig.client_id,
-        auth_uri: databaseConfig.auth_uri,
-        token_uri: databaseConfig.token_uri,
-        auth_provider_x509_cert_url: databaseConfig.auth_provider_x509_cert_url,
-        client_x509_cert_url: databaseConfig.client_x509_cert_url,
-      });
+        this.setState({
+          bucket: currentBucket,
+          buckets: buckets,
+          dhost: databaseConfig.host,
+          dport: databaseConfig.port,
+          ddatabase: databaseConfig.database,
+          dusername: databaseConfig.username,
+          dpassword: databaseConfig.password,
+          socketPath: databaseConfig.socketPath,
+          type: databaseConfig.type,
+          project_id: databaseConfig.project_id,
+          private_key_id: databaseConfig.private_key_id,
+          private_key: databaseConfig.private_key,
+          client_email: databaseConfig.client_email,
+          client_id: databaseConfig.client_id,
+          auth_uri: databaseConfig.auth_uri,
+          token_uri: databaseConfig.token_uri,
+          auth_provider_x509_cert_url:
+            databaseConfig.auth_provider_x509_cert_url,
+          client_x509_cert_url: databaseConfig.client_x509_cert_url,
+        });
+      }
     }
+    this.setState({
+      isStateless: isStateless,
+      databaseType: databaseType,
+    });
   };
 
   setDatabaseType = (type) => {
@@ -778,9 +784,11 @@ class Settings extends React.Component {
                       </ExpansionPanelDetails>
                     </ExpansionPanel>
                   </Grid>
-                  <Grid item xs={12}>
-                    {this.getConfigPanel()}
-                  </Grid>
+                  {!this.state.isStateless ? (
+                    <Grid item xs={12}>
+                      {this.getConfigPanel()}
+                    </Grid>
+                  ) : null}
                 </Grid>
               </Grid>
             </div>
