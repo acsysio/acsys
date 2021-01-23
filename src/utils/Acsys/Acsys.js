@@ -818,6 +818,27 @@ export const authenticate = (username, password) => {
   });
 };
 
+export const isStateless = async () => {
+  await checkToken();
+  return new Promise((resolve, reject) => {
+    promFetch('/api/isStateless', {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Session.getToken()}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((json) => {
+        resolve(json);
+      })
+      .catch((error) => {
+        resolve(false);
+      });
+  });
+};
+
 export const isConnected = () => {
   return new Promise((resolve, reject) => {
     promFetch('/api/isConnected')

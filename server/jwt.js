@@ -8,14 +8,18 @@ const algorithms = ['sha1', 'RS256', 'HS256'];
 function jwt() {
   const key = uniquid();
   try {
-    if (!fs.existsSync(configFile)) {
-      fs.writeFileSync(
-        configFile,
-        JSON.stringify({ secret: key }).replace(/\\\\/g, '\\')
-      );
+    if (process.env.API_SECRET !== undefined) {
+      secret = process.env.API_SECRET;
+    } else {
+      if (!fs.existsSync(configFile)) {
+        fs.writeFileSync(
+          configFile,
+          JSON.stringify({ secret: key }).replace(/\\\\/g, '\\')
+        );
+      }
+      const data = fs.readFileSync(configFile, { encoding: 'utf8', flag: 'r' });
+      secret = JSON.parse(data).secret;
     }
-    const data = fs.readFileSync(configFile, { encoding: 'utf8', flag: 'r' });
-    secret = JSON.parse(data).secret;
   } catch (error) {}
   return expressJwt({ secret, algorithms }).unless({
     path: [
