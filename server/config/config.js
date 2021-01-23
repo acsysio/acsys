@@ -137,7 +137,7 @@ class Config {
         let port = '';
         let socketPath = '';
         if (process.env.DATABASE_PORT !== undefined) {
-          port = process.env.DATABASE_PORT;
+          port = parseInt(process.env.DATABASE_PORT);
         }
         if (process.env.SOCKET_PATH !== undefined) {
           socketPath = process.env.SOCKET_PATH;
