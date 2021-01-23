@@ -134,7 +134,7 @@ class Config {
         });
       } else {
         let config = '';
-        let port = '';
+        let port;
         let socketPath = '';
         if (process.env.DATABASE_PORT !== undefined) {
           port = parseInt(process.env.DATABASE_PORT);
