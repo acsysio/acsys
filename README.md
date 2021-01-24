@@ -4,10 +4,23 @@
   </a>
 </p>
 
-[![License](https://img.shields.io/github/license/aeon-software/acsys)](LICENSE.md)
-[![Commit](https://img.shields.io/github/last-commit/aeon-software/acsys)](https://github.com/aeon-software/acsys/commits)
-[![Repo](https://img.shields.io/github/repo-size/aeon-software/acsys)](https://github.com/aeon-software/acsys)
-[![Docker Build](https://img.shields.io/github/workflow/status/aeon-software/acsys/Docker%20Image%20CI)](https://github.com/aeon-software/acsys/actions?query=workflow%3A%22Docker+Image+CI%22)
+<p align="center">
+  <a href=LICENSE.md>
+    <img src="https://img.shields.io/github/license/aeon-software/acsys" />
+  </a>
+  <a href="https://github.com/aeon-software/acsys/commits">
+    <img src="https://img.shields.io/github/last-commit/aeon-software/acsys" />
+  </a>
+  <a href="https://github.com/aeon-software/acsys">
+    <img src="https://img.shields.io/github/repo-size/aeon-software/acsys" />
+  </a>
+  <a href="https://hub.docker.com/r/acsysio/acsys">
+    <img src="https://img.shields.io/docker/automated/acsysio/acsys" />
+  </a>
+  <a href="https://hub.docker.com/r/acsysio/acsys/builds">
+    <img src="https://img.shields.io/docker/build/acsysio/acsys" />
+  </a>
+</p>
 
 ## Acsys [Live Demo](https://demo.acsys.io/)
 
