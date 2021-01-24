@@ -4,10 +4,23 @@
   </a>
 </p>
 
-[![License](https://img.shields.io/github/license/aeon-software/acsys)](LICENSE.md)
-[![Commit](https://img.shields.io/github/last-commit/aeon-software/acsys)](https://github.com/aeon-software/acsys/commits)
-[![Repo](https://img.shields.io/github/repo-size/aeon-software/acsys)](https://github.com/aeon-software/acsys)
-[![Docker Build](https://img.shields.io/github/workflow/status/aeon-software/acsys/Docker%20Image%20CI)](https://github.com/aeon-software/acsys/actions?query=workflow%3A%22Docker+Image+CI%22)
+<p align="center">
+  <a href="https://github.com/aeon-software/acsys/blob/master/LICENSE.md">
+    <img src="https://img.shields.io/github/license/aeon-software/acsys" />
+  </a>
+  <a href="https://github.com/aeon-software/acsys/commits">
+    <img src="https://img.shields.io/github/last-commit/aeon-software/acsys" />
+  </a>
+  <a href="https://github.com/aeon-software/acsys">
+    <img src="https://img.shields.io/github/repo-size/aeon-software/acsys" />
+  </a>
+  <a href="https://hub.docker.com/r/acsysio/acsys">
+    <img src="https://img.shields.io/docker/cloud/automated/acsysio/acsys" />
+  </a>
+  <a href="https://hub.docker.com/r/acsysio/acsys/builds">
+    <img src="https://img.shields.io/docker/cloud/build/acsysio/acsys" />
+  </a>
+</p>
 
 ## Acsys [Live Demo](https://demo.acsys.io/)
 
@@ -63,13 +76,85 @@ Then run using:
 docker run -p 8080:8080 acsysio/acsys
 ```
 
+Official Docker Image can be found [here](https://hub.docker.com/r/acsysio/acsys).
+
 ## Configuration
 
-To configure Acsys for Firestore or MySQL you must first upload your service account JSON file. Instructions on how to get this file can be found [here](https://cloud.google.com/iam/docs/creating-managing-service-account-keys). Note that the database must be created with appropriate security rules before Acsys can be used (Default production rules are recommended). Local installations only require a project name. If at any point the configuration needs to be manually reset you can do so by stopping the server and deleting the dbase.db and acsys.service.config.json files.
+Acsys can be configured in either a stateful or stateless manner. Stateful configurations are ideal for server deployments whereas stateless configurations are ideal for serverless archetectures. An Acsys configuration is considered serverless once the `DATABASE_TYPE` environment variable has been set.
 
-## Deployment Tips
+### Stateful
 
-In general it is best to configure Acsys before deploying. This is necessary in a serverless environment due to Acsys being a stateful application.
+To configure a stateful version of Acsys for Firestore or MySQL you must first upload your service account JSON file. Instructions on how to get this file can be found [here](https://cloud.google.com/iam/docs/creating-managing-service-account-keys). Note that the database must be created with appropriate security rules before Acsys can be used (Default production rules are recommended).
+
+Stateful configurations also allow you to setup a local database using SQLite. These installations only require a project name.
+
+Connections can be changed within the web appplication. If at any point the configuration needs to be manually reset you can do so by stopping the server and deleting the dbase.db and acsys.service.config.json files.
+
+### Stateless
+
+To configure a stateless version of Acsys you must set your database and storage credentials in environment variables. Please note that when running stateless a Firebase project must be created to configure Storage regardless of configuration.
+
+#### Environment Variables
+
+- `DATABASE_TYPE` specifies database to connect to: (firestore or mysql)
+- `API_SECRET` overrides default key for stateless configurations (optional)
+- `DATABASE_HOST` database host
+- `DATABASE_PORT` database port (optional)
+- `DATABASE` database name
+- `DATABASE_USERNAME` database username
+- `PASSWORD` database password
+- `SOCKET_PATH` this may be required for MySQL configurations in a serverless environment (Is most often the connection name in Cloud SQL [more info](https://cloud.google.com/sql/docs/mysql/samples/cloud-sql-mysql-mysql-create-socket))
+- `BUCKET` specifies Cloud Storage bucket to be used
+- `TYPE` TYPE value found in service account key
+- `PROJECT_ID` PROJECT_ID value found in service account key
+- `PRIVATE_KEY_ID` PRIVATE_KEY_ID value found in service account key
+- `PRIVATE_KEY` PRIVATE_KEY value found in service account key
+- `CLIENT_EMAIL` CLIENT_EMAIL value found in service account key
+- `CLIENT_ID` CLIENT_ID value found in service account key
+- `AUTH_URI` AUTH_URI value found in service account key
+- `TOKEN_URI` TOKEN_URI value found in service account key
+- `AUTH_PROVIDER_X509_CERT_URL` AUTH_PROVIDER_X509_CERT_URL value found in service account key
+- `CLIENT_X509_CERT_URL` CLIENT_X509_CERT_URL value found in service account key
+
+We highly recommend placing enviroment variables in a .env file as this project is setup to read the file by default.
+
+#### Firestore Example
+
+```bash
+DATABASE_TYPE=firestore
+BUCKET=project-id.appspot.com
+TYPE=service_account
+PROJECT_ID=project-id
+PRIVATE_KEY_ID=key-id
+PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\nprivate-key\n-----END PRIVATE KEY-----\n
+CLIENT_EMAIL=service-account-email
+CLIENT_ID=client-id
+AUTH_URI=https://accounts.google.com/o/oauth2/auth
+TOKEN_URI=https://accounts.google.com/o/oauth2/token
+AUTH_PROVIDER_X509_CERT_URL=https://www.googleapis.com/oauth2/v1/certs
+CLIENT_X509_CERT_URL=https://www.googleapis.com/robot/v1/metadata/x509/service-account-email
+```
+
+#### MySQL Example
+
+```bash
+DATABASE_TYPE=mysql
+DATABASE_HOST=0.0.0.0
+DATABASE=demo_database
+DATABASE_USERNAME=app-account
+PASSWORD=password
+BUCKET=project-id.appspot.com
+TYPE=service_account
+PROJECT_ID=project-id
+PRIVATE_KEY_ID=key-id
+PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\nprivate-key\n-----END PRIVATE KEY-----\n
+CLIENT_EMAIL=service-account-email
+CLIENT_ID=client-id
+AUTH_URI=https://accounts.google.com/o/oauth2/auth
+TOKEN_URI=https://accounts.google.com/o/oauth2/token
+AUTH_PROVIDER_X509_CERT_URL=https://www.googleapis.com/oauth2/v1/certs
+CLIENT_X509_CERT_URL=https://www.googleapis.com/robot/v1/metadata/x509/service-account-email
+```
 
 ## Built With
 
@@ -86,8 +171,8 @@ There are many ways in which you can participate in the project, for example:
 - Review source code changes
 - Review the documentation
 
-We encourage you to tell us what you want out of this project! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+We encourage you to tell us what you want out of this project! Please read [CONTRIBUTING.md](https://github.com/aeon-software/acsys/blob/master/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/aeon-software/acsys/blob/master/LICENSE.md) file for details.

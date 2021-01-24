@@ -1,0 +1,4 @@
+node_modules
+acsys.service.config.json
+dbase.db
+.env
