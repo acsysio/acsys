@@ -76,6 +76,8 @@ Then run using:
 docker run -p 8080:8080 acsysio/acsys
 ```
 
+Official Docker Image can be found [here](https://hub.docker.com/r/acsysio/acsys).
+
 ## Configuration
 
 Acsys can be configured in either a stateful or stateless manner. Stateful configurations are ideal for server deployments whereas stateless configurations are ideal for serverless archetectures. An Acsys configuration is considered serverless once the `DATABASE_TYPE` environment variable has been set.
