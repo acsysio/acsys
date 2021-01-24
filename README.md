@@ -81,25 +81,25 @@ To configure a stateless version of Acsys you must set your database and storage
 
 #### Environment Variables
 
-`DATABASE_TYPE` specifies database to connect to: (firestore or mysql)
-`API_SECRET` overrides default key for stateless configurations (optional)
-`DATABASE_HOST` database host
-`DATABASE_PORT` database port (optional)
-`DATABASE` database name
-`DATABASE_USERNAME` database username
-`PASSWORD` database password
-`SOCKET_PATH` this may be required for MySQL configurations in a serverless environment (Is most often the connection name in Cloud SQL [more info](https://cloud.google.com/sql/docs/mysql/samples/cloud-sql-mysql-mysql-create-socket))
-`BUCKET` specifies Cloud Storage bucket to be used
-`TYPE` TYPE value found in service account key
-`PROJECT_ID` PROJECT_ID value found in service account key
-`PRIVATE_KEY_ID` PRIVATE_KEY_ID value found in service account key
-`PRIVATE_KEY` PRIVATE_KEY value found in service account key
-`CLIENT_EMAIL` CLIENT_EMAIL value found in service account key
-`CLIENT_ID` CLIENT_ID value found in service account key
-`AUTH_URI` AUTH_URI value found in service account key
-`TOKEN_URI` TOKEN_URI value found in service account key
-`AUTH_PROVIDER_X509_CERT_URL` AUTH_PROVIDER_X509_CERT_URL value found in service account key
-`CLIENT_X509_CERT_URL` CLIENT_X509_CERT_URL value found in service account key
+- `DATABASE_TYPE` specifies database to connect to: (firestore or mysql)
+- `API_SECRET` overrides default key for stateless configurations (optional)
+- `DATABASE_HOST` database host
+- `DATABASE_PORT` database port (optional)
+- `DATABASE` database name
+- `DATABASE_USERNAME` database username
+- `PASSWORD` database password
+- `SOCKET_PATH` this may be required for MySQL configurations in a serverless environment (Is most often the connection name in Cloud SQL [more info](https://cloud.google.com/sql/docs/mysql/samples/cloud-sql-mysql-mysql-create-socket))
+- `BUCKET` specifies Cloud Storage bucket to be used
+- `TYPE` TYPE value found in service account key
+- `PROJECT_ID` PROJECT_ID value found in service account key
+- `PRIVATE_KEY_ID` PRIVATE_KEY_ID value found in service account key
+- `PRIVATE_KEY` PRIVATE_KEY value found in service account key
+- `CLIENT_EMAIL` CLIENT_EMAIL value found in service account key
+- `CLIENT_ID` CLIENT_ID value found in service account key
+- `AUTH_URI` AUTH_URI value found in service account key
+- `TOKEN_URI` TOKEN_URI value found in service account key
+- `AUTH_PROVIDER_X509_CERT_URL` AUTH_PROVIDER_X509_CERT_URL value found in service account key
+- `CLIENT_X509_CERT_URL` CLIENT_X509_CERT_URL value found in service account key
 
 We highly recommend placing enviroment variables in a .env file as this project is setup to read the file by default.
 
