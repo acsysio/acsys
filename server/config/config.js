@@ -222,18 +222,22 @@ class Config {
   getSecret() {
     return new Promise((resolve, reject) => {
       if (process.env.API_SECRET === undefined) {
-        fs.readFile(
-          'server/config/config.json',
-          { encoding: 'utf8', flag: 'r' },
-          (err, data) => {
-            if (err) {
-              resolve('default-key');
-            } else {
-              const key = JSON.parse(data);
-              resolve(key.secret);
+        if (process.env.DATABASE_TYPE === undefined) {
+          fs.readFile(
+            'server/config/config.json',
+            { encoding: 'utf8', flag: 'r' },
+            (err, data) => {
+              if (err) {
+                resolve('default-key');
+              } else {
+                const key = JSON.parse(data);
+                resolve(key.secret);
+              }
             }
-          }
-        );
+          );
+        } else {
+          resolve('default-key');
+        }
       } else {
         resolve(process.env.API_SECRET);
       }
