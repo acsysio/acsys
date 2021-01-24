@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href=LICENSE.md>
+  <a href="https://github.com/aeon-software/acsys/blob/master/LICENSE.md">
     <img src="https://img.shields.io/github/license/aeon-software/acsys" />
   </a>
   <a href="https://github.com/aeon-software/acsys/commits">
@@ -15,10 +15,10 @@
     <img src="https://img.shields.io/github/repo-size/aeon-software/acsys" />
   </a>
   <a href="https://hub.docker.com/r/acsysio/acsys">
-    <img src="https://img.shields.io/docker/automated/acsysio/acsys" />
+    <img src="https://img.shields.io/docker/cloud/automated/acsysio/acsys" />
   </a>
   <a href="https://hub.docker.com/r/acsysio/acsys/builds">
-    <img src="https://img.shields.io/docker/build/acsysio/acsys" />
+    <img src="https://img.shields.io/docker/cloud/build/acsysio/acsys" />
   </a>
 </p>
 
@@ -169,8 +169,8 @@ There are many ways in which you can participate in the project, for example:
 - Review source code changes
 - Review the documentation
 
-We encourage you to tell us what you want out of this project! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+We encourage you to tell us what you want out of this project! Please read [CONTRIBUTING.md](https://github.com/aeon-software/acsys/blob/master/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/aeon-software/acsys/blob/master/LICENSE.md) file for details.
