@@ -76,7 +76,7 @@ Then run using:
 docker run -p 8080:8080 acsysio/acsys
 ```
 
-With environment variable file
+With environment variable file:
 
 ```bash
 docker run -p 8080:8080 --env-file .env acsysio/acsys
