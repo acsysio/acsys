@@ -15,10 +15,10 @@
     <img src="https://img.shields.io/github/repo-size/aeon-software/acsys" />
   </a>
   <a href="https://hub.docker.com/r/acsysio/acsys">
-    <img src="https://img.shields.io/docker/automated/acsysio/acsys" />
+    <img src="https://img.shields.io/docker/cloud/automated/acsysio/acsys" />
   </a>
   <a href="https://hub.docker.com/r/acsysio/acsys/builds">
-    <img src="https://img.shields.io/docker/build/acsysio/acsys" />
+    <img src="https://img.shields.io/docker/cloud/build/acsysio/acsys" />
   </a>
 </p>
 
