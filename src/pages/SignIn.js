@@ -26,9 +26,12 @@ class SignInPage extends Component {
 
   componentDidMount = async () => {
     const installed = await Acsys.hasAdmin();
-
+    const defaultUser = await Acsys.getDefaultUsername();
+    const defaultPassword = await Acsys.getDefaultPassword();
     this.setState({
       isInstalled: installed,
+      username: defaultUser,
+      passwordOne: defaultPassword,
     });
   };
 
