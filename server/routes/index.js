@@ -189,6 +189,22 @@ router.post('/register', function (req, res) {
     });
 });
 
+router.get('/getDefaultUsername', async function (req, res) {
+  if (process.env.DEFAULT_USERNAME === undefined) {
+    res.json('');
+  } else {
+    res.json(process.env.DEFAULT_USERNAME);
+  }
+});
+
+router.get('/getDefaultPassword', async function (req, res) {
+  if (process.env.DEFAULT_PASSWORD === undefined) {
+    res.json('');
+  } else {
+    res.json(process.env.DEFAULT_PASSWORD);
+  }
+});
+
 router.post('/verifyPassword', function (req, res) {
   data.verifyPassword(req.body.acsys_id).then((result) => {
     bcrypt.compare(req.body.password, result, function (err, outcome) {

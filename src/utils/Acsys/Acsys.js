@@ -909,6 +909,44 @@ export const hasAdmin = () => {
   });
 };
 
+export const getDefaultUsername = async () => {
+  return new Promise((resolve, reject) => {
+    promFetch('/api/getDefaultUsername', {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        resolve(result);
+      })
+      .catch((error) => {
+        resolve(false);
+      });
+  });
+};
+
+export const getDefaultPassword = async () => {
+  return new Promise((resolve, reject) => {
+    promFetch('/api/getDefaultPassword', {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        resolve(result);
+      })
+      .catch((error) => {
+        resolve(false);
+      });
+  });
+};
+
 export const verifyPassword = async (acsys_id, password) => {
   await checkToken();
   return new Promise((resolve, reject) => {
