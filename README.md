@@ -76,6 +76,12 @@ Then run using:
 docker run -p 8080:8080 acsysio/acsys
 ```
 
+With environment variable file:
+
+```bash
+docker run -p 8080:8080 --env-file .env acsysio/acsys
+```
+
 Official Docker Image can be found [here](https://hub.docker.com/r/acsysio/acsys).
 
 ## Configuration
@@ -104,6 +110,8 @@ To configure a stateless version of Acsys you must set your database and storage
 - `DATABASE_USERNAME` database username
 - `PASSWORD` database password
 - `SOCKET_PATH` this may be required for MySQL configurations in a serverless environment (Is most often the connection name in Cloud SQL [more info](https://cloud.google.com/sql/docs/mysql/samples/cloud-sql-mysql-mysql-create-socket))
+- `DEFAULT_USERNAME` for demo only
+- `DEFAULT_PASSWORD` for demo only
 - `BUCKET` specifies Cloud Storage bucket to be used
 - `TYPE` TYPE value found in service account key
 - `PROJECT_ID` PROJECT_ID value found in service account key

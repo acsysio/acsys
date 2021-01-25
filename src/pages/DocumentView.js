@@ -589,8 +589,10 @@ class DocumentView extends React.Component {
             if (details.is_visible_on_page) {
               let date;
               if (initLoad) {
-                date = new Date();
-                this.handleChange(currentKey, date);
+                if (details.control == 'dateTimePicker') {
+                  date = new Date();
+                  this.handleChange(currentKey, date);
+                }
                 if (documentDetails.length - 1 === dindex) {
                   initLoad = false;
                 }
