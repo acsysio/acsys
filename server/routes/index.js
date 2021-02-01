@@ -790,17 +790,17 @@ router.post('/deleteView', function (req, res) {
     .deleteDocs('acsys_document_details', [
       ['content_id', '=', deleteData.view_id],
     ])
-    .then((result) => {
+    .then(() => {
       data
         .deleteDocs('acsys_views', [['acsys_id', '=', deleteData.view_id]])
-        .then((result2) => {
+        .then(() => {
           data
             .deleteDocs('acsys_logical_content', [
               ['viewId', '=', deleteData.view_id],
             ])
-            .then((result3) => {
-              data.reorgViews().then((result4) => {
-                res.send(result4);
+            .then(() => {
+              data.reorgViews().then((result) => {
+                res.send(result);
               });
             });
         });

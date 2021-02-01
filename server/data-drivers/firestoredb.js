@@ -549,13 +549,9 @@ class DataDriver {
           const objects = [];
 
           snapshot.forEach((doc) => {
-            db.collection(collectionName)
-              .doc(doc.id)
-              .delete()
-              .then(() => resolve(true))
-              .catch(() => reject(false));
+            db.collection(collectionName).doc(doc.id).delete();
           });
-          resolve();
+          resolve(true);
         })
         .catch(reject);
     });
