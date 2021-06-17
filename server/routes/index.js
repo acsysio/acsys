@@ -10,6 +10,7 @@ const SqliteDriver = require('../data-drivers/sqlitedb');
 const FirestoreDriver = require('../data-drivers/firestoredb');
 const MysqlDriver = require('../data-drivers/mysqldb');
 const StorageDriver = require('../storage-drivers/gcpstorage');
+const StatelessStorageDriver = require('../storage-drivers/gcpstorageStateless');
 const LocalStorage = require('../storage-drivers/localstorage');
 
 const router = express.Router();
@@ -41,23 +42,56 @@ async function initialize() {
 
   const dbType = await config.getDatabaseType();
 
-  if (dbType === 'firestore') {
-    data = new FirestoreDriver();
-    storage = new StorageDriver();
-  } else if (dbType === 'mysql') {
-    data = new MysqlDriver();
-    storage = new StorageDriver();
-  } else if (dbType === 'local') {
-    data = new SqliteDriver();
-    storage = new LocalStorage();
+  if (process.env.DATABASE_TYPE === undefined) {
+    if (dbType === 'firestore') {
+      data = new FirestoreDriver();
+      storage = new StorageDriver();
+    } else if (dbType === 'mysql') {
+      data = new MysqlDriver();
+      storage = new StorageDriver();
+    } else if (dbType === 'local') {
+      data = new SqliteDriver();
+      storage = new LocalStorage();
+    }
+    await data.initialize(config);
+    await storage.initialize(config, data);
+  } else {
+    storage = new StatelessStorageDriver();
+    if (dbType === 'firestore') {
+      data = new FirestoreDriver();
+      await data.initialize(config);
+      await storage.initialize(
+        config,
+        data,
+        data.getBucketName(),
+        data.getBucket()
+      );
+    } else if (dbType === 'mysql') {
+      const fdata = new FirestoreDriver();
+      data = new MysqlDriver();
+      await fdata.initialize(config);
+      await data.initialize(config);
+      await storage.initialize(
+        config,
+        data,
+        fdata.getBucketName(),
+        fdata.getBucket()
+      );
+    }
   }
-  await data.initialize(config);
-  await storage.initialize(config, data);
 }
 
 initialize();
 
 express().use(express.static('./config'));
+
+router.get('/isStateless', function (req, res) {
+  if (process.env.DATABASE_TYPE === undefined) {
+    res.send(false);
+  } else {
+    res.send(true);
+  }
+});
 
 router.get('/isConnected', function (req, res) {
   if (data.isConnected()) {
@@ -153,6 +187,22 @@ router.post('/register', function (req, res) {
       console.log(error);
       res.send((rData = { value: false }));
     });
+});
+
+router.get('/getDefaultUsername', async function (req, res) {
+  if (process.env.DEFAULT_USERNAME === undefined) {
+    res.json('');
+  } else {
+    res.json(process.env.DEFAULT_USERNAME);
+  }
+});
+
+router.get('/getDefaultPassword', async function (req, res) {
+  if (process.env.DEFAULT_PASSWORD === undefined) {
+    res.json('');
+  } else {
+    res.json(process.env.DEFAULT_PASSWORD);
+  }
 });
 
 router.post('/verifyPassword', function (req, res) {
@@ -740,17 +790,17 @@ router.post('/deleteView', function (req, res) {
     .deleteDocs('acsys_document_details', [
       ['content_id', '=', deleteData.view_id],
     ])
-    .then((result) => {
+    .then(() => {
       data
         .deleteDocs('acsys_views', [['acsys_id', '=', deleteData.view_id]])
-        .then((result2) => {
+        .then(() => {
           data
             .deleteDocs('acsys_logical_content', [
               ['viewId', '=', deleteData.view_id],
             ])
-            .then((result3) => {
-              data.reorgViews().then((result4) => {
-                res.send(result4);
+            .then(() => {
+              data.reorgViews().then((result) => {
+                res.send(result);
               });
             });
         });
@@ -1186,30 +1236,34 @@ router.get('/getDatabaseConfig', async function (req, res) {
 });
 
 router.get('/loadStorageConfig', async function (req, res) {
-  const type = await config.getStorageType();
-  if (type === 'gcp') {
-    try {
-      fs.readFile('./acsys.service.config.json', function (err, dataConfig) {
-        if (err) {
-          res.send((rData = { value: false }));
-        } else {
-          storage
-            .initialize(config, data)
-            .then((result) => {
-              res.send((rData = { value: true }));
-            })
-            .catch((result) => {
-              res.send((rData = { value: false }));
-            });
-        }
-      });
-    } catch (error) {
+  if (process.env.DATABASE_TYPE === undefined) {
+    const type = await config.getStorageType();
+    if (type === 'gcp') {
+      try {
+        fs.readFile('./acsys.service.config.json', function (err, dataConfig) {
+          if (err) {
+            res.send((rData = { value: false }));
+          } else {
+            storage
+              .initialize(config, data)
+              .then((result) => {
+                res.send((rData = { value: true }));
+              })
+              .catch((result) => {
+                res.send((rData = { value: false }));
+              });
+          }
+        });
+      } catch (error) {
+        res.send((rData = { value: false }));
+      }
+    } else if (type === 'local') {
+      res.send((rData = { value: true }));
+    } else {
       res.send((rData = { value: false }));
     }
-  } else if (type === 'local') {
-    res.send((rData = { value: true }));
   } else {
-    res.send((rData = { value: false }));
+    res.send((rData = { value: true }));
   }
 });
 

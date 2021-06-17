@@ -8,9 +8,26 @@ let connected = false;
 class DataDriver {
   initialize() {
     return new Promise(async (resolve, reject) => {
+      let serviceAccount;
+      if (process.env.DATABASE_TYPE !== undefined) {
+        serviceAccount = {
+          type: process.env.TYPE,
+          project_id: process.env.PROJECT_ID,
+          private_key_id: process.env.PRIVATE_KEY_ID,
+          private_key: process.env.PRIVATE_KEY.replace(/\\n/g, '\n'),
+          client_email: process.env.CLIENT_EMAIL,
+          client_id: process.env.CLIENT_ID,
+          auth_uri: process.env.AUTH_URI,
+          token_uri: process.env.TOKEN_URI,
+          auth_provider_x509_cert_url: process.env.AUTH_PROVIDER_X509_CERT_URL,
+          client_x509_cert_url: process.env.CLIENT_X509_CERT_URL,
+        };
+      } else {
+        serviceAccount = require('../../acsys.service.config.json');
+      }
       try {
-        const serviceAccount = require('../../acsys.service.config.json');
         admin.initializeApp({
+          // credential: admin.credential.cert(serviceAccount),
           credential: admin.credential.cert(serviceAccount),
         });
         auth = admin.auth();
@@ -20,6 +37,7 @@ class DataDriver {
         }
         resolve(true);
       } catch (error) {
+        console.log(error);
         connected = false;
       }
       resolve(false);
@@ -30,8 +48,20 @@ class DataDriver {
     return connected;
   }
 
+  getBucketName() {
+    if (process.env.BUCKET === undefined) {
+      return db.projectId + '.appspot.com';
+    } else {
+      return process.env.BUCKET;
+    }
+  }
+
   getBucket() {
-    return admin.storage().bucket();
+    if (process.env.BUCKET === undefined) {
+      return admin.storage().bucket(db.projectId + '.appspot.com');
+    } else {
+      return admin.storage().bucket(process.env.BUCKET);
+    }
   }
 
   getProjectName() {
@@ -519,13 +549,9 @@ class DataDriver {
           const objects = [];
 
           snapshot.forEach((doc) => {
-            db.collection(collectionName)
-              .doc(doc.id)
-              .delete()
-              .then(() => resolve(true))
-              .catch(() => reject(false));
+            db.collection(collectionName).doc(doc.id).delete();
           });
-          resolve();
+          resolve(true);
         })
         .catch(reject);
     });
