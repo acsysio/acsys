@@ -560,14 +560,8 @@ class Settings extends React.Component {
   }
 
   getMysqlPanel() {
-    const {
-      dhost,
-      dport,
-      ddatabase,
-      dusername,
-      dpassword,
-      socketPath,
-    } = this.state;
+    const { dhost, dport, ddatabase, dusername, dpassword, socketPath } =
+      this.state;
     return (
       <Grid>
         <Grid item xs={12} style={{ marginBottom: 30 }}>
@@ -668,15 +662,8 @@ class Settings extends React.Component {
   }
 
   render() {
-    const {
-      databaseType,
-      host,
-      port,
-      username,
-      password,
-      loading,
-      message,
-    } = this.state;
+    const { databaseType, host, port, username, password, loading, message } =
+      this.state;
 
     return (
       <div>
