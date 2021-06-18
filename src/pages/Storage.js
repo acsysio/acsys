@@ -599,14 +599,8 @@ class Storage extends React.Component {
       });
   }
   render() {
-    const {
-      deleteLoading,
-      files,
-      rowsPerPage,
-      page,
-      currentDir,
-      con,
-    } = this.state;
+    const { deleteLoading, files, rowsPerPage, page, currentDir, con } =
+      this.state;
     if (con) {
       try {
         return (
