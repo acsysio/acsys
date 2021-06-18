@@ -232,14 +232,8 @@ class LogicalContent extends React.Component {
     return views
       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
       .map((views) => {
-        const {
-          acsys_id,
-          table,
-          rows,
-          viewId,
-          source_collection,
-          table_keys,
-        } = views;
+        const { acsys_id, table, rows, viewId, source_collection, table_keys } =
+          views;
         return (
           <TableRow key={acsys_id}>
             <TableCell>{table}</TableCell>
