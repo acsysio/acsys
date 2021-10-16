@@ -635,6 +635,19 @@ class CollectionView extends React.Component {
                       '/' +
                       date.getFullYear();
                     returnValue = printDate;
+                  } else if (details.control == 'timePicker') {
+                    const date = new Date(value);
+                    let hours = date.getHours();
+                    let ampm = ' AM';
+                    if (hours > 12) {
+                      hours -= 12;
+                      ampm = ' PM';
+                    }
+                    const printDate =
+                      hours + ':' + ('0' + date.getMinutes()).slice(-2) + ampm;
+                    returnValue = printDate;
+                  } else if (details.control == 'dayPicker') {
+                    returnValue = value;
                   } else if (details.control == 'booleanSelect') {
                     const tmpElement = document.createElement('DIV');
                     tmpElement.innerHTML = Boolean(value);

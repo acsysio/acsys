@@ -16,6 +16,7 @@ import * as Acsys from '../utils/Acsys/Acsys';
 import AutoGen from '../components/Controls/AutoGen';
 import BooleanSelect from '../components/Controls/BooleanSelect';
 import DateTimePicker from '../components/Controls/DateTimePicker';
+import DayPicker from '../components/Controls/DayPicker';
 import ImageReference from '../components/Controls/ImageReference';
 import ImageURL from '../components/Controls/ImageURL';
 import NumberEditor from '../components/Controls/NumberEditor';
@@ -321,7 +322,6 @@ class DocumentView extends React.Component {
           }
         }
       }
-      console.log(fileDoc);
       await Acsys.insertData(this.state.collection, {
         ...tempDocument,
       });
@@ -589,7 +589,10 @@ class DocumentView extends React.Component {
             if (details.is_visible_on_page) {
               let date;
               if (initLoad) {
-                if (details.control == 'dateTimePicker') {
+                if (
+                  details.control == 'dateTimePicker' ||
+                  details.control == 'timePicker'
+                ) {
                   date = new Date();
                   this.handleChange(currentKey, date);
                 }
@@ -626,12 +629,34 @@ class DocumentView extends React.Component {
           currentKey={currentKey}
         />
       );
+    } else if (details.control == 'timePicker') {
+      return (
+        <DateTimePicker
+          width={details.width}
+          field_name={details.field_name}
+          defaultValue={date}
+          handleChange={this.handleChange}
+          currentKey={currentKey}
+          dateFormat={false}
+        />
+      );
     } else if (details.control == 'dateTimePicker') {
       return (
         <DateTimePicker
           width={details.width}
           field_name={details.field_name}
           defaultValue={date}
+          handleChange={this.handleChange}
+          currentKey={currentKey}
+          dateFormat={true}
+        />
+      );
+    } else if (details.control == 'dayPicker') {
+      return (
+        <DayPicker
+          width={details.width}
+          field_name={details.field_name}
+          defaultValue={tempDocument[currentKey]}
           handleChange={this.handleChange}
           currentKey={currentKey}
         />

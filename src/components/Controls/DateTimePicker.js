@@ -12,6 +12,7 @@ export default function DateTimePicker(props) {
         <Grid item xs={12}>
           <Datetime
             margin="normal"
+            dateFormat={props.dateFormat}
             initialValue={props.defaultValue}
             onChange={(e) => props.handleChange(props.currentKey, e.toDate())}
             style={{ width: '100%' }}

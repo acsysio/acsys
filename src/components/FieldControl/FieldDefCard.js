@@ -48,7 +48,9 @@ const Card = memo(({ id, details, moveCard }) => {
     data.push(<option value="autoGen">autoGen</option>);
     data.push(<option value="textEditor">textEditor</option>);
     data.push(<option value="richTextEditor">richTextEditor</option>);
+    data.push(<option value="timePicker">timePicker</option>);
     data.push(<option value="dateTimePicker">dateTimePicker</option>);
+    data.push(<option value="dayPicker">dayPicker</option>);
     data.push(<option value="imageReference">imageReference</option>);
     data.push(<option value="imageURL">imageURL</option>);
     data.push(<option value="videoReference">videoReference</option>);
