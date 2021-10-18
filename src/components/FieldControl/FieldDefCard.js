@@ -25,8 +25,12 @@ export default function EditText(props) {
   const [dropDownFields, setDropDownFields] = useState([]);
   const ref = useRef(null);
   useEffect(() => {
-    if (props.data !== undefined && dropDownFields.length === 0) {
-      setDropDownFields(props.data);
+    if (
+      props.details.data !== undefined &&
+      props.details.data !== true &&
+      dropDownFields.length === 0
+    ) {
+      setDropDownFields(props.details.data.split(','));
     }
   });
   useEffect(() => {
@@ -60,26 +64,25 @@ export default function EditText(props) {
   data.push(<option value="none">none</option>);
 
   if (props.details.type === 'string') {
-    data.push(<option value="autoGen">autoGen</option>);
-    data.push(<option value="textEditor">textEditor</option>);
-    data.push(<option value="richTextEditor">richTextEditor</option>);
-    data.push(<option value="timePicker">timePicker</option>);
-    data.push(<option value="dateTimePicker">dateTimePicker</option>);
-    data.push(<option value="dayPicker">dayPicker</option>);
-    data.push(<option value="dropDown">dropDown</option>);
-    data.push(<option value="imageReference">imageReference</option>);
-    data.push(<option value="imageURL">imageURL</option>);
-    data.push(<option value="videoReference">videoReference</option>);
-    data.push(<option value="videoURL">videoURL</option>);
+    data.push(<option value="autoGen">Auto Generated Id</option>);
+    data.push(<option value="textEditor">Text Editor</option>);
+    data.push(<option value="richTextEditor">Rich Text Editor</option>);
+    data.push(<option value="timePicker">Time Picker</option>);
+    data.push(<option value="dateTimePicker">Date Time Picker</option>);
+    data.push(<option value="dropDown">Dropdown</option>);
+    data.push(<option value="imageReference">Image Reference</option>);
+    data.push(<option value="imageURL">Image URL</option>);
+    data.push(<option value="videoReference">Video Reference</option>);
+    data.push(<option value="videoURL">Video URL</option>);
   }
 
   if (props.details.type === 'boolean') {
-    data.push(<option value="booleanSelect">boolean</option>);
+    data.push(<option value="booleanSelect">Boolean</option>);
   }
 
   if (props.details.type === 'number') {
-    data.push(<option value="numberEditor">numberEditor</option>);
-    data.push(<option value="booleanSelect">boolean</option>);
+    data.push(<option value="numberEditor">Number Editor</option>);
+    data.push(<option value="booleanSelect">Boolean</option>);
   }
 
   const width = [];
@@ -92,7 +95,7 @@ export default function EditText(props) {
     if (event === 'dropDown') {
       setDropdown(true);
     } else {
-      if (props.data !== undefined) {
+      if (props.details.data !== undefined) {
         props.details['data'] = true;
       }
       setDropdown(false);

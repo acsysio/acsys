@@ -366,6 +366,44 @@ class CollectionView extends React.Component {
     table_keys = [];
     for (var i = 0; i < tempDetails.length; i++) {
       tempDetails[i].view_order = i;
+      if (tempDetails[i].data !== undefined) {
+        if (tempDetails[i].data === true) {
+          await Acsys.deleteData('acsys_details_dropdown', [
+            ['acsys_id', '=', tempDetails[i].acsys_id],
+            ['field_name', '=', tempDetails[i].field_name],
+          ]);
+        } else {
+          await Acsys.getData('acsys_details_dropdown', [
+            ['acsys_id', '=', tempDetails[i].acsys_id],
+            ['field_name', '=', tempDetails[i].field_name],
+          ])
+            .then(async (result) => {
+              const entry = {
+                acsys_id: tempDetails[i].acsys_id,
+                field_name: tempDetails[i].field_name,
+                field: tempDetails[i].data,
+              };
+              if (result.length > 0) {
+                await Acsys.updateData('acsys_details_dropdown', entry, [
+                  ['acsys_id', '=', tempDetails[i].acsys_id],
+                  ['field_name', '=', tempDetails[i].field_name],
+                ]);
+              } else {
+                await Acsys.insertData('acsys_details_dropdown', entry);
+              }
+            })
+            .catch(() => {});
+        }
+        delete tempDetails[i].data;
+      }
+      const result = await Acsys.updateData(
+        'acsys_document_details',
+        { ...tempDetails[i] },
+        [['acsys_id', '=', tempDetails[i].acsys_id]]
+      );
+    }
+    for (var i = 0; i < tempDetails.length; i++) {
+      tempDetails[i].view_order = i;
       await Acsys.updateData('acsys_document_details', tempDetails[i], [
         ['acsys_id', '=', tempDetails[i].acsys_id],
       ]);
@@ -646,8 +684,6 @@ class CollectionView extends React.Component {
                     const printDate =
                       hours + ':' + ('0' + date.getMinutes()).slice(-2) + ampm;
                     returnValue = printDate;
-                  } else if (details.control == 'dayPicker') {
-                    returnValue = value;
                   } else if (details.control == 'booleanSelect') {
                     const tmpElement = document.createElement('DIV');
                     tmpElement.innerHTML = Boolean(value);

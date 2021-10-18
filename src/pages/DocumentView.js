@@ -16,7 +16,6 @@ import * as Acsys from '../utils/Acsys/Acsys';
 import AutoGen from '../components/Controls/AutoGen';
 import BooleanSelect from '../components/Controls/BooleanSelect';
 import DateTimePicker from '../components/Controls/DateTimePicker';
-import DayPicker from '../components/Controls/DayPicker';
 import ImageReference from '../components/Controls/ImageReference';
 import ImageURL from '../components/Controls/ImageURL';
 import NumberEditor from '../components/Controls/NumberEditor';
@@ -29,6 +28,7 @@ import FieldControlDialog from '../components/Dialogs/FieldControlDialog';
 import LoadingDialog from '../components/Dialogs/LoadingDialog';
 import StorageDialog from '../components/Dialogs/StorageDialog';
 import YesNoDialog from '../components/Dialogs/YesNoDialog';
+import DropDown from '../components/Controls/DropDown';
 
 const INITIAL_STATE = {
   viewId: 0,
@@ -681,10 +681,11 @@ class DocumentView extends React.Component {
           dateFormat={true}
         />
       );
-    } else if (details.control == 'dayPicker') {
+    } else if (details.control == 'dropDown') {
       return (
-        <DayPicker
+        <DropDown
           width={details.width}
+          acsys_id={details.acsys_id}
           field_name={details.field_name}
           defaultValue={tempDocument[currentKey]}
           handleChange={this.handleChange}

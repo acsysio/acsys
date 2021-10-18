@@ -33,11 +33,7 @@ export default class Container extends React.Component {
       this.requestedFrame = undefined;
     };
     this.moveCard = (id, afterId) => {
-      const {
-        cardsById,
-        cardsByIndex,
-        data: [],
-      } = this.state;
+      const { cardsById, cardsByIndex, update } = this.state;
       const card = cardsById[id];
       const afterCard = cardsById[afterId];
       const cardIndex = cardsByIndex.indexOf(card);
@@ -63,8 +59,8 @@ export default class Container extends React.Component {
         ['field_name', '=', tempDetails[i].field_name],
       ])
         .then((result) => {
-          const tempArr = result[0].field.split(',');
-          this.setState({ data: tempArr });
+          tempDetails[i]['data'] = result[0].field;
+          this.setState({ update: true });
         })
         .catch(() => {});
     }
@@ -87,7 +83,6 @@ export default class Container extends React.Component {
               id={card.id}
               details={tempDetails[index]}
               moveCard={this.moveCard}
-              data={this.state.data}
             />
           ))}
         </div>
