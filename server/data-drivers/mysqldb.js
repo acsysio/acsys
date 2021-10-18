@@ -124,6 +124,10 @@ class MysqlDriver {
         (error, rows) => {}
       );
       db.query(
+        'CREATE TABLE IF NOT EXISTS acsys_details_dropdown (acsys_id TEXT, field TEXT, field_name TEXT)',
+        (error, rows) => {}
+      );
+      db.query(
         'CREATE TABLE IF NOT EXISTS acsys_email_settings (host TEXT, port INT, username TEXT, password TEXT)',
         (error, rows) => {}
       );

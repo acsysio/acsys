@@ -346,6 +346,36 @@ class DocumentView extends React.Component {
 
     for (var i = 0; i < tempDetails.length; i++) {
       tempDetails[i].view_order = i;
+      if (tempDetails[i].data !== undefined) {
+        if (tempDetails[i].data === true) {
+          await Acsys.deleteData('acsys_details_dropdown', [
+            ['acsys_id', '=', tempDetails[i].acsys_id],
+            ['field_name', '=', tempDetails[i].field_name],
+          ]);
+        } else {
+          await Acsys.getData('acsys_details_dropdown', [
+            ['acsys_id', '=', tempDetails[i].acsys_id],
+            ['field_name', '=', tempDetails[i].field_name],
+          ])
+            .then(async (result) => {
+              const entry = {
+                acsys_id: tempDetails[i].acsys_id,
+                field_name: tempDetails[i].field_name,
+                field: tempDetails[i].data,
+              };
+              if (result.length > 0) {
+                await Acsys.updateData('acsys_details_dropdown', entry, [
+                  ['acsys_id', '=', tempDetails[i].acsys_id],
+                  ['field_name', '=', tempDetails[i].field_name],
+                ]);
+              } else {
+                await Acsys.insertData('acsys_details_dropdown', entry);
+              }
+            })
+            .catch(() => {});
+        }
+        delete tempDetails[i].data;
+      }
       const result = await Acsys.updateData(
         'acsys_document_details',
         { ...tempDetails[i] },

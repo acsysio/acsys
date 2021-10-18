@@ -1,6 +1,7 @@
 import update from 'immutability-helper';
 import React from 'react';
 import Card from './FieldDefCard';
+import * as Acsys from '../../utils/Acsys/Acsys';
 
 let tempDetails;
 let startIndex;
@@ -32,7 +33,11 @@ export default class Container extends React.Component {
       this.requestedFrame = undefined;
     };
     this.moveCard = (id, afterId) => {
-      const { cardsById, cardsByIndex } = this.state;
+      const {
+        cardsById,
+        cardsByIndex,
+        data: [],
+      } = this.state;
       const card = cardsById[id];
       const afterCard = cardsById[afterId];
       const cardIndex = cardsByIndex.indexOf(card);
@@ -49,6 +54,20 @@ export default class Container extends React.Component {
       });
     };
     this.state = buildCardData(props.docDetails);
+  }
+
+  componentDidMount() {
+    for (let i = 0; i < tempDetails.length; i++) {
+      Acsys.getData('acsys_details_dropdown', [
+        ['acsys_id', '=', tempDetails[i].acsys_id],
+        ['field_name', '=', tempDetails[i].field_name],
+      ])
+        .then((result) => {
+          const tempArr = result[0].field.split(',');
+          this.setState({ data: tempArr });
+        })
+        .catch(() => {});
+    }
   }
 
   componentWillUnmount() {
@@ -68,6 +87,7 @@ export default class Container extends React.Component {
               id={card.id}
               details={tempDetails[index]}
               moveCard={this.moveCard}
+              data={this.state.data}
             />
           ))}
         </div>
