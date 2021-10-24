@@ -16,6 +16,9 @@ export default function DropDown(props) {
     ])
       .then((result) => {
         const tempArr = result[0].field.split(',');
+        if (!tempArr.includes(props.defaultValue)) {
+          setOption(tempArr[0]);
+        }
         setOptions(tempArr);
       })
       .catch(() => {});
