@@ -12,193 +12,110 @@ import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
-import { makeStyles } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { Delete as DeleteIcon } from '@material-ui/icons';
-import React from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import * as Acsys from '../utils/Acsys/Acsys';
-import { AcsysConsumer } from '../utils/Session/AcsysProvider';
+import { AcsysContext } from '../utils/Session/AcsysProvider';
 import TableControl from '../components/TableControl/TableControl';
 import FieldControlDialog from '../components/Dialogs/FieldControlDialog';
 import LoadingDialog from '../components/Dialogs/LoadingDialog';
 import MessageDialog from '../components/Dialogs/MessageDialog';
 import YesNoDialog from '../components/Dialogs/YesNoDialog';
 
-const styles = makeStyles({
-  paper: {
-    maxWidth: 1236,
-    margin: 'auto',
-    overflow: 'hidden',
-  },
-  row: {
-    width: '100%',
-  },
-  searchBar: {
-    flexGrow: 1,
-    borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
-  },
-  block: {
-    display: 'block',
-  },
-  contentWrapper: {},
-});
-
-const INITIAL_STATE = {
-  viewId: '',
-  initialViews: [],
-  name: '',
-  collectionArr: [],
-  collection: '',
-  description: '',
-  views: [],
-  page: 0,
-  rowsPerPage: 15,
-  message: '',
-  loading: false,
-  saving: false,
-  deleting: false,
-  setOpen: false,
-  setEditOpen: false,
-  addLoading: false,
-  saveLoading: false,
-  deleteLoading: false,
-  error: '',
-};
-
 let tempView = [];
-let table = '';
 let tableName = '';
 let entry = [];
 
-class LogicalContent extends React.Component {
-  state = { ...INITIAL_STATE };
+const LogicalContent = (props) => {
+  const context = useContext(AcsysContext);
+  const [viewId, setviewId] = useState('');
+  const [views, setviews] = useState([]);
+  const [page, setpage] = useState(0);
+  const [rowsPerPage] = useState(15);
+  const [message, setmessage] = useState('');
+  const [loading, setloading] = useState(false);
+  const [deleting, setdeleting] = useState(false);
+  const [setOpen, setsetOpen] = useState(false);
+  const [addLoading, setaddLoading] = useState(false);
+  const [deleteLoading, setdeleteLoading] = useState(false);
+  const [openMessage, setopenMessage] = useState(false);
+  const [projectName] = useState('');
 
-  setTable = (table) => {
-    table = table;
-  };
-
-  getTable = () => {
-    return table;
-  };
-
-  deleteTable = async () => {
-    this.setState({ deleteLoading: true });
-    if (this.state.viewId.length > 0) {
-      await Acsys.dropTable(this.state.viewId);
+  const deleteTable = async () => {
+    setdeleteLoading(true);
+    if (viewId.length > 0) {
+      await Acsys.dropTable(viewId);
     }
-    this.handleDeleteClose();
-    this.componentDidMount();
+    handleDeleteClose();
+    inDidMount();
   };
 
-  handleChangePage = (event, page) => {
-    this.setState({ page });
+  const handleChangePage = (event, page) => {
+    setpage(page);
   };
 
-  handleClickOpen = async () => {
+  const handleClickOpen = async () => {
     entry = [];
     entry.push({ dataType: '', fieldName: '', value: '' });
-    this.setState({
-      setOpen: true,
-    });
+    setsetOpen(true);
   };
 
-  handleClose = () => {
+  const handleClose = () => {
     tableName = '';
-    this.setState({
-      setOpen: false,
-      addLoading: false,
-    });
+    setsetOpen(false);
+    setaddLoading(false);
   };
 
-  handleMessageOpen = async () => {
-    this.setState({
-      openMessage: true,
-    });
+  const handleMessageClose = () => {
+    setopenMessage(false);
   };
 
-  handleMessageClose = () => {
-    this.setState({
-      openMessage: false,
-    });
-  };
-
-  handleEditOpen = (view) => {
-    tempView = view;
-    this.setState({
-      setEditOpen: true,
-    });
-  };
-
-  handleEditClose = () => {
-    this.setState({
-      setEditOpen: false,
-    });
-  };
-
-  editView = async () => {
-    this.setState({
-      saving: true,
-    });
+  const editView = async () => {
     await Acsys.updateData('acsys_logical_content', tempView, [
       ['acsys_id', '=', tempView.acsys_id],
     ]);
     const currentView = await Acsys.getData('acsys_logical_content');
-    this.setState({
-      saving: false,
-      saveLoading: false,
-      setEditOpen: false,
-      views: currentView,
-    });
+    setviews(currentView);
   };
 
-  handleDeleteOpen = async (viewId) => {
-    this.setState({
-      deleting: true,
-      viewId: viewId,
-    });
+  const handleDeleteOpen = async (viewId) => {
+    setdeleting(true);
+    setviewId(viewId);
   };
 
-  handleDeleteClose = () => {
-    this.setState({
-      deleting: false,
-      deleteLoading: false,
-    });
+  const handleDeleteClose = () => {
+    setdeleting(false);
+    setdeleteLoading(false);
   };
 
-  componentDidMount = async () => {
-    this.props.setHeader('Database');
-    this.context.setHeld(false);
+  const inDidMount = async () => {
+    props.setHeader('Database');
+    context.setHeld(false);
     tempView = [];
-    this.setState({
-      loading: true,
-    });
+    setloading(true);
     let projectName = await Acsys.getProjectName();
     let currentView = [];
-
     currentView = await Acsys.getTableData();
-
-    this.setState({
-      projectName: projectName,
-      loading: false,
-      addLoading: false,
-      initialViews: currentView,
-      views: currentView,
-    });
+    projectName: projectName, setloading(false);
+    setaddLoading(false);
+    setviews(currentView);
   };
 
-  setName = (name) => {
+  useEffect(() => {
+    inDidMount();
+  }, []);
+
+  const setName = (name) => {
     tableName = name;
   };
 
-  addTable = async () => {
-    this.setState({ addLoading: true });
-
+  const addTable = async () => {
+    setaddLoading(true);
     let error = false;
-
     let newEntry = {};
-
     entry.forEach((obj) => {
       const field = obj['fieldName'];
       const value = obj['value'];
@@ -215,25 +132,21 @@ class LogicalContent extends React.Component {
     });
 
     if (error || tableName.length < 1) {
-      this.setState({
-        addLoading: false,
-        openMessage: true,
-        message: 'All fields must be filled before submitting.',
-      });
+      setaddLoading(false);
+      setopenMessage(true);
+      setmessage('Allfields must be filled before submitting.');
     } else {
       await Acsys.createTable(tableName, newEntry);
-      this.handleClose();
-      this.componentDidMount();
+      handleClose();
+      inDidMount();
     }
   };
 
-  renderTableData() {
-    const { views, rowsPerPage, page } = this.state;
+  const renderTableData = () => {
     return views
       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
       .map((views) => {
-        const { acsys_id, table, rows, viewId, source_collection, table_keys } =
-          views;
+        const { acsys_id, table, rows } = views;
         return (
           <TableRow key={acsys_id}>
             <TableCell>{table}</TableCell>
@@ -244,7 +157,7 @@ class LogicalContent extends React.Component {
                   edge="start"
                   color="inherit"
                   aria-label="delete"
-                  onClick={() => this.handleDeleteOpen(table)}
+                  onClick={() => handleDeleteOpen(table)}
                 >
                   <DeleteIcon />
                 </IconButton>
@@ -253,160 +166,148 @@ class LogicalContent extends React.Component {
           </TableRow>
         );
       });
-  }
-  render() {
-    const {
-      error,
-      projectName,
-      views,
-      rowsPerPage,
-      page,
-      message,
-      addLoading,
-      saveLoading,
-      deleteLoading,
-    } = this.state;
-    try {
-      return (
-        <div>
-          <Paper
+  };
+  try {
+    return (
+      <div>
+        <Paper
+          style={{
+            margin: 'auto',
+            overflow: 'hidden',
+            clear: 'both',
+            marginBottom: 20,
+          }}
+        >
+          <AppBar
+            position="static"
+            elevation={0}
             style={{
-              margin: 'auto',
-              overflow: 'hidden',
-              clear: 'both',
-              marginBottom: 20,
+              backgroundColor: '#fafafa',
+              borderBottom: '1px solid #dcdcdc',
             }}
           >
-            <AppBar
-              position="static"
-              elevation={0}
-              style={{
-                backgroundColor: '#fafafa',
-                borderBottom: '1px solid #dcdcdc',
-              }}
-            >
-              <Toolbar style={{ margin: 4, paddingLeft: 12, paddingRight: 12 }}>
-                <Grid container spacing={1}>
-                  <Grid item xs style={{ overflow: 'hidden' }}>
-                    <Typography
-                      align="left"
-                      variant="subtitle2"
-                      noWrap
-                      style={{ marginTop: 10, color: '#000000' }}
-                    >
-                      Project: {projectName}
-                    </Typography>
-                  </Grid>
-                  <Grid item>
-                    <Tooltip title="Create New Table">
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={this.handleClickOpen}
-                      >
-                        Add Table
-                      </Button>
-                    </Tooltip>
-                  </Grid>
+            <Toolbar style={{ margin: 4, paddingLeft: 12, paddingRight: 12 }}>
+              <Grid container spacing={1}>
+                <Grid item xs style={{ overflow: 'hidden' }}>
+                  <Typography
+                    align="left"
+                    variant="subtitle2"
+                    noWrap
+                    style={{ marginTop: 10, color: '#000000' }}
+                  >
+                    Project: {projectName}
+                  </Typography>
                 </Grid>
-              </Toolbar>
-            </AppBar>
-            <div style={{ margin: 'auto', overflow: 'auto' }}>
-              <Table>
-                <TableHead style={{ backgroundColor: '#fafafa' }}>
-                  <TableRow>
-                    <TableCell
-                      style={{
-                        paddingLeft: 16,
-                        paddingRight: 16,
-                        paddingTop: 5,
-                        paddingBottom: 5,
-                      }}
+                <Grid item>
+                  <Tooltip title="Create New Table">
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={handleClickOpen}
                     >
-                      TABLE NAME
-                    </TableCell>
-                    <TableCell
-                      style={{
-                        paddingLeft: 16,
-                        paddingRight: 16,
-                        paddingTop: 5,
-                        paddingBottom: 5,
-                        width: 50,
-                      }}
-                    >
-                      ROWS
-                    </TableCell>
-                    <TableCell
-                      style={{
-                        paddingLeft: 16,
-                        paddingRight: 16,
-                        paddingTop: 5,
-                        paddingBottom: 5,
-                        width: 100,
-                      }}
-                      align="right"
-                    >
-                      ACTIONS
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>{this.renderTableData()}</TableBody>
-              </Table>
-            </div>
-            <TablePagination
-              rowsPerPageOptions={[25]}
-              component="div"
-              count={views.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              backIconButtonProps={{
-                'aria-label': 'previous page',
-              }}
-              nextIconButtonProps={{
-                'aria-label': 'next page',
-              }}
-              onChangePage={this.handleChangePage}
-              onChangeRowsPerPage={this.handleChangeRowsPerPage}
-            />
-            <LoadingDialog loading={this.state.loading} message={'Loading'} />
-            <FieldControlDialog
-              open={this.state.setOpen}
-              closeDialog={this.handleClose}
-              title={'Add Table'}
-              backend={HTML5Backend}
-              component={<TableControl setName={this.setName} entry={entry} />}
-              action={this.addTable}
-              actionProcess={addLoading}
-            />
-            <YesNoDialog
-              open={this.state.deleting}
-              closeDialog={this.handleDeleteClose}
-              title={'Delete data?'}
-              message={'Are you sure you want to delete this data?'}
-              action={this.deleteTable}
-              actionProcess={deleteLoading}
-            />
-            <MessageDialog
-              open={this.state.openMessage}
-              closeDialog={this.handleMessageClose}
-              title={'Error'}
-              message={message}
-            />
-          </Paper>
-        </div>
-      );
-    } catch (error) {
-      return (
-        <div style={{ maxWidth: 1236, margin: 'auto' }}>
-          <Paper style={{ height: 40 }}>
-            <div style={{ padding: 10, margin: 'auto' }}>
-              Please make sure database has been created.
-            </div>
-          </Paper>
-        </div>
-      );
-    }
+                      Add Table
+                    </Button>
+                  </Tooltip>
+                </Grid>
+              </Grid>
+            </Toolbar>
+          </AppBar>
+          <div style={{ margin: 'auto', overflow: 'auto' }}>
+            <Table>
+              <TableHead style={{ backgroundColor: '#fafafa' }}>
+                <TableRow>
+                  <TableCell
+                    style={{
+                      paddingLeft: 16,
+                      paddingRight: 16,
+                      paddingTop: 5,
+                      paddingBottom: 5,
+                    }}
+                  >
+                    TABLE NAME
+                  </TableCell>
+                  <TableCell
+                    style={{
+                      paddingLeft: 16,
+                      paddingRight: 16,
+                      paddingTop: 5,
+                      paddingBottom: 5,
+                      width: 50,
+                    }}
+                  >
+                    ROWS
+                  </TableCell>
+                  <TableCell
+                    style={{
+                      paddingLeft: 16,
+                      paddingRight: 16,
+                      paddingTop: 5,
+                      paddingBottom: 5,
+                      width: 100,
+                    }}
+                    align="right"
+                  >
+                    ACTIONS
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>{renderTableData()}</TableBody>
+            </Table>
+          </div>
+          <TablePagination
+            rowsPerPageOptions={[25]}
+            component="div"
+            count={views.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            backIconButtonProps={{
+              'aria-label': 'previous page',
+            }}
+            nextIconButtonProps={{
+              'aria-label': 'next page',
+            }}
+            onChangePage={handleChangePage}
+            // onChangeRowsPerPage={handleChangeRowsPerPage}
+          />
+          <LoadingDialog loading={loading} message={'Loading'} />
+          <FieldControlDialog
+            open={setOpen}
+            closeDialog={handleClose}
+            title={'Add Table'}
+            backend={HTML5Backend}
+            component={<TableControl setName={setName} entry={entry} />}
+            action={addTable}
+            actionProcess={addLoading}
+          />
+          <YesNoDialog
+            open={deleting}
+            closeDialog={handleDeleteClose}
+            title={'Delete data?'}
+            message={'Are you sure you want to delete this data?'}
+            action={deleteTable}
+            actionProcess={deleteLoading}
+          />
+          <MessageDialog
+            open={openMessage}
+            closeDialog={handleMessageClose}
+            title={'Error'}
+            message={message}
+          />
+        </Paper>
+      </div>
+    );
+  } catch (error) {
+    alert(error);
+    return (
+      <div style={{ maxWidth: 1236, margin: 'auto' }}>
+        <Paper style={{ height: 40 }}>
+          <div style={{ padding: 10, margin: 'auto' }}>
+            Please make sure database has been created.
+          </div>
+        </Paper>
+      </div>
+    );
   }
-}
-LogicalContent.contextType = AcsysConsumer;
+};
+
 export default LogicalContent;

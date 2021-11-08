@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import {
   Box,
   Button,
@@ -9,83 +10,49 @@ import {
   Paper,
   Typography,
 } from '@material-ui/core';
-import React, { Component } from 'react';
 import * as Acsys from '../utils/Acsys/Acsys';
 
-const INITIAL_STATE = {
-  databaseType: 'local',
-  host: '',
-  port: '',
-  database: '',
-  username: '',
-  password: '',
-  socketPath: '',
-  projectName: '',
-  uploadFile: '',
-  fileName: '',
-  measurementId: '',
-  loading: false,
-  error: null,
-};
+const Configuration = () => {
+  const [databaseType, setdatabaseType] = useState('local');
+  const [host, sethost] = useState('');
+  const [port, setport] = useState('');
+  const [database, setdatabase] = useState('');
+  const [username, setusername] = useState('');
+  const [password, setpassword] = useState('');
+  const [socketPath, setsocketPath] = useState('');
+  const [projectName, setprojectName] = useState('');
+  const [uploadFile, setuploadFile] = useState('');
+  const [fileName, setfileName] = useState('');
+  const [loading, setloading] = useState(false);
+  const [error, seterror] = useState(null);
+  const [message, setmessage] = useState('');
 
-class Configuration extends Component {
-  state = { ...INITIAL_STATE };
-
-  componentDidMount = async () => {
-    this.setState({ ...INITIAL_STATE });
+  const setRef = (ref) => {
+    setfileName(ref.target.files[0].name);
+    setuploadFile(ref.target.files[0]);
   };
 
-  setDatabase = async (type) => {
-    this.setState({
-      databaseType: type,
-    });
-  };
-  setRef = (ref) => {
-    this.setState({
-      fileName: ref.target.files[0].name,
-      uploadFile: ref.target.files[0],
-    });
-  };
-
-  onKeyDownSI = (event) => {
+  const onKeyDownSI = (event) => {
     if (event.key === 'Enter') {
       event.preventDefault();
       event.stopPropagation();
-      this.onSubmit();
+      onSubmit();
     }
   };
 
-  onSubmit = async (event) => {
+  const onSubmit = async (event) => {
     try {
-      const {
-        databaseType,
-        projectName,
-        host,
-        port,
-        database,
-        username,
-        password,
-        socketPath,
-        uploadFile,
-      } = this.state;
-
-      this.setState({
-        loading: true,
-      });
+      setloading(true);
 
       if (databaseType === 'local' && projectName.length < 1) {
-        this.setState({
-          loading: false,
-          message: 'Please enter a project name.',
-        });
+        setloading(false);
+        setmessage('Please enter a project name.');
       } else {
         if (databaseType === 'firestore') {
           await Acsys.setInitialFirestoreConfig(uploadFile);
-          await this.sleep(5000);
+          await sleep(5000);
           window.location.reload();
-          this.setState({
-            loading: false,
-          });
+          setloading(false);
         } else if (databaseType === 'mysql') {
           if (
             host.length > 0 &&
@@ -103,58 +70,37 @@ class Configuration extends Component {
               socketPath,
               uploadFile
             );
-            await this.sleep(5000);
+            await sleep(5000);
             window.location.reload();
-            this.setState({
-              loading: false,
-            });
+            setloading(false);
           } else {
-            this.setState({
-              loading: false,
-              message: 'Please complete necessary fields.',
-            });
+            setloading(false);
+            setmessage('Please complete necessary fields.');
           }
         } else {
           await Acsys.setInitialLocalDatabaseConfig(projectName);
-          await this.sleep(7500);
+          await sleep(7500);
           window.location.reload();
-          this.setState({
-            loading: false,
-          });
+          setloading(false);
         }
       }
     } catch (error) {
-      await this.sleep(5000);
+      await sleep(5000);
       window.location.reload();
-      this.setState({
-        loading: false,
-      });
+      setloading(false);
     }
     event.preventDefault();
   };
 
-  sleep(time) {
+  const sleep = (time) => {
     return new Promise((resolve) => setTimeout(resolve, time));
-  }
-
-  onChange = (event) => {
-    this.setState({ [event.target.name]: event.target.value });
   };
 
-  renderConfig() {
-    const {
-      fileName,
-      databaseType,
-      message,
-      projectName,
-      host,
-      port,
-      database,
-      username,
-      password,
-      socketPath,
-    } = this.state;
+  const onChange = (event) => {
+    setState({ [event.target.name]: event.target.value });
+  };
 
+  const renderConfig = () => {
     if (databaseType === 'local') {
       return (
         <div>
@@ -163,8 +109,8 @@ class Configuration extends Component {
             name="projectName"
             placeholder="Project Name"
             defaultValue={projectName}
-            onKeyDown={this.onKeyDownSI}
-            onChange={this.onChange}
+            onKeyDown={onKeyDownSI}
+            onChange={(event) => setprojectName(event.target.value)}
             style={{ marginTop: '20px', width: '96%' }}
           />
           <Typography variant="p" color="secondary" style={{ minHeight: 25 }}>
@@ -197,7 +143,7 @@ class Configuration extends Component {
                 id="contained-button-file"
                 type="file"
                 style={{ display: 'none' }}
-                onChange={this.setRef}
+                onChange={setRef}
               />
               <label htmlFor="contained-button-file">
                 <Button
@@ -224,8 +170,8 @@ class Configuration extends Component {
             name="host"
             placeholder="Host"
             defaultValue={host}
-            onKeyDown={this.onKeyDownSI}
-            onChange={this.onChange}
+            onKeyDown={onKeyDownSI}
+            onChange={(event) => sethost(event.target.value)}
             style={{ marginTop: '20px', width: '96%' }}
           />
           <input
@@ -233,8 +179,8 @@ class Configuration extends Component {
             name="port"
             placeholder="Port (Optional)"
             defaultValue={port}
-            onKeyDown={this.onKeyDownSI}
-            onChange={this.onChange}
+            onKeyDown={onKeyDownSI}
+            onChange={(event) => setport(event.target.value)}
             type="number"
             style={{ marginTop: '20px', width: '96%' }}
           />
@@ -243,8 +189,8 @@ class Configuration extends Component {
             name="database"
             placeholder="Database"
             defaultValue={database}
-            onKeyDown={this.onKeyDownSI}
-            onChange={this.onChange}
+            onKeyDown={onKeyDownSI}
+            onChange={(event) => setdatabase(event.target.value)}
             style={{ marginTop: '20px', width: '96%' }}
           />
           <input
@@ -252,8 +198,8 @@ class Configuration extends Component {
             name="username"
             placeholder="Username"
             defaultValue={username}
-            onKeyDown={this.onKeyDownSI}
-            onChange={this.onChange}
+            onKeyDown={onKeyDownSI}
+            onChange={(event) => setusername(event.target.value)}
             style={{ marginTop: '20px', width: '96%' }}
           />
           <input
@@ -261,8 +207,8 @@ class Configuration extends Component {
             name="password"
             placeholder="Password"
             defaultValue={password}
-            onKeyDown={this.onKeyDownSI}
-            onChange={this.onChange}
+            onKeyDown={onKeyDownSI}
+            onChange={(event) => setpassword(event.target.value)}
             type="password"
             style={{ marginTop: '20px', width: '96%' }}
           />
@@ -271,8 +217,8 @@ class Configuration extends Component {
             name="socketPath"
             placeholder="Socket Path (Production only)"
             defaultValue={socketPath}
-            onKeyDown={this.onKeyDownSI}
-            onChange={this.onChange}
+            onKeyDown={onKeyDownSI}
+            onChange={(event) => setsocketPath(event.target.value)}
             style={{ marginTop: '20px', width: '96%' }}
           />
           <p>
@@ -302,7 +248,7 @@ class Configuration extends Component {
                 id="contained-button-file"
                 type="file"
                 style={{ display: 'none' }}
-                onChange={this.setRef}
+                onChange={setRef}
               />
               <label htmlFor="contained-button-file">
                 <Button
@@ -325,70 +271,66 @@ class Configuration extends Component {
         </div>
       );
     }
-  }
+  };
 
-  render() {
-    const { loading, error } = this.state;
-
-    return (
-      <Grid
-        className="landing-grid"
-        container
-        alignItems="center"
-        justify="center"
-        direction="column"
-      >
-        <Container maxWidth="sm">
-          <Paper style={{ margin: '50px' }}>
-            <Box
-              margin="auto"
-              width="80%"
-              display="flex"
-              flexDirection="column"
-              textAlign="center"
-              padding="16px"
+  return (
+    <Grid
+      className="landing-grid"
+      container
+      alignItems="center"
+      justify="center"
+      direction="column"
+    >
+      <Container maxWidth="sm">
+        <Paper style={{ margin: '50px' }}>
+          <Box
+            margin="auto"
+            width="80%"
+            display="flex"
+            flexDirection="column"
+            textAlign="center"
+            padding="16px"
+          >
+            <Typography variant="h4" color="primary">
+              Configure Database
+            </Typography>
+            <NativeSelect
+              onChange={(e) => setdatabaseType(e.target.value)}
+              style={{ marginTop: '20px' }}
             >
-              <Typography variant="h4" color="primary">
-                Configure Database
+              <option value={'local'}>Local</option>
+              <option value={'firestore'}>Firestore</option>
+              <option value={'mysql'}>MySQL</option>
+            </NativeSelect>
+            {renderConfig()}
+          </Box>
+          <Box
+            margin="auto"
+            width="50%"
+            display="flex"
+            flexDirection="column"
+            textAlign="center"
+            padding="16px"
+          >
+            <Button
+              onClick={onSubmit}
+              type="submit"
+              variant="contained"
+              color="primary"
+            >
+              {loading && <CircularProgress color="white" size={24} />}
+              {!loading && 'Submit'}
+            </Button>
+            {error && (
+              <Typography variant="body1" color="error">
+                {error.message}
               </Typography>
-              <NativeSelect
-                onChange={(e) => this.setDatabase(e.target.value)}
-                style={{ marginTop: '20px' }}
-              >
-                <option value={'local'}>Local</option>
-                <option value={'firestore'}>Firestore</option>
-                <option value={'mysql'}>MySQL</option>
-              </NativeSelect>
-              {this.renderConfig()}
-            </Box>
-            <Box
-              margin="auto"
-              width="50%"
-              display="flex"
-              flexDirection="column"
-              textAlign="center"
-              padding="16px"
-            >
-              <Button
-                onClick={this.onSubmit}
-                type="submit"
-                variant="contained"
-                color="primary"
-              >
-                {loading && <CircularProgress color="white" size={24} />}
-                {!loading && 'Submit'}
-              </Button>
-              {error && (
-                <Typography variant="body1" color="error">
-                  {error.message}
-                </Typography>
-              )}
-            </Box>
-          </Paper>
-        </Container>
-      </Grid>
-    );
-  }
-}
+            )}
+          </Box>
+        </Paper>
+      </Container>
+    </Grid>
+  );
+};
 
 export default Configuration;

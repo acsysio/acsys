@@ -6,46 +6,57 @@ import {
   Hidden,
   Typography,
 } from '@material-ui/core';
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import * as Acsys from '../utils/Acsys/Acsys';
 
-const INITIAL_STATE = {
-  username: '',
-  email: '',
-  passwordOne: '',
-  passwordTwo: '',
-  message: '',
-  isInstalled: true,
-  loading: false,
-  error: null,
-};
+const SignInPage = () => {
+  const [params, setParams] = useState({
+    username: '',
+    email: '',
+    passwordOne: '',
+    passwordTwo: '',
+  });
 
-class SignInPage extends Component {
-  state = { ...INITIAL_STATE };
+  const [message, setMessage] = useState('');
+  const [isInstalled, setIsInstalled] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error] = useState(null);
 
-  componentDidMount = async () => {
+  //   componentDidMount = async () => {
+  //     const installed = await Acsys.hasAdmin();
+  //     const defaultUser = await Acsys.getDefaultUsername();
+  //     const defaultPassword = await Acsys.getDefaultPassword();
+  //     setState({
+  //       isInstalled: installed,
+  //       username: defaultUser,
+  //       passwordOne: defaultPassword,
+  //     });
+  //   };
+
+  useEffect(async () => {
     const installed = await Acsys.hasAdmin();
     const defaultUser = await Acsys.getDefaultUsername();
     const defaultPassword = await Acsys.getDefaultPassword();
-    this.setState({
-      isInstalled: installed,
+    setIsInstalled(installed);
+    setParams({
+      ...params,
       username: defaultUser,
       passwordOne: defaultPassword,
     });
-  };
+  }, []);
 
-  onKeyDownSI = (event) => {
-    const { username, email, passwordOne } = this.state;
+  const onKeyDownSI = (event) => {
+    const { username, email, passwordOne } = params;
     if (event.key === 'Enter' && !(passwordOne === '' || username === '')) {
       event.preventDefault();
       event.stopPropagation();
-      this.onSubmit();
+      onSubmit();
     }
   };
 
-  onKeyDownRG = (event) => {
-    const { username, email, passwordOne, passwordTwo } = this.state;
+  const onKeyDownRG = (event) => {
+    const { username, email, passwordOne, passwordTwo } = params;
     if (
       event.key === 'Enter' &&
       !(
@@ -57,14 +68,14 @@ class SignInPage extends Component {
     ) {
       event.preventDefault();
       event.stopPropagation();
-      this.onSubmitInitial();
+      onSubmitInitial();
     }
   };
 
-  onSubmit = async (event) => {
-    const { username, passwordOne } = this.state;
+  const onSubmit = async (event) => {
+    const { username, passwordOne } = params;
 
-    this.setState({ loading: true });
+    setLoading(true);
 
     await Acsys.authenticate(username, passwordOne)
       .then((result) => {
@@ -72,50 +83,34 @@ class SignInPage extends Component {
           window.location.reload(false);
           event.preventDefault();
         } else {
-          this.setState({
-            loading: false,
-            message: result,
-          });
+          setLoading(false);
+          setMessage(result);
         }
       })
       .catch(() => {});
   };
 
-  onSubmitInitial = async (event) => {
-    const { username, email, passwordOne } = this.state;
-
-    this.setState({ loading: true });
-
+  const onSubmitInitial = async (event) => {
+    const { username, email, passwordOne } = params;
+    setLoading(true);
     await Acsys.register(username, email, passwordOne)
       .then((result) => {
         if (result === true) {
           window.location.reload(false);
           event.preventDefault();
         } else {
-          this.setState({
-            loading: false,
-            message: result,
-          });
+          setLoading(true);
+          setMessage(result);
         }
       })
       .catch(() => {});
   };
 
-  onChange = (event) => {
-    this.setState({ [event.target.name]: event.target.value });
+  const onChange = (event) => {
+    setParams({ ...params, [event.target.name]: event.target.value });
   };
 
-  getRegister() {
-    const {
-      username,
-      email,
-      passwordOne,
-      passwordTwo,
-      message,
-      loading,
-      error,
-    } = this.state;
-
+  const getRegister = () => {
     const isInvalidInitial =
       passwordOne !== passwordTwo ||
       passwordOne === '' ||
@@ -140,7 +135,7 @@ class SignInPage extends Component {
           color="secondary"
           style={{ minHeight: 25, marginTop: '60px' }}
         >
-          {message}
+          {params.message}
         </Typography>
 
         <input
@@ -150,9 +145,9 @@ class SignInPage extends Component {
           margin="normal"
           color="primary"
           variant="outlined"
-          value={email}
-          onKeyDown={this.onKeyDownRG}
-          onChange={this.onChange}
+          value={params.email}
+          onKeyDown={onKeyDownRG}
+          onChange={onChange}
         />
 
         <input
@@ -163,9 +158,9 @@ class SignInPage extends Component {
           color="primary"
           variant="outlined"
           style={{ marginTop: '20px' }}
-          value={username}
-          onKeyDown={this.onKeyDownRG}
-          onChange={this.onChange}
+          value={params.username}
+          onKeyDown={onKeyDownRG}
+          onChange={onChange}
         />
 
         <input
@@ -177,9 +172,9 @@ class SignInPage extends Component {
           variant="outlined"
           type="password"
           style={{ marginTop: '20px' }}
-          value={passwordOne}
-          onKeyDown={this.onKeyDownRG}
-          onChange={this.onChange}
+          value={params.passwordOne}
+          onKeyDown={onKeyDownRG}
+          onChange={onChange}
         />
 
         <input
@@ -191,16 +186,16 @@ class SignInPage extends Component {
           variant="outlined"
           type="password"
           style={{ marginTop: '20px' }}
-          value={passwordTwo}
-          onKeyDown={this.onKeyDownRG}
-          onChange={this.onChange}
+          value={params.passwordTwo}
+          onKeyDown={onKeyDownRG}
+          onChange={onChange}
         />
 
         <Button
           disabled={isInvalidInitial || loading}
           type="submit"
           style={{ marginTop: '20px' }}
-          onClick={this.onSubmitInitial}
+          onClick={onSubmitInitial}
           variant="contained"
           color="primary"
         >
@@ -215,10 +210,10 @@ class SignInPage extends Component {
         )}
       </Box>
     );
-  }
+  };
 
-  getSignIn() {
-    const { username, passwordOne, message, loading, error } = this.state;
+  const getSignIn = () => {
+    const { username, passwordOne } = params;
 
     const isInvalid = passwordOne === '' || username === '';
 
@@ -251,8 +246,8 @@ class SignInPage extends Component {
           color="primary"
           variant="outlined"
           value={username}
-          onKeyDown={this.onKeyDownSI}
-          onChange={this.onChange}
+          onKeyDown={onKeyDownSI}
+          onChange={onChange}
         />
 
         <input
@@ -265,15 +260,15 @@ class SignInPage extends Component {
           type="password"
           style={{ marginTop: '20px' }}
           value={passwordOne}
-          onKeyDown={this.onKeyDownSI}
-          onChange={this.onChange}
+          onKeyDown={onKeyDownSI}
+          onChange={onChange}
         />
 
         <Button
           disabled={isInvalid || loading}
           type="submit"
           style={{ marginTop: '20px' }}
-          onClick={this.onSubmit}
+          onClick={onSubmit}
           variant="contained"
           color="primary"
         >
@@ -298,86 +293,84 @@ class SignInPage extends Component {
         )}
       </Box>
     );
-  }
+  };
 
-  render() {
-    return (
-      <Grid
-        className="landing-grid"
-        container
-        alignItems="center"
-        justify="center"
-        direction="column"
-      >
-        <Box boxShadow={3} style={{ margin: 'auto' }}>
+  return (
+    <Grid
+      className="landing-grid"
+      container
+      alignItems="center"
+      justify="center"
+      direction="column"
+    >
+      <Box boxShadow={3} style={{ margin: 'auto' }}>
+        <Grid
+          container
+          style={{ maxWidth: '80vw', width: 1100, minHeight: 580 }}
+        >
           <Grid
-            container
-            style={{ maxWidth: '80vw', width: 1100, minHeight: 580 }}
+            item
+            sm={false}
+            md={6}
+            style={{ backgroundColor: 'rgba(50, 50, 50, 0.48)' }}
           >
-            <Grid
-              item
-              sm={false}
-              md={6}
-              style={{ backgroundColor: 'rgba(50, 50, 50, 0.48)' }}
-            >
-              <Hidden smDown implementation="css">
-                <Box
-                  margin="auto"
-                  width="80%"
-                  display="flex"
-                  flexDirection="column"
-                  padding="16px"
+            <Hidden smDown implementation="css">
+              <Box
+                margin="auto"
+                width="80%"
+                display="flex"
+                flexDirection="column"
+                padding="16px"
+              >
+                <img
+                  src="/acsys-logo.svg"
+                  alt=""
+                  style={{ width: '50%', marginTop: 35, marginBottom: 25 }}
+                />
+                <Typography
+                  variant="h4"
+                  style={{
+                    textAlign: 'left',
+                    color: '#ffffff',
+                    marginTop: '20px',
+                  }}
                 >
-                  <img
-                    src="/acsys-logo.svg"
-                    alt=""
-                    style={{ width: '50%', marginTop: 35, marginBottom: 25 }}
-                  />
-                  <Typography
-                    variant="h4"
-                    style={{
-                      textAlign: 'left',
-                      color: '#ffffff',
-                      marginTop: '20px',
-                    }}
-                  >
-                    The streamlined data tool
-                  </Typography>
-                  <Typography
-                    variant="p"
-                    style={{
-                      textAlign: 'left',
-                      color: '#ffffff',
-                      marginTop: '20px',
-                    }}
-                  >
-                    Acsys is a data management tool that automates backend
-                    processes to streamline development. Acsys allows developers
-                    to configure a database through the Acsys web app. Once this
-                    is done users can then use Acsys as a headless content
-                    management system that creates restful APIs to bridge data
-                    between applications.
-                  </Typography>
-                </Box>
-              </Hidden>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              sm={12}
-              md={6}
-              elevation={6}
-              square
-              style={{ background: '#ffffff' }}
-            >
-              {this.state.isInstalled ? this.getSignIn() : this.getRegister()}
-              <div style={{ marginBottom: '150px' }} />
-            </Grid>
+                  The streamlined data tool
+                </Typography>
+                <Typography
+                  variant="p"
+                  style={{
+                    textAlign: 'left',
+                    color: '#ffffff',
+                    marginTop: '20px',
+                  }}
+                >
+                  Acsys is a data management tool that automates backend
+                  processes to streamline development. Acsys allows developers
+                  to configure a database through the Acsys web app. Once this
+                  is done users can then use Acsys as a headless content
+                  management system that creates restful APIs to bridge data
+                  between applications.
+                </Typography>
+              </Box>
+            </Hidden>
           </Grid>
-        </Box>
-      </Grid>
-    );
-  }
-}
+          <Grid
+            item
+            xs={12}
+            sm={12}
+            md={6}
+            elevation={6}
+            square
+            style={{ background: '#ffffff' }}
+          >
+            {isInstalled ? getSignIn() : getRegister()}
+            <div style={{ marginBottom: '150px' }} />
+          </Grid>
+        </Grid>
+      </Box>
+    </Grid>
+  );
+};
 
 export default SignInPage;

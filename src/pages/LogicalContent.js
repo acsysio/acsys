@@ -1,12 +1,4 @@
 import {
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  MenuItem,
-  Select,
   Table,
   TableBody,
   TableCell,
@@ -23,132 +15,88 @@ import Paper from '@material-ui/core/Paper';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { Create as CreateIcon, Delete as DeleteIcon } from '@material-ui/icons';
-import React from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import uniqid from 'uniqid';
 import * as Acsys from '../utils/Acsys/Acsys';
-import { AcsysConsumer } from '../utils/Session/AcsysProvider';
+import { AcsysContext } from '../utils/Session/AcsysProvider';
 import AddViewDialog from '../components/Dialogs/AddViewDialog';
 import EditViewDialog from '../components/Dialogs/EditViewDialog';
 import LoadingDialog from '../components/Dialogs/LoadingDialog';
 import YesNoDialog from '../components/Dialogs/YesNoDialog';
 
-const INITIAL_STATE = {
-  viewId: '',
-  initialViews: [],
-  name: '',
-  collectionArr: [],
-  collection: '',
-  description: '',
-  views: [],
-  page: 0,
-  rowsPerPage: 15,
-  loading: false,
-  saving: false,
-  deleting: false,
-  setOpen: false,
-  setEditOpen: false,
-  addLoading: false,
-  saveLoading: false,
-  deleteLoading: false,
-  error: '',
-};
-
 let tempView = [];
-let table = '';
 let position = 0;
 
-class LogicalContent extends React.Component {
-  state = { ...INITIAL_STATE };
+const LogicalContent = (props) => {
+  const [viewId, setViewId] = useState('');
+  const [name, setName] = useState('');
+  const [collectionArr, setCollectionArr] = useState([]);
+  const [collection, setCollection] = useState('');
+  const [description, setDescription] = useState('');
+  const [views, setViews] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage] = useState(15);
+  const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [addLoading, setAddLoading] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const context = useContext(AcsysContext);
+  const [projectName, setProjectName] = useState('');
 
-  setTable = (table) => {
-    table = table;
-  };
-
-  getTable = () => {
-    return table;
-  };
-
-  setPosition = (pos) => {
+  const setPosition = (pos) => {
     position = pos;
   };
 
-  setCollection = (value) => {
-    this.setState({
-      collection: value,
-    });
-  };
-
-  setName = (value) => {
-    this.setState({
-      name: value,
-    });
-  };
-
-  setDescription = (value) => {
-    this.setState({
-      description: value,
-    });
-  };
-
-  setTempName = (value) => {
+  const setTempName = (value) => {
     tempView['name'] = value;
   };
 
-  setTempDescription = (value) => {
+  const setTempDescription = (value) => {
     tempView['description'] = value;
   };
 
-  deleteView = async () => {
-    this.setState({ deleteLoading: true });
-    if (this.state.viewId.length > 0) {
-      await Acsys.deleteView(this.state.viewId);
+  const deleteView = async () => {
+    setDeleteLoading(true);
+    if (viewId.length > 0) {
+      await Acsys.deleteView(viewId);
     }
-    this.handleDeleteClose();
-    this.componentDidMount();
+    handleDeleteClose();
+    mount();
   };
 
-  handleChangePage = (event, page) => {
-    this.setState({ page });
+  const handleChangePage = (event, page) => {
+    setPage(page);
   };
 
-  handleClickOpen = async () => {
+  const handleClickOpen = async () => {
     let collections = [];
-
     await Acsys.getTables().then((json) => {
       collections = json;
-      this.setState({
-        collectionArr: collections,
-        setOpen: true,
-      });
+      setCollectionArr(collections);
+      setOpen(true);
     });
   };
 
-  handleClose = () => {
-    this.setState({
-      setOpen: false,
-      addLoading: false,
-    });
+  const handleClose = () => {
+    setOpen(false);
+    setAddLoading(false);
   };
 
-  handleEditOpen = (view) => {
+  const handleEditOpen = (view) => {
     tempView = view;
     position = tempView.position;
-    this.setState({
-      setEditOpen: true,
-    });
+    setEditOpen(true);
   };
 
-  handleEditClose = () => {
-    this.setState({
-      setEditOpen: false,
-    });
+  const handleEditClose = () => {
+    setEditOpen(false);
   };
 
-  editView = async () => {
-    this.setState({
-      saving: true,
-    });
+  const editView = async () => {
     if (position === tempView.position) {
       await Acsys.updateData('acsys_logical_content', tempView, [
         ['acsys_id', '=', tempView.acsys_id],
@@ -157,45 +105,39 @@ class LogicalContent extends React.Component {
       const oldPosition = tempView['position'];
       tempView['position'] = position;
       await Acsys.repositionViews(tempView, oldPosition, position);
-      await this.sleep(1000);
+      await sleep(1000);
     }
     const currentView = await Acsys.getData('acsys_logical_content', [], '', [
       'position',
     ]);
-    this.setState({
-      saving: false,
-      saveLoading: false,
-      setEditOpen: false,
-      views: currentView,
-    });
+    setSaveLoading(false);
+    setEditOpen(false);
+    setViews(currentView);
   };
 
-  handleDeleteOpen = async (viewId) => {
-    this.setState({
-      deleting: true,
-      viewId: viewId,
-    });
+  const handleDeleteOpen = async (viewId) => {
+    setDeleting(true);
+    setViewId(viewId);
   };
 
-  handleDeleteClose = () => {
-    this.setState({
-      deleting: false,
-      deleteLoading: false,
-    });
+  const handleDeleteClose = () => {
+    setDeleting(false);
+    setDeleteLoading(false);
   };
 
-  sleep(time) {
+  const sleep = (time) => {
     return new Promise((resolve) => setTimeout(resolve, time));
-  }
+  };
 
-  componentDidMount = async () => {
-    this.props.setHeader('Content');
-    this.context.setHeld(false);
+  useEffect(() => {
+    mount();
+  }, []);
+
+  const mount = async () => {
+    props.setHeader('Content');
+    context.setHeld(false);
     tempView = [];
-    this.setState({
-      loading: true,
-    });
-
+    setLoading(true);
     let projectName = '';
 
     await Acsys.getProjectName().then((result) => {
@@ -208,19 +150,15 @@ class LogicalContent extends React.Component {
       'position',
     ]);
 
-    this.setState({
-      loading: false,
-      projectName: projectName,
-      initialViews: currentView,
-      views: currentView,
-    });
+    setLoading(false);
+    setProjectName(projectName);
+    setViews(currentView);
+    setLoading(false);
   };
 
-  addView = async () => {
-    this.setState({ addLoading: true });
-
+  const addView = async () => {
+    setAddLoading(true);
     const uId = uniqid();
-
     let newView = {
       acsys_id: uId,
       is_table_mode: true,
@@ -234,23 +172,22 @@ class LogicalContent extends React.Component {
     await Acsys.insertData('acsys_views', { ...newView }).then(async () => {
       let newEntry = {
         acsys_id: uniqid(),
-        name: this.state.name,
-        description: this.state.description,
+        name: name,
+        description: description,
         viewId: uId,
-        source_collection: this.state.collection,
-        position: this.state.views.length + 1,
+        source_collection: collection,
+        position: views.length + 1,
         table_keys: [],
       };
       await Acsys.insertData('acsys_logical_content', { ...newEntry });
     });
 
-    this.setState({ addLoading: false });
-    this.handleClose();
-    this.componentDidMount();
+    setAddLoading(false);
+    handleClose();
+    mount();
   };
 
-  renderTableData() {
-    const { views, rowsPerPage, page } = this.state;
+  const renderTableData = () => {
     return views
       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
       .map((views) => {
@@ -334,7 +271,7 @@ class LogicalContent extends React.Component {
                     edge="start"
                     color="inherit"
                     aria-label="edit"
-                    onClick={() => this.handleEditOpen(views)}
+                    onClick={() => handleEditOpen(views)}
                     style={{ marginRight: 10 }}
                   >
                     <CreateIcon />
@@ -345,7 +282,7 @@ class LogicalContent extends React.Component {
                     edge="start"
                     color="inherit"
                     aria-label="delete"
-                    onClick={() => this.handleDeleteOpen(viewId)}
+                    onClick={() => handleDeleteOpen(viewId)}
                   >
                     <DeleteIcon />
                   </IconButton>
@@ -357,186 +294,175 @@ class LogicalContent extends React.Component {
           </TableRow>
         );
       });
-  }
-  render() {
-    const {
-      projectName,
-      views,
-      rowsPerPage,
-      page,
-      addLoading,
-      saveLoading,
-      deleteLoading,
-    } = this.state;
-    try {
-      return (
-        <div>
-          <Paper
+  };
+  try {
+    return (
+      <div>
+        <Paper
+          style={{
+            margin: 'auto',
+            overflow: 'hidden',
+            clear: 'both',
+            marginBottom: 20,
+          }}
+        >
+          <AppBar
+            position="static"
+            elevation={0}
             style={{
-              margin: 'auto',
-              overflow: 'hidden',
-              clear: 'both',
-              marginBottom: 20,
+              backgroundColor: '#fafafa',
+              borderBottom: '1px solid #dcdcdc',
             }}
           >
-            <AppBar
-              position="static"
-              elevation={0}
-              style={{
-                backgroundColor: '#fafafa',
-                borderBottom: '1px solid #dcdcdc',
-              }}
-            >
-              <Toolbar style={{ margin: 4, paddingLeft: 12, paddingRight: 12 }}>
-                {Acsys.getMode() === 'Administrator' ? (
-                  <Grid container spacing={1}>
-                    <Grid item xs style={{ overflow: 'hidden' }}>
-                      <Typography
-                        align="left"
-                        variant="subtitle2"
-                        noWrap
-                        style={{ marginTop: 10, color: '#000000' }}
-                      >
-                        Project: {projectName}
-                      </Typography>
-                    </Grid>
-                    <Grid item>
-                      <Tooltip title="Add New View For Table">
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          onClick={this.handleClickOpen}
-                        >
-                          Add View
-                        </Button>
-                      </Tooltip>
-                    </Grid>
+            <Toolbar style={{ margin: 4, paddingLeft: 12, paddingRight: 12 }}>
+              {Acsys.getMode() === 'Administrator' ? (
+                <Grid container spacing={1}>
+                  <Grid item xs style={{ overflow: 'hidden' }}>
+                    <Typography
+                      align="left"
+                      variant="subtitle2"
+                      noWrap
+                      style={{ marginTop: 10, color: '#000000' }}
+                    >
+                      Project: {projectName}
+                    </Typography>
                   </Grid>
-                ) : (
-                  <Grid container spacing={1}>
-                    <Grid item xs style={{ overflow: 'hidden' }}>
-                      <Typography
-                        align="left"
-                        variant="subtitle2"
-                        noWrap
-                        style={{ marginTop: 5, color: '#000000' }}
+                  <Grid item>
+                    <Tooltip title="Add New View For Table">
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleClickOpen}
                       >
-                        Project: {projectName}
-                      </Typography>
-                    </Grid>
+                        Add View
+                      </Button>
+                    </Tooltip>
                   </Grid>
-                )}
-              </Toolbar>
-            </AppBar>
-            <div style={{ margin: 'auto', overflow: 'auto' }}>
-              <Table>
-                <TableHead style={{ backgroundColor: '#fafafa' }}>
-                  <TableRow>
+                </Grid>
+              ) : (
+                <Grid container spacing={1}>
+                  <Grid item xs style={{ overflow: 'hidden' }}>
+                    <Typography
+                      align="left"
+                      variant="subtitle2"
+                      noWrap
+                      style={{ marginTop: 5, color: '#000000' }}
+                    >
+                      Project: {projectName}
+                    </Typography>
+                  </Grid>
+                </Grid>
+              )}
+            </Toolbar>
+          </AppBar>
+          <div style={{ margin: 'auto', overflow: 'auto' }}>
+            <Table>
+              <TableHead style={{ backgroundColor: '#fafafa' }}>
+                <TableRow>
+                  <TableCell
+                    style={{
+                      paddingLeft: 16,
+                      paddingRight: 16,
+                      paddingTop: 5,
+                      paddingBottom: 5,
+                      width: 150,
+                    }}
+                  >
+                    NAME
+                  </TableCell>
+                  <TableCell
+                    style={{
+                      paddingLeft: 16,
+                      paddingRight: 16,
+                      paddingTop: 5,
+                      paddingBottom: 5,
+                    }}
+                  >
+                    DESCRIPTION
+                  </TableCell>
+                  {Acsys.getMode() === 'Administrator' ? (
                     <TableCell
                       style={{
                         paddingLeft: 16,
                         paddingRight: 16,
                         paddingTop: 5,
                         paddingBottom: 5,
-                        width: 150,
                       }}
+                      align="right"
                     >
-                      NAME
+                      ACTIONS
                     </TableCell>
-                    <TableCell
-                      style={{
-                        paddingLeft: 16,
-                        paddingRight: 16,
-                        paddingTop: 5,
-                        paddingBottom: 5,
-                      }}
-                    >
-                      DESCRIPTION
-                    </TableCell>
-                    {Acsys.getMode() === 'Administrator' ? (
-                      <TableCell
-                        style={{
-                          paddingLeft: 16,
-                          paddingRight: 16,
-                          paddingTop: 5,
-                          paddingBottom: 5,
-                        }}
-                        align="right"
-                      >
-                        ACTIONS
-                      </TableCell>
-                    ) : (
-                      <div />
-                    )}
-                  </TableRow>
-                </TableHead>
-                <TableBody>{this.renderTableData()}</TableBody>
-              </Table>
-            </div>
-            <TablePagination
-              rowsPerPageOptions={[25]}
-              component="div"
-              count={views.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              backIconButtonProps={{
-                'aria-label': 'previous page',
-              }}
-              nextIconButtonProps={{
-                'aria-label': 'next page',
-              }}
-              onChangePage={this.handleChangePage}
-              onChangeRowsPerPage={this.handleChangeRowsPerPage}
-            />
-            <LoadingDialog loading={this.state.loading} message={'Loading'} />
-            <AddViewDialog
-              open={this.state.setOpen}
-              closeDialog={this.handleClose}
-              title={'Add Logical View'}
-              setCollection={this.setCollection}
-              collectionArr={this.state.collectionArr}
-              setName={this.setName}
-              setDescription={this.setDescription}
-              action={this.addView}
-              actionProcess={addLoading}
-            />
-            <EditViewDialog
-              open={this.state.setEditOpen}
-              closeDialog={this.handleEditClose}
-              title={'Edit Logical View'}
-              position={tempView.position}
-              setPosition={this.setPosition}
-              views={this.state.views}
-              name={tempView.name}
-              setName={this.setTempName}
-              description={tempView.description}
-              setDescription={this.setTempDescription}
-              action={this.editView}
-              actionProcess={saveLoading}
-            />
-            <YesNoDialog
-              open={this.state.deleting}
-              closeDialog={this.handleDeleteClose}
-              title={'Delete data?'}
-              message={'Are you sure you want to delete this data?'}
-              action={this.deleteView}
-              actionProcess={deleteLoading}
-            />
-          </Paper>
-        </div>
-      );
-    } catch (error) {
-      return (
-        <div style={{ maxWidth: 1236, margin: 'auto' }}>
-          <Paper style={{ height: 40 }}>
-            <div style={{ padding: 10, margin: 'auto' }}>
-              Please make sure database has been created.
-            </div>
-          </Paper>
-        </div>
-      );
-    }
+                  ) : (
+                    <div />
+                  )}
+                </TableRow>
+              </TableHead>
+              <TableBody>{renderTableData()}</TableBody>
+            </Table>
+          </div>
+          <TablePagination
+            rowsPerPageOptions={[25]}
+            component="div"
+            count={views.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            backIconButtonProps={{
+              'aria-label': 'previous page',
+            }}
+            nextIconButtonProps={{
+              'aria-label': 'next page',
+            }}
+            onChangePage={handleChangePage}
+            // onChangeRowsPerPage={this.handleChangeRowsPerPage}
+          />
+          <LoadingDialog loading={loading} message={'Loading'} />
+          <AddViewDialog
+            open={open}
+            closeDialog={handleClose}
+            title={'Add Logical View'}
+            collection={collection}
+            setCollection={(value) => setCollection(value)}
+            collectionArr={collectionArr}
+            setName={(value) => setName(value)}
+            setDescription={(value) => setDescription(value)}
+            action={addView}
+            actionProcess={addLoading}
+          />
+          <EditViewDialog
+            open={editOpen}
+            closeDialog={handleEditClose}
+            title={'Edit Logical View'}
+            position={tempView.position}
+            setPosition={setPosition}
+            views={views}
+            name={tempView.name}
+            setName={setTempName}
+            description={tempView.description}
+            setDescription={setTempDescription}
+            action={editView}
+            actionProcess={saveLoading}
+          />
+          <YesNoDialog
+            open={deleting}
+            closeDialog={handleDeleteClose}
+            title={'Delete data?'}
+            message={'Are you sure you want to delete this data?'}
+            action={deleteView}
+            actionProcess={deleteLoading}
+          />
+        </Paper>
+      </div>
+    );
+  } catch (error) {
+    return (
+      <div style={{ maxWidth: 1236, margin: 'auto' }}>
+        <Paper style={{ height: 40 }}>
+          <div style={{ padding: 10, margin: 'auto' }}>
+            Please make sure database has been created.
+          </div>
+        </Paper>
+      </div>
+    );
   }
-}
-LogicalContent.contextType = AcsysConsumer;
+};
 export default LogicalContent;

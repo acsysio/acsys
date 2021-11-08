@@ -22,7 +22,7 @@ import {
   KeyboardArrowLeft,
   KeyboardArrowRight,
 } from '@material-ui/icons';
-import React from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Link } from 'react-router-dom';
 import uniqid from 'uniqid';
@@ -35,34 +35,6 @@ import MessageDialog from '../components/Dialogs/MessageDialog';
 import YesNoDialog from '../components/Dialogs/YesNoDialog';
 import ViewDialog from '../components/Dialogs/ViewDialog';
 
-const INITIAL_STATE = {
-  content_id: '',
-  viewId: 0,
-  initialViews: [],
-  collectionDetails: [],
-  documentDetails: [],
-  collectionValues: [],
-  acsysView: [],
-  tableData: [],
-  apiCall: '',
-  draftViews: [],
-  totalRows: 0,
-  page: 1,
-  order: [],
-  orderDir: '',
-  locked: true,
-  reset: false,
-  loading: false,
-  setOpen: false,
-  setDetailOpen: false,
-  setViewOpen: false,
-  filterLoading: false,
-  messageTitle: '',
-  message: '',
-  error: '',
-  deleteLoading: false,
-};
-
 let published = true;
 let lockedValue = true;
 let is_removable = true;
@@ -72,131 +44,128 @@ let view_orderField = 'none';
 let view_order = 'asc';
 let row_num = 10;
 
-class CollectionView extends React.Component {
-  state = { ...INITIAL_STATE };
+const CollectionView = (props) => {
+  const context = useContext(AcsysConsumer);
+  const [content_id, setcontent_id] = useState('');
+  const [viewId, setviewId] = useState(0);
+  const [initialViews, setinitialViews] = useState([]);
+  const [documentDetails, setdocumentDetails] = useState([]);
+  const [acsysView, setacsysView] = useState([]);
+  const [tableData, settableData] = useState([]);
+  const [apiCall, setapiCall] = useState('');
+  const [totalRows, settotalRows] = useState(0);
+  const [page, setpage] = useState(1);
+  const [orderDir, setorderDir] = useState('');
+  const [locked, setlocked] = useState(true);
+  const [reset, setreset] = useState(false);
+  const [view, setview] = useState(false);
+  const [loading, setloading] = useState(false);
+  const [openKeyMessage, setopenKeyMessage] = useState(false);
+  const [setOpen, setsetOpen] = useState(false);
+  const [setDetailOpen, setsetDetailOpen] = useState(false);
+  const [setViewOpen, setsetViewOpen] = useState(false);
+  const [filterLoading, setfilterLoading] = useState(false);
+  const [view_order, setview_order] = useState(false);
+  const [messageTitle, setmessageTitle] = useState('');
+  const [message, setmessage] = useState('');
+  const [deleteLoading, setdeleteLoading] = useState(false);
 
-  constructor(props) {
-    super(props);
-  }
-
-  copy = () => {
+  const copy = () => {
     const el = document.createElement('textarea');
-    el.value = this.state.apiCall;
+    el.value = apiCall;
     document.body.appendChild(el);
     el.select();
     document.execCommand('copy');
     document.body.removeChild(el);
   };
 
-  openKeyMessage = () => {
-    this.setState({
-      openKeyMessage: true,
-      messageTitle: 'Error',
-      message: 'No keys set. Please set unique key for data.',
-    });
+  const openKeyMessageFunc = () => {
+    setopenKeyMessage(true);
+    setmessageTitle('Error');
+    setmessage('No keys set. Please set unique key for data.');
   };
 
-  closeKeyMessage = () => {
-    this.setState({
-      openKeyMessage: false,
-    });
+  const closeKeyMessage = () => {
+    setopenKeyMessage(false);
   };
 
-  handleViewChange = (value) => {
+  const handleViewChange = (value) => {
     published = value;
     let acsys_id = '';
     if (published) {
-      acsys_id = this.props.match.params.acsys_id;
+      acsys_id = props.match.params.acsys_id;
     } else {
-      acsys_id = 'acsys_' + this.props.match.params.acsys_id;
+      acsys_id = 'acsys_' + props.match.params.acsys_id;
     }
-    this.context.setPageData(
+    context.setPageData(
       acsys_id,
-      this.context.getKeys(),
+      context.getKeys(),
       row_num,
-      this.state.view_order,
-      this.state.orderDir
+      view_order,
+      orderDir
     );
-    this.context.setPage(1);
-    this.mount();
+    context.setPage(1);
+    mount();
   };
 
-  handleClickOpen = (id) => {
-    this.setState({
-      viewId: id,
-      setOpen: true,
-    });
+  const handleClickOpen = (id) => {
+    setviewId(id);
+    setsetOpen(true);
   };
 
-  handleClose = () => {
-    this.setState({
-      setOpen: false,
-    });
+  const handleClose = () => {
+    setsetOpen(false);
   };
 
-  handleViewOpen = () => {
-    this.setState({
-      setViewOpen: true,
-    });
+  const handleViewOpen = () => {
+    setsetViewOpen(true);
   };
 
-  handleViewClose = () => {
-    this.setState({
-      setViewOpen: false,
-    });
+  const handleViewClose = () => {
+    setsetViewOpen(false);
   };
 
-  handleDetailOpen = () => {
-    this.setState({
-      setDetailOpen: true,
-    });
+  const handleDetailOpen = () => {
+    setsetDetailOpen(true);
   };
 
-  handleDetailClose = () => {
-    this.setState({
-      setDetailOpen: false,
-    });
+  const handleDetailClose = () => {
+    setsetDetailOpen(false);
   };
 
-  toggleTable = async (value) => {
+  const toggleTable = async (value) => {
     if (!value) {
-      await Acsys.unlockTable(this.state.documentDetails[0].collection);
-      this.setState({
-        locked: false,
-      });
+      await Acsys.unlockTable(documentDetails[0].collection);
+      setlocked(false);
     } else {
-      Acsys.lockTable(this.state.documentDetails[0].collection);
-      this.setState({
-        locked: true,
-      });
+      Acsys.lockTable(documentDetails[0].collection);
+      setlocked(true);
     }
   };
 
-  setLockedValue = (value) => {
+  const setLockedValue = (value) => {
     lockedValue = value;
   };
 
-  setOrderField = (field) => {
+  const setOrderField = (field) => {
     view_orderField = field;
   };
 
-  setOrder = (order) => {
+  const setOrder = (order) => {
     view_order = order;
   };
 
-  setEntriesPerPage = (value) => {
+  const setEntriesPerPage = (value) => {
     row_num = value;
   };
 
-  setUpdateOnly = (value) => {
+  const setUpdateOnly = (value) => {
     is_removable = value;
   };
 
-  saveViewSettings = async () => {
-    this.setState({
-      loading: true,
-    });
-    let tempView = this.state.acsysView;
+  const saveViewSettings = async () => {
+    setloading(true);
+    let tempView = acsysView;
     if (view_orderField === 'none') {
       tempView['order_by'] = '';
       tempView['view_order'] = '';
@@ -206,38 +175,33 @@ class CollectionView extends React.Component {
     }
     tempView['is_removable'] = is_removable;
     tempView['row_num'] = row_num;
-    this.toggleTable(lockedValue);
-    this.context.setHeld(false);
+    toggleTable(lockedValue);
+    context.setHeld(false);
     await Acsys.updateData('acsys_views', tempView, [
       ['acsys_id', '=', tempView.acsys_id],
     ]);
-    this.setState({
-      setViewOpen: false,
-      reset: true,
-      totalRows: 0,
-      page: 1,
-    });
+    setsetViewOpen(false);
+    setreset(true);
+    settotalRows(0);
+    setpage(1);
     table_keys = [];
-    this.mount();
+    mount();
   };
 
-  showPopUp = () => {
-    return (
-      <div>{Object.values(this.state.tableData).map((value, index) => {})}</div>
-    );
+  const showPopUp = () => {
+    return <div>{Object.values(tableData).map((value, index) => {})}</div>;
   };
 
-  deleteView = async () => {
-    const { documentDetails } = this.state;
-    this.setState({ deleteLoading: true });
+  const deleteView = async () => {
+    setdeleteLoading(true);
 
-    if (table_keys[this.state.viewId]) {
+    if (table_keys[viewId]) {
       let keys = [];
-      for (let i = 0; i < table_keys[this.state.viewId].length; i++) {
+      for (let i = 0; i < table_keys[viewId].length; i++) {
         let tKeys = [
-          table_keys[this.state.viewId][i].field,
+          table_keys[viewId][i].field,
           '=',
-          table_keys[this.state.viewId][i].value,
+          table_keys[viewId][i].value,
         ];
         keys.push(tKeys);
       }
@@ -255,22 +219,18 @@ class CollectionView extends React.Component {
         })
         .catch(async () => {});
     } else {
-      this.openKeyMessage();
+      openKeyMessageFunc();
     }
 
-    this.handleClose();
-    this.setState({
-      reset: true,
-    });
+    handleClose();
+    setreset(true);
     table_keys = [];
-    this.mount();
-    this.setState({ deleteLoading: false });
+    mount();
+    setdeleteLoading(false);
   };
 
-  handleChangePrevPage = async () => {
-    this.setState({
-      loading: true,
-    });
+  const handleChangePrevPage = async () => {
+    setloading(true);
     let keys = [];
     for (let i = 0; i < table_keys[table_keys.length - 1].length; i++) {
       keys.push([table_keys[0][i].field, '=', table_keys[0][i].value]);
@@ -279,43 +239,39 @@ class CollectionView extends React.Component {
       tempDetails[0].collection,
       keys,
       row_num,
-      this.state.view_order,
-      this.state.orderDir,
+      view_order,
+      orderDir,
       'prev',
-      this.state.page
+      page
     );
     const apiCall = await Acsys.getOpenPageUrl(
       tempDetails[0].collection,
       keys,
       row_num,
-      this.state.view_order,
-      this.state.orderDir,
+      view_order,
+      orderDir,
       'prev',
-      this.state.page
+      page
     );
-    this.setState({
-      loading: false,
-      tableData: currentData,
-      apiCall: apiCall,
-      page: this.state.page - 1,
-    });
-    this.context.setHeld(true);
-    this.context.setPage(this.state.page);
-    this.context.setPageData(
+    setloading(false);
+    settableData(currentData);
+    setapiCall(apiCall);
+    setpage(page - 1);
+    context.setHeld(true);
+    context.setPage(page);
+    context.setPageData(
       tempDetails[0].collection,
       keys,
       row_num,
-      this.state.view_order,
-      this.state.orderDir
+      view_order,
+      orderDir
     );
-    this.context.setPageDirection('prev');
+    context.setPageDirection('prev');
     window.scrollTo(0, 0);
   };
 
-  handleChangeNextPage = async () => {
-    this.setState({
-      loading: true,
-    });
+  const handleChangeNextPage = async () => {
+    setloading(true);
     let keys = [];
     for (let i = 0; i < table_keys[table_keys.length - 1].length; i++) {
       keys.push([
@@ -328,41 +284,39 @@ class CollectionView extends React.Component {
       tempDetails[0].collection,
       keys,
       row_num,
-      this.state.view_order,
-      this.state.orderDir,
+      view_order,
+      orderDir,
       'next',
-      this.state.page
+      page
     );
     const apiCall = await Acsys.getOpenPageUrl(
       tempDetails[0].collection,
       keys,
       row_num,
-      this.state.view_order,
-      this.state.orderDir,
+      view_order,
+      orderDir,
       'next',
-      this.state.page
+      page
     );
-    this.setState({
-      loading: false,
-      tableData: currentData,
-      apiCall: apiCall,
-      page: this.state.page + 1,
-    });
-    this.context.setHeld(true);
-    this.context.setPage(this.state.page);
-    this.context.setPageData(
+    setloading(false);
+    settableData(currentData);
+    setapiCall(apiCall);
+    setpage(page + 1);
+    context.setHeld(true);
+    context.setPage(page);
+    context.setPageData(
       tempDetails[0].collection,
       keys,
       row_num,
-      this.state.view_order,
-      this.state.orderDir
+      view_order,
+      orderDir
     );
-    this.context.setPageDirection('next');
+    context.setPageDirection('next');
     window.scrollTo(0, 0);
   };
 
-  saveSettings = async () => {
-    this.setState({ filterLoading: true });
+  const saveSettings = async () => {
+    setfilterLoading(true);
     table_keys = [];
     for (var i = 0; i < tempDetails.length; i++) {
       tempDetails[i].view_order = i;
@@ -370,48 +324,38 @@ class CollectionView extends React.Component {
         ['acsys_id', '=', tempDetails[i].acsys_id],
       ]);
     }
-    this.setState({ filterLoading: false });
-    this.handleDetailClose();
+    setfilterLoading(false);
+    handleDetailClose();
   };
 
-  scan = async () => {
-    this.setState({
-      loading: true,
-    });
+  const scan = async () => {
+    setloading(true);
     Acsys.deleteData('acsys_document_details', [
-      ['content_id', '=', this.state.content_id],
+      ['content_id', '=', content_id],
     ])
       .then(async () => {
-        this.mount();
+        mount();
       })
       .catch(() => {
-        this.setState({
-          loading: false,
-        });
+        setloading(false);
       });
   };
 
-  componentDidUpdate = async () => {
-    if (
-      this.state.content_id !== this.props.match.params.content_id &&
-      !this.state.loading
-    ) {
-      this.mount();
+  useEffect(() => {
+    if (content_id !== props.match.params.content_id && !loading) {
+      mount();
     }
-  };
+  }, [content_id, props.match.params.content_id, loading]);
 
-  componentDidMount = async () => {
-    this.props.setHeader('Content');
+  useEffect(() => {
+    props.setHeader('Content');
     published = true;
     table_keys = [];
-    this.setState({
-      loading: true,
-    });
-    this.mount();
-  };
+    setloading(true);
+    mount();
+  }, []);
 
-  mount = async () => {
-    let page = this.state.page;
+  const mount = async () => {
     let acsysView;
     let locked = true;
     let details = [];
@@ -422,19 +366,19 @@ class CollectionView extends React.Component {
     lockedValue = true;
     is_removable = true;
     view_orderField = 'none';
-    view_order = 'asc';
+    // view_order = 'asc';
     row_num = 10;
-    if (!this.state.reset) {
-      table_keys = this.props.location.state.table_keys;
+    if (!reset) {
+      table_keys = props.location.state.table_keys;
     }
     let acsys_id = '';
     if (published) {
-      acsys_id = this.props.match.params.acsys_id;
+      acsys_id = props.match.params.acsys_id;
     } else {
-      acsys_id = 'acsys_' + this.props.match.params.acsys_id;
+      acsys_id = 'acsys_' + props.match.params.acsys_id;
     }
 
-    const content_id = this.props.match.params.content_id;
+    const content_id = props.match.params.content_id;
 
     const totalRows = await Acsys.getTableSize(acsys_id);
 
@@ -481,22 +425,22 @@ class CollectionView extends React.Component {
             order.push(details[i].field_name);
           }
         }
-        if (this.context.isHeld()) {
+        if (context.isHeld()) {
           let direction = 'none';
           const dbType = await Acsys.getDatabaseType();
           if (dbType === 'firestore') {
-            direction = this.context.getPageDirection();
+            direction = context.getPageDirection();
           }
           currentData = await Acsys.getPage(
-            this.context.getTable(),
-            this.context.getKeys(),
-            this.context.getRowsPerPage(),
-            this.context.getOrder(),
-            this.context.getDirection(),
+            context.getTable(),
+            context.getKeys(),
+            context.getRowsPerPage(),
+            context.getOrder(),
+            context.getDirection(),
             direction,
-            this.context.getPage()
+            context.getPage()
           );
-          page = this.context.getPage();
+          setpage(context.getPage());
         } else {
           currentData = await Acsys.getData(
             acsys_id,
@@ -546,26 +490,24 @@ class CollectionView extends React.Component {
       console.log(error);
     }
 
-    this.setState({
-      reset: false,
-      view: this.props.location.state.view,
-      loading: false,
-      locked: locked,
-      content_id: content_id,
-      initialViews: currentData,
-      tableData: currentData,
-      apiCall: apiCall,
-      acsysView: acsysView[0],
-      page: page,
-      documentDetails: details,
-      totalRows: totalRows,
-      view_order: order,
-      orderDir: orderDir,
-    });
+    setreset(false);
+    setview(props.location.state.view);
+    setloading(false);
+    setlocked(locked);
+    setcontent_id(content_id);
+    setinitialViews(currentData);
+    settableData(currentData);
+    setapiCall(apiCall);
+    setacsysView(acsysView[0]);
+    setpage(page);
+    setdocumentDetails(details);
+    settotalRows(totalRows);
+    setview_order(order);
+    setorderDir(orderDir);
   };
 
-  renderHeader() {
-    const details = this.state.documentDetails;
+  const renderHeader = () => {
+    const details = documentDetails;
     if (details.length > 0) {
       return (
         <TableRow>
@@ -599,16 +541,14 @@ class CollectionView extends React.Component {
         </TableRow>
       );
     }
-  }
+  };
 
-  renderCellData(rowData) {
+  const renderCellData = (rowData) => {
     return rowData.map((column) => {
       return <TableCell>{column}</TableCell>;
     });
-  }
-  renderTableData() {
-    const { content_id, tableData, documentDetails, page } = this.state;
-
+  };
+  const renderTableData = () => {
     return tableData.map((tableData, rowIndex) => {
       let tempKey = [];
       return (
@@ -658,14 +598,14 @@ class CollectionView extends React.Component {
               }
             });
             if (details.is_visible_on_table) {
-              return this.state.acsysView.link_view_id.length > 0 ? (
+              return acsysView.link_view_id.length > 0 ? (
                 <TableCell
                   to={{
                     pathname:
                       '/CollectionView/' +
-                      this.state.acsysView.link_table +
+                      acsysView.link_table +
                       '/' +
-                      this.state.acsysView.link_view_id,
+                      acsysView.link_view_id,
                     state: {
                       table_keys: table_keys[rowIndex],
                     },
@@ -713,7 +653,7 @@ class CollectionView extends React.Component {
                   edge="start"
                   color="inherit"
                   aria-label="edit"
-                  onClick={() => this.openKeyMessage()}
+                  onClick={() => openKeyMessageFunc()}
                   style={{ marginRight: 10 }}
                 >
                   <CreateIcon />
@@ -728,7 +668,7 @@ class CollectionView extends React.Component {
                   aria-label="delete"
                   onClick={(event) => {
                     event.stopPropagation();
-                    this.handleClickOpen(rowIndex);
+                    handleClickOpen(rowIndex);
                   }}
                 >
                   <DeleteIcon />
@@ -741,9 +681,8 @@ class CollectionView extends React.Component {
         </TableRow>
       );
     });
-  }
-  renderPagination(paginate) {
-    const { tableData, page, totalRows } = this.state;
+  };
+  const renderPagination = (paginate) => {
     let startingElement = 0;
     if (totalRows > 0) {
       startingElement = page * row_num - row_num + 1;
@@ -758,7 +697,7 @@ class CollectionView extends React.Component {
         </Grid>
         <Grid item xs={6}>
           {page > 1 ? (
-            <IconButton onClick={() => this.handleChangePrevPage()}>
+            <IconButton onClick={() => handleChangePrevPage()}>
               <KeyboardArrowLeft color="inherit" />
             </IconButton>
           ) : (
@@ -770,7 +709,7 @@ class CollectionView extends React.Component {
             </IconButton>
           )}
           {page * row_num < totalRows ? (
-            <IconButton onClick={() => this.handleChangeNextPage()}>
+            <IconButton onClick={() => handleChangeNextPage()}>
               <KeyboardArrowRight color="inherit" />
             </IconButton>
           ) : (
@@ -790,9 +729,8 @@ class CollectionView extends React.Component {
         </Typography>
       </div>
     );
-  }
-  renderTable(paginate) {
-    const { tableData } = this.state;
+  };
+  const renderTable = (paginate) => {
     let tableDetails = '';
     try {
       tableDetails = tableData.details;
@@ -806,227 +744,210 @@ class CollectionView extends React.Component {
             <div style={{ margin: 'auto', overflow: 'auto' }}>
               <Table>
                 <TableHead style={{ backgroundColor: '#fafafa' }}>
-                  {this.renderHeader()}
+                  {renderHeader()}
                 </TableHead>
-                <TableBody>{this.renderTableData()}</TableBody>
+                <TableBody>{renderTableData()}</TableBody>
               </Table>
             </div>
-            {this.renderPagination(paginate)}
+            {renderPagination(paginate)}
           </div>
         );
       } catch (error) {}
     }
-  }
-  render() {
-    const {
-      locked,
-      apiCall,
-      view,
-      deleteLoading,
-      acsysView,
-      filterLoading,
-      documentDetails,
-    } = this.state;
-    tempDetails = documentDetails;
-    let projectId = '';
-    let viewTable = '';
-    let tempKey = [];
-    let tempKeys = [];
-    let paginate = false;
+  };
+  tempDetails = documentDetails;
+  let projectId = '';
+  let viewTable = '';
+  let tempKey = [];
+  let tempKeys = [];
+  let paginate = false;
 
-    try {
-      projectId = acsysView.acsys_id;
-    } catch (error) {}
+  try {
+    projectId = acsysView.acsys_id;
+  } catch (error) {}
 
-    try {
-      viewTable = tempDetails[0].collection;
-    } catch (error) {}
+  try {
+    viewTable = tempDetails[0].collection;
+  } catch (error) {}
 
-    for (let i = 0; i < documentDetails.length; i++) {
-      if (Boolean(documentDetails[i].is_key)) {
-        let tempObj = {
-          field: documentDetails[i].field_name,
-        };
-        tempKey.push(tempObj);
-        paginate = true;
-      }
+  for (let i = 0; i < documentDetails.length; i++) {
+    if (Boolean(documentDetails[i].is_key)) {
+      let tempObj = {
+        field: documentDetails[i].field_name,
+      };
+      tempKey.push(tempObj);
+      paginate = true;
     }
-    tempKeys[0] = tempKey;
-    return (
-      <div>
-        <Paper
+  }
+  tempKeys[0] = tempKey;
+  return (
+    <div>
+      <Paper
+        style={{
+          margin: 'auto',
+          overflow: 'hidden',
+          clear: 'both',
+          marginBottom: 20,
+        }}
+      >
+        <AppBar
+          position="static"
+          elevation={0}
           style={{
-            margin: 'auto',
-            overflow: 'hidden',
-            clear: 'both',
-            marginBottom: 20,
+            backgroundColor: '#fafafa',
+            borderBottom: '1px solid #dcdcdc',
           }}
         >
-          <AppBar
-            position="static"
-            elevation={0}
-            style={{
-              backgroundColor: '#fafafa',
-              borderBottom: '1px solid #dcdcdc',
-            }}
-          >
-            <Toolbar style={{ margin: 4, paddingLeft: 12, paddingRight: 12 }}>
-              <Grid container spacing={2}>
-                <Grid item xs style={{ overflow: 'hidden' }}>
-                  <Typography
-                    align="left"
-                    variant="subtitle2"
-                    noWrap
-                    style={{ marginTop: 10, color: '#000000' }}
+          <Toolbar style={{ margin: 4, paddingLeft: 12, paddingRight: 12 }}>
+            <Grid container spacing={2}>
+              <Grid item xs style={{ overflow: 'hidden' }}>
+                <Typography
+                  align="left"
+                  variant="subtitle2"
+                  noWrap
+                  style={{ marginTop: 10, color: '#000000' }}
+                >
+                  View: {view}
+                </Typography>
+              </Grid>
+              <Grid item>
+                <Tooltip title="Choose Between Published Or Draft Rows">
+                  <NativeSelect
+                    onChange={(e) => handleViewChange('true' == e.target.value)}
                   >
-                    View: {view}
-                  </Typography>
-                </Grid>
+                    <option value={true}>Published</option>
+                    <option value={false}>Draft</option>
+                  </NativeSelect>
+                </Tooltip>
+              </Grid>
+
+              {Acsys.getMode() === 'Administrator' ? (
                 <Grid item>
-                  <Tooltip title="Choose Between Published Or Draft Rows">
-                    <NativeSelect
-                      onChange={(e) =>
-                        this.handleViewChange('true' == e.target.value)
-                      }
+                  <Tooltip title="Change How Data Is Presented">
+                    <Button
+                      onClick={handleDetailOpen}
+                      variant="contained"
+                      color="primary"
                     >
-                      <option value={true}>Published</option>
-                      <option value={false}>Draft</option>
-                    </NativeSelect>
+                      Field Controls
+                    </Button>
                   </Tooltip>
                 </Grid>
-
-                {Acsys.getMode() === 'Administrator' ? (
-                  <Grid item>
-                    <Tooltip title="Change How Data Is Presented">
-                      <Button
-                        onClick={this.handleDetailOpen}
-                        variant="contained"
-                        color="primary"
-                      >
-                        Field Controls
-                      </Button>
-                    </Tooltip>
-                  </Grid>
-                ) : (
-                  <div />
-                )}
-                {Acsys.getMode() === 'Administrator' ? (
-                  <Grid item>
-                    <Tooltip title="Change How Data Is Organized">
-                      <Button
-                        onClick={this.handleViewOpen}
-                        variant="contained"
-                        color="primary"
-                      >
-                        View Settings
-                      </Button>
-                    </Tooltip>
-                  </Grid>
-                ) : (
-                  <div />
-                )}
+              ) : (
+                <div />
+              )}
+              {Acsys.getMode() === 'Administrator' ? (
                 <Grid item>
-                  {Acsys.getMode() !== 'Viewer' && is_removable ? (
-                    <Tooltip title="Add New Entry To Table">
-                      <Button
-                        to={{
-                          pathname: '/DocumentView',
-                          state: {
-                            mode: 'add',
-                            table_keys: tempKeys[0],
-                            routed: false,
-                            viewId: projectId,
-                          },
-                        }}
-                        component={Link}
-                        variant="contained"
-                        color="primary"
-                      >
-                        New Entry
-                      </Button>
-                    </Tooltip>
-                  ) : (
-                    <div />
-                  )}
+                  <Tooltip title="Change How Data Is Organized">
+                    <Button
+                      onClick={handleViewOpen}
+                      variant="contained"
+                      color="primary"
+                    >
+                      View Settings
+                    </Button>
+                  </Tooltip>
                 </Grid>
+              ) : (
+                <div />
+              )}
+              <Grid item>
+                {Acsys.getMode() !== 'Viewer' && is_removable ? (
+                  <Tooltip title="Add New Entry To Table">
+                    <Button
+                      to={{
+                        pathname: '/DocumentView',
+                        state: {
+                          mode: 'add',
+                          table_keys: tempKeys[0],
+                          routed: false,
+                          viewId: projectId,
+                        },
+                      }}
+                      component={Link}
+                      variant="contained"
+                      color="primary"
+                    >
+                      New Entry
+                    </Button>
+                  </Tooltip>
+                ) : (
+                  <div />
+                )}
               </Grid>
-            </Toolbar>
-          </AppBar>
-          {this.renderTable(paginate)}
-          <LoadingDialog loading={this.state.loading} message={'Loading'} />
-          <MessageDialog
-            open={this.state.openKeyMessage}
-            closeDialog={this.closeKeyMessage}
-            title={this.state.messageTitle}
-            message={this.state.message}
-          />
-          <YesNoDialog
-            open={this.state.setOpen}
-            closeDialog={this.handleClose}
-            title={'Delete data?'}
-            message={'Are you sure you want to delete this data?'}
-            action={this.deleteView}
-            actionProcess={deleteLoading}
-          />
-          <FieldControlDialog
-            open={this.state.setDetailOpen}
-            closeDialog={this.handleDetailClose}
-            title={'Field Controls'}
-            backend={HTML5Backend}
-            component={
-              <FieldDef
-                docDetails={tempDetails}
-                handleClick={this.saveSettings}
-              />
-            }
-            action={this.saveSettings}
-            actionProcess={filterLoading}
-          />
-          <ViewDialog
-            open={this.state.setViewOpen}
-            closeDialog={this.handleViewClose}
-            viewOrderField={view_orderField}
-            setOrderField={this.setOrderField}
-            docDetails={tempDetails}
-            viewOrder={view_order}
-            setOrder={this.setOrder}
-            rowNum={row_num}
-            setEntriesPerPage={this.setEntriesPerPage}
-            isRemovable={is_removable}
-            setUpdateOnly={this.setUpdateOnly}
-            viewTable={viewTable}
-            locked={locked}
-            setLockedValue={this.setLockedValue}
-            action={this.saveViewSettings}
-            actionProcess={filterLoading}
-          />
-        </Paper>
-        <Hidden smDown implementation="css">
-          {!this.state.locked ? (
-            <div style={{ clear: 'both' }}>
-              API Call:{' '}
-              <a className="api-url" href={apiCall} target="_blank">
-                {apiCall}
-              </a>
-              <Tooltip title="Copy To Clipboard">
-                <IconButton
-                  edge="start"
-                  color="inherit"
-                  aria-label="edit"
-                  onClick={this.copy}
-                  style={{ marginLeft: 5 }}
-                >
-                  <CopyIcon style={{ height: 15 }} />
-                </IconButton>
-              </Tooltip>
-            </div>
-          ) : (
-            <div />
-          )}
-        </Hidden>
-      </div>
-    );
-  }
-}
-CollectionView.contextType = AcsysConsumer;
+            </Grid>
+          </Toolbar>
+        </AppBar>
+        {renderTable(paginate)}
+        <LoadingDialog loading={loading} message={'Loading'} />
+        <MessageDialog
+          open={openKeyMessage}
+          closeDialog={closeKeyMessage}
+          title={messageTitle}
+          message={message}
+        />
+        <YesNoDialog
+          open={setOpen}
+          closeDialog={handleClose}
+          title={'Delete data?'}
+          message={'Are you sure you want to delete this data?'}
+          action={deleteView}
+          actionProcess={deleteLoading}
+        />
+        <FieldControlDialog
+          open={setDetailOpen}
+          closeDialog={handleDetailClose}
+          title={'Field Controls'}
+          backend={HTML5Backend}
+          component={
+            <FieldDef docDetails={tempDetails} handleClick={saveSettings} />
+          }
+          action={saveSettings}
+          actionProcess={filterLoading}
+        />
+        <ViewDialog
+          open={setViewOpen}
+          closeDialog={handleViewClose}
+          viewOrderField={view_orderField}
+          setOrderField={setOrderField}
+          docDetails={tempDetails}
+          viewOrder={view_order}
+          setOrder={setOrder}
+          rowNum={row_num}
+          setEntriesPerPage={setEntriesPerPage}
+          isRemovable={is_removable}
+          setUpdateOnly={setUpdateOnly}
+          viewTable={viewTable}
+          locked={locked}
+          setLockedValue={setLockedValue}
+          action={saveViewSettings}
+          actionProcess={filterLoading}
+        />
+      </Paper>
+      <Hidden smDown implementation="css">
+        {!locked ? (
+          <div style={{ clear: 'both' }}>
+            API Call:{' '}
+            <a className="api-url" href={apiCall} target="_blank">
+              {apiCall}
+            </a>
+            <Tooltip title="Copy To Clipboard">
+              <IconButton
+                edge="start"
+                color="inherit"
+                aria-label="edit"
+                onClick={copy}
+                style={{ marginLeft: 5 }}
+              >
+                <CopyIcon style={{ height: 15 }} />
+              </IconButton>
+            </Tooltip>
+          </div>
+        ) : (
+          <div />
+        )}
+      </Hidden>
+    </div>
+  );
+};
 export default CollectionView;
