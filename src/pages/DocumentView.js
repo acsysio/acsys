@@ -375,17 +375,17 @@ const DocumentView = (props) => {
     try {
       props.setHeader('Content');
       let tempMode = mode;
-      // let routed = routed;
+      let routedLocal = routed;
       const acsysView = await Acsys.getData('acsys_logical_content', [
         ['viewId', '=', props.location.state.viewId],
       ]);
       if (acsysView[0].table_keys.length > 0) {
-        routed = true;
+        routedLocal = true;
       }
       try {
         mode = props.location.state.mode;
         is_removable = props.location.state.is_removable;
-        if (routed) {
+        if (routedLocal) {
           table_keys = JSON.parse(props.location.state.table_keys);
         } else {
           table_keys = props.location.state.table_keys;
@@ -394,7 +394,7 @@ const DocumentView = (props) => {
         mode = tempMode;
       }
       setloading(true);
-      setrouted(routed);
+      setrouted(routedLocal);
       setacsysView(acsysView[0]);
       tempDocument = [];
       fileRefs = [];
