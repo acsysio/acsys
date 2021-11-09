@@ -46,29 +46,29 @@ let row_num = 10;
 
 const CollectionView = (props) => {
   const context = useContext(AcsysConsumer);
-  const [content_id, setcontent_id] = useState('');
-  const [viewId, setviewId] = useState(0);
-  const [initialViews, setinitialViews] = useState([]);
-  const [documentDetails, setdocumentDetails] = useState([]);
-  const [acsysView, setacsysView] = useState([]);
-  const [tableData, settableData] = useState([]);
-  const [apiCall, setapiCall] = useState('');
-  const [totalRows, settotalRows] = useState(0);
-  const [page, setpage] = useState(1);
-  const [orderDir, setorderDir] = useState('');
-  const [locked, setlocked] = useState(true);
-  const [reset, setreset] = useState(false);
-  const [view, setview] = useState(false);
-  const [loading, setloading] = useState(false);
-  const [openKeyMessage, setopenKeyMessage] = useState(false);
-  const [setOpen, setsetOpen] = useState(false);
-  const [setDetailOpen, setsetDetailOpen] = useState(false);
-  const [setViewOpen, setsetViewOpen] = useState(false);
-  const [filterLoading, setfilterLoading] = useState(false);
-  const [view_order, setview_order] = useState(false);
-  const [messageTitle, setmessageTitle] = useState('');
-  const [message, setmessage] = useState('');
-  const [deleteLoading, setdeleteLoading] = useState(false);
+  const [content_id, setContentId] = useState('');
+  const [viewId, setViewId] = useState(0);
+  const [initialViews, setInitialViews] = useState([]);
+  const [documentDetails, setDocumentDetails] = useState([]);
+  const [acsysView, setAcsysView] = useState([]);
+  const [tableData, setTableData] = useState([]);
+  const [apiCall, setApiCall] = useState('');
+  const [totalRows, setTotalRows] = useState(0);
+  const [page, setPage] = useState(1);
+  const [orderDir, setOrderDir] = useState('');
+  const [locked, setLocked] = useState(true);
+  const [reset, setReset] = useState(false);
+  const [view, setView] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [openKeyMessage, setOpenKeyMessage] = useState(false);
+  const [setOpen, setSetOpen] = useState(false);
+  const [setDetailOpen, setSetDetailOpen] = useState(false);
+  const [setViewOpen, setSetViewOpen] = useState(false);
+  const [filterLoading, setFilterLoading] = useState(false);
+  const [view_order, setViewOrder] = useState(false);
+  const [messageTitle, setMessageTitle] = useState('');
+  const [message, setMessage] = useState('');
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const copy = () => {
     const el = document.createElement('textarea');
@@ -80,13 +80,13 @@ const CollectionView = (props) => {
   };
 
   const openKeyMessageFunc = () => {
-    setopenKeyMessage(true);
-    setmessageTitle('Error');
-    setmessage('No keys set. Please set unique key for data.');
+    setOpenKeyMessage(true);
+    setMessageTitle('Error');
+    setMessage('No keys set Please setUnique key for data.');
   };
 
   const closeKeyMessage = () => {
-    setopenKeyMessage(false);
+    setOpenKeyMessage(false);
   };
 
   const handleViewChange = (value) => {
@@ -109,37 +109,37 @@ const CollectionView = (props) => {
   };
 
   const handleClickOpen = (id) => {
-    setviewId(id);
-    setsetOpen(true);
+    setViewId(id);
+    setSetOpen(true);
   };
 
   const handleClose = () => {
-    setsetOpen(false);
+    setSetOpen(false);
   };
 
   const handleViewOpen = () => {
-    setsetViewOpen(true);
+    setSetViewOpen(true);
   };
 
   const handleViewClose = () => {
-    setsetViewOpen(false);
+    setSetViewOpen(false);
   };
 
   const handleDetailOpen = () => {
-    setsetDetailOpen(true);
+    setSetDetailOpen(true);
   };
 
   const handleDetailClose = () => {
-    setsetDetailOpen(false);
+    setSetDetailOpen(false);
   };
 
   const toggleTable = async (value) => {
     if (!value) {
       await Acsys.unlockTable(documentDetails[0].collection);
-      setlocked(false);
+      setLocked(false);
     } else {
       Acsys.lockTable(documentDetails[0].collection);
-      setlocked(true);
+      setLocked(true);
     }
   };
 
@@ -163,8 +163,8 @@ const CollectionView = (props) => {
     is_removable = value;
   };
 
-  const saveViewSettings = async () => {
-    setloading(true);
+  const saveViewsetTings = async () => {
+    setLoading(true);
     let tempView = acsysView;
     if (view_orderField === 'none') {
       tempView['order_by'] = '';
@@ -180,10 +180,10 @@ const CollectionView = (props) => {
     await Acsys.updateData('acsys_views', tempView, [
       ['acsys_id', '=', tempView.acsys_id],
     ]);
-    setsetViewOpen(false);
-    setreset(true);
-    settotalRows(0);
-    setpage(1);
+    setSetViewOpen(false);
+    setReset(True);
+    setTotalRows(0);
+    setPage(1);
     table_keys = [];
     mount();
   };
@@ -193,7 +193,7 @@ const CollectionView = (props) => {
   };
 
   const deleteView = async () => {
-    setdeleteLoading(true);
+    setDeleteLoading(true);
 
     if (table_keys[viewId]) {
       let keys = [];
@@ -223,14 +223,14 @@ const CollectionView = (props) => {
     }
 
     handleClose();
-    setreset(true);
+    setReset(True);
     table_keys = [];
     mount();
-    setdeleteLoading(false);
+    setDeleteLoading(false);
   };
 
   const handleChangePrevPage = async () => {
-    setloading(true);
+    setLoading(true);
     let keys = [];
     for (let i = 0; i < table_keys[table_keys.length - 1].length; i++) {
       keys.push([table_keys[0][i].field, '=', table_keys[0][i].value]);
@@ -253,10 +253,10 @@ const CollectionView = (props) => {
       'prev',
       page
     );
-    setloading(false);
-    settableData(currentData);
-    setapiCall(apiCall);
-    setpage(page - 1);
+    setLoading(false);
+    setTableData(currentData);
+    setApiCall(apiCall);
+    setPage(page - 1);
     context.setHeld(true);
     context.setPage(page);
     context.setPageData(
@@ -271,7 +271,7 @@ const CollectionView = (props) => {
   };
 
   const handleChangeNextPage = async () => {
-    setloading(true);
+    setLoading(true);
     let keys = [];
     for (let i = 0; i < table_keys[table_keys.length - 1].length; i++) {
       keys.push([
@@ -298,10 +298,10 @@ const CollectionView = (props) => {
       'next',
       page
     );
-    setloading(false);
-    settableData(currentData);
-    setapiCall(apiCall);
-    setpage(page + 1);
+    setLoading(false);
+    setTableData(currentData);
+    setApiCall(apiCall);
+    setPage(page + 1);
     context.setHeld(true);
     context.setPage(page);
     context.setPageData(
@@ -315,8 +315,8 @@ const CollectionView = (props) => {
     window.scrollTo(0, 0);
   };
 
-  const saveSettings = async () => {
-    setfilterLoading(true);
+  const savesetTings = async () => {
+    setFilterLoading(true);
     table_keys = [];
     for (var i = 0; i < tempDetails.length; i++) {
       tempDetails[i].view_order = i;
@@ -324,12 +324,12 @@ const CollectionView = (props) => {
         ['acsys_id', '=', tempDetails[i].acsys_id],
       ]);
     }
-    setfilterLoading(false);
+    setFilterLoading(false);
     handleDetailClose();
   };
 
   const scan = async () => {
-    setloading(true);
+    setLoading(true);
     Acsys.deleteData('acsys_document_details', [
       ['content_id', '=', content_id],
     ])
@@ -337,7 +337,7 @@ const CollectionView = (props) => {
         mount();
       })
       .catch(() => {
-        setloading(false);
+        setLoading(false);
       });
   };
 
@@ -351,7 +351,7 @@ const CollectionView = (props) => {
     props.setHeader('Content');
     published = true;
     table_keys = [];
-    setloading(true);
+    setLoading(true);
     mount();
   }, []);
 
@@ -440,7 +440,7 @@ const CollectionView = (props) => {
             direction,
             context.getPage()
           );
-          setpage(context.getPage());
+          setPage(context.getPage());
         } else {
           currentData = await Acsys.getData(
             acsys_id,
@@ -490,20 +490,20 @@ const CollectionView = (props) => {
       console.log(error);
     }
 
-    setreset(false);
-    setview(props.location.state.view);
-    setloading(false);
-    setlocked(locked);
-    setcontent_id(content_id);
-    setinitialViews(currentData);
-    settableData(currentData);
-    setapiCall(apiCall);
-    setacsysView(acsysView[0]);
-    setpage(page);
-    setdocumentDetails(details);
-    settotalRows(totalRows);
-    setview_order(order);
-    setorderDir(orderDir);
+    setReset(false);
+    setView(props.location.state.view);
+    setLoading(false);
+    setLocked(locked);
+    setContentId(content_id);
+    setInitialViews(currentData);
+    setTableData(currentData);
+    setApiCall(apiCall);
+    setAcsysView(acsysView[0]);
+    setPage(page);
+    setDocumentDetails(details);
+    setTotalRows(totalRows);
+    setViewOrder(order);
+    setOrderDir(orderDir);
   };
 
   const renderHeader = () => {
@@ -725,7 +725,7 @@ const CollectionView = (props) => {
     ) : (
       <div>
         <Typography style={{ height: 30, marginTop: 8 }}>
-          Please set keys for pagination.
+          Please setKeys for pagination.
         </Typography>
       </div>
     );
@@ -844,7 +844,7 @@ const CollectionView = (props) => {
                       variant="contained"
                       color="primary"
                     >
-                      View Settings
+                      View setTings
                     </Button>
                   </Tooltip>
                 </Grid>
@@ -900,9 +900,9 @@ const CollectionView = (props) => {
           title={'Field Controls'}
           backend={HTML5Backend}
           component={
-            <FieldDef docDetails={tempDetails} handleClick={saveSettings} />
+            <FieldDef docDetails={tempDetails} handleClick={savesetTings} />
           }
-          action={saveSettings}
+          action={savesetTings}
           actionProcess={filterLoading}
         />
         <ViewDialog
@@ -920,7 +920,7 @@ const CollectionView = (props) => {
           viewTable={viewTable}
           locked={locked}
           setLockedValue={setLockedValue}
-          action={saveViewSettings}
+          action={saveViewsetTings}
           actionProcess={filterLoading}
         />
       </Paper>

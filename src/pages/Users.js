@@ -22,73 +22,53 @@ import NewUserDialog from '../components/Dialogs/NewUserDialog';
 import YesNoDialog from '../components/Dialogs/YesNoDialog';
 
 const Users = (props) => {
-  const [userId, setuserId] = useState(0);
-  const [message, setmessage] = useState('');
-  const [users, setusers] = useState([]);
-  const [username, setusername] = useState('');
-  const [role, setrole] = useState('Administrator');
-  const [email, setemail] = useState('');
-  const [passwordOne, setpasswordOne] = useState('');
-  const [passwordTwo, setpasswordTwo] = useState('');
-  const [page, setpage] = useState(0);
+  const [userId, setUserId] = useState(0);
+  const [message, setMessage] = useState('');
+  const [users, setUsers] = useState([]);
+  const [username, setUsername] = useState('');
+  const [role, setRole] = useState('Administrator');
+  const [email, setEmail] = useState('');
+  const [passwordOne, setPasswordOne] = useState('');
+  const [passwordTwo, setPasswordTwo] = useState('');
+  const [page, setPage] = useState(0);
   const [rowsPerPage] = useState(15);
-  const [setOpen, setsetOpen] = useState(false);
-  const [addLoading, setaddLoading] = useState(false);
-  const [deleting, setdeleting] = useState(false);
-  const [deleteLoading, setdeleteLoading] = useState(false);
-  const [seterror] = useState('');
-  const [projectName, setprojectName] = useState('');
-
-  const setRole = (value) => {
-    setrole(value);
-  };
-
-  const setEmail = (value) => {
-    setemail(value);
-  };
-
-  const setUsername = (value) => {
-    setusername(value);
-  };
-
-  const setPasswordOne = (value) => {
-    setpasswordOne(value);
-  };
-
-  const setPasswordTwo = (value) => {
-    setpasswordTwo(value);
-  };
+  const [setOpen, setSetOpen] = useState(false);
+  const [addLoading, setAddLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [setError] = useState('');
+  const [projectName, setProjectName] = useState('');
 
   const deleteUser = async () => {
     await Acsys.deleteData('acsys_users', [['acsys_id', '=', userId]])
       .then(() => {
         inDidMount();
       })
-      .catch((error) => seterror(error));
-    setdeleting(false);
-    setdeleteLoading(false);
+      .catch((error) => setError(error));
+    setDeleting(false);
+    setDeleteLoading(false);
   };
 
   const handleChangePage = (event, page) => {
-    setpage(page);
+    setPage(page);
   };
 
   const handleClickOpen = () => {
-    setsetOpen(true);
+    setSetOpen(true);
   };
 
   const handleClose = () => {
-    setsetOpen(false);
+    setSetOpen(false);
   };
 
   const handleDeleteOpen = async (userId) => {
-    setdeleting(true);
-    setuserId(userId);
+    setDeleting(true);
+    setUserId(userId);
   };
 
   const handleDeleteClose = () => {
-    setdeleting(false);
-    setdeleteLoading(false);
+    setDeleting(false);
+    setDeleteLoading(false);
   };
 
   const inDidMount = async () => {
@@ -98,11 +78,11 @@ const Users = (props) => {
     try {
       users = await Acsys.getUsers(Acsys.getUser());
     } catch (error) {}
-    setprojectName(projectName);
-    setusers(users);
+    setProjectName(projectName);
+    setUsers(users);
   };
   const addUser = async () => {
-    setaddLoading(true);
+    setAddLoading(true);
     const user = {
       acsys_id: uniqid(),
       role: role,
@@ -114,15 +94,15 @@ const Users = (props) => {
     await Acsys.createUser(user)
       .then((result) => {
         if (result === true) {
-          setaddLoading(false);
+          setAddLoading(false);
           inDidMount();
         } else {
-          setaddLoading(false);
-          setmessage(result);
+          setAddLoading(false);
+          setMessage(result);
         }
       })
       .catch((error) => {
-        seterror(error);
+        setError(error);
       });
   };
 
@@ -270,15 +250,19 @@ const Users = (props) => {
             open={setOpen}
             closeDialog={handleClose}
             message={message}
-            setRole={setRole}
+            setRole={(value) => setRole(value)}
             email={email}
-            setEmail={setEmail}
+            setEmail={(value) => setEmail(value)}
             username={username}
-            setUsername={setUsername}
+            setUsername={(value) => {
+              setUsername(value);
+            }}
             passwordOne={passwordOne}
-            setPasswordOne={setPasswordOne}
+            setPasswordOne={(value) => {
+              setPasswordOne(value);
+            }}
             passwordTwo={passwordTwo}
-            setPasswordTwo={setPasswordTwo}
+            setPasswordTwo={(value) => setPasswordTwo(value)}
             action={addUser}
             actionProcess={addLoading}
           />

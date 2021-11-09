@@ -28,34 +28,34 @@ const Settings = (props) => {
   const [ddatabase, setDatabase] = useState('');
   const [dusername, setDusername] = useState('');
   const [dpassword, setDpassword] = useState('');
-  const [project_name, setproject_name] = useState('');
-  const [databaseType, setdatabaseType] = useState('');
+  const [project_name, setProjectName] = useState('');
+  const [databaseType, setDatabaseType] = useState('');
   const [type, setType] = useState('');
-  const [project_id, setproject_id] = useState('');
-  const [private_key_id, setprivate_key_id] = useState('');
-  const [private_key, setprivate_key] = useState('');
-  const [client_email, setclient_email] = useState('');
-  const [client_id, setclient_id] = useState('');
-  const [auth_uri, setauth_uri] = useState('');
-  const [token_uri, settoken_uri] = useState('');
-  const [auth_provider_x509_cert_url, setauth_provider_x509_cert_url] =
+  const [project_id, setProjectId] = useState('');
+  const [private_key_id, setPrivateKeyId] = useState('');
+  const [private_key, setPrivateKey] = useState('');
+  const [client_email, setClientEmail] = useState('');
+  const [client_id, setClientId] = useState('');
+  const [auth_uri, setAuthUri] = useState('');
+  const [token_uri, setTokenUri] = useState('');
+  const [auth_provider_x509_cert_url, setAuthProviderX509CertUrl] =
     useState('');
-  const [client_x509_cert_url, setclient_x509_cert_url] = useState('');
-  const [bucket, setbucket] = useState('');
-  const [buckets, setbuckets] = useState([]);
-  const [updateBucket, setupdateBucket] = useState(false);
-  const [updateEmail, setupdateEmail] = useState(false);
-  const [updateDatabase, setupdateDatabase] = useState(false);
-  const [updateStorage, setupdateStorage] = useState(false);
-  const [uploadFile, setuploadFile] = useState();
-  const [fileName, setfileName] = useState('');
-  const [page, setpage] = useState(0);
-  const [loading, setloading] = useState(false);
+  const [client_x509_cert_url, setClientX509CertUrl] = useState('');
+  const [bucket, setBucket] = useState('');
+  const [buckets, setBuckets] = useState([]);
+  const [updateBucket, setUpdateBucket] = useState(false);
+  const [updateEmail, setUpdateEmail] = useState(false);
+  const [updateDatabase, setUpdateDatabase] = useState(false);
+  const [updateStorage, setUpdateStorage] = useState(false);
+  const [uploadFile, setUploadFile] = useState();
+  const [fileName, setFileName] = useState('');
+  const [page, setPage] = useState(0);
+  const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
-  const [error, seterror] = useState('');
-  const [message, setmessage] = useState('');
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const [messageOpen, setMessageOpen] = useState(false);
-  const [isStateless, setisStateless] = useState('');
+  const [isStateless, setIsStateless] = useState('');
 
   const handleClickOpen = () => {
     if (updateDatabase || updateStorage || updateEmail || updateBucket) {
@@ -72,11 +72,11 @@ const Settings = (props) => {
   };
 
   const closeDialog = () => {
-    setloading(false);
+    setLoading(false);
   };
 
   useEffect(async () => {
-    props.setHeader('Settings');
+    props.setHeader('setTings');
     const isStateless = await Acsys.isStateless();
     const emailConfig = await Acsys.getEmailConfig();
     console.log('email cofig', emailConfig);
@@ -90,46 +90,42 @@ const Settings = (props) => {
     if (!isStateless) {
       const databaseConfig = await Acsys.getDatabaseConfig();
       if (databaseType === 'local') {
-        setproject_name(databaseConfig.project_name);
+        setProjectName(databaseConfig.project_name);
       } else if (databaseType === 'firestore') {
         const currentBucket = await Acsys.getCurrentBucket();
         const buckets = await Acsys.getStorageBuckets();
 
-        setbucket(currentBucket);
-        setbuckets(buckets);
+        setBucket(currentBucket);
+        setBuckets(buckets);
         setType(databaseConfig.type);
-        setproject_id(databaseConfig.project_id);
-        setprivate_key_id(databaseConfig.private_key_id);
-        setprivate_key(databaseConfig.private_key);
-        setclient_email(databaseConfig.client_email);
-        setclient_id(databaseConfig.client_id);
-        setauth_uri(databaseConfig.auth_uri);
-        settoken_uri(databaseConfig.token_uri);
-        setauth_provider_x509_cert_url(
-          databaseConfig.auth_provider_x509_cert_url
-        );
-        setclient_x509_cert_url(databaseConfig.client_x509_cert_url);
+        setProjectId(databaseConfig.project_id);
+        setPrivateKeyId(databaseConfig.private_key_id);
+        setPrivateKey(databaseConfig.private_key);
+        setClientEmail(databaseConfig.client_email);
+        setClientId(databaseConfig.client_id);
+        setAuthUri(databaseConfig.auth_uri);
+        setTokenUri(databaseConfig.token_uri);
+        setAuthProviderX509CertUrl(databaseConfig.auth_provider_x509_cert_url);
+        setClientX509CertUrl(databaseConfig.client_x509_cert_url);
       } else if (databaseType === 'mysql') {
         const currentBucket = await Acsys.getCurrentBucket();
         const buckets = await Acsys.getStorageBuckets();
-        setbucket(currentBucket);
-        setbuckets(buckets);
+        setBucket(currentBucket);
+        setBuckets(buckets);
         setType(databaseConfig.type);
-        setproject_id(databaseConfig.project_id);
-        setprivate_key_id(databaseConfig.private_key_id);
-        setprivate_key(databaseConfig.private_key);
-        setclient_email(databaseConfig.client_email);
-        setclient_id(databaseConfig.client_id);
-        setauth_uri(databaseConfig.auth_uri);
-        settoken_uri(databaseConfig.token_uri);
-        setauth_provider_x509_cert_url(
-          databaseConfig.auth_provider_x509_cert_url
-        );
-        setclient_x509_cert_url(databaseConfig.client_x509_cert_url);
+        setProjectId(databaseConfig.project_id);
+        setPrivateKeyId(databaseConfig.private_key_id);
+        setPrivateKey(databaseConfig.private_key);
+        setClientEmail(databaseConfig.client_email);
+        setClientId(databaseConfig.client_id);
+        setAuthUri(databaseConfig.auth_uri);
+        setTokenUri(databaseConfig.token_uri);
+        setAuthProviderX509CertUrl(databaseConfig.auth_provider_x509_cert_url);
+        setClientX509CertUrl(databaseConfig.client_x509_cert_url);
       }
     }
-    setisStateless(isStateless);
-    setdatabaseType(databaseType);
+    setIsStateless(isStateless);
+    setDatabaseType(databaseType);
   }, []);
 
   // setDatabaseType = (type) => {
@@ -139,7 +135,7 @@ const Settings = (props) => {
   // };
 
   const selectBucket = (bucket) => {
-    setbucket(bucket);
+    setBucket(bucket);
   };
 
   const setEmail = async () => {
@@ -152,20 +148,20 @@ const Settings = (props) => {
     await Acsys.setEmailConfig(config);
   };
 
-  const setBucket = async () => {
+  const set_bucket = async () => {
     const config = {
       bucket: bucket,
     };
     await Acsys.setStorageBucket(config);
   };
 
-  const handleSetDatabase = async () => {
+  const handlesetDatabase = async () => {
     if (databaseType === 'firestore') {
       if (uploadFile === undefined) {
         setMessageOpen(true);
         setOpen(false);
-        setmessage('Please select a configuration to upload.');
-        setloading(false);
+        setMessage('Please select a configuration to upload.');
+        setLoading(false);
       } else {
         await Acsys.setFirestoreConfig(uploadFile);
       }
@@ -179,10 +175,10 @@ const Settings = (props) => {
       ) {
         setMessageOpen(true);
         setOpen(false);
-        setmessage(
-          'Please complete all necessary database fields and storage settings.'
+        setMessage(
+          'Please complete all necessary database fields and storage setTings.'
         );
-        setloading(false);
+        setLoading(false);
       } else {
         await Acsys.setMysqlConfig(
           dhost,
@@ -198,8 +194,8 @@ const Settings = (props) => {
       if (project_name.length < 1) {
         setMessageOpen(true);
         setOpen(false);
-        setmessage('Please enter a project name.');
-        setloading(false);
+        setMessage('Please enter a project name.');
+        setLoading(false);
       } else {
         await Acsys.setLocalDatabaseConfig(project_name);
       }
@@ -208,24 +204,24 @@ const Settings = (props) => {
 
   const setConfig = async () => {
     setOpen(false);
-    setloading(false);
+    setLoading(false);
     if (updateEmail) {
       setEmail();
       await sleep(5000);
     }
     if (updateBucket) {
-      setBucket();
+      set_bucket();
       await sleep(5000);
     }
     if (updateDatabase || updateStorage) {
-      handleSetDatabase();
+      handlesetDatabase();
       await sleep(5000);
     }
     if ((updateDatabase || updateEmail || updateStorage) && loading) {
       await sleep(7500);
       window.location.reload();
     }
-    setloading(false);
+    setLoading(false);
   };
 
   const setRef = (ref) => {
@@ -234,22 +230,22 @@ const Settings = (props) => {
     try {
       fileReader.readAsText(ref.target.files[0]);
     } catch (error) {}
-    setfileName(ref.target.files[0].name), setuploadFile(ref.target.files[0]);
+    setFileName(ref.target.files[0].name), setUploadFile(ref.target.files[0]);
   };
 
   const loadFields = (event) => {
     try {
-      const settings = JSON.parse(event.target.result);
-      setType(settings.type);
-      setproject_id(ettings.project_id);
-      setprivate_key_id(settings.private_key_id);
-      setprivate_key(settings.private_key);
-      setclient_email(settings.client_email);
-      setclient_id(settings.client_id);
-      setauth_uri(settings.auth_uri);
-      settoken_uri(settings.token_uri);
-      setauth_provider_x509_cert_url(settings.auth_provider_x509_cert_url);
-      setclient_x509_cert_url(settings.client_x509_cert_url);
+      const setTings = JSON.parse(event.target.result);
+      setType(setTings.type);
+      setProjectId(ettings.project_id);
+      setPrivateKeyId(setTings.private_key_id);
+      setPrivateKey(setTings.private_key);
+      setClientEmail(setTings.client_email);
+      setClientId(setTings.client_id);
+      setAuthUri(setTings.auth_uri);
+      setTokenUri(setTings.token_uri);
+      setAuthProviderX509CertUrl(setTings.auth_provider_x509_cert_url);
+      setClientX509CertUrl(setTings.client_x509_cert_url);
     } catch (error) {}
   };
 
@@ -266,7 +262,7 @@ const Settings = (props) => {
     return (
       <ExpansionPanel
         style={{ clear: 'both' }}
-        onChange={(e) => setupdateBucket(!updateBucket)}
+        onChange={(e) => setUpdateBucket(!updateBucket)}
       >
         <ExpansionPanelSummary
           expandIcon={<KeyboardArrowDown />}
@@ -303,7 +299,7 @@ const Settings = (props) => {
     return (
       <ExpansionPanel
         style={{ clear: 'both' }}
-        onChange={(e) => setupdateDatabase(!updateDatabase)}
+        onChange={(e) => setUpdateDatabase(!updateDatabase)}
       >
         <ExpansionPanelSummary
           expandIcon={<KeyboardArrowDown />}
@@ -326,7 +322,7 @@ const Settings = (props) => {
               name="project_name"
               placeholder="Project Name"
               value={project_name}
-              onChange={(e) => setproject_name(e.target.value)}
+              onChange={(e) => setProjectName(e.target.value)}
               style={{ marginTop: '20px' }}
             />
           </Box>
@@ -344,7 +340,7 @@ const Settings = (props) => {
         <Grid item xs={12}>
           <ExpansionPanel
             style={{ clear: 'both' }}
-            onChange={(e) => setupdateStorage(!updateStorage)}
+            onChange={(e) => setUpdateStorage(!updateStorage)}
           >
             <ExpansionPanelSummary
               expandIcon={<KeyboardArrowDown />}
@@ -373,7 +369,7 @@ const Settings = (props) => {
                 <input
                   id="project_id"
                   name="project_id"
-                  onChange={(e) => setproject_id(e.target.value)}
+                  onChange={(e) => setProjectId(e.target.value)}
                   placeholder="Project ID"
                   value={project_id}
                   style={{ marginTop: '20px' }}
@@ -381,7 +377,7 @@ const Settings = (props) => {
                 <input
                   id="private_key_id"
                   name="private_key_id"
-                  onChange={(e) => setprivate_key_id(e.target.value)}
+                  onChange={(e) => setPrivateKeyId(e.target.value)}
                   placeholder="Private Key ID"
                   value={private_key_id}
                   style={{ marginTop: '20px' }}
@@ -389,7 +385,7 @@ const Settings = (props) => {
                 <input
                   id="private_key"
                   name="private_key"
-                  onChange={(e) => setprivate_key_id(e.target.value)}
+                  onChange={(e) => setPrivateKeyId(e.target.value)}
                   placeholder="Private Key"
                   value={private_key}
                   style={{ marginTop: '20px' }}
@@ -397,7 +393,7 @@ const Settings = (props) => {
                 <input
                   id="client_email"
                   name="client_email"
-                  onChange={(e) => setclient_email(e.target.value)}
+                  onChange={(e) => setClientEmail(e.target.value)}
                   placeholder="Client Email"
                   value={client_email}
                   style={{ marginTop: '20px' }}
@@ -405,7 +401,7 @@ const Settings = (props) => {
                 <input
                   id="client_id"
                   name="client_id"
-                  onChange={(e) => setclient_id(e.target.value)}
+                  onChange={(e) => setClientId(e.target.value)}
                   placeholder="Client ID"
                   value={client_id}
                   style={{ marginTop: '20px' }}
@@ -413,7 +409,7 @@ const Settings = (props) => {
                 <input
                   id="auth_uri"
                   name="auth_uri"
-                  onChange={(e) => setauth_uri(e.target.value)}
+                  onChange={(e) => setAuthUri(e.target.value)}
                   placeholder="Auth URI"
                   value={auth_uri}
                   style={{ marginTop: '20px' }}
@@ -421,7 +417,7 @@ const Settings = (props) => {
                 <input
                   id="token_uri"
                   name="token_uri"
-                  onChange={(e) => settoken_uri(e.target.value)}
+                  onChange={(e) => setTokenUri(e.target.value)}
                   placeholder="Token URI"
                   value={token_uri}
                   style={{ marginTop: '20px' }}
@@ -429,9 +425,7 @@ const Settings = (props) => {
                 <input
                   id="auth_provider_x509_cert_url"
                   name="auth_provider_x509_cert_url"
-                  onChange={(e) =>
-                    setauth_provider_x509_cert_url(e.target.value)
-                  }
+                  onChange={(e) => setAuthProviderX509CertUrl(e.target.value)}
                   placeholder="Auth Provider x509 Cert URL"
                   value={auth_provider_x509_cert_url}
                   style={{ marginTop: '20px' }}
@@ -439,7 +433,7 @@ const Settings = (props) => {
                 <input
                   id="client_x509_cert_url"
                   name="client_x509_cert_url"
-                  onChange={(e) => setclient_x509_cert_url(e.target.value)}
+                  onChange={(e) => setClientX509CertUrl(e.target.value)}
                   placeholder="Client x509 Cert URL"
                   value={client_x509_cert_url}
                   style={{ marginTop: '20px' }}
@@ -481,7 +475,7 @@ const Settings = (props) => {
         <Grid item xs={12} style={{ marginBottom: 30 }}>
           <ExpansionPanel
             style={{ clear: 'both' }}
-            onChange={(e) => setupdateDatabase(!updateDatabase)}
+            onChange={(e) => setUpdateDatabase(!updateDatabase)}
           >
             <ExpansionPanelSummary
               expandIcon={<KeyboardArrowDown />}
@@ -572,7 +566,7 @@ const Settings = (props) => {
 
   return (
     <div>
-      <Tooltip title="Save Server Settings">
+      <Tooltip title="Save Server setTings">
         <Button
           style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
           variant="contained"
@@ -601,10 +595,10 @@ const Settings = (props) => {
                     </h1>
                   </Grid>
                   <Grid item xs={3}>
-                    <Tooltip title="Sets Database Type For Project">
+                    <Tooltip title="setS Database Type For Project">
                       <NativeSelect
                         value={databaseType}
-                        onChange={(e) => setdatabaseType(e.target.value)}
+                        onChange={(e) => setDatabaseType(e.target.value)}
                         style={{ width: '100%', paddingTop: 7 }}
                       >
                         <option value={'local'}>Local</option>
@@ -617,7 +611,7 @@ const Settings = (props) => {
                 <Grid item xs={12} style={{ marginBottom: 30 }}>
                   <ExpansionPanel
                     style={{ clear: 'both' }}
-                    onChange={(e) => setupdateEmail(!updateEmail)}
+                    onChange={(e) => setUpdateEmail(!updateEmail)}
                   >
                     <ExpansionPanelSummary
                       expandIcon={<KeyboardArrowDown />}
@@ -684,13 +678,13 @@ const Settings = (props) => {
             <div style={{ height: 40 }}></div>
           </div>
         </div>
-        <LoadingDialog loading={loading} message={'Saving Settings'} />
+        <LoadingDialog loading={loading} message={'Saving setTings'} />
         <YesNoDialog
           open={open}
           closeDialog={handleClose}
           title={'Update configuration?'}
           message={
-            'Are you sure you want to update the configuration? Doing so will overwrite current settings.'
+            'Are you sure you want to update the configuration? Doing so will overwrite current setTings.'
           }
           action={setConfig}
           actionProcess={loading}

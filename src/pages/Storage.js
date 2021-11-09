@@ -31,27 +31,27 @@ import YesNoDialog from '../components/Dialogs/YesNoDialog';
 import NewFolderDialog from '../components/Dialogs/NewFolderDialog';
 
 const Storage = (props) => {
-  const [locked, setlocked] = useState(true);
-  const [isDialog, setisDialog] = useState(false);
-  const [mode, setmode] = useState('');
-  const [imgUrl, setimgUrl] = useState(undefined);
-  const [con, setcon] = useState(true);
-  const [currentDir, setcurrentDir] = useState('');
+  const [locked, setLocked] = useState(true);
+  const [isDialog, setIsDialog] = useState(false);
+  const [mode, setMode] = useState('');
+  const [imgUrl, setImgUrl] = useState(undefined);
+  const [con, setCon] = useState(true);
+  const [currentDir, setCurrentDir] = useState('');
   const [newFolderName, setNewFolderName] = useState('');
-  const [files, setfiles] = useState([]);
-  const [uploadFile, setuploadFile] = useState('');
-  const [page, setpage] = useState(0);
+  const [files, setFiles] = useState([]);
+  const [uploadFile, setUploadFile] = useState('');
+  const [page, setPage] = useState(0);
   const [rowsPerPage] = useState(15);
-  const [openMessage, setopenMessage] = useState(false);
-  const [loading, setloading] = useState(false);
-  const [syncing, setsyncing] = useState(false);
-  const [newFolder, setnewFolder] = useState(false);
+  const [openMessage, setOpenMessage] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+  const [newFolder, setNewFolder] = useState(false);
   const [isOpenImage, setIsOpenImage] = useState(false);
-  const [messageTitle, setmessageTitle] = useState('');
-  const [message, setmessage] = useState('');
-  const [seterror] = useState('');
-  const [deleteLoading, setdeleteLoading] = useState(false);
-  const [deleting, setdeleting] = useState(false);
+  const [messageTitle, setMessageTitle] = useState('');
+  const [message, setMessage] = useState('');
+  const [setError] = useState('');
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const set = (name, ref) => {
     try {
@@ -60,11 +60,11 @@ const Storage = (props) => {
   };
 
   const closeMessage = () => {
-    setopenMessage(false);
+    setOpenMessage(false);
   };
 
   const openDir = async (dir) => {
-    setloading(true);
+    setLoading(true);
     const parentDir = files[0].parent;
     const files = await Acsys.getData('acsys_storage_items', [
       ['parent', '=', dir],
@@ -77,19 +77,19 @@ const Storage = (props) => {
         .catch((error) => console.log(error));
     }
     files.sort((a, b) => (a.file_order > b.file_order ? 1 : -1));
-    setloading(false);
-    setpreviousDir(parentDir);
-    setcurrentDir('/' + dir);
-    setfiles(files);
+    setLoading(false);
+    setPreviousDir(parentDir);
+    setCurrentDir('/' + dir);
+    setFiles(files);
   };
 
   const openDirPage = async (dir) => {
     props.history.push('/Storage?' + dir);
-    setlocked(false);
+    setLocked(false);
   };
 
   const previousDir = async () => {
-    setloading(true);
+    setLoading(true);
     let parentFile = '/';
     let currentDir;
     let files;
@@ -119,29 +119,29 @@ const Storage = (props) => {
     }
     files.sort((a, b) => (a.file_order > b.file_order ? 1 : -1));
 
-    setloading(false);
-    setpreviousDir(parentFile);
-    setcurrentDir(currentDir);
-    setfiles(files);
+    setLoading(false);
+    setPreviousDir(parentFile);
+    setCurrentDir(currentDir);
+    setFiles(files);
   };
 
   const setRef = (ref) => {
-    setuploadFile(ref);
+    setUploadFile(ref);
   };
 
   const uploadFileFunc = async () => {
     try {
-      setloading(true);
+      setLoading(true);
       await Acsys.uploadFile(uploadFile.files[0], currentDir).then(async () => {
         await loadFiles();
       });
-      setloading(false);
+      setLoading(false);
     } catch (error) {}
   };
 
   const syncFiles = async () => {
     handleSyncClose();
-    setloading(true);
+    setLoading(true);
     await Acsys.syncFiles();
     let files = await Acsys.getData('acsys_storage_items', [
       ['parent', '=', '/'],
@@ -154,21 +154,21 @@ const Storage = (props) => {
         .catch((error) => console.log(error));
     }
     files.sort((a, b) => (a.file_order > b.file_order ? 1 : -1));
-    setloading(false);
-    setfiles(files);
+    setLoading(false);
+    setFiles(files);
   };
 
   const handleSyncOpen = () => {
-    setsyncing(true);
+    setSyncing(true);
   };
 
   const handleSyncClose = () => {
-    setsyncing(false);
+    setSyncing(false);
   };
 
   const openImg = (url) => {
     setIsOpenImage(true);
-    setimgUrl(url);
+    setImgUrl(url);
   };
 
   const handleImgClose = () => {
@@ -180,66 +180,66 @@ const Storage = (props) => {
   };
 
   const newFolderOpen = () => {
-    setnewFolder(true);
+    setNewFolder(true);
   };
 
   const newFolderClose = () => {
-    setnewFolder(false);
+    setNewFolder(false);
   };
 
   const createNewFolder = async () => {
     if (newFolderName.indexOf(' ') >= 0) {
-      setnewFolder(false);
-      setopenMessage(true);
-      setmessageTitle('Error');
-      setmessage('Folder name cannot contain spaces.');
+      setNewFolder(false);
+      setOpenMessage(true);
+      setMessageTitle('Error');
+      setMessage('Folder name cannot contain spaces.');
     } else {
-      setloading(true);
-      setnewFolder(false);
+      setLoading(true);
+      setNewFolder(false);
       await Acsys.createNewFolder(newFolderName, currentDir);
       await loadFiles();
-      setloading(false);
+      setLoading(false);
     }
   };
 
   const makeFilePublic = async (fileName) => {
-    setloading(true);
+    setLoading(true);
     await Acsys.makeFilePublic(fileName)
       .then(async () => {
         await loadFiles();
       })
-      .catch((error) => seterror(error));
-    setloading(false);
+      .catch((error) => setError(error));
+    setLoading(false);
   };
 
   const makeFilePrivate = async (fileName) => {
-    setloading(true);
+    setLoading(true);
     await Acsys.makeFilePrivate(fileName)
       .then(async () => {
         await loadFiles();
       })
-      .catch((error) => seterror(error));
-    setloading(false);
+      .catch((error) => setError(error));
+    setLoading(false);
   };
 
   const deleteFile = async () => {
-    setdeleteLoading(true);
+    setDeleteLoading(true);
     await Acsys.deleteFile(fileName)
       .then(async () => {
         await loadFiles();
       })
-      .catch((error) => seterror(error));
+      .catch((error) => setError(error));
     handleDeleteClose();
   };
 
   const handleDeleteOpen = async (fileName) => {
-    setdeleting(true);
-    setfileName(fileName);
+    setDeleting(true);
+    setFileName(fileName);
   };
 
   const handleDeleteClose = () => {
-    setdeleting(false);
-    setdeleteLoading(false);
+    setDeleting(false);
+    setDeleteLoading(false);
   };
 
   const loadFiles = async () => {
@@ -259,11 +259,11 @@ const Storage = (props) => {
         .catch((error) => console.log(error));
     }
     files.sort((a, b) => (a.file_order > b.file_order ? 1 : -1));
-    setfiles(files);
+    setFiles(files);
   };
 
   const handleChangePage = (event, page) => {
-    setpage(page);
+    setPage(page);
   };
 
   useEffect(async () => {
@@ -276,8 +276,8 @@ const Storage = (props) => {
         if (newDir.length < 1) {
           newDir = '/';
         }
-        setlocked(true);
-        setloading(true);
+        setLocked(true);
+        setLoading(true);
         setIsOpenImage(false);
         const files = await Acsys.getData('acsys_storage_items', [
           ['parent', '=', newDir],
@@ -294,16 +294,16 @@ const Storage = (props) => {
         if (newDir !== '/') {
           currentDir += newDir;
         }
-        setlocked(false);
-        setloading(false);
-        setcurrentDir(currentDir);
-        setfiles(files);
+        setLocked(false);
+        setLoading(false);
+        setCurrentDir(currentDir);
+        setFiles(files);
       }
     } catch (error) {}
   }, [locked, currentDir, props.location]);
 
   useEffect(async () => {
-    setloading(true);
+    setLoading(true);
     let parent = '/';
     let mode = 'standard';
 
@@ -319,8 +319,8 @@ const Storage = (props) => {
     try {
       con = await Acsys.isStorageConnected();
       if (!con) {
-        setloading(false);
-        setcon(con);
+        setLoading(false);
+        setCon(con);
       }
       files = await Acsys.getData('acsys_storage_items', [
         ['parent', '=', parent],
@@ -334,11 +334,11 @@ const Storage = (props) => {
       }
       files.sort((a, b) => (a.file_order > b.file_order ? 1 : -1));
     } catch (error) {}
-    setloading(false);
-    setisDialog(isDialog);
-    setmode(mode);
-    setcon(con);
-    setfiles(files);
+    setLoading(false);
+    setIsDialog(isDialog);
+    setMode(mode);
+    setCon(con);
+    setFiles(files);
   }, []);
 
   const getPrevButton = () => {

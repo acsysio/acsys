@@ -1,5 +1,5 @@
 import update from 'immutability-helper';
-import React from 'react';
+import React, { useEffect } from 'react';
 import Card from './FieldDefCard';
 
 let tempDetails;
@@ -21,73 +21,70 @@ function buildCardData(docDetails) {
     cardsByIndex,
   };
 }
-export default class Container extends React.Component {
-  constructor(props) {
-    super(props);
-    tempDetails = props.docDetails;
-    this.drawFrame = () => {
-      const nextState = update(this.state, this.pendingUpdateFn);
-      this.setState(nextState);
-      this.pendingUpdateFn = undefined;
-      this.requestedFrame = undefined;
+const Container = (props) => {
+  tempDetails = props.docDetails;
+  let state = buildCardData(props.docDetails);
+  let pendingUpdateFn = undefined;
+  let requestedFrame = undefined;
+
+  const moveCard = (id, afterId) => {
+    const { cardsById, cardsByIndex } = state;
+    const card = cardsById[id];
+    const afterCard = cardsById[afterId];
+    const cardIndex = cardsByIndex.indexOf(card);
+    const afterIndex = cardsByIndex.indexOf(afterCard);
+    startIndex = cardIndex;
+    endIndex = afterIndex;
+    scheduleUpdate({
+      cardsByIndex: {
+        $splice: [
+          [cardIndex, 1],
+          [afterIndex, 0, card],
+        ],
+      },
+    });
+  };
+
+  // componentWillUnmount() {
+  //
+  // }
+
+  useEffect(() => {
+    return () => {
+      if (requestedFrame !== undefined) {
+        cancelAnimationFrame(requestedFrame);
+      }
     };
-    this.moveCard = (id, afterId) => {
-      const { cardsById, cardsByIndex } = this.state;
-      const card = cardsById[id];
-      const afterCard = cardsById[afterId];
-      const cardIndex = cardsByIndex.indexOf(card);
-      const afterIndex = cardsByIndex.indexOf(afterCard);
-      startIndex = cardIndex;
-      endIndex = afterIndex;
-      this.scheduleUpdate({
-        cardsByIndex: {
-          $splice: [
-            [cardIndex, 1],
-            [afterIndex, 0, card],
-          ],
-        },
-      });
-    };
-    this.state = buildCardData(props.docDetails);
-  }
+  }, []);
 
-  componentWillUnmount() {
-    if (this.requestedFrame !== undefined) {
-      cancelAnimationFrame(this.requestedFrame);
+  const scheduleUpdate = (updateFn) => {
+    pendingUpdateFn = updateFn;
+    if (!requestedFrame) {
+      requestedFrame = requestAnimationFrame(drawFrame, updateDetails());
     }
-  }
+  };
 
-  render() {
-    const { cardsByIndex } = this.state;
-    return (
-      <>
-        <div style={style}>
-          {cardsByIndex.map((card, index) => (
-            <Card
-              key={card.id}
-              id={card.id}
-              details={tempDetails[index]}
-              moveCard={this.moveCard}
-            />
-          ))}
-        </div>
-      </>
-    );
-  }
-
-  scheduleUpdate(updateFn) {
-    this.pendingUpdateFn = updateFn;
-    if (!this.requestedFrame) {
-      this.requestedFrame = requestAnimationFrame(
-        this.drawFrame,
-        this.updateDetails()
-      );
-    }
-  }
-
-  updateDetails() {
+  const updateDetails = () => {
     const tempIndx = tempDetails[startIndex];
     tempDetails[startIndex] = tempDetails[endIndex];
     tempDetails[endIndex] = tempIndx;
-  }
-}
+  };
+
+  const { cardsByIndex } = state;
+  return (
+    <>
+      <div style={style}>
+        {cardsByIndex.map((card, index) => (
+          <Card
+            key={card.id}
+            id={card.id}
+            details={tempDetails[index]}
+            moveCard={moveCard}
+          />
+        ))}
+      </div>
+    </>
+  );
+};
+
+export default Container;
