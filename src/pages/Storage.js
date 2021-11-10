@@ -52,6 +52,7 @@ const Storage = (props) => {
   const [setError] = useState('');
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [previousDir, setPreviousDir] = useState('');
 
   const set = (name, ref) => {
     try {
@@ -66,21 +67,21 @@ const Storage = (props) => {
   const openDir = async (dir) => {
     setLoading(true);
     const parentDir = files[0].parent;
-    const files = await Acsys.getData('acsys_storage_items', [
+    const filesTemp = await Acsys.getData('acsys_storage_items', [
       ['parent', '=', dir],
     ]);
-    for (var i = 0; i < files.length; i++) {
-      await Acsys.getStorageURL(files[i].acsys_id)
+    for (var i = 0; i < filesTemp.length; i++) {
+      await Acsys.getStorageURL(filesTemp[i].acsys_id)
         .then((result) => {
-          files[i]['url'] = result;
+          filesTemp[i]['url'] = result;
         })
         .catch((error) => console.log(error));
     }
-    files.sort((a, b) => (a.file_order > b.file_order ? 1 : -1));
+    filesTemp.sort((a, b) => (a.file_order > b.file_order ? 1 : -1));
     setLoading(false);
     setPreviousDir(parentDir);
     setCurrentDir('/' + dir);
-    setFiles(files);
+    setFiles(filesTemp);
   };
 
   const openDirPage = async (dir) => {
@@ -88,7 +89,7 @@ const Storage = (props) => {
     setLocked(false);
   };
 
-  const previousDir = async () => {
+  const previousDirFunc = async () => {
     setLoading(true);
     let parentFile = '/';
     let currentDir;
@@ -345,7 +346,7 @@ const Storage = (props) => {
     return mode !== 'standard' ? (
       <Grid item>
         <Tooltip title="Back">
-          <IconButton onClick={() => previousDir()}>
+          <IconButton onClick={() => previousDirFunc()}>
             <KeyboardArrowLeft color="inherit" />
           </IconButton>
         </Tooltip>

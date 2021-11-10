@@ -27,7 +27,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Link } from 'react-router-dom';
 import uniqid from 'uniqid';
 import * as Acsys from '../utils/Acsys/Acsys';
-import { AcsysConsumer } from '../utils/Session/AcsysProvider';
+import { AcsysContext } from '../utils/Session/AcsysProvider';
 import FieldDef from '../components/FieldControl/FieldDef';
 import FieldControlDialog from '../components/Dialogs/FieldControlDialog';
 import LoadingDialog from '../components/Dialogs/LoadingDialog';
@@ -45,7 +45,7 @@ let view_order = 'asc';
 let row_num = 10;
 
 const CollectionView = (props) => {
-  const context = useContext(AcsysConsumer);
+  const context = useContext(AcsysContext);
   const [content_id, setContentId] = useState('');
   const [viewId, setViewId] = useState(0);
   const [initialViews, setInitialViews] = useState([]);

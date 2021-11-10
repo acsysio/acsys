@@ -112,10 +112,10 @@ const SignInPage = () => {
 
   const getRegister = () => {
     const isInvalidInitial =
-      passwordOne !== passwordTwo ||
-      passwordOne === '' ||
-      email === '' ||
-      username === '';
+      params.passwordOne !== params.passwordTwo ||
+      params.passwordOne === '' ||
+      params.email === '' ||
+      params.username === '';
 
     return (
       <Box

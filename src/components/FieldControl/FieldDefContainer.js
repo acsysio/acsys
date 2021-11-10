@@ -1,5 +1,5 @@
 import update from 'immutability-helper';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Card from './FieldDefCard';
 
 let tempDetails;
@@ -23,9 +23,16 @@ function buildCardData(docDetails) {
 }
 const Container = (props) => {
   tempDetails = props.docDetails;
-  let state = buildCardData(props.docDetails);
+  const [state, setState] = useState(buildCardData(props.docDetails));
   let pendingUpdateFn = undefined;
   let requestedFrame = undefined;
+
+  const drawFrame = () => {
+    const nextState = update(state, pendingUpdateFn);
+    setState(nextState);
+    pendingUpdateFn = undefined;
+    requestedFrame = undefined;
+  };
 
   const moveCard = (id, afterId) => {
     const { cardsById, cardsByIndex } = state;
