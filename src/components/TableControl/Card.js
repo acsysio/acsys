@@ -24,8 +24,6 @@ const Card = memo(({ id, entry, deleteField }) => {
   data.push(<option value="number">number</option>);
   data.push(<option value="boolean">boolean</option>);
 
-  entry.dataType = 'string';
-
   const width = [];
 
   for (let i = 0; i < 12; i++) {

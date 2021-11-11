@@ -38,8 +38,8 @@ const LogicalContent = (props) => {
   const [message, setmessage] = useState('');
   const [loading, setloading] = useState(false);
   const [deleting, setdeleting] = useState(false);
-  const [setOpen, setsetOpen] = useState(false);
-  const [addLoading, setaddLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [addLoading, setAddLoading] = useState(false);
   const [deleteLoading, setdeleteLoading] = useState(false);
   const [openMessage, setopenMessage] = useState(false);
   const [projectName] = useState('');
@@ -59,14 +59,14 @@ const LogicalContent = (props) => {
 
   const handleClickOpen = async () => {
     entry = [];
-    entry.push({ dataType: '', fieldName: '', value: '' });
-    setsetOpen(true);
+    entry.push({ dataType: 'string', fieldName: '', value: '' });
+    setOpen(true);
   };
 
   const handleClose = () => {
     tableName = '';
-    setsetOpen(false);
-    setaddLoading(false);
+    setOpen(false);
+    setAddLoading(false);
   };
 
   const handleMessageClose = () => {
@@ -100,7 +100,7 @@ const LogicalContent = (props) => {
     let currentView = [];
     currentView = await Acsys.getTableData();
     projectName: projectName, setloading(false);
-    setaddLoading(false);
+    setAddLoading(false);
     setviews(currentView);
   };
 
@@ -113,7 +113,7 @@ const LogicalContent = (props) => {
   };
 
   const addTable = async () => {
-    setaddLoading(true);
+    setAddLoading(true);
     let error = false;
     let newEntry = {};
     entry.forEach((obj) => {
@@ -132,7 +132,7 @@ const LogicalContent = (props) => {
     });
 
     if (error || tableName.length < 1) {
-      setaddLoading(false);
+      setAddLoading(false);
       setopenMessage(true);
       setmessage('Allfields must be filled before submitting.');
     } else {
@@ -271,7 +271,7 @@ const LogicalContent = (props) => {
           />
           <LoadingDialog loading={loading} message={'Loading'} />
           <FieldControlDialog
-            open={setOpen}
+            open={open}
             closeDialog={handleClose}
             title={'Add Table'}
             backend={HTML5Backend}

@@ -52,10 +52,6 @@ const Container = (props) => {
     });
   };
 
-  // componentWillUnmount() {
-  //
-  // }
-
   useEffect(() => {
     return () => {
       if (requestedFrame !== undefined) {

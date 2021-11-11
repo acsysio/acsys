@@ -190,7 +190,7 @@ const LogicalContent = (props) => {
   const renderTableData = () => {
     return views
       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-      .map((views) => {
+      .map((views, key) => {
         const {
           acsys_id,
           name,
@@ -200,7 +200,7 @@ const LogicalContent = (props) => {
           table_keys,
         } = views;
         return (
-          <TableRow key={acsys_id}>
+          <TableRow key={key}>
             {table_keys.length < 1 ? (
               <TableCell
                 to={{

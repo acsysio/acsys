@@ -1,56 +1,40 @@
 import IconButton from '@material-ui/core/IconButton';
 import AddButton from '@material-ui/icons/AddCircle';
-import update from 'immutability-helper';
 import React, { useEffect, useState } from 'react';
 import Card from './Card';
 
 let tName;
 let tempDetails;
-let startIndex;
-let endIndex;
 let cardsByIdV = {};
-let cardsByIndexV = [];
-const style = {
-  maxWidth: 750,
-};
 
 const Container = (props) => {
-  const [hack, setHack] = useState('');
   const [build, setBuild] = useState(false);
+  const [cardsByIndexV, setCardsByIndexV] = useState([]);
 
   tName = props.tableName;
   tempDetails = props.entry;
-  let pendingUpdateFn = undefined;
-  let requestedFrame = undefined;
 
   const setTableName = (name) => {
     props.setName(name);
   };
 
-  // drawFrame = () => {
-  //   const nextState = update(state, pendingUpdateFn);
-  //   setState(nextState);
-  //   pendingUpdateFn = undefined;
-  //   requestedFrame = undefined;
-  // };
-
   useEffect(() => {
     buildCardData(tempDetails);
-  }, []);
+  }, [tempDetails]);
 
   const buildCardData = (docDetails) => {
     cardsByIdV = {};
-    cardsByIndexV = [];
+    let cardsByIndexV = [];
     for (let i = 0; i < docDetails.length; i += 1) {
       const card = { id: i, details: docDetails[i] };
       cardsByIdV[card.id] = card;
       cardsByIndexV[i] = card;
     }
-    setHack('');
+    setCardsByIndexV(cardsByIndexV);
   };
 
   const addField = () => {
-    tempDetails.push({ dataType: '', fieldName: '', value: '' });
+    tempDetails.push({ dataType: 'string', fieldName: '', value: '' });
     buildCardData(tempDetails);
   };
 
@@ -61,19 +45,6 @@ const Container = (props) => {
       buildCardData([]);
       setBuild(true);
     }
-  };
-
-  const scheduleUpdate = (updateFn) => {
-    pendingUpdateFn = updateFn;
-    if (!requestedFrame) {
-      requestedFrame = requestAnimationFrame(drawFrame(), updateDetails());
-    }
-  };
-
-  const updateDetails = () => {
-    let tempIndx = tempDetails[startIndex];
-    tempDetails[startIndex] = tempDetails[endIndex];
-    tempDetails[endIndex] = tempIndx;
   };
 
   useEffect(() => {
