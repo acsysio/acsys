@@ -15,126 +15,74 @@ import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { Delete as DeleteIcon } from '@material-ui/icons';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import uniqid from 'uniqid';
 import * as Acsys from '../utils/Acsys/Acsys';
 import NewUserDialog from '../components/Dialogs/NewUserDialog';
 import YesNoDialog from '../components/Dialogs/YesNoDialog';
 
-const INITIAL_STATE = {
-  userId: 0,
-  initialUsers: [],
-  message: '',
-  name: '',
-  collection: '',
-  description: '',
-  users: [],
-  username: '',
-  role: 'Administrator',
-  email: '',
-  passwordOne: '',
-  passwordTwo: '',
-  page: 0,
-  rowsPerPage: 15,
-  setOpen: false,
-  addLoading: false,
-  deleting: false,
-  deleteLoading: false,
-  error: '',
-};
+const Users = (props) => {
+  const [userId, setUserId] = useState(0);
+  const [message, setMessage] = useState('');
+  const [users, setUsers] = useState([]);
+  const [username, setUsername] = useState('');
+  const [role, setRole] = useState('Administrator');
+  const [email, setEmail] = useState('');
+  const [passwordOne, setPasswordOne] = useState('');
+  const [passwordTwo, setPasswordTwo] = useState('');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage] = useState(15);
+  const [setOpen, setSetOpen] = useState(false);
+  const [addLoading, setAddLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [setError] = useState('');
+  const [projectName, setProjectName] = useState('');
 
-class Users extends React.Component {
-  state = { ...INITIAL_STATE };
-
-  setRole = (value) => {
-    this.setState({
-      role: value,
-    });
-  };
-
-  setEmail = (value) => {
-    this.setState({
-      email: value,
-    });
-  };
-
-  setUsername = (value) => {
-    this.setState({
-      username: value,
-    });
-  };
-
-  setPasswordOne = (value) => {
-    this.setState({
-      passwordOne: value,
-    });
-  };
-
-  setPasswordTwo = (value) => {
-    this.setState({
-      passwordTwo: value,
-    });
-  };
-
-  deleteUser = async () => {
-    await Acsys.deleteData('acsys_users', [
-      ['acsys_id', '=', this.state.userId],
-    ])
+  const deleteUser = async () => {
+    await Acsys.deleteData('acsys_users', [['acsys_id', '=', userId]])
       .then(() => {
-        this.componentDidMount();
+        inDidMount();
       })
-      .catch((error) => this.setState(error));
-    this.setState({
-      deleting: false,
-      deleteLoading: false,
-    });
+      .catch((error) => setError(error));
+    setDeleting(false);
+    setDeleteLoading(false);
   };
 
-  handleChangePage = (event, page) => {
-    this.setState({ page });
+  const handleChangePage = (event, page) => {
+    setPage(page);
   };
 
-  handleClickOpen = () => {
-    this.setState({
-      setOpen: true,
-    });
+  const handleClickOpen = () => {
+    setSetOpen(true);
   };
 
-  handleClose = () => {
-    this.setState({
-      setOpen: false,
-    });
+  const handleClose = () => {
+    setSetOpen(false);
   };
 
-  handleDeleteOpen = async (userId) => {
-    this.setState({
-      deleting: true,
-      userId: userId,
-    });
+  const handleDeleteOpen = async (userId) => {
+    setDeleting(true);
+    setUserId(userId);
   };
 
-  handleDeleteClose = () => {
-    this.setState({
-      deleting: false,
-      deleteLoading: false,
-    });
+  const handleDeleteClose = () => {
+    setDeleting(false);
+    setDeleteLoading(false);
   };
 
-  componentDidMount = async () => {
-    this.props.setHeader('Users');
+  const inDidMount = async () => {
+    props.setHeader('Users');
     let projectName = await Acsys.getProjectName();
     let users = [];
     try {
       users = await Acsys.getUsers(Acsys.getUser());
     } catch (error) {}
-    this.setState({
-      projectName: projectName,
-      users: users,
-    });
+    setProjectName(projectName);
+    setUsers(users);
   };
-  addUser = async () => {
-    const { role, username, email, passwordOne } = this.state;
-    this.setState({ loading: true });
+  const addUser = async () => {
+    setAddLoading(true);
     const user = {
       acsys_id: uniqid(),
       role: role,
@@ -146,21 +94,23 @@ class Users extends React.Component {
     await Acsys.createUser(user)
       .then((result) => {
         if (result === true) {
-          this.setState({ ...INITIAL_STATE, loading: false });
-          this.componentDidMount();
+          setAddLoading(false);
+          inDidMount();
         } else {
-          this.setState({
-            loading: false,
-            message: result,
-          });
+          setAddLoading(false);
+          setMessage(result);
         }
       })
       .catch((error) => {
-        this.setState({ error });
+        setError(error);
       });
   };
-  renderTableData() {
-    const { users, rowsPerPage, page } = this.state;
+
+  useEffect(() => {
+    inDidMount();
+  }, []);
+
+  const renderTableData = () => {
     return users
       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
       .map((users) => {
@@ -176,7 +126,7 @@ class Users extends React.Component {
                   edge="start"
                   color="inherit"
                   aria-label="delete"
-                  onClick={() => this.handleDeleteOpen(acsys_id)}
+                  onClick={() => handleDeleteOpen(acsys_id)}
                 >
                   <DeleteIcon />
                 </IconButton>
@@ -185,169 +135,159 @@ class Users extends React.Component {
           </TableRow>
         );
       });
-  }
-  render() {
-    const {
-      projectName,
-      users,
-      rowsPerPage,
-      page,
-      addLoading,
-      deleteLoading,
-      message,
-      email,
-      username,
-      passwordOne,
-      passwordTwo,
-    } = this.state;
-    try {
-      return (
-        <div>
-          <Paper
+  };
+  try {
+    return (
+      <div>
+        <Paper
+          style={{
+            margin: 'auto',
+            overflow: 'hidden',
+            clear: 'both',
+            marginBottom: 20,
+          }}
+        >
+          <AppBar
+            position="static"
+            elevation={0}
             style={{
-              margin: 'auto',
-              overflow: 'hidden',
-              clear: 'both',
-              marginBottom: 20,
+              backgroundColor: '#fafafa',
+              borderBottom: '1px solid #dcdcdc',
             }}
           >
-            <AppBar
-              position="static"
-              elevation={0}
-              style={{
-                backgroundColor: '#fafafa',
-                borderBottom: '1px solid #dcdcdc',
-              }}
-            >
-              <Toolbar style={{ margin: 4, paddingLeft: 12, paddingRight: 12 }}>
-                <Grid container spacing={1}>
-                  <Grid item xs style={{ overflow: 'hidden' }}>
-                    <Typography
-                      align="left"
-                      variant="subtitle2"
-                      noWrap
-                      style={{ marginTop: 10, color: '#000000' }}
-                    >
-                      Project: {projectName}
-                    </Typography>
-                  </Grid>
-                  <Grid item>
-                    <Tooltip title="Add New User">
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={this.handleClickOpen}
-                      >
-                        Add User
-                      </Button>
-                    </Tooltip>
-                  </Grid>
+            <Toolbar style={{ margin: 4, paddingLeft: 12, paddingRight: 12 }}>
+              <Grid container spacing={1}>
+                <Grid item xs style={{ overflow: 'hidden' }}>
+                  <Typography
+                    align="left"
+                    variant="subtitle2"
+                    noWrap
+                    style={{ marginTop: 10, color: '#000000' }}
+                  >
+                    Project: {projectName}
+                  </Typography>
                 </Grid>
-              </Toolbar>
-            </AppBar>
-            <div style={{ margin: 'auto', overflow: 'auto' }}>
-              <Table>
-                <TableHead style={{ backgroundColor: '#fafafa' }}>
-                  <TableRow>
-                    <TableCell
-                      style={{
-                        paddingLeft: 16,
-                        paddingRight: 16,
-                        paddingTop: 5,
-                        paddingBottom: 5,
-                      }}
+                <Grid item>
+                  <Tooltip title="Add New User">
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={handleClickOpen}
                     >
-                      USERNAME
-                    </TableCell>
-                    <TableCell
-                      style={{
-                        paddingLeft: 16,
-                        paddingRight: 16,
-                        paddingTop: 5,
-                        paddingBottom: 5,
-                      }}
-                    >
-                      ROLE
-                    </TableCell>
-                    <TableCell
-                      style={{
-                        paddingLeft: 16,
-                        paddingRight: 16,
-                        paddingTop: 5,
-                        paddingBottom: 5,
-                      }}
-                    >
-                      EMAIL
-                    </TableCell>
-                    <TableCell
-                      style={{
-                        paddingLeft: 16,
-                        paddingRight: 16,
-                        paddingTop: 5,
-                        paddingBottom: 5,
-                      }}
-                      align="right"
-                    >
-                      ACTIONS
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>{this.renderTableData()}</TableBody>
-              </Table>
-            </div>
-            <TablePagination
-              rowsPerPageOptions={[25]}
-              component="div"
-              count={users.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              backIconButtonProps={{
-                'aria-label': 'previous page',
-              }}
-              nextIconButtonProps={{
-                'aria-label': 'next page',
-              }}
-              onChangePage={this.handleChangePage}
-              onChangeRowsPerPage={this.handleChangeRowsPerPage}
-            />
-            <NewUserDialog
-              open={this.state.setOpen}
-              closeDialog={this.handleClose}
-              message={message}
-              setRole={this.setRole}
-              email={email}
-              setEmail={this.setEmail}
-              username={username}
-              setUsername={this.setUsername}
-              passwordOne={passwordOne}
-              setPasswordOne={this.setPasswordOne}
-              passwordTwo={passwordTwo}
-              setPasswordTwo={this.setPasswordTwo}
-              action={this.addUser}
-              actionProcess={addLoading}
-            />
-            <YesNoDialog
-              open={this.state.deleting}
-              closeDialog={this.handleDeleteClose}
-              title={'Delete data?'}
-              message={'Are you sure you want to delete this user?'}
-              action={this.deleteUser}
-              actionProcess={deleteLoading}
-            />
-          </Paper>
-        </div>
-      );
-    } catch (error) {
-      return (
-        <div style={{ maxWidth: 1236, margin: 'auto' }}>
-          <Paper style={{ height: 40 }}>
-            <div style={{ padding: 10, margin: 'auto' }}>
-              Please make sure database has been created.
-            </div>
-          </Paper>
-        </div>
-      );
-    }
+                      Add User
+                    </Button>
+                  </Tooltip>
+                </Grid>
+              </Grid>
+            </Toolbar>
+          </AppBar>
+          <div style={{ margin: 'auto', overflow: 'auto' }}>
+            <Table>
+              <TableHead style={{ backgroundColor: '#fafafa' }}>
+                <TableRow>
+                  <TableCell
+                    style={{
+                      paddingLeft: 16,
+                      paddingRight: 16,
+                      paddingTop: 5,
+                      paddingBottom: 5,
+                    }}
+                  >
+                    USERNAME
+                  </TableCell>
+                  <TableCell
+                    style={{
+                      paddingLeft: 16,
+                      paddingRight: 16,
+                      paddingTop: 5,
+                      paddingBottom: 5,
+                    }}
+                  >
+                    ROLE
+                  </TableCell>
+                  <TableCell
+                    style={{
+                      paddingLeft: 16,
+                      paddingRight: 16,
+                      paddingTop: 5,
+                      paddingBottom: 5,
+                    }}
+                  >
+                    EMAIL
+                  </TableCell>
+                  <TableCell
+                    style={{
+                      paddingLeft: 16,
+                      paddingRight: 16,
+                      paddingTop: 5,
+                      paddingBottom: 5,
+                    }}
+                    align="right"
+                  >
+                    ACTIONS
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>{renderTableData()}</TableBody>
+            </Table>
+          </div>
+          <TablePagination
+            rowsPerPageOptions={[25]}
+            component="div"
+            count={users.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            backIconButtonProps={{
+              'aria-label': 'previous page',
+            }}
+            nextIconButtonProps={{
+              'aria-label': 'next page',
+            }}
+            onChangePage={handleChangePage}
+            // onChangeRowsPerPage={handleChangeRowsPerPage}
+          />
+          <NewUserDialog
+            open={setOpen}
+            closeDialog={handleClose}
+            message={message}
+            setRole={(value) => setRole(value)}
+            email={email}
+            setEmail={(value) => setEmail(value)}
+            username={username}
+            setUsername={(value) => {
+              setUsername(value);
+            }}
+            passwordOne={passwordOne}
+            setPasswordOne={(value) => {
+              setPasswordOne(value);
+            }}
+            passwordTwo={passwordTwo}
+            setPasswordTwo={(value) => setPasswordTwo(value)}
+            action={addUser}
+            actionProcess={addLoading}
+          />
+          <YesNoDialog
+            open={deleting}
+            closeDialog={handleDeleteClose}
+            title={'Delete data?'}
+            message={'Are you sure you want to delete this user?'}
+            action={deleteUser}
+            actionProcess={deleteLoading}
+          />
+        </Paper>
+      </div>
+    );
+  } catch (error) {
+    console.log(error, 'error');
+    return (
+      <div style={{ maxWidth: 1236, margin: 'auto' }}>
+        <Paper style={{ height: 40 }}>
+          <div style={{ padding: 10, margin: 'auto' }}>
+            Please make sure database has been created.
+          </div>
+        </Paper>
+      </div>
+    );
   }
-}
+};
 export default Users;
