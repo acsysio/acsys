@@ -72,7 +72,7 @@ let table = '';
 let tableName = '';
 let entry = [];
 
-class LogicalContent extends React.Component {
+class Database extends React.Component {
   state = { ...INITIAL_STATE };
 
   setTable = (table) => {
