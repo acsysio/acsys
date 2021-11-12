@@ -29,7 +29,7 @@ let tempView = [];
 let tableName = '';
 let entry = [];
 
-const LogicalContent = (props) => {
+const Database = (props) => {
   const context = useContext(AcsysContext);
   const [viewId, setviewId] = useState('');
   const [views, setviews] = useState([]);
@@ -310,4 +310,4 @@ const LogicalContent = (props) => {
   }
 };
 
-export default LogicalContent;
+export default Database;
