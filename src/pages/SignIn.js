@@ -19,20 +19,9 @@ const SignInPage = () => {
   });
 
   const [message, setMessage] = useState('');
-  const [isInstalled, setIsInstalled] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error] = useState(null);
-
-  //   componentDidMount = async () => {
-  //     const installed = await Acsys.hasAdmin();
-  //     const defaultUser = await Acsys.getDefaultUsername();
-  //     const defaultPassword = await Acsys.getDefaultPassword();
-  //     setState({
-  //       isInstalled: installed,
-  //       username: defaultUser,
-  //       passwordOne: defaultPassword,
-  //     });
-  //   };
 
   useEffect(async () => {
     const installed = await Acsys.hasAdmin();

@@ -36,6 +36,7 @@ const Storage = (props) => {
   const [mode, setMode] = useState('');
   const [imgUrl, setImgUrl] = useState(undefined);
   const [con, setCon] = useState(true);
+  const [fileName, setFileName] = useState('');
   const [currentDir, setCurrentDir] = useState('');
   const [newFolderName, setNewFolderName] = useState('');
   const [files, setFiles] = useState([]);

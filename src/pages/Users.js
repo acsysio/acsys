@@ -83,27 +83,43 @@ const Users = (props) => {
   };
   const addUser = async () => {
     setAddLoading(true);
-    const user = {
-      acsys_id: uniqid(),
-      role: role,
-      mode: role,
-      username: username,
-      email: email,
-      password: passwordOne,
-    };
-    await Acsys.createUser(user)
-      .then((result) => {
-        if (result === true) {
-          setAddLoading(false);
-          inDidMount();
-        } else {
-          setAddLoading(false);
-          setMessage(result);
-        }
-      })
-      .catch((error) => {
-        setError(error);
-      });
+    if (
+      username.length < 1 ||
+      email.length < 1 ||
+      passwordOne.length < 1 ||
+      passwordTwo.length < 1
+    ) {
+      setMessage('Please fill all fields.');
+    } else if (passwordOne !== passwordTwo) {
+      setMessage('Passwords do not match.');
+    } else {
+      const user = {
+        acsys_id: uniqid(),
+        role: role,
+        mode: role,
+        username: username,
+        email: email,
+        password: passwordOne,
+      };
+      await Acsys.createUser(user)
+        .then((result) => {
+          if (result === true) {
+            setSetOpen(false);
+            inDidMount();
+          } else {
+            setMessage(result);
+          }
+        })
+        .catch((error) => {
+          setError(error);
+        });
+      setUsername('');
+      setEmail('');
+      setPasswordOne('');
+      setPasswordTwo('');
+      setMessage('');
+    }
+    setAddLoading(false);
   };
 
   useEffect(() => {
