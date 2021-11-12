@@ -1,114 +1,93 @@
-import React from 'react';
+import React, { useState } from 'react';
 const Context = React.createContext();
 const { Provider, Consumer } = Context;
 
-class AcsysProvider extends React.Component {
-  state = {
-    header: '',
-    mode: '',
-    held: false,
-    page: 1,
-    firstObject: [],
-    table: '',
-    keys: [],
-    rowsPerPage: 0,
-    order: '',
-    direction: '',
-    pageDirection: '',
-  };
-  render() {
-    return (
-      <Provider
-        value={{
-          page: this.state.page,
-          firstObject: this.state.firstObject,
-          setHeader: (header) => {
-            this.setState({
-              header: header,
-            });
-          },
-          getHeader: () => {
-            return this.state.header;
-          },
-          setMode: (value) => {
-            this.setState({
-              mode: value,
-            });
-          },
-          getMode: () => {
-            return this.state.mode;
-          },
-          setHeld: (value) => {
-            this.setState({
-              held: value,
-            });
-          },
-          isHeld: () => {
-            return this.state.held;
-          },
-          setPage: (page) => {
-            this.setState({
-              page: page,
-            });
-          },
-          setPageData: (table, keys, rowsPerPage, order, direction) => {
-            this.setState({
-              table: table,
-              keys: keys,
-              rowsPerPage: rowsPerPage,
-              order: order,
-              direction: direction,
-            });
-          },
-          getTable: () => {
-            return this.state.table;
-          },
-          getKeys: () => {
-            return this.state.keys;
-          },
-          getRowsPerPage: () => {
-            return this.state.rowsPerPage;
-          },
-          getOrder: () => {
-            return this.state.order;
-          },
-          getDirection: () => {
-            return this.state.direction;
-          },
-          setPageDirection: (pageDirection) => {
-            this.setState({
-              pageDirection: pageDirection,
-            });
-          },
-          getPageDirection: () => {
-            return this.state.pageDirection;
-          },
-          incrementPage: () => {
-            this.setState({
-              page: this.state.page + 1,
-            });
-          },
-          decrementPage: () => {
-            this.setState({
-              page: this.state.page - 1,
-            });
-          },
-          getPage: () => {
-            return this.state.page;
-          },
-          setObject: (object) => {
-            this.setState({
-              firstObject: object,
-            });
-          },
-          getObject: () => {
-            return this.state.firstObject;
-          },
-        }}
-      >
-        {this.props.children}
-      </Provider>
-    );
-  }
-}
+const AcsysProvider = (props) => {
+  const [header, setheader] = useState('');
+  const [mode, setmode] = useState('');
+  const [held, setheld] = useState(false);
+  const [page, setpage] = useState(1);
+  const [firstObject, setfirstObject] = useState([]);
+  const [table, settable] = useState('');
+  const [keys, setkeys] = useState([]);
+  const [rowsPerPage, setrowsPerPage] = useState(0);
+  const [order, setorder] = useState('');
+  const [direction, setdirection] = useState('');
+  const [pageDirection, setpageDirection] = useState('');
+
+  return (
+    <Provider
+      value={{
+        page: page,
+        firstObject: firstObject,
+        setHeader: (header) => {
+          setheader(header);
+        },
+        getHeader: () => {
+          return header;
+        },
+        setMode: (value) => {
+          setmode(value);
+        },
+        getMode: () => {
+          return mode;
+        },
+        setHeld: (value) => {
+          setheld(value);
+        },
+        isHeld: () => {
+          return held;
+        },
+        setPage: (page) => {
+          setpage(page);
+        },
+        setPageData: (table, keys, rowsPerPage, order, direction) => {
+          settable(table);
+          setkeys(keys);
+          setrowsPerPage(rowsPerPage);
+          setorder(order);
+          setdirection(direction);
+        },
+        getTable: () => {
+          return table;
+        },
+        getKeys: () => {
+          return keys;
+        },
+        getRowsPerPage: () => {
+          return rowsPerPage;
+        },
+        getOrder: () => {
+          return order;
+        },
+        getDirection: () => {
+          return direction;
+        },
+        setPageDirection: (pageDirection) => {
+          setpageDirection(pageDirection);
+        },
+        getPageDirection: () => {
+          return pageDirection;
+        },
+        incrementPage: () => {
+          setpage(page + 1);
+        },
+        decrementPage: () => {
+          setpage(page - 1);
+        },
+        getPage: () => {
+          return page;
+        },
+        setObject: (object) => {
+          setfirstObject(object);
+        },
+        getObject: () => {
+          return firstObject;
+        },
+      }}
+    >
+      {props.children}
+    </Provider>
+  );
+};
 export { AcsysProvider, Context as AcsysContext, Consumer as AcsysConsumer };

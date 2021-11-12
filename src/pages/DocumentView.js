@@ -9,7 +9,7 @@ import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import { FileCopyOutlined as CopyIcon } from '@material-ui/icons';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import uniqid from 'uniqid';
 import * as Acsys from '../utils/Acsys/Acsys';
@@ -29,34 +29,6 @@ import LoadingDialog from '../components/Dialogs/LoadingDialog';
 import StorageDialog from '../components/Dialogs/StorageDialog';
 import YesNoDialog from '../components/Dialogs/YesNoDialog';
 
-const INITIAL_STATE = {
-  viewId: 0,
-  initialViews: [],
-  collection: '',
-  documentDetails: [],
-  currentKey: '',
-  fileMode: '',
-  draft: false,
-  document: [],
-  views: [],
-  apiCall: '',
-  keys: [],
-  acsysView: [],
-  routed: false,
-  position: 0,
-  page: 0,
-  rowsPerPage: 15,
-  locked: true,
-  loading: false,
-  deleting: false,
-  deleteLoading: false,
-  setOpen: false,
-  saving: false,
-  fileSelect: false,
-  filterLoading: false,
-  error: '',
-};
-
 let initLoad = true;
 let table_keys = [];
 let tempDetails = [];
@@ -69,113 +41,110 @@ let quillRef = null;
 let quillIndex = 0;
 let quillURL = '';
 
-class DocumentView extends React.Component {
-  state = { ...INITIAL_STATE };
+const DocumentView = (props) => {
+  const [collection, setCollection] = useState('');
+  const [documentDetails, setdocumentDetails] = useState([]);
+  const [fileMode, setfileMode] = useState('');
+  const [draft, setdraft] = useState(false);
+  const [views, setviews] = useState([]);
+  const [apiCall, setapiCall] = useState('');
+  const [keys, setkeys] = useState([]);
+  const [acsysView, setacsysView] = useState([]);
+  const [routed, setrouted] = useState(false);
+  const [position, setPosition] = useState(0);
+  const [locked, setLocked] = useState(true);
+  const [loading, setloading] = useState(false);
+  const [deleting, setdeleting] = useState(false);
+  const [deleteLoading, setdeleteLoading] = useState(false);
+  const [setOpen, setsetOpen] = useState(false);
+  const [saving, setsaving] = useState(false);
+  const [fileSelect, setfileSelect] = useState(false);
+  const [filterLoading, setfilterLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [control, setcontrol] = useState('');
 
-  constructor(props) {
-    super(props);
-  }
-
-  copy = () => {
+  const copy = () => {
     const el = document.createElement('textarea');
-    el.value = this.state.apiCall;
+    el.value = apiCall;
     document.body.appendChild(el);
     el.select();
     document.execCommand('copy');
     document.body.removeChild(el);
   };
 
-  imageHandler = async () => {
+  const imageHandler = async () => {
     const quill = quillRef.getEditor();
     quillIndex = quill.getSelection().index;
-    this.openSelector('quill', 'quill');
+    openSelector('quill', 'quill');
   };
 
-  handleClickOpen = () => {
-    this.setState({
-      setOpen: true,
-    });
+  const handleClickOpen = () => {
+    setsetOpen(true);
   };
 
-  handleClose = () => {
-    this.setState({
-      setOpen: false,
-    });
+  const handleClose = () => {
+    setsetOpen(false);
   };
 
-  handleDeleteOpen = async () => {
-    this.setState({
-      deleting: true,
-    });
+  const handleDeleteOpen = async () => {
+    setdeleting(true);
   };
 
-  handleDeleteClose = () => {
-    this.setState({
-      deleting: false,
-      deleteLoading: false,
-    });
+  const handleDeleteClose = () => {
+    setdeleting(false);
+    setdeleteLoading(false);
   };
 
-  openSelector = (mode, control) => {
-    this.setState({
-      fileMode: mode,
-      fileSelect: true,
-      control: control,
-    });
+  const openSelector = (mode, control) => {
+    setfileMode(mode);
+    setfileSelect(true);
+    setcontrol(control);
   };
 
-  setQuillRef = (ref) => {
+  const setQuillRef = (ref) => {
     quillRef = ref;
   };
 
-  setQuillIndex = (index) => {
+  const setQuillIndex = (index) => {
     quillIndex = index;
   };
 
-  setQuillURL = (url) => {
+  const setQuillURL = (url) => {
     quillURL = url;
   };
 
-  setReference = async (name, reference) => {
-    const field = this.state.control;
+  const setReference = async (name, reference) => {
+    const field = control;
     const url = await Acsys.getStorageURL(reference);
-    if (this.state.fileMode === 'quill') {
+    if (fileMode === 'quill') {
       quillURL = url;
-    } else if (this.state.fileMode === 'ref') {
+    } else if (fileMode === 'ref') {
       fileDoc[field] = reference;
       fileRefs[field] = url;
     } else {
       fileDoc[field] = url;
       fileRefs[field] = url;
     }
-    this.setState({
-      fileSelect: false,
-    });
+    setfileSelect(false);
   };
 
-  removeFile = (control) => {
-    this.setState({
-      loading: true,
-    });
+  const removeFile = (control) => {
+    setloading(true);
     tempDocument[control] = '';
     fileRefs[control] = '';
     fileDoc[control] = '';
-    this.setState({
-      loading: false,
-    });
+    setloading(false);
   };
 
-  handleSelectClose = () => {
-    this.setState({
-      fileSelect: false,
-    });
+  const handleSelectClose = () => {
+    setfileSelect(false);
   };
 
-  handleChange = (key, event) => {
+  const handleChange = (key, event) => {
     tempDocument[key] = event;
   };
 
-  getMaxPos = async (table, field) => {
+  const getMaxPos = async (table, field) => {
     return new Promise(async (resolve, reject) => {
       const pos = await Acsys.getData(table, '', 1, [field], 'desc')
         .then((result) => {
@@ -187,7 +156,7 @@ class DocumentView extends React.Component {
     });
   };
 
-  increment = async (table, field, start, num) => {
+  const increment = async (table, field, start, num) => {
     return new Promise(async (resolve, reject) => {
       await Acsys.increment(table, field, start, num)
         .then(() => {
@@ -199,8 +168,8 @@ class DocumentView extends React.Component {
     });
   };
 
-  saveDocument = async () => {
-    this.setState({ saving: true });
+  const saveDocument = async () => {
+    setsaving(true);
     if (mode === 'update') {
       for (var i = 0; i < tempDetails.length; i++) {
         if (fileDoc[tempDetails[i].field_name] !== undefined) {
@@ -217,9 +186,9 @@ class DocumentView extends React.Component {
         }
       }
       const result = await Acsys.updateData(
-        'acsys_' + this.state.collection,
+        'acsys_' + collection,
         { ...tempDocument },
-        this.state.keys
+        keys
       );
     } else {
       for (var i = 0; i < tempDetails.length; i++) {
@@ -239,9 +208,9 @@ class DocumentView extends React.Component {
         }
       }
       const result = await Acsys.insertData(
-        'acsys_' + this.state.collection,
+        'acsys_' + collection,
         { ...tempDocument },
-        this.state.keys
+        keys
       );
     }
     table_keys = [];
@@ -255,12 +224,11 @@ class DocumentView extends React.Component {
       }
     }
     mode = 'update';
-    this.mount();
-    this.render();
+    mount();
   };
 
-  publishDocument = async () => {
-    this.setState({ saving: true });
+  const publishDocument = async () => {
+    setsaving(true);
     if (mode === 'update') {
       for (var i = 0; i < tempDetails.length; i++) {
         if (fileDoc[tempDetails[i].field_name] !== undefined) {
@@ -276,7 +244,7 @@ class DocumentView extends React.Component {
           }
         }
       }
-      if (this.state.draft) {
+      if (draft) {
         for (var i = 0; i < tempDetails.length; i++) {
           const result = await Acsys.updateData(
             'acsys_document_details',
@@ -285,23 +253,20 @@ class DocumentView extends React.Component {
           );
         }
         const result = await Acsys.insertData(
-          this.state.collection,
+          collection,
           { ...tempDocument },
-          this.state.keys
+          keys
         );
-        await Acsys.deleteData(
-          'acsys_' + this.state.collection,
-          this.state.keys
-        )
+        await Acsys.deleteData('acsys_' + collection, keys)
           .then(() => {
-            this.setState({ draft: false });
+            setdraft(false);
           })
           .catch((error) => {});
       } else {
         const result = await Acsys.updateData(
-          this.state.collection,
+          collection,
           { ...tempDocument },
-          this.state.keys
+          keys
         );
       }
     } else {
@@ -322,7 +287,7 @@ class DocumentView extends React.Component {
         }
       }
       console.log(fileDoc);
-      await Acsys.insertData(this.state.collection, {
+      await Acsys.insertData(collection, {
         ...tempDocument,
       });
     }
@@ -337,12 +302,11 @@ class DocumentView extends React.Component {
       }
     }
     mode = 'update';
-    this.mount();
-    this.render();
+    mount();
   };
 
-  saveSettings = async () => {
-    this.setState({ filterLoading: true });
+  const saveSettings = async () => {
+    setfilterLoading(true);
 
     for (var i = 0; i < tempDetails.length; i++) {
       tempDetails[i].view_order = i;
@@ -352,53 +316,51 @@ class DocumentView extends React.Component {
         [['acsys_id', '=', tempDetails[i].acsys_id]]
       );
     }
-    this.setState({ filterLoading: false });
-    this.handleClose();
+    setfilterLoading(false);
+    handleClose();
   };
 
-  saveView = async (value) => {
-    this.setState({ loading: true });
+  const saveView = async (value) => {
+    setloading(true);
 
-    var tempView = this.state.acsysView;
+    var tempView = acsysView;
 
     if (value) {
-      tempView['table_keys'] = JSON.stringify(
-        this.props.location.state.table_keys
-      );
+      tempView['table_keys'] = JSON.stringify(props.location.state.table_keys);
     } else {
       tempView['table_keys'] = [];
     }
 
     for (var i = 0; i < tempDetails.length; i++) {
       const result = await Acsys.updateData('acsys_logical_content', tempView, [
-        ['viewId', '=', this.props.location.state.viewId],
+        ['viewId', '=', props.location.state.viewId],
       ]);
     }
-    this.setState({ loading: false });
+    setloading(false);
   };
 
-  deleteView = async () => {
-    const { draft, documentDetails } = this.state;
-    this.setState({ deleteLoading: true });
+  const deleteView = async () => {
+    setdeleteLoading(true);
     let collection;
     if (draft) {
       collection = 'acsys_' + documentDetails[0].collection;
     } else {
       collection = documentDetails[0].collection;
     }
-    await Acsys.deleteData(collection, this.state.keys)
+    await Acsys.deleteData(collection, keys)
       .then(() => {
-        this.handleClose();
-        this.setState({ deleteLoading: false });
-        this.props.history.goBack();
+        handleClose();
+        setdeleteLoading(false);
+        props.history.goBack();
       })
       .catch((error) => {
-        this.handleClose();
-        this.setState({ error, deleteLoading: false });
+        handleClose();
+        setError(error);
+        setdeleteLoading(false);
       });
   };
 
-  componentDidMount = async () => {
+  useEffect(async () => {
     initLoad = true;
     table_keys = [];
     tempDetails = [];
@@ -411,45 +373,43 @@ class DocumentView extends React.Component {
     quillIndex = 0;
     quillURL = '';
     try {
-      this.props.setHeader('Content');
+      props.setHeader('Content');
       let tempMode = mode;
-      let routed = this.state.routed;
+      let routedLocal = routed;
       const acsysView = await Acsys.getData('acsys_logical_content', [
-        ['viewId', '=', this.props.location.state.viewId],
+        ['viewId', '=', props.location.state.viewId],
       ]);
       if (acsysView[0].table_keys.length > 0) {
-        routed = true;
+        routedLocal = true;
       }
       try {
-        mode = this.props.location.state.mode;
-        is_removable = this.props.location.state.is_removable;
-        if (routed) {
-          table_keys = JSON.parse(this.props.location.state.table_keys);
+        mode = props.location.state.mode;
+        is_removable = props.location.state.is_removable;
+        if (routedLocal) {
+          table_keys = JSON.parse(props.location.state.table_keys);
         } else {
-          table_keys = this.props.location.state.table_keys;
+          table_keys = props.location.state.table_keys;
         }
       } catch (error) {
         mode = tempMode;
       }
-      this.setState({
-        loading: true,
-        routed: routed,
-        acsysView: acsysView[0],
-      });
+      setloading(true);
+      setrouted(routedLocal);
+      setacsysView(acsysView[0]);
       tempDocument = [];
       fileRefs = [];
-      this.mount();
+      mount();
     } catch (error) {}
-  };
+  }, [props.location.state]);
 
-  mount = async () => {
+  const mount = async () => {
     let documentDetails;
     try {
       documentDetails = await Acsys.getData('acsys_document_details', [
-        ['content_id', '=', this.props.location.state.viewId],
+        ['content_id', '=', props.location.state.viewId],
       ]);
     } catch (error) {
-      documentDetails = this.state.documentDetails;
+      documentDetails = documentDetails;
     }
     let table = documentDetails[0].collection;
     let draft = false;
@@ -517,42 +477,34 @@ class DocumentView extends React.Component {
           }
         }
 
-        this.setState({
-          views: currentView,
-        });
+        setviews(currentView);
       } else {
         draft = true;
       }
-
-      this.setState({
-        loading: false,
-        draft: draft,
-        saving: false,
-        documentDetails: documentDetails,
-        locked: !open,
-        collection: table,
-        apiCall: apiCall,
-        keys: keys,
-        position: position,
-      });
+      setloading(false);
+      setdraft(draft);
+      setsaving(false);
+      setdocumentDetails(documentDetails);
+      setLocked(!open);
+      setCollection(table);
+      setapiCall(apiCall);
+      setkeys(keys);
+      setPosition(position);
     } catch (error) {
-      this.setState({
-        loading: false,
-      });
+      setloading(false);
       console.log(error);
     }
   };
 
-  renderData() {
+  const renderData = () => {
     if (mode === 'update') {
-      return <div>{this.renderWithId()}</div>;
+      return <div>{renderWithId()}</div>;
     } else {
-      return <div>{this.renderNoId()}</div>;
+      return <div>{renderNoId()}</div>;
     }
-  }
+  };
 
-  renderWithId() {
-    const { views, documentDetails, rowsPerPage, page } = this.state;
+  const renderWithId = () => {
     return (
       <div class="element-container">
         <Grid container spacing={3}>
@@ -560,7 +512,7 @@ class DocumentView extends React.Component {
             return Object.values(views).map((value, index) => {
               let currentKey = Object.keys(views)[index];
               if (initLoad) {
-                this.handleChange(currentKey, value);
+                handleChange(currentKey, value);
                 if (documentDetails.length - 1 === dindex) {
                   initLoad = false;
                 }
@@ -570,17 +522,16 @@ class DocumentView extends React.Component {
                 details.is_visible_on_page
               ) {
                 const date = new Date(value);
-                return this.renderComponent(details, currentKey, date);
+                return renderComponent(details, currentKey, date);
               }
             });
           })}
         </Grid>
       </div>
     );
-  }
+  };
 
-  renderNoId() {
-    const { documentDetails } = this.state;
+  const renderNoId = () => {
     return (
       <div class="element-container">
         <Grid container spacing={3}>
@@ -591,7 +542,7 @@ class DocumentView extends React.Component {
               if (initLoad) {
                 if (details.control == 'dateTimePicker') {
                   date = new Date();
-                  this.handleChange(currentKey, date);
+                  handleChange(currentKey, date);
                 }
                 if (documentDetails.length - 1 === dindex) {
                   initLoad = false;
@@ -599,15 +550,15 @@ class DocumentView extends React.Component {
               } else {
                 date = tempDocument[currentKey];
               }
-              return this.renderComponent(details, currentKey, date);
+              return renderComponent(details, currentKey, date);
             }
           })}
         </Grid>
       </div>
     );
-  }
+  };
 
-  renderComponent(details, currentKey, date) {
+  const renderComponent = (details, currentKey, date) => {
     if (details.control == 'autoGen') {
       return (
         <AutoGen
@@ -622,7 +573,7 @@ class DocumentView extends React.Component {
           width={details.width}
           field_name={details.field_name}
           defaultValue={tempDocument[currentKey]}
-          handleChange={this.handleChange}
+          handleChange={handleChange}
           currentKey={currentKey}
         />
       );
@@ -632,7 +583,7 @@ class DocumentView extends React.Component {
           width={details.width}
           field_name={details.field_name}
           defaultValue={date}
-          handleChange={this.handleChange}
+          handleChange={handleChange}
           currentKey={currentKey}
         />
       );
@@ -642,7 +593,7 @@ class DocumentView extends React.Component {
           width={details.width}
           field_name={details.field_name}
           defaultValue={tempDocument[currentKey]}
-          handleChange={this.handleChange}
+          handleChange={handleChange}
           currentKey={currentKey}
         />
       );
@@ -652,12 +603,12 @@ class DocumentView extends React.Component {
           width={details.width}
           field_name={details.field_name}
           defaultValue={tempDocument[currentKey]}
-          handleChange={this.handleChange}
+          handleChange={handleChange}
           currentKey={currentKey}
-          imageHandler={this.imageHandler}
-          setQuillRef={this.setQuillRef}
-          setQuillIndex={this.setQuillIndex}
-          setQuillURL={this.setQuillURL}
+          imageHandler={imageHandler}
+          setQuillRef={setQuillRef}
+          setQuillIndex={setQuillIndex}
+          setQuillURL={setQuillURL}
           index={quillIndex}
           quillRef={quillRef}
           url={quillURL}
@@ -669,7 +620,7 @@ class DocumentView extends React.Component {
           width={details.width}
           field_name={details.field_name}
           defaultValue={tempDocument[currentKey]}
-          handleChange={this.handleChange}
+          handleChange={handleChange}
           currentKey={currentKey}
         />
       );
@@ -680,8 +631,8 @@ class DocumentView extends React.Component {
           width={details.width}
           field_name={details.field_name}
           url={url}
-          openSelector={this.openSelector}
-          removeFile={this.removeFile}
+          openSelector={openSelector}
+          removeFile={removeFile}
         />
       );
     } else if (details.control == 'imageURL') {
@@ -691,8 +642,8 @@ class DocumentView extends React.Component {
           width={details.width}
           field_name={details.field_name}
           url={url}
-          openSelector={this.openSelector}
-          removeFile={this.removeFile}
+          openSelector={openSelector}
+          removeFile={removeFile}
         />
       );
     } else if (details.control == 'videoReference') {
@@ -702,8 +653,8 @@ class DocumentView extends React.Component {
           width={details.width}
           field_name={details.field_name}
           url={url}
-          openSelector={this.openSelector}
-          removeFile={this.removeFile}
+          openSelector={openSelector}
+          removeFile={removeFile}
         />
       );
     } else if (details.control == 'videoURL') {
@@ -713,152 +664,146 @@ class DocumentView extends React.Component {
           width={details.width}
           field_name={details.field_name}
           url={url}
-          openSelector={this.openSelector}
-          removeFile={this.removeFile}
+          openSelector={openSelector}
+          removeFile={removeFile}
         />
       );
     }
-  }
+  };
 
-  render() {
-    const { filterLoading, draft, deleteLoading, apiCall } = this.state;
-    return (
-      <div style={{ minHeight: 600 }}>
-        {Acsys.getMode() !== 'Viewer' ? (
-          <div>
-            {!this.props.location.state.routed && is_removable ? (
-              <Tooltip title="Delete Entry">
-                <Button
-                  style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
-                  variant="contained"
-                  color="primary"
-                  onClick={this.handleDeleteOpen}
-                >
-                  Delete
-                </Button>
-              </Tooltip>
-            ) : (
-              <div />
-            )}
-            <Tooltip title="Publish Entry">
+  return (
+    <div style={{ minHeight: 600 }}>
+      {Acsys.getMode() !== 'Viewer' ? (
+        <div>
+          {!props.location.state.routed && is_removable ? (
+            <Tooltip title="Delete Entry">
               <Button
                 style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
                 variant="contained"
                 color="primary"
-                onClick={this.publishDocument}
+                onClick={handleDeleteOpen}
               >
-                Publish
+                Delete
               </Button>
             </Tooltip>
-            {draft ? (
-              <Tooltip title="Save Entry As Draft">
-                <Button
-                  style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
-                  variant="contained"
-                  color="primary"
-                  onClick={this.saveDocument}
-                >
-                  Save Draft
-                </Button>
-              </Tooltip>
-            ) : (
-              <div></div>
-            )}
-            {Acsys.getMode() === 'Administrator' ? (
-              <Tooltip title="Change How Data Is Presented">
-                <Button
-                  style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
-                  variant="contained"
-                  color="primary"
-                  onClick={this.handleClickOpen}
-                >
-                  Field Controls
-                </Button>
-              </Tooltip>
-            ) : (
-              <div />
-            )}
-            {Acsys.getMode() === 'Administrator' ? (
-              <Select
-                defaultValue={this.props.location.state.routed}
-                onChange={(e) => this.saveView(e.target.value)}
+          ) : (
+            <div />
+          )}
+          <Tooltip title="Publish Entry">
+            <Button
+              style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
+              variant="contained"
+              color="primary"
+              onClick={publishDocument}
+            >
+              Publish
+            </Button>
+          </Tooltip>
+          {draft ? (
+            <Tooltip title="Save Entry As Draft">
+              <Button
                 style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
+                variant="contained"
+                color="primary"
+                onClick={saveDocument}
               >
-                <MenuItem value={false}>Accessed From Table</MenuItem>
-                <MenuItem value={true}>Accessed From View</MenuItem>
-              </Select>
-            ) : (
-              <div />
-            )}
+                Save Draft
+              </Button>
+            </Tooltip>
+          ) : (
+            <div></div>
+          )}
+          {Acsys.getMode() === 'Administrator' ? (
+            <Tooltip title="Change How Data Is Presented">
+              <Button
+                style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
+                variant="contained"
+                color="primary"
+                onClick={handleClickOpen}
+              >
+                Field Controls
+              </Button>
+            </Tooltip>
+          ) : (
+            <div />
+          )}
+          {Acsys.getMode() === 'Administrator' ? (
+            <Select
+              defaultValue={props.location.state.routed}
+              onChange={(e) => saveView(e.target.value)}
+              style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
+            >
+              <MenuItem value={false}>Accessed From Table</MenuItem>
+              <MenuItem value={true}>Accessed From View</MenuItem>
+            </Select>
+          ) : (
+            <div />
+          )}
+        </div>
+      ) : (
+        <div />
+      )}
+      <Paper style={{ margin: 'auto', clear: 'both' }}>
+        <div>
+          {renderData()}
+          <div class="element-container">
+            <div style={{ height: 40 }}></div>
+          </div>
+        </div>
+        <LoadingDialog loading={loading} message={'Loading'} />
+        <LoadingDialog loading={saving} message={'Saving'} />
+        <FieldControlDialog
+          open={setOpen}
+          closeDialog={handleClose}
+          title={'Field Controls'}
+          backend={HTML5Backend}
+          component={
+            <FieldDef docDetails={tempDetails} handleClick={saveSettings} />
+          }
+          action={saveSettings}
+          actionProcess={filterLoading}
+        />
+        <StorageDialog
+          open={fileSelect}
+          closeDialog={handleSelectClose}
+          fileMode={fileMode}
+          docDetails={tempDetails}
+          control={control}
+          setReference={setReference}
+        />
+        <YesNoDialog
+          open={deleting}
+          closeDialog={handleDeleteClose}
+          title={'Delete data?'}
+          message={'Are you sure you want to delete this entry?'}
+          action={deleteView}
+          actionProcess={deleteLoading}
+        />
+      </Paper>
+      <Hidden smDown implementation="css">
+        {!locked ? (
+          <div style={{ clear: 'both' }}>
+            API Call:{' '}
+            <a className="api-url" href={apiCall} target="_blank">
+              {apiCall}
+            </a>
+            <Tooltip title="Copy To Clipboard">
+              <IconButton
+                edge="start"
+                color="inherit"
+                aria-label="edit"
+                onClick={copy}
+                style={{ marginLeft: 5 }}
+              >
+                <CopyIcon style={{ height: 15 }} />
+              </IconButton>
+            </Tooltip>
           </div>
         ) : (
           <div />
         )}
-        <Paper style={{ margin: 'auto', clear: 'both' }}>
-          <div>
-            {this.renderData()}
-            <div class="element-container">
-              <div style={{ height: 40 }}></div>
-            </div>
-          </div>
-          <LoadingDialog loading={this.state.loading} message={'Loading'} />
-          <LoadingDialog loading={this.state.saving} message={'Saving'} />
-          <FieldControlDialog
-            open={this.state.setOpen}
-            closeDialog={this.handleClose}
-            title={'Field Controls'}
-            backend={HTML5Backend}
-            component={
-              <FieldDef
-                docDetails={tempDetails}
-                handleClick={this.saveSettings}
-              />
-            }
-            action={this.saveSettings}
-            actionProcess={filterLoading}
-          />
-          <StorageDialog
-            open={this.state.fileSelect}
-            closeDialog={this.handleSelectClose}
-            fileMode={this.state.fileMode}
-            docDetails={tempDetails}
-            control={this.state.control}
-            setReference={this.setReference}
-          />
-          <YesNoDialog
-            open={this.state.deleting}
-            closeDialog={this.handleDeleteClose}
-            title={'Delete data?'}
-            message={'Are you sure you want to delete this entry?'}
-            action={this.deleteView}
-            actionProcess={deleteLoading}
-          />
-        </Paper>
-        <Hidden smDown implementation="css">
-          {!this.state.locked ? (
-            <div style={{ clear: 'both' }}>
-              API Call:{' '}
-              <a className="api-url" href={apiCall} target="_blank">
-                {apiCall}
-              </a>
-              <Tooltip title="Copy To Clipboard">
-                <IconButton
-                  edge="start"
-                  color="inherit"
-                  aria-label="edit"
-                  onClick={this.copy}
-                  style={{ marginLeft: 5 }}
-                >
-                  <CopyIcon style={{ height: 15 }} />
-                </IconButton>
-              </Tooltip>
-            </div>
-          ) : (
-            <div />
-          )}
-        </Hidden>
-      </div>
-    );
-  }
-}
+      </Hidden>
+    </div>
+  );
+};
 export default DocumentView;

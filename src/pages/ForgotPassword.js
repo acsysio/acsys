@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import {
   Box,
   Button,
@@ -5,154 +6,127 @@ import {
   Grid,
   Typography,
 } from '@material-ui/core';
-import React, { Component } from 'react';
 import * as Acsys from '../utils/Acsys/Acsys';
 
-const INITIAL_STATE = {
-  username: '',
-  email: '',
-  passwordOne: '',
-  passwordTwo: '',
-  message: '',
-  isInstalled: true,
-  loading: false,
-  error: null,
-};
+const ForgotPassword = () => {
+  const [params, setParams] = useState({
+    username: '',
+    email: '',
+    passwordOne: '',
+    passwordTwo: '',
+  });
 
-class ForgotPassword extends Component {
-  state = { ...INITIAL_STATE };
+  const [message, setMessage] = useState('');
+  const [loading, setIsLoading] = useState(false);
+  const [error] = useState(null);
 
-  componentDidMount = async () => {};
+  const onChange = (event) => {
+    setParams({
+      ...params,
+      [event.target.name]: event.target.value,
+    });
+  };
 
-  onKeyDownSI = (event) => {
-    const { username, email, passwordOne } = this.state;
+  const onKeyDownSI = (event) => {
+    const { username, email, passwordOne } = params;
     if (event.key === 'Enter' && !(passwordOne === '' || username === '')) {
       event.preventDefault();
       event.stopPropagation();
-      this.onSubmit();
+      onSubmit();
     }
   };
 
-  onSubmit = async (event) => {
-    const { email } = this.state;
-
-    this.setState({ loading: true });
-
+  const onSubmit = async (event) => {
+    const { email } = params;
+    setIsLoading(false);
     await Acsys.sendResetLink(email)
       .then((result) => {
-        this.setState({
-          loading: false,
-          message: result,
-        });
+        setIsLoading(false);
+        setMessage(result);
       })
-      .catch(() => {});
+      .catch((err) => {
+        console.log('err', err);
+      });
   };
 
-  onChange = (event) => {
-    this.setState({ [event.target.name]: event.target.value });
-  };
+  const initialComponent = (
+    <Box
+      margin="auto"
+      width="80%"
+      display="flex"
+      flexDirection="column"
+      textAlign="center"
+      padding="16px"
+    >
+      <Typography variant="h4" color="primary">
+        Reset your password
+      </Typography>
 
-  render() {
-    const {
-      username,
-      email,
-      passwordOne,
-      passwordTwo,
-      message,
-      loading,
-      error,
-    } = this.state;
+      <Typography variant="h6" color="#000000" style={{ marginTop: '10px' }}>
+        Enter your verified email address and a reset link will be sent to you.
+      </Typography>
 
-    const isInvalidInitial =
-      passwordOne !== passwordTwo ||
-      passwordOne === '' ||
-      email === '' ||
-      username === '';
+      <Typography variant="p" color="secondary">
+        {message}
+      </Typography>
 
-    const isInvalid = passwordOne === '' || username === '';
+      <input
+        id="email"
+        name="email"
+        placeholder="Email"
+        margin="normal"
+        color="primary"
+        variant="outlined"
+        type="text"
+        style={{ marginTop: '20px' }}
+        value={params.email}
+        onKeyDown={onKeyDownSI}
+        onChange={onChange}
+      />
 
-    let initialComponent;
-
-    initialComponent = (
-      <Box
-        margin="auto"
-        width="80%"
-        display="flex"
-        flexDirection="column"
-        textAlign="center"
-        padding="16px"
+      <Button
+        type="submit"
+        style={{ marginTop: '20px' }}
+        onClick={onSubmit}
+        variant="contained"
+        color="primary"
       >
-        <Typography variant="h4" color="primary">
-          Reset your password
+        {loading && <CircularProgress color="white" size={24} />}
+        {!loading && 'Send reset email'}
+      </Button>
+
+      {error && (
+        <Typography variant="body1" color="error">
+          {error.message}
         </Typography>
+      )}
+    </Box>
+  );
 
-        <Typography variant="h6" color="#000000" style={{ marginTop: '10px' }}>
-          Enter your verified email address and a reset link will be sent to
-          you.
-        </Typography>
-
-        <Typography variant="p" color="secondary">
-          {message}
-        </Typography>
-
-        <input
-          id="email"
-          name="email"
-          placeholder="Email"
-          margin="normal"
-          color="primary"
-          variant="outlined"
-          type="text"
-          style={{ marginTop: '20px' }}
-          value={email}
-          onKeyDown={this.onKeyDownRG}
-          onChange={this.onChange}
-        />
-
-        <Button
-          type="submit"
-          style={{ marginTop: '20px' }}
-          onClick={this.onSubmit}
-          variant="contained"
-          color="primary"
+  return (
+    <Grid
+      className="landing-grid"
+      container
+      alignItems="center"
+      justify="center"
+      direction="column"
+    >
+      <Box boxShadow={3} style={{ margin: 'auto' }}>
+        <Grid
+          container
+          style={{
+            maxWidth: '80vw',
+            width: 500,
+            minHeight: 300,
+            background: '#ffffff',
+          }}
         >
-          {loading && <CircularProgress color="white" size={24} />}
-          {!loading && 'Send reset email'}
-        </Button>
-
-        {error && (
-          <Typography variant="body1" color="error">
-            {error.message}
-          </Typography>
-        )}
+          {initialComponent}
+          <div style={{ marginBottom: '150px' }} />
+        </Grid>
       </Box>
-    );
-
-    return (
-      <Grid
-        className="landing-grid"
-        container
-        alignItems="center"
-        justify="center"
-        direction="column"
-      >
-        <Box boxShadow={3} style={{ margin: 'auto' }}>
-          <Grid
-            container
-            style={{
-              maxWidth: '80vw',
-              width: 500,
-              minHeight: 300,
-              background: '#ffffff',
-            }}
-          >
-            {initialComponent}
-            <div style={{ marginBottom: '150px' }} />
-          </Grid>
-        </Box>
-      </Grid>
-    );
-  }
-}
+    </Grid>
+  );
+};
 
 export default ForgotPassword;

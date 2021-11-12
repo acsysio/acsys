@@ -28,7 +28,11 @@ export default function EditViewDialog(props) {
             onChange={(e) => props.setPosition(parseInt(e.target.value))}
           >
             {Object.values(props.views).map((view, index) => {
-              return <MenuItem value={view.position}>{index + 1}</MenuItem>;
+              return (
+                <MenuItem key={index} value={view.position}>
+                  {index + 1}
+                </MenuItem>
+              );
             })}
           </Select>
         </div>
