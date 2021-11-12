@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "react-scripts build && (if exist server\\build rmdir /s /q server\\build) && move build server",
-    "build-linux": "react-scripts build && rm -rf server/build && mv build server",
+    "build-linux": "export NODE_OPTIONS=--openssl-legacy-provider && react-scripts build && rm -rf server/build && mv build server",
     "dev": "concurrently \"react-scripts start\" \"nodemon -r dotenv/config server/server.js\"",
     "docker-build": "docker build . --file Dockerfile --tag acsysio/acsys ",
     "docker-run": "docker run -p 8080:8080 acsysio/acsys",
