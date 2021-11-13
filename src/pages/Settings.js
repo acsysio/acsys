@@ -76,10 +76,9 @@ const Settings = (props) => {
   };
 
   useEffect(async () => {
-    props.setHeader('setTings');
+    props.setHeader('Settings');
     const isStateless = await Acsys.isStateless();
     const emailConfig = await Acsys.getEmailConfig();
-    console.log('email cofig', emailConfig);
     if (emailConfig.length > 0) {
       setHost(emailConfig[0].host);
       setPort(emailConfig[0].port);
