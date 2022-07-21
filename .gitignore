@@ -24,7 +24,6 @@ dbase.db
 .env.production.local
 .eslintcache
 
-package-lock.json
 /server/package-lock.json
 debug.log
 npm-debug.log*

@@ -408,5 +408,5 @@ class Database extends React.Component {
     }
   }
 }
-LogicalContent.contextType = AcsysConsumer;
-export default LogicalContent;
+Database.contextType = AcsysConsumer;
+export default Database;
