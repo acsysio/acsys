@@ -1,6 +1,7 @@
 import update from 'immutability-helper';
 import React, { useEffect, useState } from 'react';
 import Card from './FieldDefCard';
+import * as Acsys from '../../utils/Acsys/Acsys';
 
 let tempDetails;
 let startIndex;
@@ -8,6 +9,7 @@ let endIndex;
 const style = {
   maxWidth: 750,
 };
+
 function buildCardData(docDetails) {
   const cardsById = {};
   const cardsByIndex = [];
@@ -21,6 +23,7 @@ function buildCardData(docDetails) {
     cardsByIndex,
   };
 }
+
 const Container = (props) => {
   tempDetails = props.docDetails;
   const [state, setState] = useState(buildCardData(props.docDetails));

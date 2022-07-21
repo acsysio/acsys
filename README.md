@@ -98,7 +98,7 @@ Connections can be changed within the web appplication. If at any point the conf
 
 ### Stateless
 
-To configure a stateless version of Acsys you must set your database and storage credentials in environment variables. Please note that when running stateless a Firebase project must be created to configure Storage regardless of configuration.
+To configure a stateless version of Acsys you must set your database and storage credentials in environment variables. Please note that when running stateless a Firebase project must be created to configure Storage regardless of configuration. The dbase.db file must also be deleted when reseting a stateless configuration.
 
 #### Environment Variables
 
@@ -163,6 +163,9 @@ TOKEN_URI=https://accounts.google.com/o/oauth2/token
 AUTH_PROVIDER_X509_CERT_URL=https://www.googleapis.com/oauth2/v1/certs
 CLIENT_X509_CERT_URL=https://www.googleapis.com/robot/v1/metadata/x509/service-account-email
 ```
+
+Ensure all privileges have been granted for the database user. These include CREATE, DROP, SELECT, UPDATE, INSERT, and DELETE.
+For GCP your external testing network will have to be added to the SQL connections when running locally.
 
 ## Built With
 

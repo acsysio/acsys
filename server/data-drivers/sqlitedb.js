@@ -117,6 +117,9 @@ class SqliteDriver {
             'CREATE TABLE IF NOT EXISTS acsys_document_details (acsys_id TEXT, content_id TEXT, collection TEXT, control TEXT, field_name TEXT, is_visible_on_page BOOLEAN, is_visible_on_table BOOLEAN, type TEXT, is_key BOOLEAN, view_order INT, width INT)'
           );
           await db.run(
+            'CREATE TABLE IF NOT EXISTS acsys_details_dropdown (acsys_id TEXT, field TEXT, field_name TEXT)'
+          );
+          await db.run(
             'CREATE TABLE IF NOT EXISTS acsys_email_settings (host TEXT, port INT, username TEXT, password TEXT)'
           );
           await db.run(

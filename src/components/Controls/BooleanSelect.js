@@ -1,7 +1,7 @@
 import { Grid, NativeSelect } from '@material-ui/core';
 import React from 'react';
 
-export default function NumberEditor(props) {
+export default function BooleanSelect(props) {
   return (
     <Grid item xs={props.width}>
       <h3 className="element-header">{props.field_name.toUpperCase()}</h3>

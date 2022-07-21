@@ -28,6 +28,7 @@ import FieldControlDialog from '../components/Dialogs/FieldControlDialog';
 import LoadingDialog from '../components/Dialogs/LoadingDialog';
 import StorageDialog from '../components/Dialogs/StorageDialog';
 import YesNoDialog from '../components/Dialogs/YesNoDialog';
+import DropDown from '../components/Controls/DropDown';
 
 let initLoad = true;
 let table_keys = [];
@@ -286,7 +287,6 @@ const DocumentView = (props) => {
           }
         }
       }
-      console.log(fileDoc);
       await Acsys.insertData(collection, {
         ...tempDocument,
       });
@@ -310,6 +310,36 @@ const DocumentView = (props) => {
 
     for (var i = 0; i < tempDetails.length; i++) {
       tempDetails[i].view_order = i;
+      if (tempDetails[i].data !== undefined) {
+        if (tempDetails[i].data === true) {
+          await Acsys.deleteData('acsys_details_dropdown', [
+            ['acsys_id', '=', tempDetails[i].acsys_id],
+            ['field_name', '=', tempDetails[i].field_name],
+          ]);
+        } else {
+          await Acsys.getData('acsys_details_dropdown', [
+            ['acsys_id', '=', tempDetails[i].acsys_id],
+            ['field_name', '=', tempDetails[i].field_name],
+          ])
+            .then(async (result) => {
+              const entry = {
+                acsys_id: tempDetails[i].acsys_id,
+                field_name: tempDetails[i].field_name,
+                field: tempDetails[i].data,
+              };
+              if (result.length > 0) {
+                await Acsys.updateData('acsys_details_dropdown', entry, [
+                  ['acsys_id', '=', tempDetails[i].acsys_id],
+                  ['field_name', '=', tempDetails[i].field_name],
+                ]);
+              } else {
+                await Acsys.insertData('acsys_details_dropdown', entry);
+              }
+            })
+            .catch(() => {});
+        }
+        delete tempDetails[i].data;
+      }
       const result = await Acsys.updateData(
         'acsys_document_details',
         { ...tempDetails[i] },
@@ -540,7 +570,10 @@ const DocumentView = (props) => {
             if (details.is_visible_on_page) {
               let date;
               if (initLoad) {
-                if (details.control == 'dateTimePicker') {
+                if (
+                  details.control == 'dateTimePicker' ||
+                  details.control == 'timePicker'
+                ) {
                   date = new Date();
                   handleChange(currentKey, date);
                 }
@@ -577,6 +610,17 @@ const DocumentView = (props) => {
           currentKey={currentKey}
         />
       );
+    } else if (details.control == 'timePicker') {
+      return (
+        <DateTimePicker
+          width={details.width}
+          field_name={details.field_name}
+          defaultValue={date}
+          handleChange={this.handleChange}
+          currentKey={currentKey}
+          dateFormat={false}
+        />
+      );
     } else if (details.control == 'dateTimePicker') {
       return (
         <DateTimePicker
@@ -584,6 +628,18 @@ const DocumentView = (props) => {
           field_name={details.field_name}
           defaultValue={date}
           handleChange={handleChange}
+          currentKey={currentKey}
+          dateFormat={true}
+        />
+      );
+    } else if (details.control == 'dropDown') {
+      return (
+        <DropDown
+          width={details.width}
+          acsys_id={details.acsys_id}
+          field_name={details.field_name}
+          defaultValue={tempDocument[currentKey]}
+          handleChange={this.handleChange}
           currentKey={currentKey}
         />
       );
