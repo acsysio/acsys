@@ -1,5 +1,5 @@
 import update from 'immutability-helper';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Card from './FieldDefCard';
 import * as Acsys from '../../utils/Acsys/Acsys';
 
@@ -9,6 +9,7 @@ let endIndex;
 const style = {
   maxWidth: 750,
 };
+
 function buildCardData(docDetails) {
   const cardsById = {};
   const cardsByIndex = [];
@@ -22,87 +23,74 @@ function buildCardData(docDetails) {
     cardsByIndex,
   };
 }
-export default class Container extends React.Component {
-  constructor(props) {
-    super(props);
-    tempDetails = props.docDetails;
-    this.drawFrame = () => {
-      const nextState = update(this.state, this.pendingUpdateFn);
-      this.setState(nextState);
-      this.pendingUpdateFn = undefined;
-      this.requestedFrame = undefined;
+
+const Container = (props) => {
+  tempDetails = props.docDetails;
+  const [state, setState] = useState(buildCardData(props.docDetails));
+  let pendingUpdateFn = undefined;
+  let requestedFrame = undefined;
+
+  const drawFrame = () => {
+    const nextState = update(state, pendingUpdateFn);
+    setState(nextState);
+    pendingUpdateFn = undefined;
+    requestedFrame = undefined;
+  };
+
+  const moveCard = (id, afterId) => {
+    const { cardsById, cardsByIndex } = state;
+    const card = cardsById[id];
+    const afterCard = cardsById[afterId];
+    const cardIndex = cardsByIndex.indexOf(card);
+    const afterIndex = cardsByIndex.indexOf(afterCard);
+    startIndex = cardIndex;
+    endIndex = afterIndex;
+    scheduleUpdate({
+      cardsByIndex: {
+        $splice: [
+          [cardIndex, 1],
+          [afterIndex, 0, card],
+        ],
+      },
+    });
+  };
+
+  useEffect(() => {
+    return () => {
+      if (requestedFrame !== undefined) {
+        cancelAnimationFrame(requestedFrame);
+      }
     };
-    this.moveCard = (id, afterId) => {
-      const { cardsById, cardsByIndex, update } = this.state;
-      const card = cardsById[id];
-      const afterCard = cardsById[afterId];
-      const cardIndex = cardsByIndex.indexOf(card);
-      const afterIndex = cardsByIndex.indexOf(afterCard);
-      startIndex = cardIndex;
-      endIndex = afterIndex;
-      this.scheduleUpdate({
-        cardsByIndex: {
-          $splice: [
-            [cardIndex, 1],
-            [afterIndex, 0, card],
-          ],
-        },
-      });
-    };
-    this.state = buildCardData(props.docDetails);
-  }
+  }, []);
 
-  componentDidMount() {
-    for (let i = 0; i < tempDetails.length; i++) {
-      Acsys.getData('acsys_details_dropdown', [
-        ['acsys_id', '=', tempDetails[i].acsys_id],
-        ['field_name', '=', tempDetails[i].field_name],
-      ])
-        .then((result) => {
-          tempDetails[i]['data'] = result[0].field;
-          this.setState({ update: true });
-        })
-        .catch(() => {});
+  const scheduleUpdate = (updateFn) => {
+    pendingUpdateFn = updateFn;
+    if (!requestedFrame) {
+      requestedFrame = requestAnimationFrame(drawFrame, updateDetails());
     }
-  }
+  };
 
-  componentWillUnmount() {
-    if (this.requestedFrame !== undefined) {
-      cancelAnimationFrame(this.requestedFrame);
-    }
-  }
-
-  render() {
-    const { cardsByIndex } = this.state;
-    return (
-      <>
-        <div style={style}>
-          {cardsByIndex.map((card, index) => (
-            <Card
-              key={card.id}
-              id={card.id}
-              details={tempDetails[index]}
-              moveCard={this.moveCard}
-            />
-          ))}
-        </div>
-      </>
-    );
-  }
-
-  scheduleUpdate(updateFn) {
-    this.pendingUpdateFn = updateFn;
-    if (!this.requestedFrame) {
-      this.requestedFrame = requestAnimationFrame(
-        this.drawFrame,
-        this.updateDetails()
-      );
-    }
-  }
-
-  updateDetails() {
+  const updateDetails = () => {
     const tempIndx = tempDetails[startIndex];
     tempDetails[startIndex] = tempDetails[endIndex];
     tempDetails[endIndex] = tempIndx;
-  }
-}
+  };
+
+  const { cardsByIndex } = state;
+  return (
+    <>
+      <div style={style}>
+        {cardsByIndex.map((card, index) => (
+          <Card
+            key={card.id}
+            id={card.id}
+            details={tempDetails[index]}
+            moveCard={moveCard}
+          />
+        ))}
+      </div>
+    </>
+  );
+};
+
+export default Container;

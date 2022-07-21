@@ -260,14 +260,22 @@ router.post('/sendResetLink', function (req, res) {
                           },
                         });
 
+                        const text =
+                          '<p>Please follow the below link to reset your password.</p><a href=http://' +
+                          req.get('host') +
+                          '/PasswordReset/' +
+                          dataModel.acsys_id +
+                          '>http://' +
+                          req.get('host') +
+                          '/PasswordReset/' +
+                          dataModel.acsys_id +
+                          '</a><p>This link will expire in 5 minutes.</p>';
+
                         const message = {
+                          from: emailSettings[0].username,
                           to: email,
                           subject: 'Credential update',
-                          html: `<p>Please follow the below link to reset your password.</p><a href="${req.get(
-                            'host'
-                          )}/PasswordReset/${
-                            dataModel.acsys_id
-                          }">reset password</a><p>This link will expire in 5 minutes.</p>`,
+                          html: text,
                         };
 
                         transporter
@@ -303,14 +311,22 @@ router.post('/sendResetLink', function (req, res) {
                         },
                       });
 
+                      const text =
+                        '<p>Please follow the below link to reset your password.</p><a href=http://' +
+                        req.get('host') +
+                        '/PasswordReset/' +
+                        dataModel.acsys_id +
+                        '>http://' +
+                        req.get('host') +
+                        '/PasswordReset/' +
+                        dataModel.acsys_id +
+                        '</a><p>This link will expire in 5 minutes.</p>';
+
                       const message = {
+                        from: emailSettings[0].username,
                         to: email,
                         subject: 'Credential update',
-                        html: `<p>Please follow the below link to reset your password.</p><a href="${req.get(
-                          'host'
-                        )}/PasswordReset/${
-                          dataModel.acsys_id
-                        }">reset password</a><p>This link will expire in 5 minutes.</p>`,
+                        html: text,
                       };
 
                       transporter

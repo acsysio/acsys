@@ -5,166 +5,144 @@ import {
   Grid,
   Typography,
 } from '@material-ui/core';
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import * as Acsys from '../utils/Acsys/Acsys';
 
-const INITIAL_STATE = {
-  username: '',
-  email: '',
-  passwordOne: '',
-  passwordTwo: '',
-  message: '',
-  isInstalled: true,
-  loading: false,
-  error: null,
-};
+const PasswordReset = (props) => {
+  const [params, setParams] = useState({
+    username: '',
+    email: '',
+    passwordOne: '',
+    passwordTwo: '',
+  });
 
-class PasswordReset extends Component {
-  state = { ...INITIAL_STATE };
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error] = useState(null);
 
-  constructor(props) {
-    super(props);
-  }
-
-  componentDidMount = async () => {};
-
-  onKeyDownSI = (event) => {
-    const { passwordOne, passwordTwo } = this.state;
+  const onKeyDownSI = (event) => {
+    const { passwordOne, passwordTwo } = params;
     if (event.key === 'Enter' && passwordOne === passwordTwo) {
       event.preventDefault();
       event.stopPropagation();
-      this.onSubmit();
+      onSubmit();
     }
   };
 
-  onSubmit = async (event) => {
-    const { passwordOne } = this.state;
-
-    this.setState({ loading: true });
-
-    await Acsys.resetPassword(this.props.match.params.id, passwordOne)
+  const onSubmit = async (event) => {
+    const { passwordOne } = params;
+    setLoading(true);
+    await Acsys.resetPassword(props.match.params.id, passwordOne)
       .then((result) => {
-        this.setState({
-          loading: false,
-          message: result,
-        });
+        setLoading(false);
+        setMessage(result);
       })
       .catch(() => {});
   };
 
-  onChange = (event) => {
-    this.setState({ [event.target.name]: event.target.value });
+  const onChange = (event) => {
+    setParams({
+      ...params,
+      [event.target.name]: event.target.value,
+    });
   };
+  const isInvalid = params.passwordOne !== params.passwordTwo;
 
-  render() {
-    const {
-      username,
-      email,
-      passwordOne,
-      passwordTwo,
-      message,
-      loading,
-      error,
-    } = this.state;
+  let initialComponent;
 
-    const isInvalid = passwordOne !== passwordTwo;
+  initialComponent = (
+    <Box
+      margin="auto"
+      width="80%"
+      display="flex"
+      flexDirection="column"
+      textAlign="center"
+      padding="16px"
+    >
+      <Typography variant="h4" color="primary">
+        Reset your password
+      </Typography>
 
-    let initialComponent;
+      <Typography variant="h6" color="#000000" style={{ marginTop: '10px' }}>
+        Enter the new password for your account.
+      </Typography>
 
-    initialComponent = (
-      <Box
-        margin="auto"
-        width="80%"
-        display="flex"
-        flexDirection="column"
-        textAlign="center"
-        padding="16px"
+      <Typography variant="p" color="secondary">
+        {message}
+      </Typography>
+
+      <input
+        id="passwordOne"
+        name="passwordOne"
+        placeholder="New password"
+        margin="normal"
+        color="primary"
+        variant="outlined"
+        type="password"
+        style={{ marginTop: '20px' }}
+        value={params.passwordOne}
+        onKeyDown={onKeyDownSI}
+        onChange={onChange}
+      />
+
+      <input
+        id="passwordTwo"
+        name="passwordTwo"
+        placeholder="Confirm new password"
+        margin="normal"
+        color="primary"
+        variant="outlined"
+        type="password"
+        style={{ marginTop: '20px' }}
+        value={params.passwordTwo}
+        onKeyDown={onKeyDownSI}
+        onChange={onChange}
+      />
+
+      <Button
+        disabled={isInvalid || loading}
+        type="submit"
+        style={{ marginTop: '20px' }}
+        onClick={onSubmit}
+        variant="contained"
+        color="primary"
       >
-        <Typography variant="h4" color="primary">
-          Reset your password
+        {loading && <CircularProgress color="white" size={24} />}
+        {!loading && 'Reset'}
+      </Button>
+
+      {error && (
+        <Typography variant="body1" color="error">
+          {error.message}
         </Typography>
+      )}
+    </Box>
+  );
 
-        <Typography variant="h6" color="#000000" style={{ marginTop: '10px' }}>
-          Enter the new password for your account.
-        </Typography>
-
-        <Typography variant="p" color="secondary">
-          {message}
-        </Typography>
-
-        <input
-          id="passwordOne"
-          name="passwordOne"
-          placeholder="New password"
-          margin="normal"
-          color="primary"
-          variant="outlined"
-          type="password"
-          style={{ marginTop: '20px' }}
-          value={passwordOne}
-          onKeyDown={this.onKeyDownSI}
-          onChange={this.onChange}
-        />
-
-        <input
-          id="passwordTwo"
-          name="passwordTwo"
-          placeholder="Confirm new password"
-          margin="normal"
-          color="primary"
-          variant="outlined"
-          type="password"
-          style={{ marginTop: '20px' }}
-          value={passwordTwo}
-          onKeyDown={this.onKeyDownSI}
-          onChange={this.onChange}
-        />
-
-        <Button
-          disabled={isInvalid || loading}
-          type="submit"
-          style={{ marginTop: '20px' }}
-          onClick={this.onSubmit}
-          variant="contained"
-          color="primary"
+  return (
+    <Grid
+      className="landing-grid"
+      container
+      alignItems="center"
+      justify="center"
+      direction="column"
+    >
+      <Box boxShadow={3} style={{ margin: 'auto' }}>
+        <Grid
+          container
+          style={{
+            maxWidth: '80vw',
+            width: 500,
+            minHeight: 300,
+            background: '#ffffff',
+          }}
         >
-          {loading && <CircularProgress color="white" size={24} />}
-          {!loading && 'Reset'}
-        </Button>
-
-        {error && (
-          <Typography variant="body1" color="error">
-            {error.message}
-          </Typography>
-        )}
+          {initialComponent}
+          <div style={{ marginBottom: '150px' }} />
+        </Grid>
       </Box>
-    );
-
-    return (
-      <Grid
-        className="landing-grid"
-        container
-        alignItems="center"
-        justify="center"
-        direction="column"
-      >
-        <Box boxShadow={3} style={{ margin: 'auto' }}>
-          <Grid
-            container
-            style={{
-              maxWidth: '80vw',
-              width: 500,
-              minHeight: 300,
-              background: '#ffffff',
-            }}
-          >
-            {initialComponent}
-            <div style={{ marginBottom: '150px' }} />
-          </Grid>
-        </Box>
-      </Grid>
-    );
-  }
-}
+    </Grid>
+  );
+};
 
 export default PasswordReset;
