@@ -163,7 +163,7 @@ const CollectionView = (props) => {
     is_removable = value;
   };
 
-  const saveViewsetTings = async () => {
+  const saveViewsettings = async () => {
     setLoading(true);
     let tempView = acsysView;
     if (view_orderField === 'none') {
@@ -315,9 +315,47 @@ const CollectionView = (props) => {
     window.scrollTo(0, 0);
   };
 
-  const savesetTings = async () => {
+  const saveSettings = async () => {
     setFilterLoading(true);
     table_keys = [];
+    for (var i = 0; i < tempDetails.length; i++) {
+      tempDetails[i].view_order = i;
+      if (tempDetails[i].data !== undefined) {
+        if (tempDetails[i].data === true) {
+          await Acsys.deleteData('acsys_details_dropdown', [
+            ['acsys_id', '=', tempDetails[i].acsys_id],
+            ['field_name', '=', tempDetails[i].field_name],
+          ]);
+        } else {
+          await Acsys.getData('acsys_details_dropdown', [
+            ['acsys_id', '=', tempDetails[i].acsys_id],
+            ['field_name', '=', tempDetails[i].field_name],
+          ])
+            .then(async (result) => {
+              const entry = {
+                acsys_id: tempDetails[i].acsys_id,
+                field_name: tempDetails[i].field_name,
+                field: tempDetails[i].data,
+              };
+              if (result.length > 0) {
+                await Acsys.updateData('acsys_details_dropdown', entry, [
+                  ['acsys_id', '=', tempDetails[i].acsys_id],
+                  ['field_name', '=', tempDetails[i].field_name],
+                ]);
+              } else {
+                await Acsys.insertData('acsys_details_dropdown', entry);
+              }
+            })
+            .catch(() => {});
+        }
+        delete tempDetails[i].data;
+      }
+      const result = await Acsys.updateData(
+        'acsys_document_details',
+        { ...tempDetails[i] },
+        [['acsys_id', '=', tempDetails[i].acsys_id]]
+      );
+    }
     for (var i = 0; i < tempDetails.length; i++) {
       tempDetails[i].view_order = i;
       await Acsys.updateData('acsys_document_details', tempDetails[i], [
@@ -342,18 +380,18 @@ const CollectionView = (props) => {
   };
 
   useEffect(() => {
-    if (content_id !== props.match.params.content_id && !loading) {
-      mount();
-    }
-  }, [content_id, props.match.params.content_id, loading]);
-
-  useEffect(() => {
     props.setHeader('Content');
     published = true;
     table_keys = [];
     setLoading(true);
-    mount();
+    // mount();
   }, []);
+
+  useEffect(() => {
+    if (content_id !== props.match.params.content_id && !loading) {
+      mount();
+    }
+  }, [content_id, props.match.params.content_id, loading]);
 
   const mount = async () => {
     let acsysView;
@@ -575,6 +613,19 @@ const CollectionView = (props) => {
                       '/' +
                       date.getFullYear();
                     returnValue = printDate;
+                  } else if (details.control == 'timePicker') {
+                    const date = new Date(value);
+                    let hours = date.getHours();
+                    let ampm = ' AM';
+                    if (hours > 12) {
+                      hours -= 12;
+                      ampm = ' PM';
+                    }
+                    const printDate =
+                      hours + ':' + ('0' + date.getMinutes()).slice(-2) + ampm;
+                    returnValue = printDate;
+                  } else if (details.control == 'dayPicker') {
+                    returnValue = value;
                   } else if (details.control == 'booleanSelect') {
                     const tmpElement = document.createElement('DIV');
                     tmpElement.innerHTML = Boolean(value);
@@ -844,7 +895,7 @@ const CollectionView = (props) => {
                       variant="contained"
                       color="primary"
                     >
-                      View setTings
+                      View settings
                     </Button>
                   </Tooltip>
                 </Grid>
@@ -900,9 +951,9 @@ const CollectionView = (props) => {
           title={'Field Controls'}
           backend={HTML5Backend}
           component={
-            <FieldDef docDetails={tempDetails} handleClick={savesetTings} />
+            <FieldDef docDetails={tempDetails} handleClick={saveSettings} />
           }
-          action={savesetTings}
+          action={saveSettings}
           actionProcess={filterLoading}
         />
         <ViewDialog
@@ -920,7 +971,7 @@ const CollectionView = (props) => {
           viewTable={viewTable}
           locked={locked}
           setLockedValue={setLockedValue}
-          action={saveViewsetTings}
+          action={saveViewsettings}
           actionProcess={filterLoading}
         />
       </Paper>

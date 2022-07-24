@@ -56,9 +56,9 @@ Start Acsys locally using these commands:
 
 Run `npm install`
 
-Start development by running `npm run dev`
-
 Build project by running `npm run build` (`npm run build-linux` for Linux)
+
+Start development by running `npm run dev`
 
 Run project in production mode by running `npm run start` (executing this after building will run the project at http://localhost:8080)
 

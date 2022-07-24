@@ -175,7 +175,7 @@ const Settings = (props) => {
         setMessageOpen(true);
         setOpen(false);
         setMessage(
-          'Please complete all necessary database fields and storage setTings.'
+          'Please complete all necessary database fields and storage settings.'
         );
         setLoading(false);
       } else {
@@ -234,17 +234,17 @@ const Settings = (props) => {
 
   const loadFields = (event) => {
     try {
-      const setTings = JSON.parse(event.target.result);
-      setType(setTings.type);
+      const settings = JSON.parse(event.target.result);
+      setType(settings.type);
       setProjectId(ettings.project_id);
-      setPrivateKeyId(setTings.private_key_id);
-      setPrivateKey(setTings.private_key);
-      setClientEmail(setTings.client_email);
-      setClientId(setTings.client_id);
-      setAuthUri(setTings.auth_uri);
-      setTokenUri(setTings.token_uri);
-      setAuthProviderX509CertUrl(setTings.auth_provider_x509_cert_url);
-      setClientX509CertUrl(setTings.client_x509_cert_url);
+      setPrivateKeyId(settings.private_key_id);
+      setPrivateKey(settings.private_key);
+      setClientEmail(settings.client_email);
+      setClientId(settings.client_id);
+      setAuthUri(settings.auth_uri);
+      setTokenUri(settings.token_uri);
+      setAuthProviderX509CertUrl(settings.auth_provider_x509_cert_url);
+      setClientX509CertUrl(settings.client_x509_cert_url);
     } catch (error) {}
   };
 
@@ -565,7 +565,7 @@ const Settings = (props) => {
 
   return (
     <div>
-      <Tooltip title="Save Server setTings">
+      <Tooltip title="Save Server settings">
         <Button
           style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
           variant="contained"
@@ -677,13 +677,13 @@ const Settings = (props) => {
             <div style={{ height: 40 }}></div>
           </div>
         </div>
-        <LoadingDialog loading={loading} message={'Saving setTings'} />
+        <LoadingDialog loading={loading} message={'Saving settings'} />
         <YesNoDialog
           open={open}
           closeDialog={handleClose}
           title={'Update configuration?'}
           message={
-            'Are you sure you want to update the configuration? Doing so will overwrite current setTings.'
+            'Are you sure you want to update the configuration? Doing so will overwrite current settings.'
           }
           action={setConfig}
           actionProcess={loading}

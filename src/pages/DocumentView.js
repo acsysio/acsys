@@ -616,7 +616,7 @@ const DocumentView = (props) => {
           width={details.width}
           field_name={details.field_name}
           defaultValue={date}
-          handleChange={this.handleChange}
+          handleChange={handleChange}
           currentKey={currentKey}
           dateFormat={false}
         />
@@ -639,7 +639,7 @@ const DocumentView = (props) => {
           acsys_id={details.acsys_id}
           field_name={details.field_name}
           defaultValue={tempDocument[currentKey]}
-          handleChange={this.handleChange}
+          handleChange={handleChange}
           currentKey={currentKey}
         />
       );
