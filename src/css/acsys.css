@@ -1,11 +1,26 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
 #root {
   height: 100%;
+  text-align: center;
 }
 .landing-grid {
   min-height: 600px;
   height: 100vh;
   background-color: #b79afe;
-  background-image: url('/landing-background.svg');
+  background-image: url('../images/landing-background.svg');
   background-size: cover;
   /* background by SVGBackgrounds.com */
 }

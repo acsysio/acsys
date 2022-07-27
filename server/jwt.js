@@ -3,27 +3,36 @@ const fs = require('fs');
 const uniquid = require('uniqid');
 const configFile = 'server/config/config.json';
 let secret = 'default-key';
+const algorithms = ['sha1', 'RS256', 'HS256'];
 
 function jwt() {
-  const key = uniquid();
   try {
-    if (!fs.existsSync(configFile)) {
-      fs.writeFileSync(
-        configFile,
-        JSON.stringify({"secret": key}).replace(/\\\\/g, '\\')
-      );
+    if (process.env.API_SECRET !== undefined) {
+      secret = process.env.API_SECRET;
+    } else {
+      if (process.env.DATABASE_TYPE === undefined) {
+        if (!fs.existsSync(configFile)) {
+          const key = uniquid();
+          fs.writeFileSync(
+            configFile,
+            JSON.stringify({ secret: key }).replace(/\\\\/g, '\\')
+          );
+        }
+        const data = fs.readFileSync(configFile, {
+          encoding: 'utf8',
+          flag: 'r',
+        });
+        secret = JSON.parse(data).secret;
+      }
     }
-    const data = fs.readFileSync(configFile, {encoding:'utf8', flag:'r'});
-    secret = JSON.parse(data).secret;
-  }
-  catch (error) {
-
-  }
-  return expressJwt({ secret }).unless({
+  } catch (error) {}
+  return expressJwt({ secret, algorithms }).unless({
     path: [
       // public routes that don't require authentication
       '/api/hasAdmin',
       '/api/register',
+      '/api/getDefaultUsername',
+      '/api/getDefaultPassword',
       '/api/sendResetLink',
       '/api/resetPassword',
       '/api/authenticate',
@@ -32,6 +41,7 @@ function jwt() {
       '/api/setInitialFirestoreConfig',
       '/api/setInitialMysqlConfig',
       '/api/readOpenData',
+      '/api/readOpenPage',
       '/api/insertOpenData',
       '/api/updateOpenData',
       '/api/deleteOpenData',

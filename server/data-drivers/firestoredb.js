@@ -8,9 +8,26 @@ let connected = false;
 class DataDriver {
   initialize() {
     return new Promise(async (resolve, reject) => {
+      let serviceAccount;
+      if (process.env.DATABASE_TYPE !== undefined) {
+        serviceAccount = {
+          type: process.env.TYPE,
+          project_id: process.env.PROJECT_ID,
+          private_key_id: process.env.PRIVATE_KEY_ID,
+          private_key: process.env.PRIVATE_KEY.replace(/\\n/g, '\n'),
+          client_email: process.env.CLIENT_EMAIL,
+          client_id: process.env.CLIENT_ID,
+          auth_uri: process.env.AUTH_URI,
+          token_uri: process.env.TOKEN_URI,
+          auth_provider_x509_cert_url: process.env.AUTH_PROVIDER_X509_CERT_URL,
+          client_x509_cert_url: process.env.CLIENT_X509_CERT_URL,
+        };
+      } else {
+        serviceAccount = require('../../acsys.service.config.json');
+      }
       try {
-        const serviceAccount = require('../../acsys.service.config.json');
         admin.initializeApp({
+          // credential: admin.credential.cert(serviceAccount),
           credential: admin.credential.cert(serviceAccount),
         });
         auth = admin.auth();
@@ -20,6 +37,7 @@ class DataDriver {
         }
         resolve(true);
       } catch (error) {
+        console.log(error);
         connected = false;
       }
       resolve(false);
@@ -30,8 +48,20 @@ class DataDriver {
     return connected;
   }
 
+  getBucketName() {
+    if (process.env.BUCKET === undefined) {
+      return db.projectId + '.appspot.com';
+    } else {
+      return process.env.BUCKET;
+    }
+  }
+
   getBucket() {
-    return admin.storage().bucket();
+    if (process.env.BUCKET === undefined) {
+      return admin.storage().bucket(db.projectId + '.appspot.com');
+    } else {
+      return admin.storage().bucket(process.env.BUCKET);
+    }
   }
 
   getProjectName() {
@@ -47,19 +77,15 @@ class DataDriver {
   doCreateInitialUserWithEmailAndPassword(username, email, password) {
     auth
       .createUserWithEmailAndPassword(email, password)
-      .then(
-        (
-          authUser // Create a user in firestore to allow for additional configuration
-        ) => {
-          if (authUser.user)
-            return setDoc('acsys_users', {
-              uid: authUser.user.uid,
-              role: 'Administrator',
-              username,
-              email,
-            });
-        }
-      )
+      .then((authUser) => {
+        if (authUser.user)
+          return setDoc('acsys_users', {
+            uid: authUser.user.uid,
+            role: 'Administrator',
+            username,
+            email,
+          });
+      })
       .catch();
   }
 
@@ -68,7 +94,9 @@ class DataDriver {
       db.collection('acsys_users')
         .add(data)
         .then((docRef) => resolve(docRef))
-        .catch(reject);
+        .catch((error) => {
+          reject(error);
+        });
     });
   }
 
@@ -113,7 +141,7 @@ class DataDriver {
           resolve(objects);
         })
         .catch((error) => {
-          resolve(error);
+          reject(error);
         });
     });
   }
@@ -133,7 +161,6 @@ class DataDriver {
               };
               collectionArr.push(row);
             }
-            // collectionArr.push(collection.id);
           }
           resolve(collectionArr);
         })
@@ -153,7 +180,6 @@ class DataDriver {
             if (!expr.test(`${collection.id}`)) {
               collectionArr.push(collection.id);
             }
-            // collectionArr.push(collection.id);
           }
           resolve(collectionArr);
         })
@@ -172,7 +198,9 @@ class DataDriver {
         .then((snapshot) => {
           resolve(snapshot.size);
         })
-        .catch(reject);
+        .catch((error) => {
+          reject(error);
+        });
     });
   }
 
@@ -192,15 +220,15 @@ class DataDriver {
           });
           resolve(true);
         })
-        .catch(reject);
+        .catch((error) => {
+          reject(error);
+        });
     });
   }
 
   repositionViews(data, old, pos) {
     return new Promise((resolve, reject) => {
       let newPos = 1;
-      const posFound = false;
-      const entryFound = false;
       let query;
       query = db.collection('acsys_logical_content');
       query = query.orderBy('position');
@@ -213,7 +241,7 @@ class DataDriver {
                 newPos++;
               }
             }
-            if (doc.data().id === data.id) {
+            if (doc.data().acsys_id === data.acsys_id) {
               db.collection('acsys_logical_content').doc(doc.id).update(data);
             } else {
               const newEntry = doc.data();
@@ -232,7 +260,7 @@ class DataDriver {
           resolve();
         })
         .catch((error) => {
-          resolve(error);
+          reject(error);
         });
     });
   }
@@ -249,15 +277,13 @@ class DataDriver {
           snapshot.forEach((doc) => {
             const newEntry = doc.data();
             newEntry.position = newPos;
-            db.collection('acsys_logical_content')
-              .doc(doc.id)
-              .update(newEntry);
+            db.collection('acsys_logical_content').doc(doc.id).update(newEntry);
             newPos++;
           });
           resolve();
         })
         .catch((error) => {
-          resolve(error);
+          reject(error);
         });
     });
   }
@@ -267,7 +293,9 @@ class DataDriver {
       db.collection(collectionName)
         .add(data)
         .then((docRef) => resolve(docRef))
-        .catch(reject);
+        .catch((error) => {
+          reject(error);
+        });
     });
   }
 
@@ -289,11 +317,13 @@ class DataDriver {
             db.collection('acsys_open_tables')
               .add(data)
               .then((docRef) => resolve(docRef))
-              .catch(reject);
+              .catch((error) => {
+                reject(error);
+              });
           }
         })
         .catch((error) => {
-          resolve(error);
+          reject(error);
         });
     });
   }
@@ -320,7 +350,9 @@ class DataDriver {
           });
           resolve();
         })
-        .catch(reject);
+        .catch((error) => {
+          reject(error);
+        });
     });
   }
 
@@ -386,7 +418,7 @@ class DataDriver {
           resolve(objects);
         })
         .catch((error) => {
-          resolve(error);
+          reject(error);
         });
     });
   }
@@ -433,7 +465,7 @@ class DataDriver {
           resolve(objects);
         })
         .catch((error) => {
-          resolve(error);
+          reject(error);
         });
     });
   }
@@ -450,7 +482,9 @@ class DataDriver {
           if (doc.exists) resolve(doc);
           else reject(`No Document with uid: ${uid}`);
         })
-        .catch(reject);
+        .catch((error) => {
+          reject(error);
+        });
     });
   }
 
@@ -459,7 +493,9 @@ class DataDriver {
       db.collection(collectionName)
         .add(data)
         .then((docRef) => resolve(docRef))
-        .catch(reject);
+        .catch((error) => {
+          reject(error);
+        });
     });
   }
 
@@ -490,7 +526,9 @@ class DataDriver {
           });
           resolve();
         })
-        .catch(reject);
+        .catch((error) => {
+          reject(error);
+        });
     });
   }
 
@@ -529,15 +567,13 @@ class DataDriver {
           const objects = [];
 
           snapshot.forEach((doc) => {
-            db.collection(collectionName)
-              .doc(doc.id)
-              .delete()
-              .then(() => resolve(true))
-              .catch(() => reject(false));
+            db.collection(collectionName).doc(doc.id).delete();
           });
-          resolve();
+          resolve(true);
         })
-        .catch(reject);
+        .catch((error) => {
+          reject(error);
+        });
     });
   }
 
@@ -558,7 +594,9 @@ class DataDriver {
           });
           resolve();
         })
-        .catch(reject);
+        .catch((error) => {
+          reject(error);
+        });
     });
   }
 

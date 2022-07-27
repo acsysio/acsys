@@ -11,7 +11,7 @@ const app = require('./app');
  * Get port from environment and store in Express.
  */
 
-const port = normalizePort(process.env.PORT || '80');
+const port = normalizePort(process.env.PORT || '8080');
 app.set('port', port);
 
 /**
@@ -27,6 +27,8 @@ const server = http.createServer(app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
+console.log('Listening at: http://localhost:' + port);
 
 /**
  * Normalize a port into a number, string, or false.

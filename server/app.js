@@ -50,21 +50,7 @@ app.use(function (err, req, res, next) {
 
   // forward all errors to react app
   res.status(err.status || 500);
-  if(err.status === 401) {
-    res.sendFile(path.join(__dirname + '/error-pages/401.html'));
-  }
-  else if(err.status === 403) {
-    res.sendFile(path.join(__dirname + '/error-pages/403.html'));
-  }
-  else if(err.status === 404) {
-    res.sendFile(path.join(__dirname + '/error-pages/404.html'));
-  }
-  else if(err.status === 500) {
-    res.sendFile(path.join(__dirname + '/error-pages/500.html'));
-  }
-  else {
-    res.sendFile(path.join(__dirname + '/build/index.html'));
-  }
+  res.sendFile(path.join(__dirname + '/build/index.html'));
 });
 
 // allow application to recognize secure protocols
