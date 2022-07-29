@@ -16,7 +16,7 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { Delete as DeleteIcon } from '@material-ui/icons';
 import React, { useState, useEffect } from 'react';
-import uniqid from 'uniqid';
+import uniquid from '../utils/uniquid';
 import * as Acsys from '../utils/Acsys/Acsys';
 import NewUserDialog from '../components/Dialogs/NewUserDialog';
 import YesNoDialog from '../components/Dialogs/YesNoDialog';
@@ -94,7 +94,7 @@ const Users = (props) => {
       setMessage('Passwords do not match.');
     } else {
       const user = {
-        acsys_id: uniqid(),
+        acsys_id: uniquid(),
         role: role,
         mode: role,
         username: username,

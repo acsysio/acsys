@@ -11,7 +11,7 @@ import Paper from '@material-ui/core/Paper';
 import { FileCopyOutlined as CopyIcon } from '@material-ui/icons';
 import React, { useEffect, useState } from 'react';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import uniqid from 'uniqid';
+import uniquid from '../utils/uniquid';
 import * as Acsys from '../utils/Acsys/Acsys';
 import AutoGen from '../components/Controls/AutoGen';
 import BooleanSelect from '../components/Controls/BooleanSelect';
@@ -194,7 +194,7 @@ const DocumentView = (props) => {
     } else {
       for (var i = 0; i < tempDetails.length; i++) {
         if (tempDetails[i].control === 'autoGen') {
-          tempDocument[tempDetails[i].field_name] = uniqid();
+          tempDocument[tempDetails[i].field_name] = uniquid();
         } else if (fileDoc[tempDetails[i].field_name] !== undefined) {
           tempDocument[tempDetails[i].field_name] =
             fileDoc[tempDetails[i].field_name];
@@ -273,7 +273,7 @@ const DocumentView = (props) => {
     } else {
       for (var i = 0; i < tempDetails.length; i++) {
         if (tempDetails[i].control === 'autoGen') {
-          tempDocument[tempDetails[i].field_name] = uniqid();
+          tempDocument[tempDetails[i].field_name] = uniquid();
         } else if (fileDoc[tempDetails[i].field_name] !== undefined) {
           tempDocument[tempDetails[i].field_name] =
             fileDoc[tempDetails[i].field_name];

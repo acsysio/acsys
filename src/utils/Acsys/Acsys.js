@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import uniqid from 'uniqid';
+import uniquid from '../uniquid';
 import * as Session from '../Session/session';
 
 export const getId = () => {
@@ -42,7 +42,7 @@ export const setMode = async (newMode) => {
 };
 
 export const getUnique_id = () => {
-  return uniqid();
+  return uniquid();
 };
 
 const promFetch = (url, options = {}) => {
@@ -587,7 +587,7 @@ export const register = (username, email, password) => {
     let refreshToken;
 
     const userData = {
-      acsys_id: uniqid(),
+      acsys_id: uniquid(),
       email,
       username,
       role,

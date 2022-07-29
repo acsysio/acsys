@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "react-scripts build && (if exist server\\build rmdir /s /q server\\build) && move build server",
-    "build-linux": "export NODE_OPTIONS=--openssl-legacy-provider && react-scripts build && rm -rf server/build && mv build server",
+    "build-linux": "react-scripts build && rm -rf server/build && mv build server",
     "dev": "concurrently \"react-scripts start\" \"nodemon -r dotenv/config server/server.js\"",
     "docker-build": "docker build . --file Dockerfile --tag acsysio/acsys ",
     "docker-run": "docker run -p 8080:8080 acsysio/acsys",
@@ -38,7 +38,6 @@
     "clsx": "^1.1.1",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.5",
-    "debug": "4.3.1",
     "dotenv": "^8.6.0",
     "express": "^4.17.1",
     "express-fileupload": "^1.1.7-alpha.4",
@@ -62,11 +61,11 @@
     "react-router-dom": "^5.1.2",
     "react-scripts": "4.0.1",
     "sqlite3": "5.0.9",
-    "temp": "^0.9.1",
-    "uniqid": "^5.2.0"
+    "temp": "^0.9.1"
   },
   "devDependencies": {
     "concurrently": "5.3.0",
+    "debug": "^4.3.4",
     "eslint": "^7.4.0",
     "eslint-config-airbnb": "^18.2.0",
     "eslint-config-prettier": "^8.5.0",

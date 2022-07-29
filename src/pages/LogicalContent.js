@@ -17,13 +17,14 @@ import Typography from '@material-ui/core/Typography';
 import { Create as CreateIcon, Delete as DeleteIcon } from '@material-ui/icons';
 import React, { useEffect, useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import uniqid from 'uniqid';
+import uniquid from '../utils/uniquid';
 import * as Acsys from '../utils/Acsys/Acsys';
 import { AcsysContext } from '../utils/Session/AcsysProvider';
 import AddViewDialog from '../components/Dialogs/AddViewDialog';
 import EditViewDialog from '../components/Dialogs/EditViewDialog';
 import LoadingDialog from '../components/Dialogs/LoadingDialog';
 import YesNoDialog from '../components/Dialogs/YesNoDialog';
+import uidd from '../utils/uniquid';
 
 let tempView = [];
 let position = 0;
@@ -130,6 +131,8 @@ const LogicalContent = (props) => {
   };
 
   useEffect(() => {
+    console.log('igloo');
+    console.log(uidd());
     mount();
   }, []);
 
@@ -158,7 +161,7 @@ const LogicalContent = (props) => {
 
   const addView = async () => {
     setAddLoading(true);
-    const uId = uniqid();
+    const uId = uniquid();
     let newView = {
       acsys_id: uId,
       is_table_mode: true,
@@ -171,7 +174,7 @@ const LogicalContent = (props) => {
     };
     await Acsys.insertData('acsys_views', { ...newView }).then(async () => {
       let newEntry = {
-        acsys_id: uniqid(),
+        acsys_id: uniquid(),
         name: name,
         description: description,
         viewId: uId,

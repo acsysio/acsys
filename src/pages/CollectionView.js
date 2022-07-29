@@ -25,7 +25,7 @@ import {
 import React, { useState, useContext, useEffect } from 'react';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Link } from 'react-router-dom';
-import uniqid from 'uniqid';
+import uniquid from '../utils/uniquid';
 import * as Acsys from '../utils/Acsys/Acsys';
 import { AcsysContext } from '../utils/Session/AcsysProvider';
 import FieldDef from '../components/FieldControl/FieldDef';
@@ -501,7 +501,7 @@ const CollectionView = (props) => {
         await Promise.all(
           Object.keys(currentData[0]).map(async (value, index) => {
             let collectionDetails = {
-              acsys_id: uniqid(),
+              acsys_id: uniquid(),
               content_id: content_id,
               collection: acsys_id,
               control: 'none',

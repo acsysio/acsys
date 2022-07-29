@@ -1,6 +1,6 @@
 const expressJwt = require('express-jwt');
 const fs = require('fs');
-const uniquid = require('uniqid');
+const uniquid = require('../src/utils/uniquid');
 const configFile = 'server/config/config.json';
 let secret = 'default-key';
 const algorithms = ['sha1', 'RS256', 'HS256'];
