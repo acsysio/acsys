@@ -95,7 +95,6 @@ const Account = (props) => {
     setSaveLoading(false);
   };
 
-  console.log('--------', userData);
   return (
     <div>
       <Tooltip title="Save Account Settings">

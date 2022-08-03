@@ -11,7 +11,7 @@ import Paper from '@material-ui/core/Paper';
 import { FileCopyOutlined as CopyIcon } from '@material-ui/icons';
 import React, { useEffect, useState } from 'react';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import uniquid from '../utils/uniquid';
+// import uniquid from '../../utils/uniquid';
 import * as Acsys from '../utils/Acsys/Acsys';
 import AutoGen from '../components/Controls/AutoGen';
 import BooleanSelect from '../components/Controls/BooleanSelect';
@@ -192,9 +192,11 @@ const DocumentView = (props) => {
         keys
       );
     } else {
+      let uFields = [];
       for (var i = 0; i < tempDetails.length; i++) {
         if (tempDetails[i].control === 'autoGen') {
-          tempDocument[tempDetails[i].field_name] = uniquid();
+          // tempDocument[tempDetails[i].field_name] = uniquid();
+          uFields.push(tempDetails[i].field_name);
         } else if (fileDoc[tempDetails[i].field_name] !== undefined) {
           tempDocument[tempDetails[i].field_name] =
             fileDoc[tempDetails[i].field_name];
@@ -208,11 +210,18 @@ const DocumentView = (props) => {
           }
         }
       }
-      const result = await Acsys.insertData(
-        'acsys_' + collection,
-        { ...tempDocument },
-        keys
-      );
+      if (uFields.length > 0) {
+        const result = await Acsys.insertWithUID(
+          'acsys_' + collection,
+          { ...tempDocument },
+          uFields,
+        );
+      } else {
+        const result = await Acsys.insertData(
+          'acsys_' + collection,
+          { ...tempDocument },
+        );
+      }
     }
     table_keys = [];
     for (var i = 0; i < tempDetails.length; i++) {
@@ -271,9 +280,11 @@ const DocumentView = (props) => {
         );
       }
     } else {
+      let uFields = [];
       for (var i = 0; i < tempDetails.length; i++) {
         if (tempDetails[i].control === 'autoGen') {
-          tempDocument[tempDetails[i].field_name] = uniquid();
+          // tempDocument[tempDetails[i].field_name] = uniquid();
+          uFields.push(tempDetails[i].field_name);
         } else if (fileDoc[tempDetails[i].field_name] !== undefined) {
           tempDocument[tempDetails[i].field_name] =
             fileDoc[tempDetails[i].field_name];
@@ -287,9 +298,16 @@ const DocumentView = (props) => {
           }
         }
       }
-      await Acsys.insertData(collection, {
-        ...tempDocument,
-      });
+      if (uFields.length > 0) {
+        await Acsys.insertWithUID(collection, {
+          ...tempDocument,
+          uFields,
+        });
+      } else {
+        await Acsys.insertData(collection, {
+          ...tempDocument,
+        });
+      }
     }
     table_keys = [];
     for (var i = 0; i < tempDetails.length; i++) {

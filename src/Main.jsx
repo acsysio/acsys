@@ -1,13 +1,13 @@
-import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+import { createTheme, ThemeProvider } from '@material-ui/core/styles';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './components/App';
+import App from './App';
 import Configuration from './pages/Configuration';
 import * as Acsys from './utils/Acsys/Acsys';
 import { AcsysProvider } from './utils/Session/AcsysProvider';
 import * as serviceWorker from './serviceWorker';
 
-let theme = createMuiTheme({
+let theme = createTheme({
   palette: {
     primary: {
       light: '#c5a8ff',
@@ -122,14 +122,12 @@ const init = async () => {
   const con = await Acsys.isConnected();
   if (con) {
     ReactDOM.render(
-      <body>
         <ThemeProvider theme={theme}>
           <AcsysProvider>
             <App />
           </AcsysProvider>
-        </ThemeProvider>
-      </body>,
-      document.getElementById('root')
+        </ThemeProvider>,
+        document.querySelector('#root')
     );
   } else {
     ReactDOM.render(

@@ -25,7 +25,7 @@ import {
 import React, { useState, useContext, useEffect } from 'react';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Link } from 'react-router-dom';
-import uniquid from '../utils/uniquid';
+// import uniquid from '../../utils/uniquid';
 import * as Acsys from '../utils/Acsys/Acsys';
 import { AcsysContext } from '../utils/Session/AcsysProvider';
 import FieldDef from '../components/FieldControl/FieldDef';
@@ -65,7 +65,7 @@ const CollectionView = (props) => {
   const [setDetailOpen, setSetDetailOpen] = useState(false);
   const [setViewOpen, setSetViewOpen] = useState(false);
   const [filterLoading, setFilterLoading] = useState(false);
-  const [view_order, setViewOrder] = useState(false);
+  const [viewOrder, setViewOrder] = useState(false);
   const [messageTitle, setMessageTitle] = useState('');
   const [message, setMessage] = useState('');
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -501,7 +501,6 @@ const CollectionView = (props) => {
         await Promise.all(
           Object.keys(currentData[0]).map(async (value, index) => {
             let collectionDetails = {
-              acsys_id: uniquid(),
               content_id: content_id,
               collection: acsys_id,
               control: 'none',
@@ -513,7 +512,7 @@ const CollectionView = (props) => {
               view_order: index,
               width: 12,
             };
-            await Acsys.insertData(
+            await Acsys.insertWithUID(
               'acsys_document_details',
               collectionDetails
             ).then(() => {

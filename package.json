@@ -1,38 +1,24 @@
 {
-  "name": "acsys",
+  "name": "vite-project",
   "private": true,
+  "version": "0.0.0",
   "scripts": {
-    "build": "react-scripts build && (if exist server\\build rmdir /s /q server\\build) && move build server",
-    "build-linux": "react-scripts build && rm -rf server/build && mv build server",
-    "dev": "concurrently \"react-scripts start\" \"nodemon -r dotenv/config server/server.js\"",
-    "docker-build": "docker build . --file Dockerfile --tag acsysio/acsys ",
-    "docker-run": "docker run -p 8080:8080 acsysio/acsys",
-    "docker-run-env": "docker run -p 8080:8080 --env-file .env acsysio/acsys",
-    "lint": "./node_modules/.bin/eslint app.js",
-    "react": "react-scripts start",
-    "start": "node server/server.js",
-    "format": "prettier --write **/*.js",
-    "test-react": "react-scripts test --env=jsdom"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "eslintConfig": {
-    "extends": "react-app"
+    "clean": "rimraf dist",
+    "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
+    "client:dev": "vite",
+    "server:dev": "nodemon -r dotenv/config --ignore ./src/ server/server.js",
+    "client:build": "vite build",
+    "build": "npm run client:build",
+    "serve": "vite preview",
+    "test": "prettier --check . && eslint . && stylelint \"**/*.css\"",
+    "start": "node -r dotenv/config server/server.js"
   },
   "dependencies": {
+    "@babel/cli": "^7.18.10",
+    "@babel/core": "^7.18.10",
     "@google-cloud/storage": "^6.2.3",
-    "@material-ui/core": "^4.12.4",
-    "@material-ui/icons": "^4.11.3",
+    "@material-ui/core": "^4.9.10",
+    "@material-ui/icons": "^4.5.1",
     "bcrypt": "^5.0.1",
     "body-parser": "^1.20.0",
     "clsx": "^1.2.1",
@@ -63,18 +49,9 @@
     "temp": "^0.9.1"
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "^2.0.0",
     "concurrently": "7.3.0",
-    "debug": "^4.3.4",
-    "eslint": "^8.20.0",
-    "eslint-config-airbnb": "^19.0.4",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-jsx-a11y": "^6.6.1",
-    "eslint-plugin-prettier": "^4.2.1",
-    "eslint-plugin-react": "^7.30.1",
-    "eslint-plugin-react-hooks": "^4.6.0",
     "nodemon": "2.0.19",
-    "prettier": "^2.7.1"
-  },
-  "proxy": "http://localhost:8080"
+    "vite": "^3.0.0"
+  }
 }
