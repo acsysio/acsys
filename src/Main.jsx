@@ -136,7 +136,7 @@ const init = async () => {
           <Configuration />
         </ThemeProvider>
       </body>,
-      document.getElementById('root')
+      document.querySelector('#root')
     );
   }
 };
