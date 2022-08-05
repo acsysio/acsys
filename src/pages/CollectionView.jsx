@@ -65,7 +65,7 @@ const CollectionView = (props) => {
   const [setDetailOpen, setSetDetailOpen] = useState(false);
   const [setViewOpen, setSetViewOpen] = useState(false);
   const [filterLoading, setFilterLoading] = useState(false);
-  const [viewOrder, setViewOrder] = useState(false);
+  const [viewOrderPage, setViewOrderPage] = useState(false);
   const [messageTitle, setMessageTitle] = useState('');
   const [message, setMessage] = useState('');
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -188,10 +188,6 @@ const CollectionView = (props) => {
     mount();
   };
 
-  const showPopUp = () => {
-    return <div>{Object.values(tableData).map((value, index) => {})}</div>;
-  };
-
   const deleteView = async () => {
     setDeleteLoading(true);
 
@@ -239,7 +235,7 @@ const CollectionView = (props) => {
       tempDetails[0].collection,
       keys,
       row_num,
-      view_order,
+      viewOrderPage,
       orderDir,
       'prev',
       page
@@ -248,7 +244,7 @@ const CollectionView = (props) => {
       tempDetails[0].collection,
       keys,
       row_num,
-      view_order,
+      viewOrderPage,
       orderDir,
       'prev',
       page
@@ -263,7 +259,7 @@ const CollectionView = (props) => {
       tempDetails[0].collection,
       keys,
       row_num,
-      view_order,
+      viewOrderPage,
       orderDir
     );
     context.setPageDirection('prev');
@@ -284,7 +280,7 @@ const CollectionView = (props) => {
       tempDetails[0].collection,
       keys,
       row_num,
-      view_order,
+      viewOrderPage,
       orderDir,
       'next',
       page
@@ -293,7 +289,7 @@ const CollectionView = (props) => {
       tempDetails[0].collection,
       keys,
       row_num,
-      view_order,
+      viewOrderPage,
       orderDir,
       'next',
       page
@@ -308,7 +304,7 @@ const CollectionView = (props) => {
       tempDetails[0].collection,
       keys,
       row_num,
-      view_order,
+      viewOrderPage,
       orderDir
     );
     context.setPageDirection('next');
@@ -539,7 +535,7 @@ const CollectionView = (props) => {
     setPage(page);
     setDocumentDetails(details);
     setTotalRows(totalRows);
-    setViewOrder(order);
+    setViewOrderPage(order);
     setOrderDir(orderDir);
   };
 
@@ -667,6 +663,18 @@ const CollectionView = (props) => {
                 </TableCell>
               ) : (
                 <TableCell
+                  component={table_keys.length > 0 ? Link : TableCell}
+                  to={{
+                    pathname: '/DocumentView',
+                    state: {
+                      mode: 'update',
+                      is_removable: is_removable,
+                      table_keys: table_keys[rowIndex],
+                      routed: false,
+                      viewId: documentDetails[0].content_id,
+                    },
+                  }}
+                  onClick={() => openKeyMessageFunc()}
                   style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
                 >
                   {returnValue}
@@ -675,7 +683,7 @@ const CollectionView = (props) => {
             }
           })}
           <TableCell align="right" style={{ minWidth: 100 }}>
-            {table_keys.length > 0 ? (
+            {/* {table_keys.length > 0 ? (
               <Tooltip title="Edit Entry">
                 <IconButton
                   edge="start"
@@ -709,7 +717,7 @@ const CollectionView = (props) => {
                   <CreateIcon />
                 </IconButton>
               </Tooltip>
-            )}
+            )} */}
             {Acsys.getMode() !== 'Viewer' && is_removable ? (
               <Tooltip title="Delete Entry">
                 <IconButton

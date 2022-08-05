@@ -14,7 +14,6 @@ import PeopleIcon from '@material-ui/icons/People';
 import PermMediaOutlinedIcon from '@material-ui/icons/PhotoSizeSelectActual';
 import SettingsIcon from '@material-ui/icons/Settings';
 import DataBaseIcon from '@material-ui/icons/ViewAgenda';
-import clsx from 'clsx';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import * as ROUTES from '../constants/routes';
@@ -119,7 +118,7 @@ function Navigator(props) {
           </ListItem>
           {children.map(({ id: childId, icon, route }) => (
             <Link to={route} style={{ textDecoration: 'none' }}>
-              <ListItem key={childId} button className={clsx(classes.item)}>
+              <ListItem key={childId} button className={classes.item}>
                 <ListItemIcon className={classes.itemIcon}>{icon}</ListItemIcon>
                 <ListItemText
                   classes={{
@@ -148,7 +147,7 @@ function Navigator(props) {
         target="_blank"
         style={{ textDecoration: 'none' }}
       >
-        <ListItem key="Info" button className={clsx(classes.item)}>
+        <ListItem key="Info" button className={classes.item}>
           <ListItemIcon className={classes.itemIcon}>
             <InfoIcon />
           </ListItemIcon>
@@ -184,7 +183,7 @@ function Navigator(props) {
                 key={childId}
                 button
                 onClick={props.handleDrawerToggle}
-                className={clsx(classes.item)}
+                className={classes.item}
               >
                 <ListItemIcon className={classes.itemIcon}>{icon}</ListItemIcon>
                 <ListItemText
@@ -214,7 +213,7 @@ function Navigator(props) {
         target="_blank"
         style={{ textDecoration: 'none' }}
       >
-        <ListItem key="Info" button className={clsx(classes.item)}>
+        <ListItem key="Info" button className={classes.item}>
           <ListItemIcon className={classes.itemIcon}>
             <InfoIcon />
           </ListItemIcon>
@@ -249,7 +248,7 @@ function Navigator(props) {
           >
             <CloseIcon />
           </IconButton>
-          <ListItem className={clsx(classes.categoryHeader)}>
+          <ListItem className={classes.categoryHeader}>
             {Acsys.getRole() !== 'Viewer' ? (
               <select
                 defaultValue={Acsys.getMode()}
