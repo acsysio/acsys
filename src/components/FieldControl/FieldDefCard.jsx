@@ -39,7 +39,8 @@ export default function EditText(props) {
     }
   }, []);
   const [{ isDragging }, connectDrag] = useDrag({
-    item: { id: props.id, type: ItemTypes.CARD },
+    type: ItemTypes.CARD,
+    item: { id: props.id },
     collect: (monitor) => {
       const result = {
         isDragging: monitor.isDragging(),

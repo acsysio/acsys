@@ -24,8 +24,7 @@ import {
 } from '@material-ui/icons';
 import React, { useState, useContext, useEffect } from 'react';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { Link } from 'react-router-dom';
-import uniquid from '../utils/uniquid';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import * as Acsys from '../utils/Acsys/Acsys';
 import { AcsysContext } from '../utils/Session/AcsysProvider';
 import FieldDef from '../components/FieldControl/FieldDef';
@@ -46,6 +45,8 @@ let row_num = 10;
 
 const CollectionView = (props) => {
   const context = useContext(AcsysContext);
+  const navigate = useNavigate();
+  const params = useParams();
   const [content_id, setContentId] = useState('');
   const [viewId, setViewId] = useState(0);
   const [initialViews, setInitialViews] = useState([]);
@@ -65,7 +66,7 @@ const CollectionView = (props) => {
   const [setDetailOpen, setSetDetailOpen] = useState(false);
   const [setViewOpen, setSetViewOpen] = useState(false);
   const [filterLoading, setFilterLoading] = useState(false);
-  const [view_order, setViewOrder] = useState(false);
+  const [viewOrderPage, setViewOrderPage] = useState(false);
   const [messageTitle, setMessageTitle] = useState('');
   const [message, setMessage] = useState('');
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -93,9 +94,9 @@ const CollectionView = (props) => {
     published = value;
     let acsys_id = '';
     if (published) {
-      acsys_id = props.match.params.acsys_id;
+      acsys_id = params.acsys_id;
     } else {
-      acsys_id = 'acsys_' + props.match.params.acsys_id;
+      acsys_id = 'acsys_' + params.acsys_id;
     }
     context.setPageData(
       acsys_id,
@@ -188,10 +189,6 @@ const CollectionView = (props) => {
     mount();
   };
 
-  const showPopUp = () => {
-    return <div>{Object.values(tableData).map((value, index) => {})}</div>;
-  };
-
   const deleteView = async () => {
     setDeleteLoading(true);
 
@@ -239,7 +236,7 @@ const CollectionView = (props) => {
       tempDetails[0].collection,
       keys,
       row_num,
-      view_order,
+      viewOrderPage,
       orderDir,
       'prev',
       page
@@ -248,7 +245,7 @@ const CollectionView = (props) => {
       tempDetails[0].collection,
       keys,
       row_num,
-      view_order,
+      viewOrderPage,
       orderDir,
       'prev',
       page
@@ -263,7 +260,7 @@ const CollectionView = (props) => {
       tempDetails[0].collection,
       keys,
       row_num,
-      view_order,
+      viewOrderPage,
       orderDir
     );
     context.setPageDirection('prev');
@@ -284,7 +281,7 @@ const CollectionView = (props) => {
       tempDetails[0].collection,
       keys,
       row_num,
-      view_order,
+      viewOrderPage,
       orderDir,
       'next',
       page
@@ -293,7 +290,7 @@ const CollectionView = (props) => {
       tempDetails[0].collection,
       keys,
       row_num,
-      view_order,
+      viewOrderPage,
       orderDir,
       'next',
       page
@@ -308,7 +305,7 @@ const CollectionView = (props) => {
       tempDetails[0].collection,
       keys,
       row_num,
-      view_order,
+      viewOrderPage,
       orderDir
     );
     context.setPageDirection('next');
@@ -366,32 +363,19 @@ const CollectionView = (props) => {
     handleDetailClose();
   };
 
-  const scan = async () => {
-    setLoading(true);
-    Acsys.deleteData('acsys_document_details', [
-      ['content_id', '=', content_id],
-    ])
-      .then(async () => {
-        mount();
-      })
-      .catch(() => {
-        setLoading(false);
-      });
-  };
-
   useEffect(() => {
-    props.setHeader('Content');
+    context.setHeader('Content');
     published = true;
     table_keys = [];
     setLoading(true);
-    // mount();
+    mount();
   }, []);
 
   useEffect(() => {
-    if (content_id !== props.match.params.content_id && !loading) {
+    if (content_id !== params.content_id && !loading) {
       mount();
     }
-  }, [content_id, props.match.params.content_id, loading]);
+  }, [content_id, params.content_id, loading]);
 
   const mount = async () => {
     let acsysView;
@@ -406,17 +390,17 @@ const CollectionView = (props) => {
     view_orderField = 'none';
     // view_order = 'asc';
     row_num = 10;
-    if (!reset) {
-      table_keys = props.location.state.table_keys;
-    }
+    // if (!reset) {
+    //   table_keys = props.location.state.table_keys;
+    // }
     let acsys_id = '';
     if (published) {
-      acsys_id = props.match.params.acsys_id;
+      acsys_id = params.acsys_id;
     } else {
-      acsys_id = 'acsys_' + props.match.params.acsys_id;
+      acsys_id = 'acsys_' + params.acsys_id;
     }
 
-    const content_id = props.match.params.content_id;
+    const content_id = params.content_id;
 
     const totalRows = await Acsys.getTableSize(acsys_id);
 
@@ -501,7 +485,6 @@ const CollectionView = (props) => {
         await Promise.all(
           Object.keys(currentData[0]).map(async (value, index) => {
             let collectionDetails = {
-              acsys_id: uniquid(),
               content_id: content_id,
               collection: acsys_id,
               control: 'none',
@@ -513,7 +496,7 @@ const CollectionView = (props) => {
               view_order: index,
               width: 12,
             };
-            await Acsys.insertData(
+            await Acsys.insertWithUID(
               'acsys_document_details',
               collectionDetails
             ).then(() => {
@@ -529,7 +512,7 @@ const CollectionView = (props) => {
     }
 
     setReset(false);
-    setView(props.location.state.view);
+    // setView(props.location.state.view);
     setLoading(false);
     setLocked(locked);
     setContentId(content_id);
@@ -540,8 +523,34 @@ const CollectionView = (props) => {
     setPage(page);
     setDocumentDetails(details);
     setTotalRows(totalRows);
-    setViewOrder(order);
+    setViewOrderPage(order);
     setOrderDir(orderDir);
+  };
+
+  const updateDocument = (index) => {
+    if (table_keys.length > 0) {
+      context.setMode('update');
+      context.setIsRemovable(is_removable);
+      context.setDataKeys(table_keys[index]);
+      context.setRouted(false);
+      context.setViewId(documentDetails[0].content_id);
+      navigate('/DocumentView');
+    } else {
+      openKeyMessageFunc();
+    }
+  };
+
+  const addDocument = () => {
+    if (table_keys.length > 0) {
+      context.setMode('add');
+      context.setIsRemovable(is_removable);
+      context.setDataKeys(tempKeys[0]);
+      context.setRouted(false);
+      context.setViewId(projectId);
+      navigate('/DocumentView');
+    } else {
+      openKeyMessageFunc();
+    }
   };
 
   const renderHeader = () => {
@@ -590,7 +599,7 @@ const CollectionView = (props) => {
     return tableData.map((tableData, rowIndex) => {
       let tempKey = [];
       return (
-        <TableRow>
+        <TableRow key={rowIndex}>
           {Object.values(documentDetails).map((details) => {
             let returnValue = '';
             Object.values(tableData).map((value, index) => {
@@ -668,7 +677,9 @@ const CollectionView = (props) => {
                 </TableCell>
               ) : (
                 <TableCell
-                  style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
+                  // component={Link}
+                  onClick={() => updateDocument(rowIndex)}
+                  style={{ overflow: 'hidden', textOverflow: 'ellipsis', cursor: 'pointer' }}
                 >
                   {returnValue}
                 </TableCell>
@@ -676,41 +687,6 @@ const CollectionView = (props) => {
             }
           })}
           <TableCell align="right" style={{ minWidth: 100 }}>
-            {table_keys.length > 0 ? (
-              <Tooltip title="Edit Entry">
-                <IconButton
-                  edge="start"
-                  color="inherit"
-                  aria-label="edit"
-                  to={{
-                    pathname: '/DocumentView',
-                    state: {
-                      mode: 'update',
-                      is_removable: is_removable,
-                      table_keys: table_keys[rowIndex],
-                      routed: false,
-                      viewId: documentDetails[0].content_id,
-                    },
-                  }}
-                  component={Link}
-                  style={{ marginRight: 10 }}
-                >
-                  <CreateIcon />
-                </IconButton>
-              </Tooltip>
-            ) : (
-              <Tooltip title="Edit Entry">
-                <IconButton
-                  edge="start"
-                  color="inherit"
-                  aria-label="edit"
-                  onClick={() => openKeyMessageFunc()}
-                  style={{ marginRight: 10 }}
-                >
-                  <CreateIcon />
-                </IconButton>
-              </Tooltip>
-            )}
             {Acsys.getMode() !== 'Viewer' && is_removable ? (
               <Tooltip title="Delete Entry">
                 <IconButton
@@ -906,16 +882,8 @@ const CollectionView = (props) => {
                 {Acsys.getMode() !== 'Viewer' && is_removable ? (
                   <Tooltip title="Add New Entry To Table">
                     <Button
-                      to={{
-                        pathname: '/DocumentView',
-                        state: {
-                          mode: 'add',
-                          table_keys: tempKeys[0],
-                          routed: false,
-                          viewId: projectId,
-                        },
-                      }}
-                      component={Link}
+                      onClick={() => addDocument()}
+                      // component={Link}
                       variant="contained"
                       color="primary"
                     >

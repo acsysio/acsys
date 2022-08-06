@@ -11,13 +11,15 @@ import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { KeyboardArrowDown } from '@material-ui/icons';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import * as Acsys from '../utils/Acsys/Acsys';
+import { AcsysContext } from '../utils/Session/AcsysProvider';
 import LoadingDialog from '../components/Dialogs/LoadingDialog';
 import MessageDialog from '../components/Dialogs/MessageDialog';
 import YesNoDialog from '../components/Dialogs/YesNoDialog';
 
 const Settings = (props) => {
+  const context = useContext(AcsysContext);
   const [host, setHost] = useState('');
   const [port, setPort] = useState('');
   const [username, setUsername] = useState('');
@@ -75,8 +77,12 @@ const Settings = (props) => {
     setLoading(false);
   };
 
-  useEffect(async () => {
-    props.setHeader('Settings');
+  useEffect(() => {
+    load();
+  }, []);
+
+  const load = async () => {
+    context.setHeader('Settings');
     const isStateless = await Acsys.isStateless();
     const emailConfig = await Acsys.getEmailConfig();
     if (emailConfig.length > 0) {
@@ -125,7 +131,7 @@ const Settings = (props) => {
     }
     setIsStateless(isStateless);
     setDatabaseType(databaseType);
-  }, []);
+  };
 
   // setDatabaseType = (type) => {
   //   setState({

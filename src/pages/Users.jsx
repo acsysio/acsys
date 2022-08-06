@@ -15,13 +15,14 @@ import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { Delete as DeleteIcon } from '@material-ui/icons';
-import React, { useState, useEffect } from 'react';
-import uniquid from '../utils/uniquid';
+import React, { useContext, useState, useEffect } from 'react';
 import * as Acsys from '../utils/Acsys/Acsys';
+import { AcsysContext } from '../utils/Session/AcsysProvider';
 import NewUserDialog from '../components/Dialogs/NewUserDialog';
 import YesNoDialog from '../components/Dialogs/YesNoDialog';
 
 const Users = (props) => {
+  const context = useContext(AcsysContext);
   const [userId, setUserId] = useState(0);
   const [message, setMessage] = useState('');
   const [users, setUsers] = useState([]);
@@ -72,7 +73,7 @@ const Users = (props) => {
   };
 
   const inDidMount = async () => {
-    props.setHeader('Users');
+    context.setHeader('Users');
     let projectName = await Acsys.getProjectName();
     let users = [];
     try {
@@ -94,7 +95,6 @@ const Users = (props) => {
       setMessage('Passwords do not match.');
     } else {
       const user = {
-        acsys_id: uniquid(),
         role: role,
         mode: role,
         username: username,
