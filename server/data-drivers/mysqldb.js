@@ -1,4 +1,4 @@
-const mysql = require('mysql');
+const mysql = require('mysql2');
 
 let db;
 
@@ -109,39 +109,83 @@ class MysqlDriver {
       });
       db.query(
         'CREATE TABLE IF NOT EXISTS acsys_users (acsys_id TEXT, email TEXT, username TEXT, role TEXT, mode TEXT, acsys_cd TEXT)',
-        (error, rows) => {}
+        (error, rows) => {
+          if (error) {
+            console.log(error);
+          }
+        }
       );
       db.query(
         'CREATE TABLE IF NOT EXISTS acsys_logical_content (acsys_id TEXT, name TEXT, description TEXT, viewId TEXT, source_collection TEXT, position INT, table_keys TEXT)',
-        (error, rows) => {}
+        (error, rows) => {
+          if (error) {
+            console.log(error);
+          }
+        }
       );
       db.query(
         'CREATE TABLE IF NOT EXISTS acsys_views (acsys_id TEXT, is_removable BOOLEAN, is_table_mode BOOLEAN, link_table TEXT, link_view_id TEXT, view_order TEXT, order_by TEXT, row_num INT)',
-        (error, rows) => {}
+        (error, rows) => {
+          if (error) {
+            console.log(error);
+          }
+        }
       );
       db.query(
         'CREATE TABLE IF NOT EXISTS acsys_document_details (acsys_id TEXT, content_id TEXT, collection TEXT, control TEXT, field_name TEXT, is_visible_on_page BOOLEAN, is_visible_on_table BOOLEAN, type TEXT, is_key BOOLEAN, view_order INT, width INT)',
-        (error, rows) => {}
+        (error, rows) => {
+          if (error) {
+            console.log(error);
+          }
+        }
+      );
+      db.query(
+        'CREATE TABLE IF NOT EXISTS acsys_details_dropdown (acsys_id TEXT, field TEXT, field_name TEXT)',
+        (error, rows) => {
+          if (error) {
+            console.log(error);
+          }
+        }
       );
       db.query(
         'CREATE TABLE IF NOT EXISTS acsys_email_settings (host TEXT, port INT, username TEXT, password TEXT)',
-        (error, rows) => {}
+        (error, rows) => {
+          if (error) {
+            console.log(error);
+          }
+        }
       );
       db.query(
         'CREATE TABLE IF NOT EXISTS acsys_open_tables (table_name TEXT)',
-        (error, rows) => {}
+        (error, rows) => {
+          if (error) {
+            console.log(error);
+          }
+        }
       );
       db.query(
         'CREATE TABLE IF NOT EXISTS acsys_storage_items (acsys_id TEXT, file_order INT, parent TEXT, name TEXT, content_type TEXT, is_public BOOLEAN, time_created TEXT, updated TEXT)',
-        (error, rows) => {}
+        (error, rows) => {
+          if (error) {
+            console.log(error);
+          }
+        }
       );
       db.query(
         'CREATE TABLE IF NOT EXISTS acsys_user_reset (acsys_id TEXT, user_id Text, expiration_date INT)',
-        (error, rows) => {}
+        (error, rows) => {
+          if (error) {
+            console.log(error);
+          }
+        }
       );
       db.query(
         'CREATE TABLE IF NOT EXISTS acsys_storage_settings (bucket TEXT)',
-        (error, rows) => {}
+        (error, rows) => {
+          if (error) {
+            console.log(error);
+          }
+        }
       );
       connected = true;
       resolve(true);
@@ -198,7 +242,7 @@ class MysqlDriver {
   verifyPassword(acsys_id) {
     return new Promise(async (resolve, reject) => {
       const query = `SELECT * FROM acsys_users WHERE acsys_id = '${acsys_id}'`;
-      await db.query(query, (error, rows) => {
+      db.query(query, (error, rows) => {
         if (rows === undefined || error) {
           resolve(false);
         } else {
@@ -211,7 +255,7 @@ class MysqlDriver {
   getUsers(user) {
     return new Promise(async (resolve, reject) => {
       const query = `SELECT * FROM acsys_users WHERE USERNAME != '${user}'`;
-      await db.query(query, (error, rows) => {
+      db.query(query, (error, rows) => {
         if (rows === undefined || error) {
           resolve([]);
         } else {
@@ -225,7 +269,7 @@ class MysqlDriver {
     return new Promise(async (resolve, reject) => {
       const collectionArr = [];
       const query = `SHOW TABLES`;
-      await db.query(query, async (error, rows) => {
+      db.query(query, async (error, rows) => {
         if (rows === undefined || error) {
           resolve([]);
         } else {
@@ -249,7 +293,7 @@ class MysqlDriver {
     return new Promise(async (resolve, reject) => {
       const collectionArr = [];
       const query = `SHOW TABLES`;
-      await db.query(query, (error, rows) => {
+      db.query(query, (error, rows) => {
         if (rows === undefined || error) {
           resolve([]);
         } else {
@@ -267,7 +311,7 @@ class MysqlDriver {
   getTableSize(collectionName) {
     return new Promise(async (resolve, reject) => {
       const query = `SELECT COUNT(*) AS NUM FROM ${collectionName}`;
-      await db.query(query, (error, rows) => {
+      db.query(query, (error, rows) => {
         if (rows === undefined || error) {
           resolve(0);
         } else {
@@ -280,7 +324,7 @@ class MysqlDriver {
   increment(collectionName, options, field, start, num) {
     return new Promise(async (resolve, reject) => {
       const query = `SELECT * FROM ${collectionName} WHERE ${field} >= ${start}`;
-      await db.query(query, async (error, rows) => {
+      db.query(query, async (error, rows) => {
         if (rows === undefined || error) {
           resolve();
         } else {
@@ -373,7 +417,7 @@ class MysqlDriver {
   repositionViews(data, old, pos) {
     return new Promise(async (resolve, reject) => {
       const query = 'SELECT * FROM acsys_logical_content ORDER BY POSITION';
-      await db.query(query, async (error, rows) => {
+      db.query(query, async (error, rows) => {
         if (rows === undefined || error) {
           resolve();
         } else {
@@ -412,7 +456,7 @@ class MysqlDriver {
     return new Promise(async (resolve, reject) => {
       const query = `SELECT * FROM acsys_logical_content ORDER BY POSITION`;
       let newPos = 1;
-      await db.query(query, (error, rows) => {
+      db.query(query, (error, rows) => {
         if (rows === undefined || error) {
           console.log(error);
           resolve([]);
@@ -440,7 +484,7 @@ class MysqlDriver {
   unlockTable(data) {
     return new Promise(async (resolve, reject) => {
       const query = `SELECT * FROM acsys_open_tables WHERE TABLE_NAME = ${data.table_name}`;
-      await db.query(query, (error, rows) => {
+      db.query(query, (error, rows) => {
         if (rows === undefined || error) {
           const sql = `INSERT INTO acsys_open_tables VALUES ('${data.table_name}')`;
           db.query(sql, function (err) {
@@ -465,7 +509,7 @@ class MysqlDriver {
   lockTable(table) {
     return new Promise(async (resolve, reject) => {
       const query = `DELETE FROM acsys_open_tables WHERE TABLE_NAME = '${table}'`;
-      await db.query(query, (error) => {
+      db.query(query, (error) => {
         if (error) {
           resolve(false);
         } else {
@@ -508,7 +552,7 @@ class MysqlDriver {
           query += `LIMIT ${offset},${options.limit}`;
         }
       }
-      await db.query(query, (error, rows) => {
+      db.query(query, (error, rows) => {
         if (rows === undefined || error) {
           console.log(error);
           resolve([]);
@@ -567,7 +611,7 @@ class MysqlDriver {
         }
       }
 
-      await db.query(query, (error, rows) => {
+      db.query(query, (error, rows) => {
         if (rows === undefined || error) {
           console.log(error);
           resolve([]);
@@ -614,7 +658,7 @@ class MysqlDriver {
 
       const sql = `INSERT INTO ${table} (${dataKeys.toString()}) VALUES (${placeholders})`;
 
-      await db.query(sql, async function (err) {
+      db.query(sql, async function (err) {
         if (err) {
           if (err.code === 'ER_NO_SUCH_TABLE') {
             await createTable(table, data);
@@ -680,7 +724,7 @@ class MysqlDriver {
         });
       }
 
-      await db.query(query, function (err) {
+      db.query(query, function (err) {
         if (err) {
           console.log(err);
           resolve(false);
@@ -714,7 +758,7 @@ class MysqlDriver {
           } catch (error) {}
         });
       }
-      await db.query(query, (error) => {
+      db.query(query, (error) => {
         if (error) {
           resolve(false);
         } else {
@@ -727,7 +771,7 @@ class MysqlDriver {
   dropTable(collectionName) {
     return new Promise(async (resolve, reject) => {
       let query = `DROP TABLE ${collectionName} `;
-      await db.query(query, (error) => {
+      db.query(query, (error) => {
         if (error) {
           resolve(false);
         } else {
@@ -740,7 +784,7 @@ class MysqlDriver {
   checkOpenTable(collectionName) {
     return new Promise(async (resolve, reject) => {
       const query = `SELECT * FROM acsys_open_tables WHERE TABLE_NAME = '${collectionName}'`;
-      await db.query(query, (error, rows) => {
+      db.query(query, (error, rows) => {
         if (rows === undefined || error) {
           resolve(false);
         } else {

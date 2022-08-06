@@ -117,6 +117,9 @@ class SqliteDriver {
             'CREATE TABLE IF NOT EXISTS acsys_document_details (acsys_id TEXT, content_id TEXT, collection TEXT, control TEXT, field_name TEXT, is_visible_on_page BOOLEAN, is_visible_on_table BOOLEAN, type TEXT, is_key BOOLEAN, view_order INT, width INT)'
           );
           await db.run(
+            'CREATE TABLE IF NOT EXISTS acsys_details_dropdown (acsys_id TEXT, field TEXT, field_name TEXT)'
+          );
+          await db.run(
             'CREATE TABLE IF NOT EXISTS acsys_email_settings (host TEXT, port INT, username TEXT, password TEXT)'
           );
           await db.run(
@@ -129,7 +132,7 @@ class SqliteDriver {
             'CREATE TABLE IF NOT EXISTS acsys_user_reset (acsys_id TEXT, user_id Text, expiration_date INT)'
           );
         });
-        connected = true;
+        connected = true;        
         resolve(true);
       });
       resolve(false);
@@ -563,6 +566,7 @@ class SqliteDriver {
           query += `LIMIT 0,${options.limit}`;
         }
       }
+      
       await db.all(query, [], (error, rows) => {
         if (rows === undefined || error) {
           console.log(error);

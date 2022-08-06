@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
-const uniquid = require('uniqid');
+const uniquid = require('../utils/uniquid');
 const nodemailer = require('nodemailer');
 const path = require('path');
 const Config = require('../config/config');
@@ -49,7 +49,7 @@ async function initialize() {
     } else if (dbType === 'mysql') {
       data = new MysqlDriver();
       storage = new StorageDriver();
-    } else if (dbType === 'local') {
+    } else {
       data = new SqliteDriver();
       storage = new LocalStorage();
     }
@@ -94,9 +94,13 @@ router.get('/isStateless', function (req, res) {
 });
 
 router.get('/isConnected', function (req, res) {
-  if (data.isConnected()) {
-    res.send(true);
-  } else {
+  try {
+    if (data.isConnected()) {
+      res.send(true);
+    } else {
+      res.send(false);
+    }
+  } catch (error) {
     res.send(false);
   }
 });
@@ -149,7 +153,7 @@ router.post('/register', function (req, res) {
         } catch (error) {}
         bcrypt.hash(userData.password, 8, function (err, hash) {
           const dataModel = {
-            acsys_id: userData.acsys_id,
+            acsys_id: uniquid(),
             email: userData.email,
             username: userData.username,
             role: userData.role,
@@ -260,14 +264,22 @@ router.post('/sendResetLink', function (req, res) {
                           },
                         });
 
+                        const text =
+                          '<p>Please follow the below link to reset your password.</p><a href=http://' +
+                          req.get('host') +
+                          '/PasswordReset/' +
+                          dataModel.acsys_id +
+                          '>http://' +
+                          req.get('host') +
+                          '/PasswordReset/' +
+                          dataModel.acsys_id +
+                          '</a><p>This link will expire in 5 minutes.</p>';
+
                         const message = {
+                          from: emailSettings[0].username,
                           to: email,
                           subject: 'Credential update',
-                          html: `<p>Please follow the below link to reset your password.</p><a href="${req.get(
-                            'host'
-                          )}/PasswordReset/${
-                            dataModel.acsys_id
-                          }">reset password</a><p>This link will expire in 5 minutes.</p>`,
+                          html: text,
                         };
 
                         transporter
@@ -303,14 +315,22 @@ router.post('/sendResetLink', function (req, res) {
                         },
                       });
 
+                      const text =
+                        '<p>Please follow the below link to reset your password.</p><a href=http://' +
+                        req.get('host') +
+                        '/PasswordReset/' +
+                        dataModel.acsys_id +
+                        '>http://' +
+                        req.get('host') +
+                        '/PasswordReset/' +
+                        dataModel.acsys_id +
+                        '</a><p>This link will expire in 5 minutes.</p>';
+
                       const message = {
+                        from: emailSettings[0].username,
                         to: email,
                         subject: 'Credential update',
-                        html: `<p>Please follow the below link to reset your password.</p><a href="${req.get(
-                          'host'
-                        )}/PasswordReset/${
-                          dataModel.acsys_id
-                        }">reset password</a><p>This link will expire in 5 minutes.</p>`,
+                        html: text,
                       };
 
                       transporter
@@ -429,7 +449,7 @@ router.post('/createUser', function (req, res) {
             } else {
               bcrypt.hash(userData.password, 8, function (err, hash) {
                 const dataModel = {
-                  acsys_id: userData.acsys_id,
+                  acsys_id: uniquid(),
                   email: userData.email,
                   username: userData.username,
                   role: userData.role,
@@ -633,7 +653,7 @@ router.post('/repositionViews', function (req, res) {
 });
 
 router.post('/createTable', function (req, res) {
-  insertData = req.body;
+  const insertData = req.body;
   data.createTable(insertData.table, insertData.entry).then((result) => {
     res.send(result);
   });
@@ -667,8 +687,24 @@ router.get('/readPage', function (req, res) {
 });
 
 router.post('/insertData', function (req, res) {
-  insertData = req.body;
+  const insertData = req.body;
   data.insert(insertData.table, insertData.entry).then((result) => {
+    res.send(result);
+  });
+});
+
+router.post('/insertWithUID', function (req, res) {
+  const insertData = req.body;
+  let fields = insertData.fields;
+  let dataWithId = insertData.entry;
+  if (fields !== undefined && fields.length > 0) {
+    for (let i = 0; i < fields.length; i++) {
+      dataWithId[fields[i].toString()] = uniquid();
+    }
+  } else {
+    dataWithId['acsys_id'] = uniquid();
+  }
+  data.insert(insertData.table, dataWithId).then((result) => {
     res.send(result);
   });
 });
@@ -729,12 +765,40 @@ router.get('/readOpenPage', function (req, res) {
 });
 
 router.post('/insertOpenData', function (req, res) {
-  insertData = req.body;
+  const insertData = req.body;
   data
     .checkOpenTable(insertData.table)
     .then((result) => {
       if (result) {
         data.insert(insertData.table, insertData.entry).then((result) => {
+          res.send(result);
+        });
+      } else {
+        res.send('Error: Table must be unlocked before it can be accessed.');
+      }
+    })
+    .catch(() => {
+      res.send(false);
+    });
+});
+
+router.post('/insertOpenWithUID', function (req, res) {
+  const insertData = req.body;
+  
+  data
+    .checkOpenTable(insertData.table)
+    .then((result) => {
+      if (result) {
+        let fields = insertData.fields;
+        let dataWithId = insertData.entry;
+        if (fields !== undefined && fields.length > 0) {
+          for (let i = 0; i < fields.length; i++) {
+            dataWithId[fields[i].toString()] = uniquid();
+          }
+        } else {
+          dataWithId['acsys_id'] = uniquid();
+        }
+        data.insert(insertData.table, dataWithId).then((result) => {
           res.send(result);
         });
       } else {
