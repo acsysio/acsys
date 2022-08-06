@@ -5,11 +5,14 @@ const { Provider, Consumer } = Context;
 const AcsysProvider = (props) => {
   const [header, setheader] = useState('');
   const [mode, setmode] = useState('');
+  const [viewId, setViewId] = useState('');
   const [held, setheld] = useState(false);
+  const [routed, setRouted] = useState(false);
+  const [isRemovable, setIsRemovable] = useState(false);
   const [page, setpage] = useState(1);
-  const [firstObject, setfirstObject] = useState([]);
   const [table, settable] = useState('');
   const [keys, setkeys] = useState([]);
+  const [dataKeys, setDataKeys] = useState([]);
   const [rowsPerPage, setrowsPerPage] = useState(0);
   const [order, setorder] = useState('');
   const [direction, setdirection] = useState('');
@@ -19,7 +22,14 @@ const AcsysProvider = (props) => {
     <Provider
       value={{
         page: page,
-        firstObject: firstObject,
+        viewId,
+        routed,
+        isRemovable,
+        dataKeys,
+        setViewId,
+        setRouted,
+        setIsRemovable,
+        setDataKeys,
         setHeader: (header) => {
           setheader(header);
         },
@@ -80,9 +90,6 @@ const AcsysProvider = (props) => {
         },
         setObject: (object) => {
           setfirstObject(object);
-        },
-        getObject: () => {
-          return firstObject;
         },
       }}
     >

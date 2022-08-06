@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   AppBar,
   Table,
@@ -23,7 +23,9 @@ import {
   Lock,
   LockOpen,
 } from '@material-ui/icons';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import * as Acsys from '../utils/Acsys/Acsys';
+import { AcsysContext } from '../utils/Session/AcsysProvider';
 import LoadingDialog from '../components/Dialogs/LoadingDialog';
 import MessageDialog from '../components/Dialogs/MessageDialog';
 import ImageDialog from '../components/Dialogs/ImageDialog';
@@ -31,6 +33,9 @@ import YesNoDialog from '../components/Dialogs/YesNoDialog';
 import NewFolderDialog from '../components/Dialogs/NewFolderDialog';
 
 const Storage = (props) => {
+  const context = useContext(AcsysContext);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [locked, setLocked] = useState(true);
   const [isDialog, setIsDialog] = useState(false);
   const [mode, setMode] = useState('');
@@ -86,7 +91,7 @@ const Storage = (props) => {
   };
 
   const openDirPage = async (dir) => {
-    props.history.push('/Storage?' + dir);
+    navigate('/Storage?dir=' + dir);
     setLocked(false);
   };
 
@@ -268,13 +273,22 @@ const Storage = (props) => {
     setPage(page);
   };
 
-  useEffect(async () => {
+  useEffect(() => {
+    load();
+  }, [locked, currentDir, props.location]);
+
+  useEffect(() => {
+    mount();
+  }, []);
+
+  const load = async () => {
+    console.log(searchParams.get('dir'))
     try {
       if (
-        props.location.search.substring(1) !== currentDir.substring(1) &&
+        searchParams.get('dir') !== currentDir.substring(1) &&
         !locked
       ) {
-        let newDir = props.location.search.substring(1);
+        let newDir = searchParams.get('dir');
         if (newDir.length < 1) {
           newDir = '/';
         }
@@ -284,6 +298,7 @@ const Storage = (props) => {
         const files = await Acsys.getData('acsys_storage_items', [
           ['parent', '=', newDir],
         ]).catch();
+        console.log(files)
         for (var i = 0; i < files.length; i++) {
           await Acsys.getStorageURL(files[i].acsys_id)
             .then((result) => {
@@ -302,9 +317,9 @@ const Storage = (props) => {
         setFiles(files);
       }
     } catch (error) {}
-  }, [locked, currentDir, props.location]);
+  };
 
-  useEffect(async () => {
+  const mount = async () => {
     setLoading(true);
     let parent = '/';
     let mode = 'standard';
@@ -314,7 +329,7 @@ const Storage = (props) => {
         mode = props.mode;
       }
     } catch (error) {
-      props.setHeader('Storage');
+      context.setHeader('Storage');
     }
     let con;
     let files;
@@ -341,7 +356,7 @@ const Storage = (props) => {
     setMode(mode);
     setCon(con);
     setFiles(files);
-  }, []);
+  };
 
   const getPrevButton = () => {
     return mode !== 'standard' ? (

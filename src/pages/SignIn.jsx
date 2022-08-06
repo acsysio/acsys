@@ -23,7 +23,11 @@ const SignInPage = () => {
   const [loading, setLoading] = useState(false);
   const [error] = useState(null);
 
-  useEffect(async () => {
+  useEffect(() => {
+    load();
+  }, []);
+
+  const load = async () => {
     const installed = await Acsys.hasAdmin();
     const defaultUser = await Acsys.getDefaultUsername();
     const defaultPassword = await Acsys.getDefaultPassword();
@@ -33,7 +37,7 @@ const SignInPage = () => {
       username: defaultUser,
       passwordOne: defaultPassword,
     });
-  }, []);
+  };
 
   const onKeyDownSI = (event) => {
     const { username, email, passwordOne } = params;

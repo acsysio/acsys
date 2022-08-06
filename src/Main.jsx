@@ -1,6 +1,6 @@
 import { createTheme, ThemeProvider } from '@material-ui/core/styles';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import {createRoot} from 'react-dom/client';
 import App from './App';
 import Configuration from './pages/Configuration';
 import * as Acsys from './utils/Acsys/Acsys';
@@ -119,24 +119,24 @@ theme = {
 };
 
 const init = async () => {
+  const rootElement = document.getElementById('root');
+  const root = createRoot(rootElement);
   const con = await Acsys.isConnected();
   if (con) {
-    ReactDOM.render(
-        <ThemeProvider theme={theme}>
-          <AcsysProvider>
-            <App />
-          </AcsysProvider>
-        </ThemeProvider>,
-        document.querySelector('#root')
+    root.render(
+      <ThemeProvider theme={theme}>
+        <AcsysProvider>
+          <App />
+        </AcsysProvider>
+      </ThemeProvider>
     );
   } else {
-    ReactDOM.render(
+    root.render(
       <body>
         <ThemeProvider theme={theme}>
           <Configuration />
         </ThemeProvider>
-      </body>,
-      document.querySelector('#root')
+      </body>
     );
   }
 };

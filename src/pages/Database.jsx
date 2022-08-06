@@ -92,7 +92,7 @@ const Database = (props) => {
   };
 
   const inDidMount = async () => {
-    props.setHeader('Database');
+    context.setHeader('Database');
     context.setHeld(false);
     tempView = [];
     setloading(true);

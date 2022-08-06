@@ -17,10 +17,12 @@ import Typography from '@material-ui/core/Typography';
 import { KeyboardArrowDown } from '@material-ui/icons';
 import LoadingDialog from '../components/Dialogs/LoadingDialog';
 import MessageDialog from '../components/Dialogs/MessageDialog';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import * as Acsys from '../utils/Acsys/Acsys';
+import { AcsysContext } from '../utils/Session/AcsysProvider';
 
 const Account = (props) => {
+  const context = useContext(AcsysContext);
   const [passwordChange, setpasswordChange] = useState(false);
   const [message, setmessage] = useState('');
   const [userData, setUserData] = useState([]);
@@ -45,9 +47,13 @@ const Account = (props) => {
     setsetMsgOpen(false);
   };
 
-  useEffect(async () => {
+  useEffect(() => {
+    mount();
+  }, []);
+
+  const mount = async () => {
     try {
-      props.setHeader('Account');
+      context.setHeader('Account');
       let userData;
       try {
         userData = await Acsys.getData('acsys_users', [
@@ -59,7 +65,7 @@ const Account = (props) => {
       setpassword(userData[0].prmthCd);
       setUserData(userData[0]);
     } catch (error) {}
-  }, []);
+  };
 
   const updateCredentials = async () => {
     setSaveLoading(true);

@@ -9,10 +9,11 @@ import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import { FileCopyOutlined as CopyIcon } from '@material-ui/icons';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 // import uniquid from '../../utils/uniquid';
 import * as Acsys from '../utils/Acsys/Acsys';
+import { AcsysContext } from '../utils/Session/AcsysProvider';
 import AutoGen from '../components/Controls/AutoGen';
 import BooleanSelect from '../components/Controls/BooleanSelect';
 import DateTimePicker from '../components/Controls/DateTimePicker';
@@ -43,6 +44,7 @@ let quillIndex = 0;
 let quillURL = '';
 
 const DocumentView = (props) => {
+  const context = useContext(AcsysContext);
   const [collection, setCollection] = useState('');
   const [documentDetails, setdocumentDetails] = useState([]);
   const [fileMode, setfileMode] = useState('');
@@ -374,14 +376,14 @@ const DocumentView = (props) => {
     var tempView = acsysView;
 
     if (value) {
-      tempView['table_keys'] = JSON.stringify(props.location.state.table_keys);
+      tempView['table_keys'] = JSON.stringify(context.dataKeys);
     } else {
       tempView['table_keys'] = [];
     }
 
     for (var i = 0; i < tempDetails.length; i++) {
       const result = await Acsys.updateData('acsys_logical_content', tempView, [
-        ['viewId', '=', props.location.state.viewId],
+        ['viewId', '=', context.viewId],
       ]);
     }
     setloading(false);
@@ -408,7 +410,11 @@ const DocumentView = (props) => {
       });
   };
 
-  useEffect(async () => {
+  useEffect(() => {
+    load();
+  }, []);
+
+  const load = async () => {
     initLoad = true;
     table_keys = [];
     tempDetails = [];
@@ -421,22 +427,22 @@ const DocumentView = (props) => {
     quillIndex = 0;
     quillURL = '';
     try {
-      props.setHeader('Content');
+      context.setHeader('Content');
       let tempMode = mode;
       let routedLocal = routed;
       const acsysView = await Acsys.getData('acsys_logical_content', [
-        ['viewId', '=', props.location.state.viewId],
+        ['viewId', '=', context.viewId],
       ]);
       if (acsysView[0].table_keys.length > 0) {
         routedLocal = true;
       }
       try {
-        mode = props.location.state.mode;
-        is_removable = props.location.state.is_removable;
+        mode = context.getMode();
+        is_removable = context.isRemovable;
         if (routedLocal) {
-          table_keys = JSON.parse(props.location.state.table_keys);
+          table_keys = JSON.parse(context.dataKeys);
         } else {
-          table_keys = props.location.state.table_keys;
+          table_keys = context.dataKeys;
         }
       } catch (error) {
         mode = tempMode;
@@ -448,13 +454,13 @@ const DocumentView = (props) => {
       fileRefs = [];
       mount();
     } catch (error) {}
-  }, [props.location.state]);
+  };
 
   const mount = async () => {
     let documentDetails;
     try {
       documentDetails = await Acsys.getData('acsys_document_details', [
-        ['content_id', '=', props.location.state.viewId],
+        ['content_id', '=', context.viewId],
       ]);
     } catch (error) {
       documentDetails = documentDetails;
@@ -554,7 +560,7 @@ const DocumentView = (props) => {
 
   const renderWithId = () => {
     return (
-      <div class="element-container">
+      <div className="element-container">
         <Grid container spacing={3}>
           {Object.values(documentDetails).map((details, dindex) => {
             return Object.values(views).map((value, index) => {
@@ -581,7 +587,7 @@ const DocumentView = (props) => {
 
   const renderNoId = () => {
     return (
-      <div class="element-container">
+      <div className="element-container">
         <Grid container spacing={3}>
           {Object.values(documentDetails).map((details, dindex) => {
             let currentKey = details.field_name;
@@ -749,7 +755,7 @@ const DocumentView = (props) => {
     <div style={{ minHeight: 600 }}>
       {Acsys.getMode() !== 'Viewer' ? (
         <div>
-          {!props.location.state.routed && is_removable ? (
+          {!context.routed && is_removable ? (
             <Tooltip title="Delete Entry">
               <Button
                 style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
@@ -803,7 +809,7 @@ const DocumentView = (props) => {
           )}
           {Acsys.getMode() === 'Administrator' ? (
             <Select
-              defaultValue={props.location.state.routed}
+              defaultValue={context.routed}
               onChange={(e) => saveView(e.target.value)}
               style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
             >
@@ -820,7 +826,7 @@ const DocumentView = (props) => {
       <Paper style={{ margin: 'auto', clear: 'both' }}>
         <div>
           {renderData()}
-          <div class="element-container">
+          <div className="element-container">
             <div style={{ height: 40 }}></div>
           </div>
         </div>
