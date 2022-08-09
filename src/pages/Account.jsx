@@ -5,16 +5,16 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  ExpansionPanel,
-  ExpansionPanelDetails,
-  ExpansionPanelSummary,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Tooltip,
-} from '@material-ui/core';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
-import { KeyboardArrowDown } from '@material-ui/icons';
+} from '@mui/material';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+import { KeyboardArrowDown } from '@mui/icons-material';
 import LoadingDialog from '../components/Dialogs/LoadingDialog';
 import MessageDialog from '../components/Dialogs/MessageDialog';
 import React, { useContext, useEffect, useState } from 'react';
@@ -155,34 +155,34 @@ const Account = (props) => {
                   <h1 className="element-header">Password</h1>
                 </Grid>
                 <Grid item xs={12}>
-                  <ExpansionPanel
+                  <Accordion
                     style={{ clear: 'both' }}
                     onChange={(e) => setpasswordChange(!passwordChange)}
                   >
-                    <ExpansionPanelSummary
+                    <AccordionSummary
                       expandIcon={<KeyboardArrowDown />}
                       aria-controls="panel1a-content"
                       id="panel1a-header"
                     >
                       <Typography>Change Password</Typography>
-                    </ExpansionPanelSummary>
-                    <ExpansionPanelDetails>
+                    </AccordionSummary>
+                    <AccordionDetails>
                       <input
                         placeholder="Enter new password"
                         onChange={(e) => setpassword(e.target.value)}
                         type="password"
                         style={{ width: '100%' }}
                       />
-                    </ExpansionPanelDetails>
-                    <ExpansionPanelDetails>
+                    </AccordionDetails>
+                    <AccordionDetails>
                       <input
                         placeholder="Confirm new password"
                         onChange={(e) => setverifyPassword(e.target.value)}
                         type="password"
                         style={{ width: '100%' }}
                       />
-                    </ExpansionPanelDetails>
-                  </ExpansionPanel>
+                    </AccordionDetails>
+                  </Accordion>
                 </Grid>
               </Grid>
             </Grid>

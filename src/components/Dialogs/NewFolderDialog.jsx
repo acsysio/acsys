@@ -5,7 +5,7 @@ import {
   DialogTitle,
   DialogContent,
   Grid,
-} from '@material-ui/core';
+} from '@mui/material';
 
 export default function NewFolderDialog(props) {
   return (

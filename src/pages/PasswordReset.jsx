@@ -4,7 +4,7 @@ import {
   CircularProgress,
   Grid,
   Typography,
-} from '@material-ui/core';
+} from '@mui/material';
 import React, { useState } from 'react';
 import * as Acsys from '../utils/Acsys/Acsys';
 

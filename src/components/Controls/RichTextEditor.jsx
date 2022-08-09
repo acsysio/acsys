@@ -1,4 +1,4 @@
-import { Grid, Hidden } from '@material-ui/core';
+import { Grid, Hidden } from '@mui/material';
 import React from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';

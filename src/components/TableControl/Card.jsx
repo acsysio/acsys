@@ -5,8 +5,8 @@ import {
   NativeSelect,
   Paper,
   Typography,
-} from '@material-ui/core';
-import { Close } from '@material-ui/icons';
+} from '@mui/material';
+import { Close } from '@mui/icons-material';
 import React, { memo, useMemo, useRef } from 'react';
 
 const style = {

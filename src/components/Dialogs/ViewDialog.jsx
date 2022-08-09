@@ -10,7 +10,7 @@ import {
   Grid,
   NativeSelect,
   Typography,
-} from '@material-ui/core';
+} from '@mui/material';
 
 export default function ViewDialog(props) {
   return (

@@ -9,7 +9,7 @@ import {
   NativeSelect,
   Paper,
   Typography,
-} from '@material-ui/core';
+} from '@mui/material';
 import * as Acsys from '../utils/Acsys/Acsys';
 
 const Configuration = () => {

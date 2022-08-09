@@ -7,21 +7,21 @@ import {
   TableHead,
   TableRow,
   Tooltip,
-} from '@material-ui/core';
-import AppBar from '@material-ui/core/AppBar';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import IconButton from '@material-ui/core/IconButton';
-import Paper from '@material-ui/core/Paper';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
+} from '@mui/material';
+import AppBar from '@mui/material/AppBar';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
+import IconButton from '@mui/material/IconButton';
+import Paper from '@mui/material/Paper';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
 import {
   Create as CreateIcon,
   Delete as DeleteIcon,
   FileCopyOutlined as CopyIcon,
   KeyboardArrowLeft,
   KeyboardArrowRight,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 import React, { useState, useContext, useEffect } from 'react';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Link, useNavigate, useParams } from 'react-router-dom';

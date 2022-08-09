@@ -1,32 +1,31 @@
-import Divider from '@material-ui/core/Divider';
-import Drawer from '@material-ui/core/Drawer';
-import Hidden from '@material-ui/core/Hidden';
-import IconButton from '@material-ui/core/IconButton';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import { createStyles, useTheme, withStyles } from '@material-ui/core/styles';
-import CloseIcon from '@material-ui/icons/Close';
-import FolderIcon from '@material-ui/icons/Folder';
-import InfoIcon from '@material-ui/icons/Info';
-import PeopleIcon from '@material-ui/icons/People';
-import PermMediaOutlinedIcon from '@material-ui/icons/PhotoSizeSelectActual';
-import SettingsIcon from '@material-ui/icons/Settings';
-import DataBaseIcon from '@material-ui/icons/ViewAgenda';
+import Divider from '@mui/material/Divider';
+import Drawer from '@mui/material/Drawer';
+import Hidden from '@mui/material/Hidden';
+import IconButton from '@mui/material/IconButton';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import CloseIcon from '@mui/icons-material/Close';
+import FolderIcon from '@mui/icons-material/Folder';
+import InfoIcon from '@mui/icons-material/Info';
+import PeopleIcon from '@mui/icons-material/People';
+import PermMediaOutlinedIcon from '@mui/icons-material/PhotoSizeSelectActual';
+import SettingsIcon from '@mui/icons-material/Settings';
+import DataBaseIcon from '@mui/icons-material/ViewAgenda';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import * as ROUTES from '../constants/routes';
 import * as Acsys from '../utils/Acsys/Acsys';
 
-const styles = (theme) =>
-  createStyles({
+function Navigator(props) {
+  const styles = {
     categoryHeader: {
-      paddingTop: theme.spacing(2),
-      paddingBottom: theme.spacing(2),
+      paddingTop: 15,
+      paddingBottom: 15, 
     },
     categoryHeaderPrimary: {
-      color: theme.palette.common.white,
+      // color: theme.palette.common.white,
     },
     item: {
       paddingTop: 1,
@@ -39,28 +38,26 @@ const styles = (theme) =>
     },
     itemCategory: {
       backgroundColor: '#232f3e',
-      paddingTop: theme.spacing(2),
+      
     },
     firebase: {
       fontSize: 24,
-      color: theme.palette.common.white,
+      // color: theme.palette.common.white,
     },
     itemPrimary: {
       fontSize: 'inherit',
+      color: '#ffffff',
     },
     itemIcon: {
       minWidth: 'auto',
-      marginRight: theme.spacing(2),
+      color: '#ffffff',
+      marginRight: 15,
     },
-    toolbar: theme.mixins.appbar,
     divider: {
-      marginTop: theme.spacing(2),
+      backgroundColor: '#404854',
+      marginTop: 15,
     },
-  });
-
-function Navigator(props) {
-  const { classes, ...other } = props;
-  const theme = useTheme();
+  };
 
   let categories = [
     {
@@ -107,38 +104,26 @@ function Navigator(props) {
     <List disablePadding style={{ width: 256 }}>
       {categories.map(({ id, children }) => (
         <React.Fragment key={id}>
-          <ListItem className={classes.categoryHeader}>
-            <ListItemText
-              classes={{
-                primary: classes.categoryHeaderPrimary,
-              }}
-            >
+          <ListItem style={styles.categoryHeader}>
+            <ListItemText>
               {id}
             </ListItemText>
           </ListItem>
           {children.map(({ id: childId, icon, route }) => (
             <Link to={route} style={{ textDecoration: 'none' }}>
-              <ListItem key={childId} button className={classes.item}>
-                <ListItemIcon className={classes.itemIcon}>{icon}</ListItemIcon>
-                <ListItemText
-                  classes={{
-                    primary: classes.itemPrimary,
-                  }}
-                >
+              <ListItem key={childId} button style={styles.item}>
+                <ListItemIcon style={styles.itemIcon}>{icon}</ListItemIcon>
+                <ListItemText style={styles.itemPrimary}>
                   {childId}
                 </ListItemText>
               </ListItem>
             </Link>
           ))}
-          <Divider className={classes.divider} />
+          <Divider style={styles.divider} />
         </React.Fragment>
       ))}
-      <ListItem className={classes.categoryHeader}>
-        <ListItemText
-          classes={{
-            primary: classes.categoryHeaderPrimary,
-          }}
-        >
+      <ListItem style={styles.categoryHeader}>
+        <ListItemText>
           General
         </ListItemText>
       </ListItem>
@@ -147,20 +132,16 @@ function Navigator(props) {
         target="_blank"
         style={{ textDecoration: 'none' }}
       >
-        <ListItem key="Info" button className={classes.item}>
-          <ListItemIcon className={classes.itemIcon}>
+        <ListItem key="Info" button style={styles.item}>
+          <ListItemIcon style={styles.itemIcon}>
             <InfoIcon />
           </ListItemIcon>
-          <ListItemText
-            classes={{
-              primary: classes.itemPrimary,
-            }}
-          >
+          <ListItemText style={styles.itemPrimary}>
             Info
           </ListItemText>
         </ListItem>
       </a>
-      <Divider className={classes.divider} />
+      <Divider style={styles.divider} />
     </List>
   );
 
@@ -168,12 +149,8 @@ function Navigator(props) {
     <List disablePadding style={{ width: 256 }}>
       {categories.map(({ id, children }) => (
         <React.Fragment key={id}>
-          <ListItem className={classes.categoryHeader}>
-            <ListItemText
-              classes={{
-                primary: classes.categoryHeaderPrimary,
-              }}
-            >
+          <ListItem style={styles.categoryHeader}>
+            <ListItemText>
               {id}
             </ListItemText>
           </ListItem>
@@ -183,28 +160,20 @@ function Navigator(props) {
                 key={childId}
                 button
                 onClick={props.handleDrawerToggle}
-                className={classes.item}
+                style={styles.item}
               >
-                <ListItemIcon className={classes.itemIcon}>{icon}</ListItemIcon>
-                <ListItemText
-                  classes={{
-                    primary: classes.itemPrimary,
-                  }}
-                >
+                <ListItemIcon style={styles.itemIcon}>{icon}</ListItemIcon>
+                <ListItemText style={styles.itemPrimary}>
                   {childId}
                 </ListItemText>
               </ListItem>
             </Link>
           ))}
-          <Divider className={classes.divider} />
+          <Divider style={styles.divider} />
         </React.Fragment>
       ))}
-      <ListItem className={classes.categoryHeader}>
-        <ListItemText
-          classes={{
-            primary: classes.categoryHeaderPrimary,
-          }}
-        >
+      <ListItem style={styles.categoryHeader}>
+        <ListItemText>
           General
         </ListItemText>
       </ListItem>
@@ -213,42 +182,45 @@ function Navigator(props) {
         target="_blank"
         style={{ textDecoration: 'none' }}
       >
-        <ListItem key="Info" button className={classes.item}>
-          <ListItemIcon className={classes.itemIcon}>
+        <ListItem key="Info" button style={styles.item}>
+          <ListItemIcon style={styles.itemIcon}>
             <InfoIcon />
           </ListItemIcon>
-          <ListItemText
-            classes={{
-              primary: classes.itemPrimary,
-            }}
-          >
+          <ListItemText style={styles.itemPrimary}>
             Info
           </ListItemText>
         </ListItem>
       </a>
-      <Divider className={classes.divider} />
+      <Divider style={styles.divider} />
     </List>
   );
 
   return (
     <nav>
-      <Hidden mdUp implementation="js">
+      <Hidden lgUp implementation="js">
         <Drawer
           style={{ width: 256 }}
           variant="temporary"
+          PaperProps={{
+            sx: {
+              backgroundColor: '#18202c',
+              color: '#ffffff',
+            },
+          }}
           ModalProps={{
             keepMounted: true,
           }}
           open={props.mobileOpen}
           onClose={props.handleDrawerToggle}
         >
-          <IconButton
+          <div style={{ height: 80 }} />
+          {/* <IconButton
             onClick={props.handleDrawerToggle}
             style={{ color: '#ffffff', width: 50 }}
           >
             <CloseIcon />
-          </IconButton>
-          <ListItem className={classes.categoryHeader}>
+          </IconButton> */}
+          <ListItem>
             {Acsys.getRole() !== 'Viewer' ? (
               <select
                 defaultValue={Acsys.getMode()}
@@ -267,12 +239,20 @@ function Navigator(props) {
               <div />
             )}
           </ListItem>
-
           {mobileDrawer}
         </Drawer>
       </Hidden>
-      <Hidden smDown implementation="css">
-        <Drawer variant="permanent" style={{ width: 256 }}>
+      <Hidden mdDown implementation="css">
+        <Drawer
+          variant="permanent"
+          style={{ width: 256 }}
+          PaperProps={{
+            sx: {
+              backgroundColor: '#18202c',
+              color: '#ffffff',
+            },
+          }}
+        >
           <div style={{ height: 60 }} />
           {drawer}
         </Drawer>
@@ -281,4 +261,4 @@ function Navigator(props) {
   );
 }
 
-export default withStyles(styles)(Navigator);
+export default Navigator;

@@ -1,14 +1,15 @@
 import {
+  FormControl,
   Hidden,
   IconButton,
   MenuItem,
   Select,
   Tooltip,
-} from '@material-ui/core';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import { FileCopyOutlined as CopyIcon } from '@material-ui/icons';
+} from '@mui/material';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
+import { FileCopyOutlined as CopyIcon } from '@mui/icons-material';
 import React, { useContext, useEffect, useState } from 'react';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 // import uniquid from '../../utils/uniquid';
@@ -808,14 +809,15 @@ const DocumentView = (props) => {
             <div />
           )}
           {Acsys.getMode() === 'Administrator' ? (
-            <Select
-              defaultValue={context.routed}
-              onChange={(e) => saveView(e.target.value)}
-              style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
-            >
-              <MenuItem value={false}>Accessed From Table</MenuItem>
-              <MenuItem value={true}>Accessed From View</MenuItem>
-            </Select>
+            <FormControl variant="standard" sx={{ m: 1, minWidth: 120, float: 'right' }}>
+              <Select
+                defaultValue={context.routed}
+                onChange={(e) => saveView(e.target.value)}
+              >
+                <MenuItem value={false}>Accessed From Table</MenuItem>
+                <MenuItem value={true}>Accessed From View</MenuItem>
+              </Select>
+            </FormControl>
           ) : (
             <div />
           )}

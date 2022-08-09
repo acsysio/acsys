@@ -8,7 +8,7 @@ import {
   DialogContent,
   NativeSelect,
   Typography,
-} from '@material-ui/core';
+} from '@mui/material';
 
 export default function NewUserDialog(props) {
   return (

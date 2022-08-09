@@ -4,7 +4,7 @@ import {
   DialogTitle,
   DialogContent,
   CircularProgress,
-} from '@material-ui/core';
+} from '@mui/material';
 
 export default function LoadingDialog(props) {
   return (

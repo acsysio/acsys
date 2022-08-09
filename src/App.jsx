@@ -25,10 +25,10 @@ export default function App() {
         <Suspense fallback={<Loading />}>
           <Routes>
             <Route
-              path="/PasswordReset/:id"
+              path={ROUTES.PasswordReset}
               render={(props) => <PasswordReset {...props} />}
             />
-            <Route path="/ForgotPassword" render={() => <ForgotPassword />} />
+            <Route path={ROUTES.ForgotPassword} render={() => <ForgotPassword />} />
             <Route path="/" element={<Driver />}>
               <Route index element={<LogicalContent />} />
               <Route

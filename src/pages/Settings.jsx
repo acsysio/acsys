@@ -1,16 +1,16 @@
 import {
   Box,
-  ExpansionPanel,
-  ExpansionPanelDetails,
-  ExpansionPanelSummary,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   NativeSelect,
   Tooltip,
-} from '@material-ui/core';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
-import { KeyboardArrowDown } from '@material-ui/icons';
+} from '@mui/material';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+import { KeyboardArrowDown } from '@mui/icons-material';
 import React, { useContext, useEffect, useState } from 'react';
 import * as Acsys from '../utils/Acsys/Acsys';
 import { AcsysContext } from '../utils/Session/AcsysProvider';
@@ -265,18 +265,18 @@ const Settings = (props) => {
   const getBucketPanel = () => {
     console.log('buckerts', buckets);
     return (
-      <ExpansionPanel
+      <Accordion
         style={{ clear: 'both' }}
         onChange={(e) => setUpdateBucket(!updateBucket)}
       >
-        <ExpansionPanelSummary
+        <AccordionSummary
           expandIcon={<KeyboardArrowDown />}
           aria-controls="panel1a-content"
           id="panel1a-header"
         >
           <Typography>Bucket Configuration</Typography>
-        </ExpansionPanelSummary>
-        <ExpansionPanelDetails>
+        </AccordionSummary>
+        <AccordionDetails>
           <Box
             margin="auto"
             width="90%"
@@ -295,25 +295,25 @@ const Settings = (props) => {
               ))}
             </NativeSelect>
           </Box>
-        </ExpansionPanelDetails>
-      </ExpansionPanel>
+        </AccordionDetails>
+      </Accordion>
     );
   };
 
   const getLocalPanel = () => {
     return (
-      <ExpansionPanel
+      <Accordion
         style={{ clear: 'both' }}
         onChange={(e) => setUpdateDatabase(!updateDatabase)}
       >
-        <ExpansionPanelSummary
+        <AccordionSummary
           expandIcon={<KeyboardArrowDown />}
           aria-controls="panel1a-content"
           id="panel1a-header"
         >
           <Typography>Local Configuration</Typography>
-        </ExpansionPanelSummary>
-        <ExpansionPanelDetails>
+        </AccordionSummary>
+        <AccordionDetails>
           <Box
             margin="auto"
             width="90%"
@@ -331,8 +331,8 @@ const Settings = (props) => {
               style={{ marginTop: '20px' }}
             />
           </Box>
-        </ExpansionPanelDetails>
-      </ExpansionPanel>
+        </AccordionDetails>
+      </Accordion>
     );
   };
 
@@ -343,18 +343,18 @@ const Settings = (props) => {
           {bucket.length > 0 ? getBucketPanel() : null}
         </Grid>
         <Grid item xs={12}>
-          <ExpansionPanel
+          <Accordion
             style={{ clear: 'both' }}
             onChange={(e) => setUpdateStorage(!updateStorage)}
           >
-            <ExpansionPanelSummary
+            <AccordionSummary
               expandIcon={<KeyboardArrowDown />}
               aria-controls="panel1a-content"
               id="panel1a-header"
             >
               <Typography>{name} Configuration</Typography>
-            </ExpansionPanelSummary>
-            <ExpansionPanelDetails>
+            </AccordionSummary>
+            <AccordionDetails>
               <Box
                 margin="auto"
                 width="90%"
@@ -467,8 +467,8 @@ const Settings = (props) => {
                   </Grid>
                 </Grid>
               </Box>
-            </ExpansionPanelDetails>
-          </ExpansionPanel>
+            </AccordionDetails>
+          </Accordion>
         </Grid>
       </Grid>
     );
@@ -478,18 +478,18 @@ const Settings = (props) => {
     return (
       <Grid>
         <Grid item xs={12} style={{ marginBottom: 30 }}>
-          <ExpansionPanel
+          <Accordion
             style={{ clear: 'both' }}
             onChange={(e) => setUpdateDatabase(!updateDatabase)}
           >
-            <ExpansionPanelSummary
+            <AccordionSummary
               expandIcon={<KeyboardArrowDown />}
               aria-controls="panel1a-content"
               id="panel1a-header"
             >
               <Typography>MySQL Configuration</Typography>
-            </ExpansionPanelSummary>
-            <ExpansionPanelDetails>
+            </AccordionSummary>
+            <AccordionDetails>
               <Box
                 margin="auto"
                 width="90%"
@@ -549,8 +549,8 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
               </Box>
-            </ExpansionPanelDetails>
-          </ExpansionPanel>
+            </AccordionDetails>
+          </Accordion>
         </Grid>
         <Grid item xs={12}>
           {getFirestorePanel('Storage')}
@@ -614,18 +614,18 @@ const Settings = (props) => {
                   </Grid>
                 </Grid>
                 <Grid item xs={12} style={{ marginBottom: 30 }}>
-                  <ExpansionPanel
+                  <Accordion
                     style={{ clear: 'both' }}
                     onChange={(e) => setUpdateEmail(!updateEmail)}
                   >
-                    <ExpansionPanelSummary
+                    <AccordionSummary
                       expandIcon={<KeyboardArrowDown />}
                       aria-controls="panel1a-content"
                       id="panel1a-header"
                     >
                       <Typography>Email Configuration</Typography>
-                    </ExpansionPanelSummary>
-                    <ExpansionPanelDetails>
+                    </AccordionSummary>
+                    <AccordionDetails>
                       <Box
                         margin="auto"
                         width="90%"
@@ -668,8 +668,8 @@ const Settings = (props) => {
                           style={{ marginTop: '20px' }}
                         />
                       </Box>
-                    </ExpansionPanelDetails>
-                  </ExpansionPanel>
+                    </AccordionDetails>
+                  </Accordion>
                 </Grid>
                 {!isStateless ? (
                   <Grid item xs={12}>

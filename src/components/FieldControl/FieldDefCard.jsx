@@ -5,10 +5,10 @@ import {
   NativeSelect,
   Paper,
   Typography,
-} from '@material-ui/core';
-import IconButton from '@material-ui/core/IconButton';
-import AddButton from '@material-ui/icons/AddCircle';
-import RemoveButton from '@material-ui/icons/RemoveCircle';
+} from '@mui/material';
+import IconButton from '@mui/material/IconButton';
+import AddButton from '@mui/icons-material/AddCircle';
+import RemoveButton from '@mui/icons-material/RemoveCircle';
 import React, { memo, useMemo, useEffect, useState, useRef } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import ItemTypes from './ItemTypes';

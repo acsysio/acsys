@@ -1,6 +1,6 @@
-import IconButton from '@material-ui/core/IconButton';
-import Tooltip from '@material-ui/core/Tooltip';
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import React from 'react';
 import * as Session from '../utils/Session/session';
 

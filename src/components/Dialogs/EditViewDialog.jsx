@@ -8,7 +8,7 @@ import {
   CircularProgress,
   MenuItem,
   Select,
-} from '@material-ui/core';
+} from '@mui/material';
 
 export default function EditViewDialog(props) {
   return (
