@@ -38,6 +38,7 @@ export default function EditViewDialog(props) {
         </div>
         <div class="dialog-input">
           <input
+            className="custom-input"
             placeholder="Enter view name here"
             type="text"
             style={{ width: '97%' }}
@@ -47,6 +48,7 @@ export default function EditViewDialog(props) {
         </div>
         <div class="dialog-input">
           <input
+            className="custom-input"
             placeholder="Enter description here"
             type="text"
             style={{ width: '97%' }}

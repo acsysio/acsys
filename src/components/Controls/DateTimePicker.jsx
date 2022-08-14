@@ -20,10 +20,12 @@ export default function DTPicker(props) {
         </Grid>
         <Grid item xs={12}>
           <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <DateTimePicker
+            <MobileDateTimePicker
               value={dt}
               onChange={(e) => handleChange(e)}
-              renderInput={(params) => <TextField fullWidth sx={{ input: { padding: 1 } }} {...params} />}
+              renderInput={(params) => (
+                <Input fullWidth variant="standard" {...params} />
+              )}
             />
           </LocalizationProvider>
         </Grid>

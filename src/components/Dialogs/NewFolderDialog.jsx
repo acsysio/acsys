@@ -22,6 +22,7 @@ export default function NewFolderDialog(props) {
       <DialogContent>
         <div style={{ width: 600, margin: 'auto' }}>
           <input
+            className="custom-input"
             placeholder="Enter folder name here"
             onChange={(e) => props.handleChange(e.target.value)}
             type="text"

@@ -15,12 +15,19 @@ let theme = createTheme({
       dark: '#7735e3',
       contrastText: '#ffffff',
     },
+    secondary: {
+      main: '#f50057',
+    },
   },
   typography: {
     h5: {
       fontWeight: 500,
       fontSize: 26,
       letterSpacing: 0.5,
+    },
+    button: {
+      textTransform: 'none',
+      padding: 0,
     },
   },
   shape: {

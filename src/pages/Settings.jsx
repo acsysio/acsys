@@ -364,6 +364,7 @@ const Settings = (props) => {
                 padding="16px"
               >
                 <input
+                  className="custom-input"
                   id="type"
                   name="type"
                   onChange={(e) => setType(e.target.value)}
@@ -372,6 +373,7 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
                 <input
+                  className="custom-input"
                   id="project_id"
                   name="project_id"
                   onChange={(e) => setProjectId(e.target.value)}
@@ -380,6 +382,7 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
                 <input
+                  className="custom-input"
                   id="private_key_id"
                   name="private_key_id"
                   onChange={(e) => setPrivateKeyId(e.target.value)}
@@ -388,6 +391,7 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
                 <input
+                  className="custom-input"
                   id="private_key"
                   name="private_key"
                   onChange={(e) => setPrivateKeyId(e.target.value)}
@@ -396,6 +400,7 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
                 <input
+                  className="custom-input"
                   id="client_email"
                   name="client_email"
                   onChange={(e) => setClientEmail(e.target.value)}
@@ -404,6 +409,7 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
                 <input
+                  className="custom-input"
                   id="client_id"
                   name="client_id"
                   onChange={(e) => setClientId(e.target.value)}
@@ -412,6 +418,7 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
                 <input
+                  className="custom-input"
                   id="auth_uri"
                   name="auth_uri"
                   onChange={(e) => setAuthUri(e.target.value)}
@@ -420,6 +427,7 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
                 <input
+                  className="custom-input"
                   id="token_uri"
                   name="token_uri"
                   onChange={(e) => setTokenUri(e.target.value)}
@@ -428,6 +436,7 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
                 <input
+                  className="custom-input"
                   id="auth_provider_x509_cert_url"
                   name="auth_provider_x509_cert_url"
                   onChange={(e) => setAuthProviderX509CertUrl(e.target.value)}
@@ -436,6 +445,7 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
                 <input
+                  className="custom-input"
                   id="client_x509_cert_url"
                   name="client_x509_cert_url"
                   onChange={(e) => setClientX509CertUrl(e.target.value)}
@@ -499,6 +509,7 @@ const Settings = (props) => {
                 padding="16px"
               >
                 <input
+                  className="custom-input"
                   id="dhost"
                   name="dhost"
                   placeholder="Host"
@@ -507,6 +518,7 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
                 <input
+                  className="custom-input"
                   id="dport"
                   name="dport"
                   placeholder="Port (Can be empty)"
@@ -516,6 +528,7 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
                 <input
+                  className="custom-input"
                   id="ddatabase"
                   name="ddatabase"
                   placeholder="Database"
@@ -524,6 +537,7 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
                 <input
+                  className="custom-input"
                   id="dusername"
                   name="dusername"
                   placeholder="Username"
@@ -532,6 +546,7 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
                 <input
+                  className="custom-input"
                   id="dpassword"
                   name="dpassword"
                   placeholder="Password"
@@ -541,6 +556,7 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
                 <input
+                  className="custom-input"
                   id="socketPath"
                   name="socketPath"
                   placeholder="Socket Path (May be needed for production environments)"
@@ -635,6 +651,7 @@ const Settings = (props) => {
                         padding="16px"
                       >
                         <input
+                          className="custom-input"
                           id="host"
                           name="host"
                           placeholder="Host"
@@ -643,6 +660,7 @@ const Settings = (props) => {
                           style={{ marginTop: '20px' }}
                         />
                         <input
+                          className="custom-input"
                           id="port"
                           name="port"
                           placeholder="Port"
@@ -651,6 +669,7 @@ const Settings = (props) => {
                           style={{ marginTop: '20px' }}
                         />
                         <input
+                          className="custom-input"
                           id="username"
                           name="username"
                           placeholder="Username"
@@ -659,6 +678,7 @@ const Settings = (props) => {
                           style={{ marginTop: '20px' }}
                         />
                         <input
+                          className="custom-input"
                           id="password"
                           name="password"
                           placeholder="Password"

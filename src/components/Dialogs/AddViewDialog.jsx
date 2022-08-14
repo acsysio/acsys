@@ -22,18 +22,29 @@ export default function AddViewDialog(props) {
       <DialogTitle id="alert-dialog-title">{props.title}</DialogTitle>
       <DialogContent style={{ width: 400 }}>
         <div class="dialog-input">
-          <Select
+          <select
+            onChange={(e) => props.setCollection(e.target.value)}
+            className="select-css"
+          >
+            <option disabled selected value>select an option</option>
+            {props.collectionArr.map((value) => {
+              return <option value={value}>{value}</option>;
+            })}
+          </select>
+          {/* <Select
             displayEmpty
+            sx={{ div: { padding: 1 } }}
             onChange={(e) => props.setCollection(e.target.value)}
             style={{ width: '100%' }}
           >
             {props.collectionArr.map((value) => {
               return <MenuItem value={value}>{value}</MenuItem>;
             })}
-          </Select>
+          </Select> */}
         </div>
         <div class="dialog-input">
           <input
+            className="custom-input"
             value="Position generated on publish"
             readonly
             style={{ width: '97%' }}
@@ -41,6 +52,7 @@ export default function AddViewDialog(props) {
         </div>
         <div class="dialog-input">
           <input
+            className="custom-input"
             placeholder="Enter view name here"
             type="text"
             style={{ width: '97%' }}
@@ -49,6 +61,7 @@ export default function AddViewDialog(props) {
         </div>
         <div class="dialog-input">
           <input
+            className="custom-input"
             placeholder="Enter description here"
             type="text"
             style={{ width: '97%' }}

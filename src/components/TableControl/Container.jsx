@@ -65,6 +65,7 @@ const Container = (props) => {
         }}
       >
         <input
+          className="custom-input"
           placeholder="Enter Table Name"
           defaultValue={tName}
           onChange={(e) => setTableName(e.target.value)}

@@ -24,7 +24,7 @@ import {
 } from '@mui/icons-material';
 import React, { useState, useContext, useEffect } from 'react';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import * as Acsys from '../utils/Acsys/Acsys';
 import { AcsysContext } from '../utils/Session/AcsysProvider';
 import FieldDef from '../components/FieldControl/FieldDef';
@@ -45,6 +45,7 @@ let row_num = 10;
 
 const CollectionView = (props) => {
   const context = useContext(AcsysContext);
+  const location = useLocation();
   const navigate = useNavigate();
   const params = useParams();
   const [content_id, setContentId] = useState('');
@@ -512,7 +513,7 @@ const CollectionView = (props) => {
     }
 
     setReset(false);
-    // setView(props.location.state.view);
+    setView(location.state.view);
     setLoading(false);
     setLocked(locked);
     setContentId(content_id);
@@ -677,8 +678,17 @@ const CollectionView = (props) => {
                 </TableCell>
               ) : (
                 <TableCell
-                  // component={Link}
-                  onClick={() => updateDocument(rowIndex)}
+                  to={{
+                    pathname: '/DocumentView',
+                  }}
+                  state={{
+                    mode: 'update',
+                    is_removable: is_removable,
+                    table_keys: table_keys[rowIndex],
+                    routed: false,
+                    viewId: documentDetails[0].content_id,
+                  }}
+                  component={Link}
                   style={{ overflow: 'hidden', textOverflow: 'ellipsis', cursor: 'pointer' }}
                 >
                   {returnValue}
@@ -882,8 +892,16 @@ const CollectionView = (props) => {
                 {Acsys.getMode() !== 'Viewer' && is_removable ? (
                   <Tooltip title="Add New Entry To Table">
                     <Button
-                      onClick={() => addDocument()}
-                      // component={Link}
+                      to={{
+                        pathname: '/DocumentView',
+                      }}
+                      state={{
+                        mode: 'add',
+                        table_keys: tempKeys[0],
+                        routed: false,
+                        viewId: projectId,
+                      }}
+                      component={Link}
                       variant="contained"
                       color="primary"
                     >

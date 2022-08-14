@@ -20,15 +20,15 @@ export default function Header(props) {
         position="fixed"
         elevation={0}
       >
-        <Grid container spacing={1} alignItems="center">
-          <Hidden mdDown implementation="css">
+        <Grid container alignItems="center">
+          <Hidden mdDown>
             <img
               src="/acsys-logo.svg"
               alt=""
-              style={{ height: 45, marginLeft: 10 }}
+              style={{ height: 42 }}
             />
           </Hidden>
-          <Hidden mdUp implementation="css">
+          <Hidden mdUp>
             <Grid item>
               <IconButton
                 color="inherit"

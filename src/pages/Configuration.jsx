@@ -10,6 +10,7 @@ import {
   Paper,
   Typography,
 } from '@mui/material';
+import LoadingButton from '@mui/lab/LoadingButton';
 import * as Acsys from '../utils/Acsys/Acsys';
 
 const Configuration = () => {
@@ -105,6 +106,7 @@ const Configuration = () => {
       return (
         <div>
           <input
+            className="custom-input"
             id="projectName"
             name="projectName"
             placeholder="Project Name"
@@ -140,6 +142,7 @@ const Configuration = () => {
           <Grid container>
             <Grid item xs={3}>
               <input
+                className="custom-input"
                 id="contained-button-file"
                 type="file"
                 style={{ display: 'none' }}
@@ -157,7 +160,11 @@ const Configuration = () => {
               </label>
             </Grid>
             <Grid item xs={9}>
-              <input defaultValue={fileName} style={{ height: 19 }} />
+              <input
+                className="custom-input"
+                defaultValue={fileName}
+                style={{ height: 19 }}
+              />
             </Grid>
           </Grid>
         </div>
@@ -166,6 +173,7 @@ const Configuration = () => {
       return (
         <div>
           <input
+            className="custom-input"
             id="host"
             name="host"
             placeholder="Host"
@@ -175,6 +183,7 @@ const Configuration = () => {
             style={{ marginTop: '20px', width: '96%' }}
           />
           <input
+            className="custom-input"
             id="port"
             name="port"
             placeholder="Port (Optional)"
@@ -185,6 +194,7 @@ const Configuration = () => {
             style={{ marginTop: '20px', width: '96%' }}
           />
           <input
+            className="custom-input"
             id="database"
             name="database"
             placeholder="Database"
@@ -194,6 +204,7 @@ const Configuration = () => {
             style={{ marginTop: '20px', width: '96%' }}
           />
           <input
+            className="custom-input"
             id="username"
             name="username"
             placeholder="Username"
@@ -203,6 +214,7 @@ const Configuration = () => {
             style={{ marginTop: '20px', width: '96%' }}
           />
           <input
+            className="custom-input"
             id="password"
             name="password"
             placeholder="Password"
@@ -213,6 +225,7 @@ const Configuration = () => {
             style={{ marginTop: '20px', width: '96%' }}
           />
           <input
+            className="custom-input"
             id="socketPath"
             name="socketPath"
             placeholder="Socket Path (Production only)"
@@ -245,6 +258,7 @@ const Configuration = () => {
           <Grid container>
             <Grid item xs={3}>
               <input
+                className="custom-input"
                 id="contained-button-file"
                 type="file"
                 style={{ display: 'none' }}
@@ -262,7 +276,11 @@ const Configuration = () => {
               </label>
             </Grid>
             <Grid item xs={9}>
-              <input defaultValue={fileName} style={{ height: 19 }} />
+              <input
+                className="custom-input"
+                defaultValue={fileName}
+                style={{ height: 19 }}
+              />
             </Grid>
           </Grid>
           <Typography variant="p" color="secondary" style={{ minHeight: 25 }}>
@@ -312,15 +330,15 @@ const Configuration = () => {
             textAlign="center"
             padding="16px"
           >
-            <Button
+            <LoadingButton
               onClick={onSubmit}
+              loading={loading}
               type="submit"
               variant="contained"
               color="primary"
             >
-              {loading && <CircularProgress color="white" size={24} />}
-              {!loading && 'Submit'}
-            </Button>
+              Submit
+            </LoadingButton>
             {error && (
               <Typography variant="body1" color="error">
                 {error.message}

@@ -11,6 +11,7 @@ import {
   Tooltip,
 } from '@mui/material';
 import Button from '@mui/material/Button';
+import LoadingButton from '@mui/lab/LoadingButton';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
@@ -132,6 +133,7 @@ const Account = (props) => {
               <Grid item xs={12}>
                 <h1 className="element-header">Email</h1>
                 <input
+                  className="custom-input"
                   placeholder="Enter email"
                   defaultValue={userData.email}
                   onChange={(e) => setemail(e.target.value)}
@@ -142,6 +144,7 @@ const Account = (props) => {
               <Grid item xs={12}>
                 <h1 className="element-header">Username</h1>
                 <input
+                  className="custom-input"
                   placeholder="Enter username"
                   defaultValue={userData.username}
                   onChange={(e) => setusername(e.target.value)}
@@ -168,6 +171,7 @@ const Account = (props) => {
                     </AccordionSummary>
                     <AccordionDetails>
                       <input
+                        className="custom-input"
                         placeholder="Enter new password"
                         onChange={(e) => setpassword(e.target.value)}
                         type="password"
@@ -176,6 +180,7 @@ const Account = (props) => {
                     </AccordionDetails>
                     <AccordionDetails>
                       <input
+                        className="custom-input"
                         placeholder="Confirm new password"
                         onChange={(e) => setverifyPassword(e.target.value)}
                         type="password"
@@ -203,6 +208,7 @@ const Account = (props) => {
               Are you sure you want to update this data?
             </DialogContentText>
             <input
+              className="custom-input"
               placeholder="Enter current password"
               onChange={(e) => setcurrentPassword(e.target.value)}
               type="password"
@@ -213,15 +219,15 @@ const Account = (props) => {
             <Button onClick={handleClose} color="primary">
               No
             </Button>
-            <Button
+            <LoadingButton
               onClick={updateCredentials}
               color="primary"
+              loading={saveLoading}
               disabled={saveLoading}
               autoFocus
             >
-              {saveLoading && <CircularProgress size={24} />}
-              {!saveLoading && 'Submit'}
-            </Button>
+              Submit
+            </LoadingButton>
           </DialogActions>
         </Dialog>
         <LoadingDialog loading={saveLoading} message={'Saving'} />

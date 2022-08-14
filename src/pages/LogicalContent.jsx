@@ -215,10 +215,10 @@ const LogicalContent = (props) => {
                 to={{
                   pathname:
                     '/CollectionView/' + source_collection + '/' + viewId,
-                  state: {
-                    table_keys: [],
-                    view: name,
-                  },
+                }}
+                state={{
+                  table_keys: [],
+                  view: name,
                 }}
                 component={Link}
                 style={{ minWidth: 150 }}
@@ -227,8 +227,17 @@ const LogicalContent = (props) => {
               </TableCell>
             ) : (
               <TableCell
-                onClick={() => updateDocument(views)}
-                style={{ minWidth: 150, cursor: 'pointer' }}
+                to={{
+                  pathname: '/DocumentView',
+                }}
+                state={{
+                  mode: 'update',
+                  table_keys: views.table_keys,
+                  routed: true,
+                  viewId: views.viewId,
+                }}
+                component={Link}
+                style={{ minWidth: 150 }}
               >
                 {name}
               </TableCell>
@@ -238,10 +247,10 @@ const LogicalContent = (props) => {
                 to={{
                   pathname:
                     '/CollectionView/' + source_collection + '/' + viewId,
-                  state: {
-                    table_keys: [],
-                    view: name,
-                  },
+                }}
+                state={{
+                  table_keys: [],
+                  view: name,
                 }}
                 component={Link}
                 style={{ width: '100%' }}
@@ -250,8 +259,16 @@ const LogicalContent = (props) => {
               </TableCell>
             ) : (
               <TableCell
-                onClick={() => updateDocument(views)}
-                style={{ cursor: 'pointer' }}
+                to={{
+                  pathname: '/DocumentView',
+                }}
+                state={{
+                  mode: 'update',
+                  table_keys: views.table_keys,
+                  routed: true,
+                  viewId: views.viewId,
+                }}
+                component={Link}
               >
                 {description}
               </TableCell>

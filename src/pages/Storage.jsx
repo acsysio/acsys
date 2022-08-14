@@ -537,6 +537,7 @@ const Storage = (props) => {
                     </Grid>
                     <Grid item style={{ minWidth: 20 }}>
                       <input
+                        className="custom-input"
                         id="contained-button-file"
                         type="file"
                         style={{ display: 'none' }}

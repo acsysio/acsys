@@ -5,6 +5,7 @@ import {
   Grid,
   Typography,
 } from '@mui/material';
+import LoadingButton from '@mui/lab/LoadingButton';
 import React, { useState } from 'react';
 import * as Acsys from '../utils/Acsys/Acsys';
 
@@ -86,6 +87,7 @@ const PasswordReset = (props) => {
       />
 
       <input
+        className="custom-input"
         id="passwordTwo"
         name="passwordTwo"
         placeholder="Confirm new password"
@@ -99,17 +101,17 @@ const PasswordReset = (props) => {
         onChange={onChange}
       />
 
-      <Button
+      <LoadingButton
         disabled={isInvalid || loading}
+        loading={loading}
         type="submit"
         style={{ marginTop: '20px' }}
         onClick={onSubmit}
         variant="contained"
         color="primary"
       >
-        {loading && <CircularProgress color="white" size={24} />}
-        {!loading && 'Reset'}
-      </Button>
+        Reset
+      </LoadingButton>
 
       {error && (
         <Typography variant="body1" color="error">

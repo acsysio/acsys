@@ -149,6 +149,7 @@ export default function EditText(props) {
         <Grid item xs={8}>
           <div>
             <input
+              className="custom-input"
               placeholder="Enter Value"
               value={value}
               onChange={(e) => setField(index, e.target.value)}

@@ -63,10 +63,10 @@ function Navigator(props) {
     {
       id: 'Content',
       children: [
-        { id: 'Content', icon: <FolderIcon />, route: ROUTES.LogicalContent },
+        { id: 'Content', icon: <FolderIcon sx={{ fontSize: 20 }} />, route: ROUTES.LogicalContent },
         {
           id: 'Storage',
-          icon: <PermMediaOutlinedIcon />,
+          icon: <PermMediaOutlinedIcon sx={{ fontSize: 20 }} />,
           route: ROUTES.Storage,
         },
       ],
@@ -81,20 +81,20 @@ function Navigator(props) {
       {
         id: 'Content',
         children: [
-          { id: 'Content', icon: <FolderIcon />, route: ROUTES.LogicalContent },
+          { id: 'Content', icon: <FolderIcon sx={{ fontSize: 20 }} />, route: ROUTES.LogicalContent },
           {
             id: 'Storage',
-            icon: <PermMediaOutlinedIcon />,
+            icon: <PermMediaOutlinedIcon sx={{ fontSize: 20 }} />,
             route: ROUTES.Storage,
           },
-          { id: 'Database', icon: <DataBaseIcon />, route: ROUTES.Database },
+          { id: 'Database', icon: <DataBaseIcon sx={{ fontSize: 20 }} />, route: ROUTES.Database },
         ],
       },
       {
         id: 'Administration',
         children: [
-          { id: 'Users', icon: <PeopleIcon />, route: ROUTES.Users },
-          { id: 'Settings', icon: <SettingsIcon />, route: ROUTES.Settings },
+          { id: 'Users', icon: <PeopleIcon sx={{ fontSize: 20 }} />, route: ROUTES.Users },
+          { id: 'Settings', icon: <SettingsIcon sx={{ fontSize: 20 }} />, route: ROUTES.Settings },
         ],
       },
     ];
@@ -134,7 +134,7 @@ function Navigator(props) {
       >
         <ListItem key="Info" button style={styles.item}>
           <ListItemIcon style={styles.itemIcon}>
-            <InfoIcon />
+            <InfoIcon sx={{ fontSize: 20 }} />
           </ListItemIcon>
           <ListItemText style={styles.itemPrimary}>
             Info
@@ -184,7 +184,7 @@ function Navigator(props) {
       >
         <ListItem key="Info" button style={styles.item}>
           <ListItemIcon style={styles.itemIcon}>
-            <InfoIcon />
+            <InfoIcon sx={{ fontSize: 20 }} />
           </ListItemIcon>
           <ListItemText style={styles.itemPrimary}>
             Info
