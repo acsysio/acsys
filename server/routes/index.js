@@ -118,7 +118,7 @@ router.get('/hasAdmin', function (req, res) {
 
   data
     .getDocs('acsys_users', options)
-    .then((result, reject) => {
+    .then((result) => {
       if (result.length > 0) {
         res.send((rData = { value: true }));
       } else {
@@ -139,7 +139,7 @@ router.post('/register', function (req, res) {
 
   data
     .getDocs('acsys_users', options)
-    .then((result, reject) => {
+    .then((result) => {
       if (result.length > 0) {
         res.json({ message: 'Action not available.' });
       } else {
@@ -232,7 +232,7 @@ router.post('/sendResetLink', function (req, res) {
       };
       data
         .getDocs('acsys_users', options)
-        .then((result, reject) => {
+        .then((result) => {
           if (result.length > 0) {
             const resetOptions = {
               where: [['user_id', '=', result[0].acsys_id]],
@@ -240,7 +240,7 @@ router.post('/sendResetLink', function (req, res) {
             };
             data
               .getDocs('acsys_user_reset', resetOptions)
-              .then((userResult, reject) => {
+              .then((userResult) => {
                 if (userResult.length > 0) {
                   const date = new Date();
                   if (date.getTime() < userResult[0].expiration_date) {
@@ -369,7 +369,7 @@ router.post('/resetPassword', function (req, res) {
   };
   data
     .getDocs('acsys_user_reset', options)
-    .then((result, reject) => {
+    .then((result) => {
       if (result.length > 0) {
         const date = new Date();
         if (date.getTime() < result[0].expiration_date) {
@@ -379,7 +379,7 @@ router.post('/resetPassword', function (req, res) {
           };
           data
             .getDocs('acsys_users', userOptions)
-            .then((userResult, reject) => {
+            .then((userResult) => {
               bcrypt.hash(password, 8, function (err, hash) {
                 const dataModel = {
                   acsys_id: userResult[0].acsys_id,
@@ -430,7 +430,7 @@ router.post('/createUser', function (req, res) {
 
   data
     .getDocs('acsys_users', options)
-    .then((result, reject) => {
+    .then((result) => {
       if (result.length > 0) {
         res.json({ message: 'Email already in use.' });
       } else {
@@ -441,7 +441,7 @@ router.post('/createUser', function (req, res) {
 
         data
           .getDocs('acsys_users', options)
-          .then((result, reject) => {
+          .then((result) => {
             if (result.length > 0) {
               res.json({
                 message: 'Username already in use.',
@@ -624,9 +624,14 @@ router.get('/getAll', function (req, res) {
 });
 
 router.get('/getUsers', function (req, res) {
-  data.getUsers(req.query.user).then((result, reject) => {
-    res.send(result);
-  });
+  data
+    .getUsers(req.query.user)
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
 });
 
 router.post('/increment', function (req, res) {
@@ -675,15 +680,25 @@ router.post('/dropTable', function (req, res) {
 
 router.get('/readData', function (req, res) {
   const options = JSON.parse(req.query.options);
-  data.getDocs(req.query.table, options).then((result, reject) => {
-    res.send(result);
-  });
+  data
+    .getDocs(req.query.table, options)
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
 });
 
 router.get('/readPage', function (req, res) {
-  data.getPage(req.query.table, req.query.options).then((result, reject) => {
-    res.send(result);
-  });
+  data
+    .getPage(req.query.table, req.query.options)
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
 });
 
 router.post('/insertData', function (req, res) {
@@ -732,9 +747,14 @@ router.get('/readOpenData', function (req, res) {
     .checkOpenTable(table)
     .then((result) => {
       if (result) {
-        data.getDocs(table, options).then((result, reject) => {
-          res.send(result);
-        });
+        data
+          .getDocs(table, options)
+          .then((result) => {
+            res.send(result);
+          })
+          .catch((error) => {
+            res.send(error);
+          });
       } else {
         res.send('Error: Table must be unlocked before it can be accessed.');
       }
@@ -752,8 +772,11 @@ router.get('/readOpenPage', function (req, res) {
       if (result) {
         data
           .getPage(req.query.table, req.query.options)
-          .then((result, reject) => {
+          .then((result) => {
             res.send(result);
+          })
+          .catch((error) => {
+            res.send(error);
           });
       } else {
         res.send('Error: Table must be unlocked before it can be accessed.');
@@ -884,53 +907,84 @@ router.get('/getTables', function (req, res) {
 });
 
 router.get('/getTableSize', function (req, res) {
-  data.getTableSize(req.query.table).then((result, reject) => {
-    res.send((rData = { value: result }));
-  });
+  data
+    .getTableSize(req.query.table)
+    .then((result) => {
+      res.send((rData = { value: result }));
+    })
+    .catch((error) => {
+      res.send(error);
+    });
 });
 
 router.post('/unlockTable', function (req, res) {
-  data.unlockTable(req.body).then((result, reject) => {
-    res.send(result);
-  });
+  data
+    .unlockTable(req.body)
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
 });
 
 router.post('/lockTable', function (req, res) {
-  data.lockTable(req.body.table_name).then((result, reject) => {
-    res.send(result);
-  });
+  data
+    .lockTable(req.body.table_name)
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
 });
 
 router.post('/syncFiles', function (req, res) {
-  storage.syncFiles().then((result, reject) => {
-    res.send(result);
-  });
+  storage
+    .syncFiles()
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
 });
 
 router.post('/createNewFolder', function (req, res) {
   storage
     .createNewFolder(req.body.folder, req.body.parent)
-    .then((result, reject) => {
+    .then((result) => {
       res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
     });
 });
 
 router.post('/uploadFile', function (req, res) {
   storage
     .uploadFile(req.files.file, req.body.destination)
-    .then((result, reject) => {
+    .then((result) => {
       res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
     });
 });
 
 router.get('/getStorageURL', function (req, res) {
-  storage.getStorageURL(req).then((result, reject) => {
-    res.send(
-      JSON.stringify({
-        data: result,
-      })
-    );
-  });
+  storage
+    .getStorageURL(req)
+    .then((result) => {
+      res.send(
+        JSON.stringify({
+          data: result,
+        })
+      );
+    })
+    .catch((error) => {
+      res.send(error);
+    });
 });
 
 router.get('/getFile', async function (req, res) {
@@ -958,21 +1012,36 @@ router.get('/getFile', async function (req, res) {
 });
 
 router.post('/makeFilePublic', function (req, res) {
-  storage.makeFilePublic(req.body.fileName).then((result, reject) => {
-    res.send(result);
-  });
+  storage
+    .makeFilePublic(req.body.fileName)
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
 });
 
 router.post('/makeFilePrivate', function (req, res) {
-  storage.makeFilePrivate(req.body.fileName).then((result, reject) => {
-    res.send(result);
-  });
+  storage
+    .makeFilePrivate(req.body.fileName)
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
 });
 
 router.post('/deleteFile', function (req, res) {
-  storage.deleteFile(req.body.fileName).then((result, reject) => {
-    res.send(result);
-  });
+  storage
+    .deleteFile(req.body.fileName)
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
 });
 
 router.post('/restart', function (req, res) {
@@ -1344,9 +1413,14 @@ router.post('/setStorageBucket', async function (req, res) {
     };
     data.insert('acsys_storage_settings', configData).then(() => {
       storage.setBucket(bucket).then(() => {
-        storage.syncFiles().then((result, reject) => {
-          res.send(result);
-        });
+        storage
+          .syncFiles()
+          .then((result) => {
+            res.send(result);
+          })
+          .catch((error) => {
+            res.send(error);
+          });
       });
     });
   });
@@ -1369,7 +1443,7 @@ router.post('/setEmailConfig', async function (req, res) {
 
     data
       .getDocs('acsys_email_settings', {})
-      .then((result, reject) => {
+      .then((result) => {
         if (result.length > 0) {
           data
             .update('acsys_email_settings', configData)
@@ -1401,7 +1475,7 @@ router.post('/setEmailConfig', async function (req, res) {
 router.get('/getEmailConfig', async function (req, res) {
   data
     .getDocs('acsys_email_settings', {})
-    .then((result, reject) => {
+    .then((result) => {
       res.send(result);
     })
     .catch(() => {

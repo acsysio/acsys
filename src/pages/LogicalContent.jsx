@@ -17,7 +17,6 @@ import Typography from '@mui/material/Typography';
 import { Create as CreateIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import React, { useEffect, useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-// import { uniquid } from '../../../utils/uniquid';
 import * as Acsys from '../utils/Acsys/Acsys';
 import { AcsysContext } from '../utils/Session/AcsysProvider';
 import AddViewDialog from '../components/Dialogs/AddViewDialog';
@@ -186,15 +185,6 @@ const LogicalContent = (props) => {
     setAddLoading(false);
     handleClose();
     mount();
-  };
-
-  const updateDocument = (views) => {
-    context.setMode('update');
-    context.setIsRemovable(false);
-    context.setDataKeys(views.table_keys);
-    context.setRouted(true);
-    context.setViewId(views.viewId);
-    navigate('/DocumentView');
   };
 
   const renderTableData = () => {

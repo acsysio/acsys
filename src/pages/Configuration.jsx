@@ -299,7 +299,7 @@ const Configuration = () => {
       justify="center"
       direction="column"
     >
-      <Container maxWidth="sm">
+      <Container maxWidth="sm" style={{ margin: 'auto' }}>
         <Paper style={{ margin: '50px' }}>
           <Box
             margin="auto"

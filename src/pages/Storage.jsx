@@ -23,7 +23,7 @@ import {
   Lock,
   LockOpen,
 } from '@mui/icons-material';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import * as Acsys from '../utils/Acsys/Acsys';
 import { AcsysContext } from '../utils/Session/AcsysProvider';
 import LoadingDialog from '../components/Dialogs/LoadingDialog';
@@ -35,7 +35,7 @@ import NewFolderDialog from '../components/Dialogs/NewFolderDialog';
 const Storage = (props) => {
   const context = useContext(AcsysContext);
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const prams = useParams();
   const [locked, setLocked] = useState(true);
   const [isDialog, setIsDialog] = useState(false);
   const [mode, setMode] = useState('');
@@ -91,8 +91,8 @@ const Storage = (props) => {
   };
 
   const openDirPage = async (dir) => {
-    navigate('/Storage?dir=' + dir);
-    setLocked(false);
+    const directory = dir.substring(0, dir.length - 1);
+    navigate('/Storage/' + directory.replace('/', '~'));
   };
 
   const previousDirFunc = async () => {
@@ -275,20 +275,20 @@ const Storage = (props) => {
 
   useEffect(() => {
     load();
-  }, [locked, currentDir, props.location]);
+  }, [prams.dir]);
 
   useEffect(() => {
     mount();
   }, []);
 
   const load = async () => {
-    console.log(searchParams.get('dir'))
     try {
+      const dir = prams.dir.replace('~', '/');
       if (
-        searchParams.get('dir') !== currentDir.substring(1) &&
-        !locked
+        dir !== currentDir.substring(1)
+        && dir !== ':dir'
       ) {
-        let newDir = searchParams.get('dir');
+        let newDir = '/' + dir + '/';
         if (newDir.length < 1) {
           newDir = '/';
         }
@@ -296,9 +296,8 @@ const Storage = (props) => {
         setLoading(true);
         setIsOpenImage(false);
         const files = await Acsys.getData('acsys_storage_items', [
-          ['parent', '=', newDir],
+          ['parent', '=', newDir.substring(1)],
         ]).catch();
-        console.log(files)
         for (var i = 0; i < files.length; i++) {
           await Acsys.getStorageURL(files[i].acsys_id)
             .then((result) => {
@@ -307,16 +306,15 @@ const Storage = (props) => {
             .catch((error) => console.log(error));
         }
         files.sort((a, b) => (a.file_order > b.file_order ? 1 : -1));
-        let currentDir = '/';
-        if (newDir !== '/') {
-          currentDir += newDir;
-        }
         setLocked(false);
         setLoading(false);
-        setCurrentDir(currentDir);
+        setCurrentDir(newDir);
         setFiles(files);
       }
-    } catch (error) {}
+    } catch (error) {
+      setCurrentDir('/');
+      mount();
+    }
   };
 
   const mount = async () => {

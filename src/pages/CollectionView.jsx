@@ -16,7 +16,6 @@ import Paper from '@mui/material/Paper';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import {
-  Create as CreateIcon,
   Delete as DeleteIcon,
   FileCopyOutlined as CopyIcon,
   KeyboardArrowLeft,
@@ -183,7 +182,7 @@ const CollectionView = (props) => {
       ['acsys_id', '=', tempView.acsys_id],
     ]);
     setSetViewOpen(false);
-    setReset(True);
+    setReset(true);
     setTotalRows(0);
     setPage(1);
     table_keys = [];
@@ -221,7 +220,7 @@ const CollectionView = (props) => {
     }
 
     handleClose();
-    setReset(True);
+    setReset(true);
     table_keys = [];
     mount();
     setDeleteLoading(false);
@@ -528,32 +527,6 @@ const CollectionView = (props) => {
     setOrderDir(orderDir);
   };
 
-  const updateDocument = (index) => {
-    if (table_keys.length > 0) {
-      context.setMode('update');
-      context.setIsRemovable(is_removable);
-      context.setDataKeys(table_keys[index]);
-      context.setRouted(false);
-      context.setViewId(documentDetails[0].content_id);
-      navigate('/DocumentView');
-    } else {
-      openKeyMessageFunc();
-    }
-  };
-
-  const addDocument = () => {
-    if (table_keys.length > 0) {
-      context.setMode('add');
-      context.setIsRemovable(is_removable);
-      context.setDataKeys(tempKeys[0]);
-      context.setRouted(false);
-      context.setViewId(projectId);
-      navigate('/DocumentView');
-    } else {
-      openKeyMessageFunc();
-    }
-  };
-
   const renderHeader = () => {
     const details = documentDetails;
     if (details.length > 0) {
@@ -591,11 +564,6 @@ const CollectionView = (props) => {
     }
   };
 
-  const renderCellData = (rowData) => {
-    return rowData.map((column) => {
-      return <TableCell>{column}</TableCell>;
-    });
-  };
   const renderTableData = () => {
     return tableData.map((tableData, rowIndex) => {
       let tempKey = [];

@@ -6,8 +6,6 @@ import {
   DialogTitle,
   DialogContent,
   CircularProgress,
-  MenuItem,
-  Select,
 } from '@mui/material';
 
 export default function AddViewDialog(props) {
@@ -31,16 +29,6 @@ export default function AddViewDialog(props) {
               return <option value={value}>{value}</option>;
             })}
           </select>
-          {/* <Select
-            displayEmpty
-            sx={{ div: { padding: 1 } }}
-            onChange={(e) => props.setCollection(e.target.value)}
-            style={{ width: '100%' }}
-          >
-            {props.collectionArr.map((value) => {
-              return <MenuItem value={value}>{value}</MenuItem>;
-            })}
-          </Select> */}
         </div>
         <div class="dialog-input">
           <input

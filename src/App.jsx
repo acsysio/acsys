@@ -54,6 +54,12 @@ export default function App() {
                 }
               />
               <Route
+                path={ROUTES.StorageParam}
+                element={
+                  <Storage />
+                }
+              />
+              <Route
                 path={ROUTES.Account}
                 element={
                   <Account />
