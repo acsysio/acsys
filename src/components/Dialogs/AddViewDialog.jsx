@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Button,
   Dialog,
@@ -6,9 +5,7 @@ import {
   DialogTitle,
   DialogContent,
   CircularProgress,
-  MenuItem,
-  Select,
-} from '@material-ui/core';
+} from '@mui/material';
 
 export default function AddViewDialog(props) {
   return (
@@ -22,18 +19,21 @@ export default function AddViewDialog(props) {
       <DialogTitle id="alert-dialog-title">{props.title}</DialogTitle>
       <DialogContent style={{ width: 400 }}>
         <div class="dialog-input">
-          <Select
-            displayEmpty
+          <select
             onChange={(e) => props.setCollection(e.target.value)}
-            style={{ width: '100%' }}
+            className="select-css"
           >
+            <option disabled selected value>
+              select an option
+            </option>
             {props.collectionArr.map((value) => {
-              return <MenuItem value={value}>{value}</MenuItem>;
+              return <option value={value}>{value}</option>;
             })}
-          </Select>
+          </select>
         </div>
         <div class="dialog-input">
           <input
+            className="custom-input"
             value="Position generated on publish"
             readonly
             style={{ width: '97%' }}
@@ -41,6 +41,7 @@ export default function AddViewDialog(props) {
         </div>
         <div class="dialog-input">
           <input
+            className="custom-input"
             placeholder="Enter view name here"
             type="text"
             style={{ width: '97%' }}
@@ -49,6 +50,7 @@ export default function AddViewDialog(props) {
         </div>
         <div class="dialog-input">
           <input
+            className="custom-input"
             placeholder="Enter description here"
             type="text"
             style={{ width: '97%' }}

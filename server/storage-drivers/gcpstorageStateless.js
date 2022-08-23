@@ -367,33 +367,37 @@ class StatelessStorageDriver {
   deleteFile(referenceName) {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
-      const blob = storage.file(referenceName.replace(/ /g, '_'));
-      await storage.getFiles(
-        {
-          prefix: referenceName,
-        },
-        async function (err, files) {
-          for (let i = 0; i < files.length; i += 1) {
-            files[i].delete(
-              await db.deleteDocs('acsys_storage_items', [
-                ['acsys_id', '=', referenceName],
-              ])
-            );
+      try {
+        const blob = storage.file(referenceName.replace(/ /g, '_'));
+        await storage.getFiles(
+          {
+            prefix: referenceName,
+          },
+          async function (err, files) {
+            for (let i = 0; i < files.length; i += 1) {
+              files[i].delete(
+                await db.deleteDocs('acsys_storage_items', [
+                  ['acsys_id', '=', referenceName],
+                ])
+              );
+            }
+            await blob.delete(async function () {
+              await db
+                .deleteDocs('acsys_storage_items', [
+                  ['acsys_id', '=', referenceName],
+                ])
+                .then(() => {
+                  resolve(true);
+                })
+                .catch(() => {
+                  resolve(false);
+                });
+            });
           }
-          await blob.delete(async function () {
-            await db
-              .deleteDocs('acsys_storage_items', [
-                ['acsys_id', '=', referenceName],
-              ])
-              .then(() => {
-                resolve(true);
-              })
-              .catch(() => {
-                resolve(false);
-              });
-          });
-        }
-      );
+        );
+      } catch (error) {
+        resolve(false);
+      }
     });
   }
 }

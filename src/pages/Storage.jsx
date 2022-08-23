@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import {
   AppBar,
   Table,
@@ -7,14 +7,14 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-} from '@material-ui/core';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import IconButton from '@material-ui/core/IconButton';
-import Paper from '@material-ui/core/Paper';
-import Toolbar from '@material-ui/core/Toolbar';
-import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '@material-ui/core/Typography';
+} from '@mui/material';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
+import IconButton from '@mui/material/IconButton';
+import Paper from '@mui/material/Paper';
+import Toolbar from '@mui/material/Toolbar';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import {
   Delete,
   Description,
@@ -22,8 +22,8 @@ import {
   KeyboardArrowLeft,
   Lock,
   LockOpen,
-} from '@material-ui/icons';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+} from '@mui/icons-material';
+import { useNavigate, useParams } from 'react-router-dom';
 import * as Acsys from '../utils/Acsys/Acsys';
 import { AcsysContext } from '../utils/Session/AcsysProvider';
 import LoadingDialog from '../components/Dialogs/LoadingDialog';
@@ -35,7 +35,7 @@ import NewFolderDialog from '../components/Dialogs/NewFolderDialog';
 const Storage = (props) => {
   const context = useContext(AcsysContext);
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const prams = useParams();
   const [locked, setLocked] = useState(true);
   const [isDialog, setIsDialog] = useState(false);
   const [mode, setMode] = useState('');
@@ -91,8 +91,8 @@ const Storage = (props) => {
   };
 
   const openDirPage = async (dir) => {
-    navigate('/Storage?dir=' + dir);
-    setLocked(false);
+    const directory = dir.substring(0, dir.length - 1);
+    navigate('/Storage/' + directory.replace('/', '~'));
   };
 
   const previousDirFunc = async () => {
@@ -275,20 +275,17 @@ const Storage = (props) => {
 
   useEffect(() => {
     load();
-  }, [locked, currentDir, props.location]);
+  }, [prams.dir]);
 
   useEffect(() => {
     mount();
   }, []);
 
   const load = async () => {
-    console.log(searchParams.get('dir'))
     try {
-      if (
-        searchParams.get('dir') !== currentDir.substring(1) &&
-        !locked
-      ) {
-        let newDir = searchParams.get('dir');
+      const dir = prams.dir.replace('~', '/');
+      if (dir !== currentDir.substring(1) && dir !== ':dir') {
+        let newDir = '/' + dir + '/';
         if (newDir.length < 1) {
           newDir = '/';
         }
@@ -296,9 +293,8 @@ const Storage = (props) => {
         setLoading(true);
         setIsOpenImage(false);
         const files = await Acsys.getData('acsys_storage_items', [
-          ['parent', '=', newDir],
+          ['parent', '=', newDir.substring(1)],
         ]).catch();
-        console.log(files)
         for (var i = 0; i < files.length; i++) {
           await Acsys.getStorageURL(files[i].acsys_id)
             .then((result) => {
@@ -307,16 +303,15 @@ const Storage = (props) => {
             .catch((error) => console.log(error));
         }
         files.sort((a, b) => (a.file_order > b.file_order ? 1 : -1));
-        let currentDir = '/';
-        if (newDir !== '/') {
-          currentDir += newDir;
-        }
         setLocked(false);
         setLoading(false);
-        setCurrentDir(currentDir);
+        setCurrentDir(newDir);
         setFiles(files);
       }
-    } catch (error) {}
+    } catch (error) {
+      setCurrentDir('/');
+      mount();
+    }
   };
 
   const mount = async () => {
@@ -537,6 +532,7 @@ const Storage = (props) => {
                     </Grid>
                     <Grid item style={{ minWidth: 20 }}>
                       <input
+                        className="custom-input"
                         id="contained-button-file"
                         type="file"
                         style={{ display: 'none' }}

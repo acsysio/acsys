@@ -1,17 +1,17 @@
 import {
   Box,
-  ExpansionPanel,
-  ExpansionPanelDetails,
-  ExpansionPanelSummary,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   NativeSelect,
   Tooltip,
-} from '@material-ui/core';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
-import { KeyboardArrowDown } from '@material-ui/icons';
-import React, { useContext, useEffect, useState } from 'react';
+} from '@mui/material';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+import { KeyboardArrowDown } from '@mui/icons-material';
+import { useContext, useEffect, useState } from 'react';
 import * as Acsys from '../utils/Acsys/Acsys';
 import { AcsysContext } from '../utils/Session/AcsysProvider';
 import LoadingDialog from '../components/Dialogs/LoadingDialog';
@@ -51,10 +51,8 @@ const Settings = (props) => {
   const [updateStorage, setUpdateStorage] = useState(false);
   const [uploadFile, setUploadFile] = useState();
   const [fileName, setFileName] = useState('');
-  const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
-  const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [messageOpen, setMessageOpen] = useState(false);
   const [isStateless, setIsStateless] = useState('');
@@ -71,10 +69,6 @@ const Settings = (props) => {
 
   const handleMessageClose = () => {
     setMessageOpen(false);
-  };
-
-  const closeDialog = () => {
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -265,18 +259,18 @@ const Settings = (props) => {
   const getBucketPanel = () => {
     console.log('buckerts', buckets);
     return (
-      <ExpansionPanel
+      <Accordion
         style={{ clear: 'both' }}
         onChange={(e) => setUpdateBucket(!updateBucket)}
       >
-        <ExpansionPanelSummary
+        <AccordionSummary
           expandIcon={<KeyboardArrowDown />}
           aria-controls="panel1a-content"
           id="panel1a-header"
         >
           <Typography>Bucket Configuration</Typography>
-        </ExpansionPanelSummary>
-        <ExpansionPanelDetails>
+        </AccordionSummary>
+        <AccordionDetails>
           <Box
             margin="auto"
             width="90%"
@@ -295,25 +289,25 @@ const Settings = (props) => {
               ))}
             </NativeSelect>
           </Box>
-        </ExpansionPanelDetails>
-      </ExpansionPanel>
+        </AccordionDetails>
+      </Accordion>
     );
   };
 
   const getLocalPanel = () => {
     return (
-      <ExpansionPanel
+      <Accordion
         style={{ clear: 'both' }}
         onChange={(e) => setUpdateDatabase(!updateDatabase)}
       >
-        <ExpansionPanelSummary
+        <AccordionSummary
           expandIcon={<KeyboardArrowDown />}
           aria-controls="panel1a-content"
           id="panel1a-header"
         >
           <Typography>Local Configuration</Typography>
-        </ExpansionPanelSummary>
-        <ExpansionPanelDetails>
+        </AccordionSummary>
+        <AccordionDetails>
           <Box
             margin="auto"
             width="90%"
@@ -331,8 +325,8 @@ const Settings = (props) => {
               style={{ marginTop: '20px' }}
             />
           </Box>
-        </ExpansionPanelDetails>
-      </ExpansionPanel>
+        </AccordionDetails>
+      </Accordion>
     );
   };
 
@@ -343,18 +337,18 @@ const Settings = (props) => {
           {bucket.length > 0 ? getBucketPanel() : null}
         </Grid>
         <Grid item xs={12}>
-          <ExpansionPanel
+          <Accordion
             style={{ clear: 'both' }}
             onChange={(e) => setUpdateStorage(!updateStorage)}
           >
-            <ExpansionPanelSummary
+            <AccordionSummary
               expandIcon={<KeyboardArrowDown />}
               aria-controls="panel1a-content"
               id="panel1a-header"
             >
               <Typography>{name} Configuration</Typography>
-            </ExpansionPanelSummary>
-            <ExpansionPanelDetails>
+            </AccordionSummary>
+            <AccordionDetails>
               <Box
                 margin="auto"
                 width="90%"
@@ -364,6 +358,7 @@ const Settings = (props) => {
                 padding="16px"
               >
                 <input
+                  className="custom-input"
                   id="type"
                   name="type"
                   onChange={(e) => setType(e.target.value)}
@@ -372,6 +367,7 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
                 <input
+                  className="custom-input"
                   id="project_id"
                   name="project_id"
                   onChange={(e) => setProjectId(e.target.value)}
@@ -380,6 +376,7 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
                 <input
+                  className="custom-input"
                   id="private_key_id"
                   name="private_key_id"
                   onChange={(e) => setPrivateKeyId(e.target.value)}
@@ -388,6 +385,7 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
                 <input
+                  className="custom-input"
                   id="private_key"
                   name="private_key"
                   onChange={(e) => setPrivateKeyId(e.target.value)}
@@ -396,6 +394,7 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
                 <input
+                  className="custom-input"
                   id="client_email"
                   name="client_email"
                   onChange={(e) => setClientEmail(e.target.value)}
@@ -404,6 +403,7 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
                 <input
+                  className="custom-input"
                   id="client_id"
                   name="client_id"
                   onChange={(e) => setClientId(e.target.value)}
@@ -412,6 +412,7 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
                 <input
+                  className="custom-input"
                   id="auth_uri"
                   name="auth_uri"
                   onChange={(e) => setAuthUri(e.target.value)}
@@ -420,6 +421,7 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
                 <input
+                  className="custom-input"
                   id="token_uri"
                   name="token_uri"
                   onChange={(e) => setTokenUri(e.target.value)}
@@ -428,6 +430,7 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
                 <input
+                  className="custom-input"
                   id="auth_provider_x509_cert_url"
                   name="auth_provider_x509_cert_url"
                   onChange={(e) => setAuthProviderX509CertUrl(e.target.value)}
@@ -436,6 +439,7 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
                 <input
+                  className="custom-input"
                   id="client_x509_cert_url"
                   name="client_x509_cert_url"
                   onChange={(e) => setClientX509CertUrl(e.target.value)}
@@ -467,8 +471,8 @@ const Settings = (props) => {
                   </Grid>
                 </Grid>
               </Box>
-            </ExpansionPanelDetails>
-          </ExpansionPanel>
+            </AccordionDetails>
+          </Accordion>
         </Grid>
       </Grid>
     );
@@ -478,18 +482,18 @@ const Settings = (props) => {
     return (
       <Grid>
         <Grid item xs={12} style={{ marginBottom: 30 }}>
-          <ExpansionPanel
+          <Accordion
             style={{ clear: 'both' }}
             onChange={(e) => setUpdateDatabase(!updateDatabase)}
           >
-            <ExpansionPanelSummary
+            <AccordionSummary
               expandIcon={<KeyboardArrowDown />}
               aria-controls="panel1a-content"
               id="panel1a-header"
             >
               <Typography>MySQL Configuration</Typography>
-            </ExpansionPanelSummary>
-            <ExpansionPanelDetails>
+            </AccordionSummary>
+            <AccordionDetails>
               <Box
                 margin="auto"
                 width="90%"
@@ -499,6 +503,7 @@ const Settings = (props) => {
                 padding="16px"
               >
                 <input
+                  className="custom-input"
                   id="dhost"
                   name="dhost"
                   placeholder="Host"
@@ -507,6 +512,7 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
                 <input
+                  className="custom-input"
                   id="dport"
                   name="dport"
                   placeholder="Port (Can be empty)"
@@ -516,6 +522,7 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
                 <input
+                  className="custom-input"
                   id="ddatabase"
                   name="ddatabase"
                   placeholder="Database"
@@ -524,6 +531,7 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
                 <input
+                  className="custom-input"
                   id="dusername"
                   name="dusername"
                   placeholder="Username"
@@ -532,6 +540,7 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
                 <input
+                  className="custom-input"
                   id="dpassword"
                   name="dpassword"
                   placeholder="Password"
@@ -541,6 +550,7 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
                 <input
+                  className="custom-input"
                   id="socketPath"
                   name="socketPath"
                   placeholder="Socket Path (May be needed for production environments)"
@@ -549,8 +559,8 @@ const Settings = (props) => {
                   style={{ marginTop: '20px' }}
                 />
               </Box>
-            </ExpansionPanelDetails>
-          </ExpansionPanel>
+            </AccordionDetails>
+          </Accordion>
         </Grid>
         <Grid item xs={12}>
           {getFirestorePanel('Storage')}
@@ -614,18 +624,18 @@ const Settings = (props) => {
                   </Grid>
                 </Grid>
                 <Grid item xs={12} style={{ marginBottom: 30 }}>
-                  <ExpansionPanel
+                  <Accordion
                     style={{ clear: 'both' }}
                     onChange={(e) => setUpdateEmail(!updateEmail)}
                   >
-                    <ExpansionPanelSummary
+                    <AccordionSummary
                       expandIcon={<KeyboardArrowDown />}
                       aria-controls="panel1a-content"
                       id="panel1a-header"
                     >
                       <Typography>Email Configuration</Typography>
-                    </ExpansionPanelSummary>
-                    <ExpansionPanelDetails>
+                    </AccordionSummary>
+                    <AccordionDetails>
                       <Box
                         margin="auto"
                         width="90%"
@@ -635,6 +645,7 @@ const Settings = (props) => {
                         padding="16px"
                       >
                         <input
+                          className="custom-input"
                           id="host"
                           name="host"
                           placeholder="Host"
@@ -643,6 +654,7 @@ const Settings = (props) => {
                           style={{ marginTop: '20px' }}
                         />
                         <input
+                          className="custom-input"
                           id="port"
                           name="port"
                           placeholder="Port"
@@ -651,6 +663,7 @@ const Settings = (props) => {
                           style={{ marginTop: '20px' }}
                         />
                         <input
+                          className="custom-input"
                           id="username"
                           name="username"
                           placeholder="Username"
@@ -659,6 +672,7 @@ const Settings = (props) => {
                           style={{ marginTop: '20px' }}
                         />
                         <input
+                          className="custom-input"
                           id="password"
                           name="password"
                           placeholder="Password"
@@ -668,8 +682,8 @@ const Settings = (props) => {
                           style={{ marginTop: '20px' }}
                         />
                       </Box>
-                    </ExpansionPanelDetails>
-                  </ExpansionPanel>
+                    </AccordionDetails>
+                  </Accordion>
                 </Grid>
                 {!isStateless ? (
                   <Grid item xs={12}>

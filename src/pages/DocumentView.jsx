@@ -1,17 +1,18 @@
 import {
+  FormControl,
   Hidden,
   IconButton,
   MenuItem,
   Select,
   Tooltip,
-} from '@material-ui/core';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import { FileCopyOutlined as CopyIcon } from '@material-ui/icons';
-import React, { useContext, useEffect, useState } from 'react';
+} from '@mui/material';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
+import { FileCopyOutlined as CopyIcon } from '@mui/icons-material';
+import { useContext, useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-// import uniquid from '../../utils/uniquid';
 import * as Acsys from '../utils/Acsys/Acsys';
 import { AcsysContext } from '../utils/Session/AcsysProvider';
 import AutoGen from '../components/Controls/AutoGen';
@@ -45,6 +46,7 @@ let quillURL = '';
 
 const DocumentView = (props) => {
   const context = useContext(AcsysContext);
+  const location = useLocation();
   const [collection, setCollection] = useState('');
   const [documentDetails, setdocumentDetails] = useState([]);
   const [fileMode, setfileMode] = useState('');
@@ -197,7 +199,6 @@ const DocumentView = (props) => {
       let uFields = [];
       for (var i = 0; i < tempDetails.length; i++) {
         if (tempDetails[i].control === 'autoGen') {
-          // tempDocument[tempDetails[i].field_name] = uniquid();
           uFields.push(tempDetails[i].field_name);
         } else if (fileDoc[tempDetails[i].field_name] !== undefined) {
           tempDocument[tempDetails[i].field_name] =
@@ -216,13 +217,12 @@ const DocumentView = (props) => {
         const result = await Acsys.insertWithUID(
           'acsys_' + collection,
           { ...tempDocument },
-          uFields,
+          uFields
         );
       } else {
-        const result = await Acsys.insertData(
-          'acsys_' + collection,
-          { ...tempDocument },
-        );
+        const result = await Acsys.insertData('acsys_' + collection, {
+          ...tempDocument,
+        });
       }
     }
     table_keys = [];
@@ -376,14 +376,14 @@ const DocumentView = (props) => {
     var tempView = acsysView;
 
     if (value) {
-      tempView['table_keys'] = JSON.stringify(context.dataKeys);
+      tempView['table_keys'] = JSON.stringify(location.state.table_keys);
     } else {
       tempView['table_keys'] = [];
     }
 
     for (var i = 0; i < tempDetails.length; i++) {
       const result = await Acsys.updateData('acsys_logical_content', tempView, [
-        ['viewId', '=', context.viewId],
+        ['viewId', '=', location.state.viewId],
       ]);
     }
     setloading(false);
@@ -431,18 +431,19 @@ const DocumentView = (props) => {
       let tempMode = mode;
       let routedLocal = routed;
       const acsysView = await Acsys.getData('acsys_logical_content', [
-        ['viewId', '=', context.viewId],
+        ['viewId', '=', location.state.viewId],
       ]);
       if (acsysView[0].table_keys.length > 0) {
         routedLocal = true;
       }
       try {
-        mode = context.getMode();
-        is_removable = context.isRemovable;
+        // mode = location.state.getMode();
+        mode = location.state.mode;
+        is_removable = location.state.isRemovable;
         if (routedLocal) {
-          table_keys = JSON.parse(context.dataKeys);
+          table_keys = JSON.parse(location.state.table_keys);
         } else {
-          table_keys = context.dataKeys;
+          table_keys = location.state.table_keys;
         }
       } catch (error) {
         mode = tempMode;
@@ -460,7 +461,7 @@ const DocumentView = (props) => {
     let documentDetails;
     try {
       documentDetails = await Acsys.getData('acsys_document_details', [
-        ['content_id', '=', context.viewId],
+        ['content_id', '=', location.state.viewId],
       ]);
     } catch (error) {
       documentDetails = documentDetails;
@@ -755,7 +756,7 @@ const DocumentView = (props) => {
     <div style={{ minHeight: 600 }}>
       {Acsys.getMode() !== 'Viewer' ? (
         <div>
-          {!context.routed && is_removable ? (
+          {!location.state.routed && is_removable ? (
             <Tooltip title="Delete Entry">
               <Button
                 style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
@@ -808,14 +809,18 @@ const DocumentView = (props) => {
             <div />
           )}
           {Acsys.getMode() === 'Administrator' ? (
-            <Select
-              defaultValue={context.routed}
-              onChange={(e) => saveView(e.target.value)}
-              style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
+            <FormControl
+              variant="standard"
+              sx={{ m: 1, minWidth: 120, float: 'right' }}
             >
-              <MenuItem value={false}>Accessed From Table</MenuItem>
-              <MenuItem value={true}>Accessed From View</MenuItem>
-            </Select>
+              <Select
+                defaultValue={location.state.routed}
+                onChange={(e) => saveView(e.target.value)}
+              >
+                <MenuItem value={false}>Accessed From Table</MenuItem>
+                <MenuItem value={true}>Accessed From View</MenuItem>
+              </Select>
+            </FormControl>
           ) : (
             <div />
           )}

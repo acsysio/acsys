@@ -1,10 +1,10 @@
 const path = require('path');
 const express = require('express');
 const routes = require('./routes/index');
-const cookieParser = require('cookie-parser')
-const bodyParser = require('body-parser')
-const fileUpload = require('express-fileupload')
-const cors = require('cors')
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+const fileUpload = require('express-fileupload');
+const cors = require('cors');
 const jwt = require('./jwt');
 
 const { PORT = 8080 } = process.env;
@@ -30,7 +30,6 @@ app.use(fileUpload());
 // configure cors
 app.use(cors());
 
-// const index = require('./routes/index');
 app.use('/api', routes);
 
 // Serve app production bundle

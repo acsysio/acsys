@@ -1,5 +1,4 @@
-import { Grid, NativeSelect } from '@material-ui/core';
-import React from 'react';
+import { Grid, NativeSelect } from '@mui/material';
 
 export default function BooleanSelect(props) {
   return (

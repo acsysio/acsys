@@ -1,23 +1,23 @@
 import {
-  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-  ExpansionPanel,
-  ExpansionPanelDetails,
-  ExpansionPanelSummary,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Tooltip,
-} from '@material-ui/core';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
-import { KeyboardArrowDown } from '@material-ui/icons';
+} from '@mui/material';
+import Button from '@mui/material/Button';
+import LoadingButton from '@mui/lab/LoadingButton';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+import { KeyboardArrowDown } from '@mui/icons-material';
 import LoadingDialog from '../components/Dialogs/LoadingDialog';
 import MessageDialog from '../components/Dialogs/MessageDialog';
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import * as Acsys from '../utils/Acsys/Acsys';
 import { AcsysContext } from '../utils/Session/AcsysProvider';
 
@@ -132,6 +132,7 @@ const Account = (props) => {
               <Grid item xs={12}>
                 <h1 className="element-header">Email</h1>
                 <input
+                  className="custom-input"
                   placeholder="Enter email"
                   defaultValue={userData.email}
                   onChange={(e) => setemail(e.target.value)}
@@ -142,6 +143,7 @@ const Account = (props) => {
               <Grid item xs={12}>
                 <h1 className="element-header">Username</h1>
                 <input
+                  className="custom-input"
                   placeholder="Enter username"
                   defaultValue={userData.username}
                   onChange={(e) => setusername(e.target.value)}
@@ -155,34 +157,36 @@ const Account = (props) => {
                   <h1 className="element-header">Password</h1>
                 </Grid>
                 <Grid item xs={12}>
-                  <ExpansionPanel
+                  <Accordion
                     style={{ clear: 'both' }}
                     onChange={(e) => setpasswordChange(!passwordChange)}
                   >
-                    <ExpansionPanelSummary
+                    <AccordionSummary
                       expandIcon={<KeyboardArrowDown />}
                       aria-controls="panel1a-content"
                       id="panel1a-header"
                     >
                       <Typography>Change Password</Typography>
-                    </ExpansionPanelSummary>
-                    <ExpansionPanelDetails>
+                    </AccordionSummary>
+                    <AccordionDetails>
                       <input
+                        className="custom-input"
                         placeholder="Enter new password"
                         onChange={(e) => setpassword(e.target.value)}
                         type="password"
                         style={{ width: '100%' }}
                       />
-                    </ExpansionPanelDetails>
-                    <ExpansionPanelDetails>
+                    </AccordionDetails>
+                    <AccordionDetails>
                       <input
+                        className="custom-input"
                         placeholder="Confirm new password"
                         onChange={(e) => setverifyPassword(e.target.value)}
                         type="password"
                         style={{ width: '100%' }}
                       />
-                    </ExpansionPanelDetails>
-                  </ExpansionPanel>
+                    </AccordionDetails>
+                  </Accordion>
                 </Grid>
               </Grid>
             </Grid>
@@ -203,6 +207,7 @@ const Account = (props) => {
               Are you sure you want to update this data?
             </DialogContentText>
             <input
+              className="custom-input"
               placeholder="Enter current password"
               onChange={(e) => setcurrentPassword(e.target.value)}
               type="password"
@@ -213,15 +218,15 @@ const Account = (props) => {
             <Button onClick={handleClose} color="primary">
               No
             </Button>
-            <Button
+            <LoadingButton
               onClick={updateCredentials}
               color="primary"
+              loading={saveLoading}
               disabled={saveLoading}
               autoFocus
             >
-              {saveLoading && <CircularProgress size={24} />}
-              {!saveLoading && 'Submit'}
-            </Button>
+              Submit
+            </LoadingButton>
           </DialogActions>
         </Dialog>
         <LoadingDialog loading={saveLoading} message={'Saving'} />

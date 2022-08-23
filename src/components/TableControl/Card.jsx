@@ -5,8 +5,8 @@ import {
   NativeSelect,
   Paper,
   Typography,
-} from '@material-ui/core';
-import { Close } from '@material-ui/icons';
+} from '@mui/material';
+import { Close } from '@mui/icons-material';
 import React, { memo, useMemo, useRef } from 'react';
 
 const style = {
@@ -92,6 +92,7 @@ const Card = memo(({ id, entry, deleteField }) => {
           <Grid item xs={5}>
             <div>
               <input
+                className="custom-input"
                 placeholder="Enter Field Name"
                 defaultValue={entry.fieldName}
                 onChange={(e) => setFieldName(e.target.value)}
@@ -103,6 +104,7 @@ const Card = memo(({ id, entry, deleteField }) => {
           <Grid item xs={5}>
             <div>
               <input
+                className="custom-input"
                 placeholder="Enter Value"
                 defaultValue={entry.value}
                 onChange={(e) => setValue(e.target.value)}

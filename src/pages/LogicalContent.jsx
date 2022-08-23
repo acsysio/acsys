@@ -6,18 +6,20 @@ import {
   TablePagination,
   TableRow,
   Tooltip,
-} from '@material-ui/core';
-import AppBar from '@material-ui/core/AppBar';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import IconButton from '@material-ui/core/IconButton';
-import Paper from '@material-ui/core/Paper';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import { Create as CreateIcon, Delete as DeleteIcon } from '@material-ui/icons';
-import React, { useEffect, useState, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-// import { uniquid } from '../../../utils/uniquid';
+} from '@mui/material';
+import AppBar from '@mui/material/AppBar';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
+import IconButton from '@mui/material/IconButton';
+import Paper from '@mui/material/Paper';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import {
+  Create as CreateIcon,
+  Delete as DeleteIcon,
+} from '@mui/icons-material';
+import { useEffect, useState, useContext } from 'react';
+import { Link } from 'react-router-dom';
 import * as Acsys from '../utils/Acsys/Acsys';
 import { AcsysContext } from '../utils/Session/AcsysProvider';
 import AddViewDialog from '../components/Dialogs/AddViewDialog';
@@ -29,7 +31,6 @@ let tempView = [];
 let position = 0;
 
 const LogicalContent = (props) => {
-  const navigate = useNavigate();
   const [viewId, setViewId] = useState('');
   const [name, setName] = useState('');
   const [collectionArr, setCollectionArr] = useState([]);
@@ -159,9 +160,7 @@ const LogicalContent = (props) => {
 
   const addView = async () => {
     setAddLoading(true);
-    // const uId = uniquid();
     let newView = {
-      // acsys_id: uId,
       is_table_mode: true,
       is_removable: true,
       link_view_id: '',
@@ -172,15 +171,16 @@ const LogicalContent = (props) => {
     };
     await Acsys.insertWithUID('acsys_views', { ...newView }).then(async () => {
       let newEntry = {
-        // acsys_id: uniquid(),
         name: name,
         description: description,
-        // viewId: uId,
         source_collection: collection,
         position: views.length + 1,
         table_keys: [],
       };
-      await Acsys.insertWithUID('acsys_logical_content', { ...newEntry }, ['acsys_id', 'viewId']);
+      await Acsys.insertWithUID('acsys_logical_content', { ...newEntry }, [
+        'acsys_id',
+        'viewId',
+      ]);
     });
 
     setAddLoading(false);
@@ -188,26 +188,12 @@ const LogicalContent = (props) => {
     mount();
   };
 
-  const updateDocument = (views) => {
-    context.setMode('update');
-    context.setIsRemovable(false);
-    context.setDataKeys(views.table_keys);
-    context.setRouted(true);
-    context.setViewId(views.viewId);
-    navigate('/DocumentView');
-  };
-
   const renderTableData = () => {
     return views
       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
       .map((views, key) => {
-        const {
-          name,
-          description,
-          viewId,
-          source_collection,
-          table_keys,
-        } = views;
+        const { name, description, viewId, source_collection, table_keys } =
+          views;
         return (
           <TableRow key={key}>
             {table_keys.length < 1 ? (
@@ -215,10 +201,10 @@ const LogicalContent = (props) => {
                 to={{
                   pathname:
                     '/CollectionView/' + source_collection + '/' + viewId,
-                  state: {
-                    table_keys: [],
-                    view: name,
-                  },
+                }}
+                state={{
+                  table_keys: [],
+                  view: name,
                 }}
                 component={Link}
                 style={{ minWidth: 150 }}
@@ -227,8 +213,17 @@ const LogicalContent = (props) => {
               </TableCell>
             ) : (
               <TableCell
-                onClick={() => updateDocument(views)}
-                style={{ minWidth: 150, cursor: 'pointer' }}
+                to={{
+                  pathname: '/DocumentView',
+                }}
+                state={{
+                  mode: 'update',
+                  table_keys: views.table_keys,
+                  routed: true,
+                  viewId: views.viewId,
+                }}
+                component={Link}
+                style={{ minWidth: 150 }}
               >
                 {name}
               </TableCell>
@@ -238,10 +233,10 @@ const LogicalContent = (props) => {
                 to={{
                   pathname:
                     '/CollectionView/' + source_collection + '/' + viewId,
-                  state: {
-                    table_keys: [],
-                    view: name,
-                  },
+                }}
+                state={{
+                  table_keys: [],
+                  view: name,
                 }}
                 component={Link}
                 style={{ width: '100%' }}
@@ -250,8 +245,16 @@ const LogicalContent = (props) => {
               </TableCell>
             ) : (
               <TableCell
-                onClick={() => updateDocument(views)}
-                style={{ cursor: 'pointer' }}
+                to={{
+                  pathname: '/DocumentView',
+                }}
+                state={{
+                  mode: 'update',
+                  table_keys: views.table_keys,
+                  routed: true,
+                  viewId: views.viewId,
+                }}
+                component={Link}
               >
                 {description}
               </TableCell>

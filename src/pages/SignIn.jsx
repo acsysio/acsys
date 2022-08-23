@@ -1,12 +1,6 @@
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Grid,
-  Hidden,
-  Typography,
-} from '@material-ui/core';
-import React, { useEffect, useState } from 'react';
+import { Box, Grid, Hidden, Typography } from '@mui/material';
+import LoadingButton from '@mui/lab/LoadingButton';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import * as Acsys from '../utils/Acsys/Acsys';
 
@@ -132,6 +126,7 @@ const SignInPage = () => {
         </Typography>
 
         <input
+          className="custom-input"
           id="email"
           name="email"
           placeholder="Email"
@@ -144,6 +139,7 @@ const SignInPage = () => {
         />
 
         <input
+          className="custom-input"
           id="username"
           name="username"
           placeholder="Username"
@@ -157,6 +153,7 @@ const SignInPage = () => {
         />
 
         <input
+          className="custom-input"
           id="passwordOne"
           name="passwordOne"
           placeholder="Password"
@@ -171,6 +168,7 @@ const SignInPage = () => {
         />
 
         <input
+          className="custom-input"
           id="passwordTwo"
           name="passwordTwo"
           placeholder="Confirm Password"
@@ -184,17 +182,17 @@ const SignInPage = () => {
           onChange={onChange}
         />
 
-        <Button
+        <LoadingButton
           disabled={isInvalidInitial || loading}
+          loading={loading}
           type="submit"
           style={{ marginTop: '20px' }}
           onClick={onSubmitInitial}
           variant="contained"
           color="primary"
         >
-          {loading && <CircularProgress size={24} />}
-          {!loading && 'Register'}
-        </Button>
+          Register
+        </LoadingButton>
 
         {error && (
           <Typography variant="body1" color="error">
@@ -232,6 +230,7 @@ const SignInPage = () => {
         </Typography>
 
         <input
+          className="custom-input"
           id="username"
           name="username"
           placeholder="Username"
@@ -244,6 +243,7 @@ const SignInPage = () => {
         />
 
         <input
+          className="custom-input"
           id="passwordOne"
           name="passwordOne"
           placeholder="Password"
@@ -257,17 +257,17 @@ const SignInPage = () => {
           onChange={onChange}
         />
 
-        <Button
+        <LoadingButton
           disabled={isInvalid || loading}
+          loading={loading}
           type="submit"
           style={{ marginTop: '20px' }}
           onClick={onSubmit}
           variant="contained"
           color="primary"
         >
-          {loading && <CircularProgress color="white" size={24} />}
-          {!loading && 'Sign In'}
-        </Button>
+          Sign In
+        </LoadingButton>
 
         <Typography
           variant="body2"
