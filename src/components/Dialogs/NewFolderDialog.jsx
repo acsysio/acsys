@@ -1,11 +1,10 @@
-import React from 'react';
 import {
   Button,
   Dialog,
   DialogTitle,
   DialogContent,
   Grid,
-} from '@material-ui/core';
+} from '@mui/material';
 
 export default function NewFolderDialog(props) {
   return (
@@ -22,6 +21,7 @@ export default function NewFolderDialog(props) {
       <DialogContent>
         <div style={{ width: 600, margin: 'auto' }}>
           <input
+            className="custom-input"
             placeholder="Enter folder name here"
             onChange={(e) => props.handleChange(e.target.value)}
             type="text"

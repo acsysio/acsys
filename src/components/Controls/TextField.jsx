@@ -1,11 +1,12 @@
-import { Grid } from '@material-ui/core';
-import React from 'react';
+import { Grid } from '@mui/material';
+import TextField from '@mui/material/TextField';
 
-export default function TextField(props) {
+export default function TField(props) {
   return (
     <Grid item xs={props.width}>
       <h3 className="element-header">{props.field_name.toUpperCase()}</h3>
       <input
+        className="custom-input"
         placeholder="Enter value here"
         defaultValue={props.defaultValue}
         onChange={(e) => props.handleChange(props.currentKey, e.target.value)}

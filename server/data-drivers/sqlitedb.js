@@ -132,7 +132,7 @@ class SqliteDriver {
             'CREATE TABLE IF NOT EXISTS acsys_user_reset (acsys_id TEXT, user_id Text, expiration_date INT)'
           );
         });
-        connected = true;        
+        connected = true;
         resolve(true);
       });
       resolve(false);
@@ -566,7 +566,7 @@ class SqliteDriver {
           query += `LIMIT 0,${options.limit}`;
         }
       }
-      
+
       await db.all(query, [], (error, rows) => {
         if (rows === undefined || error) {
           console.log(error);

@@ -1,17 +1,16 @@
-import { Grid, Typography } from '@material-ui/core';
-import React, { Component } from 'react';
+import { Grid, Typography } from '@mui/material';
 
 export default function Loading() {
   return (
     <Grid
       container
       alignItems="center"
-      justify="center"
+      justifyContent="center"
       direction="column"
       style={{ height: '100vh' }}
     >
-      <Grid container style={{ width: 300 }}>
-        <img style={{ width: '100%' }} src="/acsys-icon.svg" alt="" />
+      <Grid item xs={3}>
+        <img style={{ width: 300 }} src="/acsys-icon.svg" alt="" />
         <Typography variant="h4" style={{ margin: 'auto' }}>
           Loading...
         </Typography>

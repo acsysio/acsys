@@ -1,10 +1,10 @@
-import AppBar from '@material-ui/core/AppBar';
-import Grid from '@material-ui/core/Grid';
-import Hidden from '@material-ui/core/Hidden';
-import IconButton from '@material-ui/core/IconButton';
-import Tooltip from '@material-ui/core/Tooltip';
-import { AccountCircle as AccountCircleIcon } from '@material-ui/icons';
-import MenuIcon from '@material-ui/icons/Menu';
+import AppBar from '@mui/material/AppBar';
+import Grid from '@mui/material/Grid';
+import Hidden from '@mui/material/Hidden';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+import { AccountCircle as AccountCircleIcon } from '@mui/icons-material';
+import MenuIcon from '@mui/icons-material/Menu';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import * as ROUTES from '../constants/routes';
@@ -20,15 +20,11 @@ export default function Header(props) {
         position="fixed"
         elevation={0}
       >
-        <Grid container spacing={1} alignItems="center">
-          <Hidden smDown implementation="css">
-            <img
-              src="/acsys-logo.svg"
-              alt=""
-              style={{ height: 45, marginLeft: 10 }}
-            />
+        <Grid container alignItems="center">
+          <Hidden mdDown>
+            <img src="/acsys-logo.svg" alt="" style={{ height: 42 }} />
           </Hidden>
-          <Hidden mdUp implementation="css">
+          <Hidden mdUp>
             <Grid item>
               <IconButton
                 color="inherit"

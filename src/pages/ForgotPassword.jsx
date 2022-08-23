@@ -1,11 +1,6 @@
-import React, { useState } from 'react';
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Grid,
-  Typography,
-} from '@material-ui/core';
+import { useState } from 'react';
+import { Box, Grid, Typography } from '@mui/material';
+import LoadingButton from '@mui/lab/LoadingButton';
 import * as Acsys from '../utils/Acsys/Acsys';
 
 const ForgotPassword = () => {
@@ -71,6 +66,7 @@ const ForgotPassword = () => {
       </Typography>
 
       <input
+        className="custom-input"
         id="email"
         name="email"
         placeholder="Email"
@@ -84,16 +80,16 @@ const ForgotPassword = () => {
         onChange={onChange}
       />
 
-      <Button
+      <LoadingButton
         type="submit"
+        loading={loading}
         style={{ marginTop: '20px' }}
         onClick={onSubmit}
         variant="contained"
         color="primary"
       >
-        {loading && <CircularProgress color="white" size={24} />}
-        {!loading && 'Send reset email'}
-      </Button>
+        Send reset email
+      </LoadingButton>
 
       {error && (
         <Typography variant="body1" color="error">

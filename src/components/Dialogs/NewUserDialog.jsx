@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Button,
   CircularProgress,
@@ -8,7 +7,7 @@ import {
   DialogContent,
   NativeSelect,
   Typography,
-} from '@material-ui/core';
+} from '@mui/material';
 
 export default function NewUserDialog(props) {
   return (
@@ -33,6 +32,7 @@ export default function NewUserDialog(props) {
         </NativeSelect>
 
         <input
+          className="custom-input"
           id="email"
           name="email"
           placeholder="Email"
@@ -45,6 +45,7 @@ export default function NewUserDialog(props) {
         />
 
         <input
+          className="custom-input"
           id="username"
           name="username"
           placeholder="Username"
@@ -57,6 +58,7 @@ export default function NewUserDialog(props) {
         />
 
         <input
+          className="custom-input"
           id="passwordOne"
           name="passwordOne"
           placeholder="Password"
@@ -70,6 +72,7 @@ export default function NewUserDialog(props) {
         />
 
         <input
+          className="custom-input"
           id="passwordTwo"
           name="passwordTwo"
           placeholder="Confirm Password"

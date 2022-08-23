@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Button,
   CircularProgress,
@@ -10,7 +9,7 @@ import {
   Grid,
   NativeSelect,
   Typography,
-} from '@material-ui/core';
+} from '@mui/material';
 
 export default function ViewDialog(props) {
   return (

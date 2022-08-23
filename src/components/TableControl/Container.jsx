@@ -1,5 +1,5 @@
-import IconButton from '@material-ui/core/IconButton';
-import AddButton from '@material-ui/icons/AddCircle';
+import IconButton from '@mui/material/IconButton';
+import AddButton from '@mui/icons-material/AddCircle';
 import React, { useEffect, useState } from 'react';
 import Card from './Card';
 
@@ -65,6 +65,7 @@ const Container = (props) => {
         }}
       >
         <input
+          className="custom-input"
           placeholder="Enter Table Name"
           defaultValue={tName}
           onChange={(e) => setTableName(e.target.value)}

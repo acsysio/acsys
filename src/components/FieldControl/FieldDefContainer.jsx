@@ -1,7 +1,6 @@
 import update from 'immutability-helper';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Card from './FieldDefCard';
-import * as Acsys from '../../utils/Acsys/Acsys';
 
 let tempDetails;
 let startIndex;

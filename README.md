@@ -14,12 +14,6 @@
   <a href="https://github.com/aeon-software/acsys">
     <img src="https://img.shields.io/github/repo-size/aeon-software/acsys" />
   </a>
-  <a href="https://hub.docker.com/r/acsysio/acsys">
-    <img src="https://img.shields.io/docker/cloud/automated/acsysio/acsys" />
-  </a>
-  <a href="https://hub.docker.com/r/acsysio/acsys/builds">
-    <img src="https://img.shields.io/docker/cloud/build/acsysio/acsys" />
-  </a>
 </p>
 
 ## Acsys [Live Demo](https://demo.acsys.io/)

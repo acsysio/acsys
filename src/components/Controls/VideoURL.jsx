@@ -1,5 +1,4 @@
-import { Button, Grid } from '@material-ui/core';
-import React from 'react';
+import { Button, Grid } from '@mui/material';
 
 export default function ImageReference(props) {
   if (props.url === undefined || props.url === '') {

@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Button,
   Dialog,
@@ -6,7 +5,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-} from '@material-ui/core';
+} from '@mui/material';
 
 export default function MessageDialog(props) {
   return (

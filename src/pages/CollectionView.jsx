@@ -7,24 +7,23 @@ import {
   TableHead,
   TableRow,
   Tooltip,
-} from '@material-ui/core';
-import AppBar from '@material-ui/core/AppBar';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import IconButton from '@material-ui/core/IconButton';
-import Paper from '@material-ui/core/Paper';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
+} from '@mui/material';
+import AppBar from '@mui/material/AppBar';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
+import IconButton from '@mui/material/IconButton';
+import Paper from '@mui/material/Paper';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
 import {
-  Create as CreateIcon,
   Delete as DeleteIcon,
   FileCopyOutlined as CopyIcon,
   KeyboardArrowLeft,
   KeyboardArrowRight,
-} from '@material-ui/icons';
-import React, { useState, useContext, useEffect } from 'react';
+} from '@mui/icons-material';
+import { useState, useContext, useEffect } from 'react';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import * as Acsys from '../utils/Acsys/Acsys';
 import { AcsysContext } from '../utils/Session/AcsysProvider';
 import FieldDef from '../components/FieldControl/FieldDef';
@@ -45,6 +44,7 @@ let row_num = 10;
 
 const CollectionView = (props) => {
   const context = useContext(AcsysContext);
+  const location = useLocation();
   const navigate = useNavigate();
   const params = useParams();
   const [content_id, setContentId] = useState('');
@@ -182,7 +182,7 @@ const CollectionView = (props) => {
       ['acsys_id', '=', tempView.acsys_id],
     ]);
     setSetViewOpen(false);
-    setReset(True);
+    setReset(true);
     setTotalRows(0);
     setPage(1);
     table_keys = [];
@@ -220,7 +220,7 @@ const CollectionView = (props) => {
     }
 
     handleClose();
-    setReset(True);
+    setReset(true);
     table_keys = [];
     mount();
     setDeleteLoading(false);
@@ -388,11 +388,7 @@ const CollectionView = (props) => {
     lockedValue = true;
     is_removable = true;
     view_orderField = 'none';
-    // view_order = 'asc';
     row_num = 10;
-    // if (!reset) {
-    //   table_keys = props.location.state.table_keys;
-    // }
     let acsys_id = '';
     if (published) {
       acsys_id = params.acsys_id;
@@ -512,7 +508,7 @@ const CollectionView = (props) => {
     }
 
     setReset(false);
-    // setView(props.location.state.view);
+    setView(location.state.view);
     setLoading(false);
     setLocked(locked);
     setContentId(content_id);
@@ -525,32 +521,6 @@ const CollectionView = (props) => {
     setTotalRows(totalRows);
     setViewOrderPage(order);
     setOrderDir(orderDir);
-  };
-
-  const updateDocument = (index) => {
-    if (table_keys.length > 0) {
-      context.setMode('update');
-      context.setIsRemovable(is_removable);
-      context.setDataKeys(table_keys[index]);
-      context.setRouted(false);
-      context.setViewId(documentDetails[0].content_id);
-      navigate('/DocumentView');
-    } else {
-      openKeyMessageFunc();
-    }
-  };
-
-  const addDocument = () => {
-    if (table_keys.length > 0) {
-      context.setMode('add');
-      context.setIsRemovable(is_removable);
-      context.setDataKeys(tempKeys[0]);
-      context.setRouted(false);
-      context.setViewId(projectId);
-      navigate('/DocumentView');
-    } else {
-      openKeyMessageFunc();
-    }
   };
 
   const renderHeader = () => {
@@ -590,11 +560,6 @@ const CollectionView = (props) => {
     }
   };
 
-  const renderCellData = (rowData) => {
-    return rowData.map((column) => {
-      return <TableCell>{column}</TableCell>;
-    });
-  };
   const renderTableData = () => {
     return tableData.map((tableData, rowIndex) => {
       let tempKey = [];
@@ -677,9 +642,22 @@ const CollectionView = (props) => {
                 </TableCell>
               ) : (
                 <TableCell
-                  // component={Link}
-                  onClick={() => updateDocument(rowIndex)}
-                  style={{ overflow: 'hidden', textOverflow: 'ellipsis', cursor: 'pointer' }}
+                  to={{
+                    pathname: '/DocumentView',
+                  }}
+                  state={{
+                    mode: 'update',
+                    is_removable: is_removable,
+                    table_keys: table_keys[rowIndex],
+                    routed: false,
+                    viewId: documentDetails[0].content_id,
+                  }}
+                  component={Link}
+                  style={{
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    cursor: 'pointer',
+                  }}
                 >
                   {returnValue}
                 </TableCell>
@@ -882,8 +860,16 @@ const CollectionView = (props) => {
                 {Acsys.getMode() !== 'Viewer' && is_removable ? (
                   <Tooltip title="Add New Entry To Table">
                     <Button
-                      onClick={() => addDocument()}
-                      // component={Link}
+                      to={{
+                        pathname: '/DocumentView',
+                      }}
+                      state={{
+                        mode: 'add',
+                        table_keys: tempKeys[0],
+                        routed: false,
+                        viewId: projectId,
+                      }}
+                      component={Link}
                       variant="contained"
                       color="primary"
                     >

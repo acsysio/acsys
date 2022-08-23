@@ -1,10 +1,9 @@
-import React from 'react';
 import {
   Dialog,
   DialogTitle,
   DialogContent,
   CircularProgress,
-} from '@material-ui/core';
+} from '@mui/material';
 
 export default function LoadingDialog(props) {
   return (
