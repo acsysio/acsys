@@ -22,11 +22,7 @@ export default function Header(props) {
       >
         <Grid container alignItems="center">
           <Hidden mdDown>
-            <img
-              src="/acsys-logo.svg"
-              alt=""
-              style={{ height: 42 }}
-            />
+            <img src="/acsys-logo.svg" alt="" style={{ height: 42 }} />
           </Hidden>
           <Hidden mdUp>
             <Grid item>

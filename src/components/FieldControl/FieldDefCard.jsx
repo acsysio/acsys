@@ -1,15 +1,9 @@
 /* eslint-disable react/jsx-boolean-value */
-import {
-  AppBar,
-  Grid,
-  NativeSelect,
-  Paper,
-  Typography,
-} from '@mui/material';
+import { AppBar, Grid, NativeSelect, Paper, Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import AddButton from '@mui/icons-material/AddCircle';
 import RemoveButton from '@mui/icons-material/RemoveCircle';
-import React, { memo, useMemo, useEffect, useState, useRef } from 'react';
+import { useMemo, useEffect, useState, useRef } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import ItemTypes from './ItemTypes';
 

@@ -1,12 +1,10 @@
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import Hidden from '@mui/material/Hidden';
-import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import CloseIcon from '@mui/icons-material/Close';
 import FolderIcon from '@mui/icons-material/Folder';
 import InfoIcon from '@mui/icons-material/Info';
 import PeopleIcon from '@mui/icons-material/People';
@@ -22,7 +20,7 @@ function Navigator(props) {
   const styles = {
     categoryHeader: {
       paddingTop: 15,
-      paddingBottom: 15, 
+      paddingBottom: 15,
     },
     categoryHeaderPrimary: {
       // color: theme.palette.common.white,
@@ -38,7 +36,6 @@ function Navigator(props) {
     },
     itemCategory: {
       backgroundColor: '#232f3e',
-      
     },
     firebase: {
       fontSize: 24,
@@ -63,7 +60,11 @@ function Navigator(props) {
     {
       id: 'Content',
       children: [
-        { id: 'Content', icon: <FolderIcon sx={{ fontSize: 20 }} />, route: ROUTES.LogicalContent },
+        {
+          id: 'Content',
+          icon: <FolderIcon sx={{ fontSize: 20 }} />,
+          route: ROUTES.LogicalContent,
+        },
         {
           id: 'Storage',
           icon: <PermMediaOutlinedIcon sx={{ fontSize: 20 }} />,
@@ -81,20 +82,36 @@ function Navigator(props) {
       {
         id: 'Content',
         children: [
-          { id: 'Content', icon: <FolderIcon sx={{ fontSize: 20 }} />, route: ROUTES.LogicalContent },
+          {
+            id: 'Content',
+            icon: <FolderIcon sx={{ fontSize: 20 }} />,
+            route: ROUTES.LogicalContent,
+          },
           {
             id: 'Storage',
             icon: <PermMediaOutlinedIcon sx={{ fontSize: 20 }} />,
             route: ROUTES.Storage,
           },
-          { id: 'Database', icon: <DataBaseIcon sx={{ fontSize: 20 }} />, route: ROUTES.Database },
+          {
+            id: 'Database',
+            icon: <DataBaseIcon sx={{ fontSize: 20 }} />,
+            route: ROUTES.Database,
+          },
         ],
       },
       {
         id: 'Administration',
         children: [
-          { id: 'Users', icon: <PeopleIcon sx={{ fontSize: 20 }} />, route: ROUTES.Users },
-          { id: 'Settings', icon: <SettingsIcon sx={{ fontSize: 20 }} />, route: ROUTES.Settings },
+          {
+            id: 'Users',
+            icon: <PeopleIcon sx={{ fontSize: 20 }} />,
+            route: ROUTES.Users,
+          },
+          {
+            id: 'Settings',
+            icon: <SettingsIcon sx={{ fontSize: 20 }} />,
+            route: ROUTES.Settings,
+          },
         ],
       },
     ];
@@ -105,9 +122,7 @@ function Navigator(props) {
       {categories.map(({ id, children }) => (
         <React.Fragment key={id}>
           <ListItem style={styles.categoryHeader}>
-            <ListItemText>
-              {id}
-            </ListItemText>
+            <ListItemText>{id}</ListItemText>
           </ListItem>
           {children.map(({ id: childId, icon, route }) => (
             <Link to={route} style={{ textDecoration: 'none' }}>
@@ -123,9 +138,7 @@ function Navigator(props) {
         </React.Fragment>
       ))}
       <ListItem style={styles.categoryHeader}>
-        <ListItemText>
-          General
-        </ListItemText>
+        <ListItemText>General</ListItemText>
       </ListItem>
       <a
         href="https://acsys.io/"
@@ -136,9 +149,7 @@ function Navigator(props) {
           <ListItemIcon style={styles.itemIcon}>
             <InfoIcon sx={{ fontSize: 20 }} />
           </ListItemIcon>
-          <ListItemText style={styles.itemPrimary}>
-            Info
-          </ListItemText>
+          <ListItemText style={styles.itemPrimary}>Info</ListItemText>
         </ListItem>
       </a>
       <Divider style={styles.divider} />
@@ -150,9 +161,7 @@ function Navigator(props) {
       {categories.map(({ id, children }) => (
         <React.Fragment key={id}>
           <ListItem style={styles.categoryHeader}>
-            <ListItemText>
-              {id}
-            </ListItemText>
+            <ListItemText>{id}</ListItemText>
           </ListItem>
           {children.map(({ id: childId, icon, route }) => (
             <Link to={route} style={{ textDecoration: 'none' }}>
@@ -173,9 +182,7 @@ function Navigator(props) {
         </React.Fragment>
       ))}
       <ListItem style={styles.categoryHeader}>
-        <ListItemText>
-          General
-        </ListItemText>
+        <ListItemText>General</ListItemText>
       </ListItem>
       <a
         href="https://acsys.io/"
@@ -186,9 +193,7 @@ function Navigator(props) {
           <ListItemIcon style={styles.itemIcon}>
             <InfoIcon sx={{ fontSize: 20 }} />
           </ListItemIcon>
-          <ListItemText style={styles.itemPrimary}>
-            Info
-          </ListItemText>
+          <ListItemText style={styles.itemPrimary}>Info</ListItemText>
         </ListItem>
       </a>
       <Divider style={styles.divider} />

@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './css/acsys.css';
 import './css/react-datetime.css';
@@ -28,7 +28,10 @@ export default function App() {
               path={ROUTES.PasswordReset}
               render={(props) => <PasswordReset {...props} />}
             />
-            <Route path={ROUTES.ForgotPassword} render={() => <ForgotPassword />} />
+            <Route
+              path={ROUTES.ForgotPassword}
+              render={() => <ForgotPassword />}
+            />
             <Route path="/" element={<Driver />}>
               <Route index element={<LogicalContent />} />
               <Route
@@ -37,54 +40,17 @@ export default function App() {
               />
               <Route
                 path={ROUTES.CollectionView}
-                element={
-                  <CollectionView />
-                }
+                element={<CollectionView />}
               />
-              <Route
-                path={ROUTES.DocumentView}
-                element={
-                  <DocumentView />
-                }
-              />
-              <Route
-                path={ROUTES.Storage}
-                element={
-                  <Storage />
-                }
-              />
-              <Route
-                path={ROUTES.StorageParam}
-                element={
-                  <Storage />
-                }
-              />
-              <Route
-                path={ROUTES.Account}
-                element={
-                  <Account />
-                }
-              />
+              <Route path={ROUTES.DocumentView} element={<DocumentView />} />
+              <Route path={ROUTES.Storage} element={<Storage />} />
+              <Route path={ROUTES.StorageParam} element={<Storage />} />
+              <Route path={ROUTES.Account} element={<Account />} />
               {Acsys.getRole() === 'Administrator' ? (
                 <Route>
-                  <Route
-                    path={ROUTES.Database}
-                    element={
-                      <Database />
-                    }
-                  />
-                  <Route
-                    path={ROUTES.Users}
-                    element={
-                      <Users />
-                    }
-                  />
-                  <Route
-                    path={ROUTES.Settings}
-                    element={
-                      <Settings />
-                    }
-                  />
+                  <Route path={ROUTES.Database} element={<Database />} />
+                  <Route path={ROUTES.Users} element={<Users />} />
+                  <Route path={ROUTES.Settings} element={<Settings />} />
                 </Route>
               ) : (
                 <Route />

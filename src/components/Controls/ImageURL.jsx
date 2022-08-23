@@ -1,5 +1,4 @@
 import { Button, Grid } from '@mui/material';
-import React from 'react';
 
 export default function ImageURL(props) {
   if (props.url === undefined || props.url === '') {

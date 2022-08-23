@@ -1,5 +1,4 @@
 import {
-  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -18,7 +17,7 @@ import Typography from '@mui/material/Typography';
 import { KeyboardArrowDown } from '@mui/icons-material';
 import LoadingDialog from '../components/Dialogs/LoadingDialog';
 import MessageDialog from '../components/Dialogs/MessageDialog';
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import * as Acsys from '../utils/Acsys/Acsys';
 import { AcsysContext } from '../utils/Session/AcsysProvider';
 

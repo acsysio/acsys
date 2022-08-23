@@ -3,13 +3,8 @@ import Grid from '@mui/material/Grid';
 import Hidden from '@mui/material/Hidden';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import React, { lazy, useContext, useEffect, useState } from 'react';
-import {
-  Navigate,
-  Routes,
-  Route,
-  Outlet,
-} from 'react-router-dom';
+import { useContext, useEffect, useState } from 'react';
+import { Outlet } from 'react-router-dom';
 import * as Acsys from './utils/Acsys/Acsys';
 import Footer from './components/Footer';
 import Header from './components/Header';
@@ -99,7 +94,9 @@ export default function Driver(props) {
                           className="select-css"
                         >
                           {Acsys.getRole() === 'Administrator' ? (
-                            <option value={'Administrator'}>Administrator</option>
+                            <option value={'Administrator'}>
+                              Administrator
+                            </option>
                           ) : (
                             <div />
                           )}
@@ -135,7 +132,5 @@ export default function Driver(props) {
     }
   };
 
-  return (
-    renderApp()
-  );
+  return renderApp();
 }

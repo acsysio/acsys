@@ -1,12 +1,6 @@
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Grid,
-  Typography,
-} from '@mui/material';
+import { Box, Grid, Typography } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import * as Acsys from '../utils/Acsys/Acsys';
 
 const PasswordReset = (props) => {

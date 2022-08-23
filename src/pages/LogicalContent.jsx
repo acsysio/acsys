@@ -14,9 +14,12 @@ import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { Create as CreateIcon, Delete as DeleteIcon } from '@mui/icons-material';
-import React, { useEffect, useState, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import {
+  Create as CreateIcon,
+  Delete as DeleteIcon,
+} from '@mui/icons-material';
+import { useEffect, useState, useContext } from 'react';
+import { Link } from 'react-router-dom';
 import * as Acsys from '../utils/Acsys/Acsys';
 import { AcsysContext } from '../utils/Session/AcsysProvider';
 import AddViewDialog from '../components/Dialogs/AddViewDialog';
@@ -28,7 +31,6 @@ let tempView = [];
 let position = 0;
 
 const LogicalContent = (props) => {
-  const navigate = useNavigate();
   const [viewId, setViewId] = useState('');
   const [name, setName] = useState('');
   const [collectionArr, setCollectionArr] = useState([]);
@@ -158,9 +160,7 @@ const LogicalContent = (props) => {
 
   const addView = async () => {
     setAddLoading(true);
-    // const uId = uniquid();
     let newView = {
-      // acsys_id: uId,
       is_table_mode: true,
       is_removable: true,
       link_view_id: '',
@@ -171,15 +171,16 @@ const LogicalContent = (props) => {
     };
     await Acsys.insertWithUID('acsys_views', { ...newView }).then(async () => {
       let newEntry = {
-        // acsys_id: uniquid(),
         name: name,
         description: description,
-        // viewId: uId,
         source_collection: collection,
         position: views.length + 1,
         table_keys: [],
       };
-      await Acsys.insertWithUID('acsys_logical_content', { ...newEntry }, ['acsys_id', 'viewId']);
+      await Acsys.insertWithUID('acsys_logical_content', { ...newEntry }, [
+        'acsys_id',
+        'viewId',
+      ]);
     });
 
     setAddLoading(false);
@@ -191,13 +192,8 @@ const LogicalContent = (props) => {
     return views
       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
       .map((views, key) => {
-        const {
-          name,
-          description,
-          viewId,
-          source_collection,
-          table_keys,
-        } = views;
+        const { name, description, viewId, source_collection, table_keys } =
+          views;
         return (
           <TableRow key={key}>
             {table_keys.length < 1 ? (

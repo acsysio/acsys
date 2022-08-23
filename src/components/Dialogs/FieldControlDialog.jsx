@@ -1,5 +1,4 @@
 import { DndProvider } from 'react-dnd';
-import React from 'react';
 import {
   Button,
   CircularProgress,

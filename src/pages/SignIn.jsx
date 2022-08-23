@@ -1,6 +1,6 @@
 import { Box, Grid, Hidden, Typography } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import * as Acsys from '../utils/Acsys/Acsys';
 

@@ -807,7 +807,7 @@ router.post('/insertOpenData', function (req, res) {
 
 router.post('/insertOpenWithUID', function (req, res) {
   const insertData = req.body;
-  
+
   data
     .checkOpenTable(insertData.table)
     .then((result) => {

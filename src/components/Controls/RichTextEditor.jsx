@@ -1,5 +1,4 @@
 import { Grid, Hidden } from '@mui/material';
-import React from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -37,7 +36,7 @@ export default function RichTextEditor(props) {
       <h3 className="element-header">{props.field_name.toUpperCase()}</h3>
       <div className="quill-container">
         <ReactQuill
-          theme='snow'
+          theme="snow"
           ref={(el) => {
             props.setQuillRef(el);
           }}

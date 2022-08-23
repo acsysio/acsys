@@ -1,4 +1,3 @@
-import React from 'react';
 import { Dialog, DialogContent } from '@mui/material';
 
 export default function ImageDialog(props) {

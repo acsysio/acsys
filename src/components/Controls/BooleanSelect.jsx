@@ -1,5 +1,4 @@
 import { Grid, NativeSelect } from '@mui/material';
-import React from 'react';
 
 export default function BooleanSelect(props) {
   return (

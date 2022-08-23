@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-const Context = React.createContext();
+import { createContext, useState } from 'react';
+const Context = createContext();
 const { Provider, Consumer } = Context;
 
 const AcsysProvider = (props) => {

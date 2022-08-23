@@ -11,7 +11,7 @@ import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import { KeyboardArrowDown } from '@mui/icons-material';
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import * as Acsys from '../utils/Acsys/Acsys';
 import { AcsysContext } from '../utils/Session/AcsysProvider';
 import LoadingDialog from '../components/Dialogs/LoadingDialog';
@@ -51,10 +51,8 @@ const Settings = (props) => {
   const [updateStorage, setUpdateStorage] = useState(false);
   const [uploadFile, setUploadFile] = useState();
   const [fileName, setFileName] = useState('');
-  const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
-  const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [messageOpen, setMessageOpen] = useState(false);
   const [isStateless, setIsStateless] = useState('');
@@ -71,10 +69,6 @@ const Settings = (props) => {
 
   const handleMessageClose = () => {
     setMessageOpen(false);
-  };
-
-  const closeDialog = () => {
-    setLoading(false);
   };
 
   useEffect(() => {

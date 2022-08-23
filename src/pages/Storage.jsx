@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import {
   AppBar,
   Table,
@@ -284,10 +284,7 @@ const Storage = (props) => {
   const load = async () => {
     try {
       const dir = prams.dir.replace('~', '/');
-      if (
-        dir !== currentDir.substring(1)
-        && dir !== ':dir'
-      ) {
+      if (dir !== currentDir.substring(1) && dir !== ':dir') {
         let newDir = '/' + dir + '/';
         if (newDir.length < 1) {
           newDir = '/';

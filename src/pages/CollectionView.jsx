@@ -21,7 +21,7 @@ import {
   KeyboardArrowLeft,
   KeyboardArrowRight,
 } from '@mui/icons-material';
-import React, { useState, useContext, useEffect } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import * as Acsys from '../utils/Acsys/Acsys';
@@ -388,11 +388,7 @@ const CollectionView = (props) => {
     lockedValue = true;
     is_removable = true;
     view_orderField = 'none';
-    // view_order = 'asc';
     row_num = 10;
-    // if (!reset) {
-    //   table_keys = props.location.state.table_keys;
-    // }
     let acsys_id = '';
     if (published) {
       acsys_id = params.acsys_id;
@@ -657,7 +653,11 @@ const CollectionView = (props) => {
                     viewId: documentDetails[0].content_id,
                   }}
                   component={Link}
-                  style={{ overflow: 'hidden', textOverflow: 'ellipsis', cursor: 'pointer' }}
+                  style={{
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    cursor: 'pointer',
+                  }}
                 >
                   {returnValue}
                 </TableCell>

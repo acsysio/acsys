@@ -10,7 +10,7 @@ import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { FileCopyOutlined as CopyIcon } from '@mui/icons-material';
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import * as Acsys from '../utils/Acsys/Acsys';
@@ -217,13 +217,12 @@ const DocumentView = (props) => {
         const result = await Acsys.insertWithUID(
           'acsys_' + collection,
           { ...tempDocument },
-          uFields,
+          uFields
         );
       } else {
-        const result = await Acsys.insertData(
-          'acsys_' + collection,
-          { ...tempDocument },
-        );
+        const result = await Acsys.insertData('acsys_' + collection, {
+          ...tempDocument,
+        });
       }
     }
     table_keys = [];
@@ -810,7 +809,10 @@ const DocumentView = (props) => {
             <div />
           )}
           {Acsys.getMode() === 'Administrator' ? (
-            <FormControl variant="standard" sx={{ m: 1, minWidth: 120, float: 'right' }}>
+            <FormControl
+              variant="standard"
+              sx={{ m: 1, minWidth: 120, float: 'right' }}
+            >
               <Select
                 defaultValue={location.state.routed}
                 onChange={(e) => saveView(e.target.value)}

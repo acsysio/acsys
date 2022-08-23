@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Button,
   Dialog,
@@ -24,7 +23,9 @@ export default function AddViewDialog(props) {
             onChange={(e) => props.setCollection(e.target.value)}
             className="select-css"
           >
-            <option disabled selected value>select an option</option>
+            <option disabled selected value>
+              select an option
+            </option>
             {props.collectionArr.map((value) => {
               return <option value={value}>{value}</option>;
             })}
