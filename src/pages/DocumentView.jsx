@@ -50,7 +50,7 @@ const DocumentView = (props) => {
   const [collection, setCollection] = useState('');
   const [documentDetails, setdocumentDetails] = useState([]);
   const [fileMode, setfileMode] = useState('');
-  const [draft, setdraft] = useState(false);
+  const [draft, setdraft] = useState(location.state.draft);
   const [views, setviews] = useState([]);
   const [apiCall, setapiCall] = useState('');
   const [keys, setkeys] = useState([]);
@@ -149,30 +149,6 @@ const DocumentView = (props) => {
     tempDocument[key] = event;
   };
 
-  const getMaxPos = async (table, field) => {
-    return new Promise(async (resolve, reject) => {
-      const pos = await Acsys.getData(table, '', 1, [field], 'desc')
-        .then((result) => {
-          resolve(result[0][field]);
-        })
-        .catch(() => {
-          resolve(0);
-        });
-    });
-  };
-
-  const increment = async (table, field, start, num) => {
-    return new Promise(async (resolve, reject) => {
-      await Acsys.increment(table, field, start, num)
-        .then(() => {
-          resolve(true);
-        })
-        .catch(() => {
-          resolve(false);
-        });
-    });
-  };
-
   const saveDocument = async () => {
     setsaving(true);
     if (mode === 'update') {
@@ -214,13 +190,13 @@ const DocumentView = (props) => {
         }
       }
       if (uFields.length > 0) {
-        const result = await Acsys.insertWithUID(
+        await Acsys.insertWithUID(
           'acsys_' + collection,
           { ...tempDocument },
           uFields
         );
       } else {
-        const result = await Acsys.insertData('acsys_' + collection, {
+        await Acsys.insertData('acsys_' + collection, {
           ...tempDocument,
         });
       }
@@ -235,8 +211,11 @@ const DocumentView = (props) => {
         table_keys.push(object);
       }
     }
-    mode = 'update';
-    mount();
+    if (mode !== 'update') {
+      mode = 'update';
+      load();
+    }
+    setsaving(false);
   };
 
   const publishDocument = async () => {
@@ -285,7 +264,6 @@ const DocumentView = (props) => {
       let uFields = [];
       for (var i = 0; i < tempDetails.length; i++) {
         if (tempDetails[i].control === 'autoGen') {
-          // tempDocument[tempDetails[i].field_name] = uniquid();
           uFields.push(tempDetails[i].field_name);
         } else if (fileDoc[tempDetails[i].field_name] !== undefined) {
           tempDocument[tempDetails[i].field_name] =
@@ -301,10 +279,13 @@ const DocumentView = (props) => {
         }
       }
       if (uFields.length > 0) {
-        await Acsys.insertWithUID(collection, {
-          ...tempDocument,
-          uFields,
-        });
+        await Acsys.insertWithUID(
+          collection,
+          {
+            ...tempDocument,
+          },
+          uFields
+        );
       } else {
         await Acsys.insertData(collection, {
           ...tempDocument,
@@ -321,8 +302,11 @@ const DocumentView = (props) => {
         table_keys.push(object);
       }
     }
-    mode = 'update';
-    mount();
+    if (mode !== 'update') {
+      mode = 'update';
+      load();
+    }
+    setsaving(false);
   };
 
   const saveSettings = async () => {
@@ -437,7 +421,6 @@ const DocumentView = (props) => {
         routedLocal = true;
       }
       try {
-        // mode = location.state.getMode();
         mode = location.state.mode;
         is_removable = location.state.isRemovable;
         if (routedLocal) {
@@ -482,16 +465,17 @@ const DocumentView = (props) => {
         for (let i = 0; i < table_keys.length; i++) {
           keys.push([table_keys[i].field, '=', table_keys[i].value]);
         }
-        await Acsys.getData(table, keys)
-          .then((result) => {
-            pullView = result;
-          })
-          .catch(async () => {});
-        if (pullView.length < 1) {
+        if (draft) {
           await Acsys.getData('acsys_' + table, keys).then((result) => {
             pullView = result;
             draft = true;
           });
+        } else {
+          await Acsys.getData(table, keys)
+            .then((result) => {
+              pullView = result;
+            })
+            .catch(async () => {});
         }
         await Acsys.getData('acsys_open_tables', [['table_name', '=', table]])
           .then(async (result) => {

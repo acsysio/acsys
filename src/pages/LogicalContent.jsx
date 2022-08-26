@@ -160,28 +160,8 @@ const LogicalContent = (props) => {
 
   const addView = async () => {
     setAddLoading(true);
-    let newView = {
-      is_table_mode: true,
-      is_removable: true,
-      link_view_id: '',
-      link_table: '',
-      order_by: '',
-      view_order: '',
-      row_num: 10,
-    };
-    await Acsys.insertWithUID('acsys_views', { ...newView }).then(async () => {
-      let newEntry = {
-        name: name,
-        description: description,
-        source_collection: collection,
-        position: views.length + 1,
-        table_keys: [],
-      };
-      await Acsys.insertWithUID('acsys_logical_content', { ...newEntry }, [
-        'acsys_id',
-        'viewId',
-      ]);
-    });
+
+    await Acsys.createView(name, description, collection);
 
     setAddLoading(false);
     handleClose();
@@ -408,7 +388,6 @@ const LogicalContent = (props) => {
               'aria-label': 'next page',
             }}
             onChangePage={handleChangePage}
-            // onChangeRowsPerPage={this.handleChangeRowsPerPage}
           />
           <LoadingDialog loading={loading} message={'Loading'} />
           <AddViewDialog
