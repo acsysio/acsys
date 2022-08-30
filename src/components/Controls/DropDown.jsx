@@ -22,7 +22,7 @@ export default function DropDown(props) {
         setOptions(tempArr);
       })
       .catch(() => {});
-  }, []);
+  }, [props.pivot]);
   return (
     <Grid item xs={props.width}>
       <h3 className="element-header">{props.field_name.toUpperCase()}</h3>

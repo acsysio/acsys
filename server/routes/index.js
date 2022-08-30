@@ -701,7 +701,7 @@ router.post('/createView', function (req, res) {
         viewId: view_id,
         description: insertData.description,
         source_collection: insertData.collection,
-        position: lcont + 1,
+        position: lcont.length + 1,
         table_keys: [],
       };
       data
@@ -769,15 +769,19 @@ router.post('/insertWithUID', function (req, res) {
   const insertData = req.body;
   let fields = insertData.fields;
   let dataWithId = insertData.entry;
+  let nIds = [];
   if (fields !== undefined && fields.length > 0) {
     for (let i = 0; i < fields.length; i++) {
-      dataWithId[fields[i].toString()] = uniquid();
+      const nId = uniquid();
+      nIds[fields[i].toString()] = nId;
+      nIds.push({ field: fields[i].toString(), value: nId });
+      dataWithId[fields[i].toString()] = nId;
     }
   } else {
     dataWithId['acsys_id'] = uniquid();
   }
   data.insert(insertData.table, dataWithId).then((result) => {
-    res.send(result);
+    res.send({ status: result, fields: nIds });
   });
 });
 
