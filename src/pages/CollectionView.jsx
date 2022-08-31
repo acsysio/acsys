@@ -83,7 +83,7 @@ const CollectionView = (props) => {
   const openKeyMessageFunc = () => {
     setOpenKeyMessage(true);
     setMessageTitle('Error');
-    setMessage('No keys set Please setUnique key for data.');
+    setMessage('Please setUnique key for data.');
   };
 
   const closeKeyMessage = () => {
@@ -593,24 +593,7 @@ const CollectionView = (props) => {
               }
             });
             if (details.is_visible_on_table) {
-              return acsysView.link_view_id.length > 0 ? (
-                <TableCell
-                  to={{
-                    pathname:
-                      '/CollectionView/' +
-                      acsysView.link_table +
-                      '/' +
-                      acsysView.link_view_id,
-                    state: {
-                      table_keys: table_keys[rowIndex],
-                    },
-                  }}
-                  component={Link}
-                  style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
-                >
-                  {returnValue}
-                </TableCell>
-              ) : (
+              return table_keys.length > 0 ? (
                 <TableCell
                   to={{
                     pathname: '/DocumentView',
@@ -632,11 +615,22 @@ const CollectionView = (props) => {
                 >
                   {returnValue}
                 </TableCell>
+              ) : (
+                <TableCell
+                  onClick={() => openKeyMessageFunc()}
+                  style={{
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {returnValue}
+                </TableCell>
               );
             }
           })}
           <TableCell align="right" style={{ minWidth: 100 }}>
-            {Acsys.getMode() !== 'Viewer' && is_removable ? (
+            {context.getMode() !== 'Viewer' && is_removable ? (
               <Tooltip title="Delete Entry">
                 <IconButton
                   edge="start"
@@ -797,7 +791,7 @@ const CollectionView = (props) => {
                 </Tooltip>
               </Grid>
 
-              {Acsys.getMode() === 'Administrator' ? (
+              {context.getMode() === 'Administrator' ? (
                 <Grid item>
                   <Tooltip title="Change How Data Is Presented">
                     <Button
@@ -812,7 +806,7 @@ const CollectionView = (props) => {
               ) : (
                 <div />
               )}
-              {Acsys.getMode() === 'Administrator' ? (
+              {context.getMode() === 'Administrator' ? (
                 <Grid item>
                   <Tooltip title="Change How Data Is Organized">
                     <Button
@@ -828,7 +822,9 @@ const CollectionView = (props) => {
                 <div />
               )}
               <Grid item>
-                {Acsys.getMode() !== 'Viewer' && is_removable ? (
+                {context.getMode() !== 'Viewer' &&
+                is_removable &&
+                table_keys.length > 0 ? (
                   <Tooltip title="Add New Entry To Table">
                     <Button
                       to={{

@@ -455,6 +455,7 @@ const Settings = (props) => {
                     <input
                       id="contained-button-file"
                       type="file"
+                      accept=".json"
                       style={{ display: 'none' }}
                       onChange={setRef}
                     />

@@ -239,7 +239,7 @@ const LogicalContent = (props) => {
                 {description}
               </TableCell>
             )}
-            {Acsys.getMode() === 'Administrator' ? (
+            {context.getMode() === 'Administrator' ? (
               <TableCell style={{ minWidth: 70 }} align="right">
                 <Tooltip title="Edit View">
                   <IconButton
@@ -290,7 +290,7 @@ const LogicalContent = (props) => {
             }}
           >
             <Toolbar style={{ margin: 4, paddingLeft: 12, paddingRight: 12 }}>
-              {Acsys.getMode() === 'Administrator' ? (
+              {context.getMode() === 'Administrator' ? (
                 <Grid container spacing={1}>
                   <Grid item xs style={{ overflow: 'hidden' }}>
                     <Typography
@@ -355,7 +355,7 @@ const LogicalContent = (props) => {
                   >
                     DESCRIPTION
                   </TableCell>
-                  {Acsys.getMode() === 'Administrator' ? (
+                  {context.getMode() === 'Administrator' ? (
                     <TableCell
                       style={{
                         paddingLeft: 16,

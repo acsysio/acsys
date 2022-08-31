@@ -24,11 +24,13 @@ export default function Driver(props) {
 
   const setRootMode = async (mode) => {
     await Acsys.setMode(mode);
+    context.setMode(mode);
     setMode(mode);
   };
 
   useEffect(() => {
     setMode(Acsys.getMode());
+    context.setMode(mode);
   });
 
   const renderApp = () => {
@@ -116,7 +118,6 @@ export default function Driver(props) {
             >
               <div style={{ maxWidth: '80vw', margin: 'auto' }}>
                 <div style={{ flex: 1, maxWidth: 1236, margin: 'auto' }}>
-                  {/* <Navigate from="/" to={ROUTES.LogicalContent} /> */}
                   <Outlet />
                 </div>
               </div>

@@ -781,7 +781,7 @@ const DocumentView = (props) => {
 
   return (
     <div style={{ minHeight: 600 }}>
-      {Acsys.getMode() !== 'Viewer' ? (
+      {context.getMode() !== 'Viewer' ? (
         <div>
           {!location.state.routed && is_removable ? (
             <Tooltip title="Delete Entry">
@@ -821,7 +821,7 @@ const DocumentView = (props) => {
           ) : (
             <div></div>
           )}
-          {Acsys.getMode() === 'Administrator' ? (
+          {context.getMode() === 'Administrator' ? (
             <Tooltip title="Change How Data Is Presented">
               <Button
                 style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
@@ -835,7 +835,7 @@ const DocumentView = (props) => {
           ) : (
             <div />
           )}
-          {Acsys.getMode() === 'Administrator' ? (
+          {context.getMode() === 'Administrator' ? (
             <FormControl
               variant="standard"
               sx={{ m: 1, minWidth: 120, float: 'right' }}
