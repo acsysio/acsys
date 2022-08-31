@@ -566,6 +566,7 @@ class SqliteDriver {
           query += `LIMIT 0,${options.limit}`;
         }
       }
+
       await db.all(query, [], (error, rows) => {
         if (rows === undefined || error) {
           console.log(error);

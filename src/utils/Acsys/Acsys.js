@@ -1,5 +1,4 @@
 import Cookies from 'js-cookie';
-import uniqid from 'uniqid';
 import * as Session from '../Session/session';
 
 export const getId = () => {
@@ -39,10 +38,6 @@ export const setMode = async (newMode) => {
         resolve(false);
       });
   });
-};
-
-export const getUnique_id = () => {
-  return uniqid();
 };
 
 const promFetch = (url, options = {}) => {
@@ -587,7 +582,6 @@ export const register = (username, email, password) => {
     let refreshToken;
 
     const userData = {
-      acsys_id: uniqid(),
       email,
       username,
       role,
@@ -613,7 +607,7 @@ export const register = (username, email, password) => {
           user = json.username;
           token = json.token;
           refreshToken = json.refreshToken;
-          Cookies.set('acsys_id', userData.acsys_id);
+          Cookies.set('acsys_id', json.acsys_id);
           Cookies.set('acsys_role', userData.role);
           Cookies.set('acsys_mode', userData.mode);
           Cookies.set('acsys_user', user);
@@ -1267,6 +1261,36 @@ export const getPage = async (
   });
 };
 
+export const createView = async (name, description, collection) => {
+  await checkToken();
+  return new Promise((resolve, reject) => {
+    promFetch('/api/createView', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Session.getToken()}`,
+      },
+      body: JSON.stringify({
+        name,
+        description,
+        collection,
+      }),
+    })
+      .then((response) => {
+        if (response.statusText !== 'Unauthorized') {
+          response.json().then((json) => {
+            resolve(json);
+          });
+        } else {
+          Session.logOut();
+          reject();
+        }
+      })
+      .catch(reject);
+  });
+};
+
 export const insertData = async (table, entry) => {
   await checkToken();
   return new Promise((resolve, reject) => {
@@ -1280,6 +1304,36 @@ export const insertData = async (table, entry) => {
       body: JSON.stringify({
         table,
         entry,
+      }),
+    })
+      .then((response) => {
+        if (response.statusText !== 'Unauthorized') {
+          response.json().then((json) => {
+            resolve(json);
+          });
+        } else {
+          Session.logOut();
+          reject();
+        }
+      })
+      .catch(reject);
+  });
+};
+
+export const insertWithUID = async (table, entry, fields) => {
+  await checkToken();
+  return new Promise((resolve, reject) => {
+    promFetch('/api/insertWithUID', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Session.getToken()}`,
+      },
+      body: JSON.stringify({
+        table,
+        entry,
+        fields,
       }),
     })
       .then((response) => {
@@ -1400,6 +1454,34 @@ export const insertOpenData = (table, entry) => {
       body: JSON.stringify({
         table,
         entry,
+      }),
+    })
+      .then((response) => {
+        if (response.statusText !== 'Unauthorized') {
+          response.json().then((json) => {
+            resolve(json);
+          });
+        } else {
+          Session.logOut();
+          reject();
+        }
+      })
+      .catch(reject);
+  });
+};
+
+export const insertOpenWithUID = (table, entry, fields) => {
+  return new Promise((resolve, reject) => {
+    promFetch('/api/insertOpenWithUID', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        table,
+        entry,
+        fields,
       }),
     })
       .then((response) => {

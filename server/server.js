@@ -1,89 +1,45 @@
-/* eslint-disable no-use-before-define */
+const path = require('path');
+const express = require('express');
+const routes = require('./routes/index');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+const fileUpload = require('express-fileupload');
+const cors = require('cors');
+const jwt = require('./jwt');
 
-/**
- * Module dependencies.
- */
-const debug = require('debug')('express-react:server');
-const http = require('http');
-const app = require('./app');
+const { PORT = 8080 } = process.env;
 
-/**
- * Get port from environment and store in Express.
- */
+const app = express();
 
-const port = normalizePort(process.env.PORT || '8080');
-app.set('port', port);
+// Middleware that parses json and looks at requests where the Content-Type header matches the type option.
+app.use(express.json());
 
-/**
- * Create HTTP server.
- */
+// Serve API requests from the router
+// app.use('/api', router);
+app.use(bodyParser.json({ limit: '50mb', extended: true }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+app.use(cookieParser());
 
-const server = http.createServer(app);
+app.use('/favicon.ico', express.static('public/acsys-icon.svg'));
 
-/**
- * Listen on provided port, on all network interfaces.
- */
+// configure jwt
+app.use('/api', jwt());
 
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+app.use(fileUpload());
 
-console.log('Listening at: http://localhost:' + port);
+// configure cors
+app.use(cors());
 
-/**
- * Normalize a port into a number, string, or false.
- */
+app.use('/api', routes);
 
-function normalizePort(val) {
-  // eslint-disable-next-line no-shadow
-  const port = parseInt(val, 10);
+// Serve app production bundle
+app.use(express.static('dist'));
 
-  // eslint-disable-next-line no-restricted-globals
-  if (isNaN(port)) {
-    // named pipe
-    return val;
-  }
+// Handle client routing, return all requests to the app
+app.get('*', (_req, res) => {
+  res.sendFile(path.join(__dirname, '../dist/index.html'));
+});
 
-  if (port >= 0) {
-    // port number
-    return port;
-  }
-
-  return false;
-}
-
-/**
- * Event listener for HTTP server "error" event.
- */
-
-function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
-
-  const bind = typeof port === 'string' ? `Pipe ${port}` : `Port ${port}`;
-
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error(`${bind} requires elevated privileges`);
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(`${bind} is already in use`);
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
-}
-
-/**
- * Event listener for HTTP server "listening" event.
- */
-
-function onListening() {
-  const addr = server.address();
-  const bind = typeof addr === 'string' ? `pipe ${addr}` : `port ${addr.port}`;
-  debug(`Listening on ${bind}`);
-}
+app.listen(PORT, () => {
+  console.log(`Server listening at http://localhost:${PORT}`);
+});
