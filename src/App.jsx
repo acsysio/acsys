@@ -21,8 +21,8 @@ const Users = lazy(() => import('./pages/Users'));
 export default function App() {
   return (
     <div>
-      <Router>
-        <Suspense fallback={<Loading />}>
+      <Suspense fallback={<Loading />}>
+        <Router>
           <Routes>
             <Route
               path={ROUTES.PasswordReset}
@@ -57,8 +57,8 @@ export default function App() {
               )}
             </Route>
           </Routes>
-        </Suspense>
-      </Router>
+        </Router>
+      </Suspense>
     </div>
   );
 }

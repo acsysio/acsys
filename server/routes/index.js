@@ -678,6 +678,63 @@ router.post('/dropTable', function (req, res) {
   });
 });
 
+router.post('/createView', function (req, res) {
+  const insertData = req.body;
+  const view_id = uniquid();
+  let newView = {
+    acsys_id: view_id,
+    is_table_mode: true,
+    is_removable: true,
+    link_view_id: '',
+    link_table: '',
+    order_by: '',
+    view_order: '',
+    row_num: 10,
+  };
+  data
+    .insert('acsys_views', newView)
+    .then(async () => {
+      const lcont = await data.getDocs('acsys_logical_content', []);
+      let newEntry = {
+        name: insertData.name,
+        acsys_id: uniquid(),
+        viewId: view_id,
+        description: insertData.description,
+        source_collection: insertData.collection,
+        position: lcont.length + 1,
+        table_keys: [],
+      };
+      data
+        .insert('acsys_logical_content', newEntry)
+        .then(async () => {
+          const table = await data.getDocs(insertData.collection, []);
+          Object.keys(table[0]).map(async (value, index) => {
+            let collectionDetails = {
+              acsys_id: uniquid() + index,
+              content_id: view_id,
+              collection: insertData.collection,
+              control: 'none',
+              field_name: value,
+              is_visible_on_page: true,
+              is_visible_on_table: true,
+              type: typeof table[0][value],
+              is_key: false,
+              view_order: index,
+              width: 12,
+            };
+            await data.insert('acsys_document_details', collectionDetails);
+          });
+          res.send({ status: 'success' });
+        })
+        .catch(() => {
+          res.send({ status: 'error' });
+        });
+    })
+    .catch(() => {
+      res.send({ status: 'error' });
+    });
+});
+
 router.get('/readData', function (req, res) {
   const options = JSON.parse(req.query.options);
   data
@@ -712,15 +769,19 @@ router.post('/insertWithUID', function (req, res) {
   const insertData = req.body;
   let fields = insertData.fields;
   let dataWithId = insertData.entry;
+  let nIds = [];
   if (fields !== undefined && fields.length > 0) {
     for (let i = 0; i < fields.length; i++) {
-      dataWithId[fields[i].toString()] = uniquid();
+      const nId = uniquid();
+      nIds[fields[i].toString()] = nId;
+      nIds.push({ field: fields[i].toString(), value: nId });
+      dataWithId[fields[i].toString()] = nId;
     }
   } else {
     dataWithId['acsys_id'] = uniquid();
   }
   data.insert(insertData.table, dataWithId).then((result) => {
-    res.send(result);
+    res.send({ status: result, fields: nIds });
   });
 });
 

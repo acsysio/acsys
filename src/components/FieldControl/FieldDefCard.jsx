@@ -6,12 +6,12 @@ import RemoveButton from '@mui/icons-material/RemoveCircle';
 import { useMemo, useEffect, useState, useRef } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import ItemTypes from './ItemTypes';
+import * as Acsys from '../../utils/Acsys/Acsys';
 
 const style = {
   padding: '0.5rem 1rem',
   marginBottom: '.5rem',
   backgroundColor: 'white',
-  cursor: 'grab',
 };
 
 export default function EditText(props) {
@@ -19,17 +19,19 @@ export default function EditText(props) {
   const [dropDownFields, setDropDownFields] = useState([]);
   const ref = useRef(null);
   useEffect(() => {
-    if (
-      props.details.data !== undefined &&
-      props.details.data !== true &&
-      dropDownFields.length === 0
-    ) {
-      setDropDownFields(props.details.data.split(','));
-    }
-  });
-  useEffect(() => {
     if (props.details.control === 'dropDown') {
-      setDropdown(true);
+      Acsys.getData('acsys_details_dropdown', [
+        ['acsys_id', '=', props.details.acsys_id],
+        ['field_name', '=', props.details.field_name],
+      ])
+        .then(async (result) => {
+          if (result.length > 0) {
+            const data = result[0];
+            setDropDownFields(data.field.split(','));
+            setDropdown(true);
+          }
+        })
+        .catch(() => {});
     }
   }, []);
   const [{ isDragging }, connectDrag] = useDrag({
@@ -170,7 +172,12 @@ export default function EditText(props) {
   return (
     <Paper style={{ marginBottom: 30, paddingBottom: 10 }}>
       <AppBar
-        style={{ height: 30, borderBottom: '1px solid rgba(0, 0, 0, 0.12)' }}
+        ref={ref}
+        style={{
+          height: 30,
+          borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
+          cursor: 'grab',
+        }}
         position="static"
         color="default"
         elevation={0}
@@ -179,7 +186,7 @@ export default function EditText(props) {
           {props.details.field_name}
         </Typography>
       </AppBar>
-      <div ref={ref} style={containerStyle}>
+      <div style={containerStyle}>
         <Grid container spacing={2}>
           <Grid item xs={3}>
             <div>

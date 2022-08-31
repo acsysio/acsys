@@ -37,6 +37,6 @@ if (networkInterfaces) {
 
 module.exports = module.exports.default = function (prefix) {
   return (
-    (prefix ? prefix : '') + address + ppid + pid + Date.now().toString(20)
+    (prefix ? prefix : '') + Date.now().toString(20) + address + ppid + pid
   );
 };

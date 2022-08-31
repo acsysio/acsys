@@ -1261,6 +1261,36 @@ export const getPage = async (
   });
 };
 
+export const createView = async (name, description, collection) => {
+  await checkToken();
+  return new Promise((resolve, reject) => {
+    promFetch('/api/createView', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Session.getToken()}`,
+      },
+      body: JSON.stringify({
+        name,
+        description,
+        collection,
+      }),
+    })
+      .then((response) => {
+        if (response.statusText !== 'Unauthorized') {
+          response.json().then((json) => {
+            resolve(json);
+          });
+        } else {
+          Session.logOut();
+          reject();
+        }
+      })
+      .catch(reject);
+  });
+};
+
 export const insertData = async (table, entry) => {
   await checkToken();
   return new Promise((resolve, reject) => {
