@@ -14,12 +14,6 @@
   <a href="https://github.com/aeon-software/acsys">
     <img src="https://img.shields.io/github/repo-size/aeon-software/acsys" />
   </a>
-  <a href="https://hub.docker.com/r/acsysio/acsys">
-    <img src="https://img.shields.io/docker/cloud/automated/acsysio/acsys" />
-  </a>
-  <a href="https://hub.docker.com/r/acsysio/acsys/builds">
-    <img src="https://img.shields.io/docker/cloud/build/acsysio/acsys" />
-  </a>
 </p>
 
 ## Acsys [Live Demo](https://demo.acsys.io/)
@@ -56,9 +50,9 @@ Start Acsys locally using these commands:
 
 Run `npm install`
 
-Start development by running `npm run dev`
-
 Build project by running `npm run build` (`npm run build-linux` for Linux)
+
+Start development by running `npm run dev`
 
 Run project in production mode by running `npm run start` (executing this after building will run the project at http://localhost:8080)
 
@@ -98,7 +92,7 @@ Connections can be changed within the web appplication. If at any point the conf
 
 ### Stateless
 
-To configure a stateless version of Acsys you must set your database and storage credentials in environment variables. Please note that when running stateless a Firebase project must be created to configure Storage regardless of configuration.
+To configure a stateless version of Acsys you must set your database and storage credentials in environment variables. Please note that when running stateless a Firebase project must be created to configure Storage regardless of configuration. The dbase.db file must also be deleted when reseting a stateless configuration.
 
 #### Environment Variables
 
@@ -163,6 +157,9 @@ TOKEN_URI=https://accounts.google.com/o/oauth2/token
 AUTH_PROVIDER_X509_CERT_URL=https://www.googleapis.com/oauth2/v1/certs
 CLIENT_X509_CERT_URL=https://www.googleapis.com/robot/v1/metadata/x509/service-account-email
 ```
+
+Ensure all privileges have been granted for the database user. These include CREATE, DROP, SELECT, UPDATE, INSERT, and DELETE.
+For GCP your external testing network will have to be added to the SQL connections when running locally.
 
 ## Built With
 

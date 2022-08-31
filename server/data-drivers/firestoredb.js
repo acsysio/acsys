@@ -94,7 +94,9 @@ class DataDriver {
       db.collection('acsys_users')
         .add(data)
         .then((docRef) => resolve(docRef))
-        .catch(reject);
+        .catch((error) => {
+          reject(error);
+        });
     });
   }
 
@@ -139,7 +141,7 @@ class DataDriver {
           resolve(objects);
         })
         .catch((error) => {
-          resolve(error);
+          reject(error);
         });
     });
   }
@@ -196,7 +198,9 @@ class DataDriver {
         .then((snapshot) => {
           resolve(snapshot.size);
         })
-        .catch(reject);
+        .catch((error) => {
+          reject(error);
+        });
     });
   }
 
@@ -216,7 +220,9 @@ class DataDriver {
           });
           resolve(true);
         })
-        .catch(reject);
+        .catch((error) => {
+          reject(error);
+        });
     });
   }
 
@@ -254,7 +260,7 @@ class DataDriver {
           resolve();
         })
         .catch((error) => {
-          resolve(error);
+          reject(error);
         });
     });
   }
@@ -277,7 +283,7 @@ class DataDriver {
           resolve();
         })
         .catch((error) => {
-          resolve(error);
+          reject(error);
         });
     });
   }
@@ -287,7 +293,9 @@ class DataDriver {
       db.collection(collectionName)
         .add(data)
         .then((docRef) => resolve(docRef))
-        .catch(reject);
+        .catch((error) => {
+          reject(error);
+        });
     });
   }
 
@@ -309,11 +317,13 @@ class DataDriver {
             db.collection('acsys_open_tables')
               .add(data)
               .then((docRef) => resolve(docRef))
-              .catch(reject);
+              .catch((error) => {
+                reject(error);
+              });
           }
         })
         .catch((error) => {
-          resolve(error);
+          reject(error);
         });
     });
   }
@@ -340,7 +350,9 @@ class DataDriver {
           });
           resolve();
         })
-        .catch(reject);
+        .catch((error) => {
+          reject(error);
+        });
     });
   }
 
@@ -406,7 +418,7 @@ class DataDriver {
           resolve(objects);
         })
         .catch((error) => {
-          resolve(error);
+          reject(error);
         });
     });
   }
@@ -453,7 +465,7 @@ class DataDriver {
           resolve(objects);
         })
         .catch((error) => {
-          resolve(error);
+          reject(error);
         });
     });
   }
@@ -470,7 +482,9 @@ class DataDriver {
           if (doc.exists) resolve(doc);
           else reject(`No Document with uid: ${uid}`);
         })
-        .catch(reject);
+        .catch((error) => {
+          reject(error);
+        });
     });
   }
 
@@ -479,7 +493,9 @@ class DataDriver {
       db.collection(collectionName)
         .add(data)
         .then((docRef) => resolve(docRef))
-        .catch(reject);
+        .catch((error) => {
+          reject(error);
+        });
     });
   }
 
@@ -510,7 +526,9 @@ class DataDriver {
           });
           resolve();
         })
-        .catch(reject);
+        .catch((error) => {
+          reject(error);
+        });
     });
   }
 
@@ -553,7 +571,9 @@ class DataDriver {
           });
           resolve(true);
         })
-        .catch(reject);
+        .catch((error) => {
+          reject(error);
+        });
     });
   }
 
@@ -574,7 +594,9 @@ class DataDriver {
           });
           resolve();
         })
-        .catch(reject);
+        .catch((error) => {
+          reject(error);
+        });
     });
   }
 
