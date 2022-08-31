@@ -23,7 +23,7 @@ import {
 } from '@mui/icons-material';
 import { useState, useContext, useEffect } from 'react';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import * as Acsys from '../utils/Acsys/Acsys';
 import { AcsysContext } from '../utils/Session/AcsysProvider';
 import FieldDef from '../components/FieldControl/FieldDef';
@@ -45,10 +45,10 @@ let row_num = 10;
 const CollectionView = (props) => {
   const context = useContext(AcsysContext);
   const location = useLocation();
-  const navigate = useNavigate();
   const params = useParams();
   const [content_id, setContentId] = useState('');
   const [viewId, setViewId] = useState(0);
+  const [draft, setDraft] = useState(false);
   const [initialViews, setInitialViews] = useState([]);
   const [documentDetails, setDocumentDetails] = useState([]);
   const [acsysView, setAcsysView] = useState([]);
@@ -83,7 +83,7 @@ const CollectionView = (props) => {
   const openKeyMessageFunc = () => {
     setOpenKeyMessage(true);
     setMessageTitle('Error');
-    setMessage('No keys set Please setUnique key for data.');
+    setMessage('Please setUnique key for data.');
   };
 
   const closeKeyMessage = () => {
@@ -93,6 +93,7 @@ const CollectionView = (props) => {
   const handleViewChange = (value) => {
     published = value;
     let acsys_id = '';
+    setDraft(!published);
     if (published) {
       acsys_id = params.acsys_id;
     } else {
@@ -349,15 +350,9 @@ const CollectionView = (props) => {
       }
       const result = await Acsys.updateData(
         'acsys_document_details',
-        { ...tempDetails[i] },
+        tempDetails[i],
         [['acsys_id', '=', tempDetails[i].acsys_id]]
       );
-    }
-    for (var i = 0; i < tempDetails.length; i++) {
-      tempDetails[i].view_order = i;
-      await Acsys.updateData('acsys_document_details', tempDetails[i], [
-        ['acsys_id', '=', tempDetails[i].acsys_id],
-      ]);
     }
     setFilterLoading(false);
     handleDetailClose();
@@ -476,32 +471,7 @@ const CollectionView = (props) => {
           );
         }
       } else {
-        currentData = await Acsys.getData(acsys_id, keys, row_num);
         apiCall = await Acsys.getOpenUrl(acsys_id, keys, row_num);
-        await Promise.all(
-          Object.keys(currentData[0]).map(async (value, index) => {
-            let collectionDetails = {
-              content_id: content_id,
-              collection: acsys_id,
-              control: 'none',
-              field_name: value,
-              is_visible_on_page: true,
-              is_visible_on_table: true,
-              type: typeof currentData[0][value],
-              is_key: false,
-              view_order: index,
-              width: 12,
-            };
-            await Acsys.insertWithUID(
-              'acsys_document_details',
-              collectionDetails
-            ).then(() => {
-              details.push(collectionDetails);
-            });
-          })
-        ).then(() => {
-          details.sort((a, b) => (a.view_order > b.view_order ? 1 : -1));
-        });
       }
     } catch (error) {
       console.log(error);
@@ -623,30 +593,14 @@ const CollectionView = (props) => {
               }
             });
             if (details.is_visible_on_table) {
-              return acsysView.link_view_id.length > 0 ? (
-                <TableCell
-                  to={{
-                    pathname:
-                      '/CollectionView/' +
-                      acsysView.link_table +
-                      '/' +
-                      acsysView.link_view_id,
-                    state: {
-                      table_keys: table_keys[rowIndex],
-                    },
-                  }}
-                  component={Link}
-                  style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
-                >
-                  {returnValue}
-                </TableCell>
-              ) : (
+              return table_keys.length > 0 ? (
                 <TableCell
                   to={{
                     pathname: '/DocumentView',
                   }}
                   state={{
                     mode: 'update',
+                    draft: draft,
                     is_removable: is_removable,
                     table_keys: table_keys[rowIndex],
                     routed: false,
@@ -661,11 +615,22 @@ const CollectionView = (props) => {
                 >
                   {returnValue}
                 </TableCell>
+              ) : (
+                <TableCell
+                  onClick={() => openKeyMessageFunc()}
+                  style={{
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {returnValue}
+                </TableCell>
               );
             }
           })}
           <TableCell align="right" style={{ minWidth: 100 }}>
-            {Acsys.getMode() !== 'Viewer' && is_removable ? (
+            {context.getMode() !== 'Viewer' && is_removable ? (
               <Tooltip title="Delete Entry">
                 <IconButton
                   edge="start"
@@ -826,7 +791,7 @@ const CollectionView = (props) => {
                 </Tooltip>
               </Grid>
 
-              {Acsys.getMode() === 'Administrator' ? (
+              {context.getMode() === 'Administrator' ? (
                 <Grid item>
                   <Tooltip title="Change How Data Is Presented">
                     <Button
@@ -841,7 +806,7 @@ const CollectionView = (props) => {
               ) : (
                 <div />
               )}
-              {Acsys.getMode() === 'Administrator' ? (
+              {context.getMode() === 'Administrator' ? (
                 <Grid item>
                   <Tooltip title="Change How Data Is Organized">
                     <Button
@@ -857,7 +822,9 @@ const CollectionView = (props) => {
                 <div />
               )}
               <Grid item>
-                {Acsys.getMode() !== 'Viewer' && is_removable ? (
+                {context.getMode() !== 'Viewer' &&
+                is_removable &&
+                table_keys.length > 0 ? (
                   <Tooltip title="Add New Entry To Table">
                     <Button
                       to={{

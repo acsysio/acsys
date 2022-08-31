@@ -144,6 +144,7 @@ const Configuration = () => {
                 className="custom-input"
                 id="contained-button-file"
                 type="file"
+                accept=".json"
                 style={{ display: 'none' }}
                 onChange={setRef}
               />
@@ -260,6 +261,7 @@ const Configuration = () => {
                 className="custom-input"
                 id="contained-button-file"
                 type="file"
+                accept=".json"
                 style={{ display: 'none' }}
                 onChange={setRef}
               />

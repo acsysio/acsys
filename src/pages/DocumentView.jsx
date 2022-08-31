@@ -11,7 +11,7 @@ import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { FileCopyOutlined as CopyIcon } from '@mui/icons-material';
 import { useContext, useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import * as Acsys from '../utils/Acsys/Acsys';
 import { AcsysContext } from '../utils/Session/AcsysProvider';
@@ -47,10 +47,11 @@ let quillURL = '';
 const DocumentView = (props) => {
   const context = useContext(AcsysContext);
   const location = useLocation();
+  const navigate = useNavigate();
   const [collection, setCollection] = useState('');
   const [documentDetails, setdocumentDetails] = useState([]);
   const [fileMode, setfileMode] = useState('');
-  const [draft, setdraft] = useState(false);
+  const [draft, setdraft] = useState(location.state.draft);
   const [views, setviews] = useState([]);
   const [apiCall, setapiCall] = useState('');
   const [keys, setkeys] = useState([]);
@@ -61,7 +62,7 @@ const DocumentView = (props) => {
   const [loading, setloading] = useState(false);
   const [deleting, setdeleting] = useState(false);
   const [deleteLoading, setdeleteLoading] = useState(false);
-  const [setOpen, setsetOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [saving, setsaving] = useState(false);
   const [fileSelect, setfileSelect] = useState(false);
   const [filterLoading, setfilterLoading] = useState(false);
@@ -84,11 +85,11 @@ const DocumentView = (props) => {
   };
 
   const handleClickOpen = () => {
-    setsetOpen(true);
+    setOpen(true);
   };
 
   const handleClose = () => {
-    setsetOpen(false);
+    setOpen(false);
   };
 
   const handleDeleteOpen = async () => {
@@ -149,30 +150,6 @@ const DocumentView = (props) => {
     tempDocument[key] = event;
   };
 
-  const getMaxPos = async (table, field) => {
-    return new Promise(async (resolve, reject) => {
-      const pos = await Acsys.getData(table, '', 1, [field], 'desc')
-        .then((result) => {
-          resolve(result[0][field]);
-        })
-        .catch(() => {
-          resolve(0);
-        });
-    });
-  };
-
-  const increment = async (table, field, start, num) => {
-    return new Promise(async (resolve, reject) => {
-      await Acsys.increment(table, field, start, num)
-        .then(() => {
-          resolve(true);
-        })
-        .catch(() => {
-          resolve(false);
-        });
-    });
-  };
-
   const saveDocument = async () => {
     setsaving(true);
     if (mode === 'update') {
@@ -208,19 +185,40 @@ const DocumentView = (props) => {
             tempDocument[tempDetails[i].field_name] = 0;
           } else if (tempDetails[i].control === 'booleanSelect') {
             tempDocument[tempDetails[i].field_name] = false;
+          } else if (tempDetails[i].control === 'dropDown') {
+            await Acsys.getData('acsys_details_dropdown', [
+              ['acsys_id', '=', tempDetails[i].acsys_id],
+              ['field_name', '=', tempDetails[i].field_name],
+            ])
+              .then(async (result) => {
+                if (result.length > 0) {
+                  const data = result[0];
+                  tempDocument[tempDetails[i].field_name] =
+                    data.field.split(',')[0];
+                }
+              })
+              .catch(() => {});
           } else {
             tempDocument[tempDetails[i].field_name] = '';
           }
         }
       }
       if (uFields.length > 0) {
-        const result = await Acsys.insertWithUID(
+        const response = await Acsys.insertWithUID(
           'acsys_' + collection,
-          { ...tempDocument },
+          {
+            ...tempDocument,
+          },
           uFields
         );
+        if (response.fields) {
+          const data = response.fields;
+          for (let i = 0; i < data.length; i++) {
+            tempDocument[data[i].field] = data[i].value;
+          }
+        }
       } else {
-        const result = await Acsys.insertData('acsys_' + collection, {
+        await Acsys.insertData('acsys_' + collection, {
           ...tempDocument,
         });
       }
@@ -235,8 +233,12 @@ const DocumentView = (props) => {
         table_keys.push(object);
       }
     }
-    mode = 'update';
-    mount();
+    if (mode !== 'update') {
+      mode = 'update';
+      is_removable = true;
+      mount();
+    }
+    setsaving(false);
   };
 
   const publishDocument = async () => {
@@ -285,7 +287,6 @@ const DocumentView = (props) => {
       let uFields = [];
       for (var i = 0; i < tempDetails.length; i++) {
         if (tempDetails[i].control === 'autoGen') {
-          // tempDocument[tempDetails[i].field_name] = uniquid();
           uFields.push(tempDetails[i].field_name);
         } else if (fileDoc[tempDetails[i].field_name] !== undefined) {
           tempDocument[tempDetails[i].field_name] =
@@ -295,16 +296,38 @@ const DocumentView = (props) => {
             tempDocument[tempDetails[i].field_name] = 0;
           } else if (tempDetails[i].control === 'booleanSelect') {
             tempDocument[tempDetails[i].field_name] = false;
+          } else if (tempDetails[i].control === 'dropDown') {
+            await Acsys.getData('acsys_details_dropdown', [
+              ['acsys_id', '=', tempDetails[i].acsys_id],
+              ['field_name', '=', tempDetails[i].field_name],
+            ])
+              .then(async (result) => {
+                if (result.length > 0) {
+                  const data = result[0];
+                  tempDocument[tempDetails[i].field_name] =
+                    data.field.split(',')[0];
+                }
+              })
+              .catch(() => {});
           } else {
             tempDocument[tempDetails[i].field_name] = '';
           }
         }
       }
       if (uFields.length > 0) {
-        await Acsys.insertWithUID(collection, {
-          ...tempDocument,
-          uFields,
-        });
+        const response = await Acsys.insertWithUID(
+          collection,
+          {
+            ...tempDocument,
+          },
+          uFields
+        );
+        if (response.fields) {
+          const data = response.fields;
+          for (let i = 0; i < data.length; i++) {
+            tempDocument[data[i].field] = data[i].value;
+          }
+        }
       } else {
         await Acsys.insertData(collection, {
           ...tempDocument,
@@ -321,8 +344,12 @@ const DocumentView = (props) => {
         table_keys.push(object);
       }
     }
-    mode = 'update';
-    mount();
+    if (mode !== 'update') {
+      mode = 'update';
+      is_removable = true;
+      mount();
+    }
+    setsaving(false);
   };
 
   const saveSettings = async () => {
@@ -399,12 +426,12 @@ const DocumentView = (props) => {
     }
     await Acsys.deleteData(collection, keys)
       .then(() => {
-        handleClose();
+        handleDeleteClose();
         setdeleteLoading(false);
-        props.history.goBack();
+        navigate(-1);
       })
       .catch((error) => {
-        handleClose();
+        handleDeleteClose();
         setError(error);
         setdeleteLoading(false);
       });
@@ -421,7 +448,6 @@ const DocumentView = (props) => {
     tempDocument = [];
     fileDoc = [];
     fileRefs = [];
-    mode = '';
     is_removable = true;
     quillRef = null;
     quillIndex = 0;
@@ -437,9 +463,8 @@ const DocumentView = (props) => {
         routedLocal = true;
       }
       try {
-        // mode = location.state.getMode();
         mode = location.state.mode;
-        is_removable = location.state.isRemovable;
+        is_removable = location.state.is_removable;
         if (routedLocal) {
           table_keys = JSON.parse(location.state.table_keys);
         } else {
@@ -482,16 +507,17 @@ const DocumentView = (props) => {
         for (let i = 0; i < table_keys.length; i++) {
           keys.push([table_keys[i].field, '=', table_keys[i].value]);
         }
-        await Acsys.getData(table, keys)
-          .then((result) => {
-            pullView = result;
-          })
-          .catch(async () => {});
-        if (pullView.length < 1) {
+        if (draft) {
           await Acsys.getData('acsys_' + table, keys).then((result) => {
             pullView = result;
             draft = true;
           });
+        } else {
+          await Acsys.getData(table, keys)
+            .then((result) => {
+              pullView = result;
+            })
+            .catch(async () => {});
         }
         await Acsys.getData('acsys_open_tables', [['table_name', '=', table]])
           .then(async (result) => {
@@ -666,6 +692,7 @@ const DocumentView = (props) => {
           defaultValue={tempDocument[currentKey]}
           handleChange={handleChange}
           currentKey={currentKey}
+          pivot={filterLoading}
         />
       );
     } else if (details.control == 'numberEditor') {
@@ -754,7 +781,7 @@ const DocumentView = (props) => {
 
   return (
     <div style={{ minHeight: 600 }}>
-      {Acsys.getMode() !== 'Viewer' ? (
+      {context.getMode() !== 'Viewer' ? (
         <div>
           {!location.state.routed && is_removable ? (
             <Tooltip title="Delete Entry">
@@ -794,7 +821,7 @@ const DocumentView = (props) => {
           ) : (
             <div></div>
           )}
-          {Acsys.getMode() === 'Administrator' ? (
+          {context.getMode() === 'Administrator' ? (
             <Tooltip title="Change How Data Is Presented">
               <Button
                 style={{ float: 'right', marginBottom: 20, marginLeft: 20 }}
@@ -808,7 +835,7 @@ const DocumentView = (props) => {
           ) : (
             <div />
           )}
-          {Acsys.getMode() === 'Administrator' ? (
+          {context.getMode() === 'Administrator' ? (
             <FormControl
               variant="standard"
               sx={{ m: 1, minWidth: 120, float: 'right' }}
@@ -838,7 +865,7 @@ const DocumentView = (props) => {
         <LoadingDialog loading={loading} message={'Loading'} />
         <LoadingDialog loading={saving} message={'Saving'} />
         <FieldControlDialog
-          open={setOpen}
+          open={open}
           closeDialog={handleClose}
           title={'Field Controls'}
           backend={HTML5Backend}

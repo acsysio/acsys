@@ -22,9 +22,6 @@ function Navigator(props) {
       paddingTop: 15,
       paddingBottom: 15,
     },
-    categoryHeaderPrimary: {
-      // color: theme.palette.common.white,
-    },
     item: {
       paddingTop: 1,
       paddingBottom: 1,
@@ -39,7 +36,6 @@ function Navigator(props) {
     },
     firebase: {
       fontSize: 24,
-      // color: theme.palette.common.white,
     },
     itemPrimary: {
       fontSize: 'inherit',
@@ -219,12 +215,6 @@ function Navigator(props) {
           onClose={props.handleDrawerToggle}
         >
           <div style={{ height: 80 }} />
-          {/* <IconButton
-            onClick={props.handleDrawerToggle}
-            style={{ color: '#ffffff', width: 50 }}
-          >
-            <CloseIcon />
-          </IconButton> */}
           <ListItem>
             {Acsys.getRole() !== 'Viewer' ? (
               <select

@@ -443,7 +443,7 @@ const Storage = (props) => {
               {renderName(acsys_id, content_type, name)}
               <TableCell>{content_type}</TableCell>
               <TableCell>{updated}</TableCell>
-              {Acsys.getMode() !== 'Viewer' ? (
+              {context.getMode() !== 'Viewer' ? (
                 <TableCell style={{ minWidth: 100 }} align="right">
                   {is_public ? (
                     <Tooltip title="Public To Internet">
@@ -506,7 +506,7 @@ const Storage = (props) => {
               }}
             >
               <Toolbar style={{ margin: 4, paddingLeft: 12, paddingRight: 12 }}>
-                {Acsys.getMode() !== 'Viewer' ? (
+                {context.getMode() !== 'Viewer' ? (
                   <Grid container spacing={1}>
                     <Grid item xs style={{ overflow: 'hidden' }}>
                       <Typography
@@ -617,7 +617,7 @@ const Storage = (props) => {
                     >
                       LAST MODIFIED
                     </TableCell>
-                    {Acsys.getMode() !== 'Viewer' ? (
+                    {context.getMode() !== 'Viewer' ? (
                       <TableCell
                         style={{
                           paddingLeft: 16,
