@@ -1,7 +1,7 @@
 import { Box, Grid, Hidden, Typography } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import * as Acsys from '../utils/Acsys/Acsys';
 
 const SignInPage = () => {
@@ -16,6 +16,7 @@ const SignInPage = () => {
   const [isInstalled, setIsInstalled] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     load();
@@ -67,7 +68,7 @@ const SignInPage = () => {
     await Acsys.authenticate(username, passwordOne)
       .then((result) => {
         if (result === true) {
-          window.location.reload(false);
+          navigate(0);
           event.preventDefault();
         } else {
           setLoading(false);
@@ -83,7 +84,7 @@ const SignInPage = () => {
     await Acsys.register(username, email, passwordOne)
       .then((result) => {
         if (result === true) {
-          window.location.reload(false);
+          navigate(0);
           event.preventDefault();
         } else {
           setLoading(true);
