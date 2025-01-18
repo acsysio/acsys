@@ -22,7 +22,7 @@ jobs:
       - name: View file
         run: cat Dockerfile
       - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag acsysio/acsys
+        run: docker build . --file Dockerfile --tag cbridges1/acsys
       - name: docker push
         run: |
-          docker push acsysio/acsys
+          docker push cbridges1/acsys
