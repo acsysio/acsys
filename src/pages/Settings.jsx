@@ -17,6 +17,7 @@ import { AcsysContext } from '../utils/Session/AcsysProvider';
 import LoadingDialog from '../components/Dialogs/LoadingDialog';
 import MessageDialog from '../components/Dialogs/MessageDialog';
 import YesNoDialog from '../components/Dialogs/YesNoDialog';
+import { useNavigate } from 'react-router-dom';
 
 const Settings = (props) => {
   const context = useContext(AcsysContext);
@@ -56,6 +57,7 @@ const Settings = (props) => {
   const [message, setMessage] = useState('');
   const [messageOpen, setMessageOpen] = useState(false);
   const [isStateless, setIsStateless] = useState('');
+  const navigate = useNavigate();
 
   const handleClickOpen = () => {
     if (updateDatabase || updateStorage || updateEmail || updateBucket) {
@@ -125,16 +127,6 @@ const Settings = (props) => {
     }
     setIsStateless(isStateless);
     setDatabaseType(databaseType);
-  };
-
-  // setDatabaseType = (type) => {
-  //   setState({
-  //     databaseType: type,
-  //   });
-  // };
-
-  const selectBucket = (bucket) => {
-    setBucket(bucket);
   };
 
   const setEmail = async () => {
@@ -218,7 +210,7 @@ const Settings = (props) => {
     }
     if ((updateDatabase || updateEmail || updateStorage) && loading) {
       await sleep(7500);
-      window.location.reload();
+      navigate(0);
     }
     setLoading(false);
   };

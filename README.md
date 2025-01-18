@@ -5,24 +5,22 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/aeon-software/acsys/blob/master/LICENSE.md">
-    <img src="https://img.shields.io/github/license/aeon-software/acsys" />
+  <a href="https://github.com/cbridges1/acsys/blob/master/LICENSE.md">
+    <img src="https://img.shields.io/github/license/cbridges1/acsys" />
   </a>
-  <a href="https://github.com/aeon-software/acsys/commits">
-    <img src="https://img.shields.io/github/last-commit/aeon-software/acsys" />
+  <a href="https://github.com/cbridges1/acsys/commits">
+    <img src="https://img.shields.io/github/last-commit/cbridges1/acsys" />
   </a>
-  <a href="https://github.com/aeon-software/acsys">
-    <img src="https://img.shields.io/github/repo-size/aeon-software/acsys" />
+  <a href="https://github.com/cbridges1/acsys">
+    <img src="https://img.shields.io/github/repo-size/cbridges1/acsys" />
   </a>
 </p>
 
-## Acsys [Live Demo](https://demo.acsys.io/)
-
 <a href="https://demo.acsys.io">
-  <img align="center" alt="Acsys Demo" src="https://storage.googleapis.com/acsys-294722.appspot.com/media/acsys_gif.gif">
+  <img align="center" alt="Acsys Demo" src="/website/Acsys%20Data%20Tool_files/media_acsys_gif.gif">
 </a>
 
-Acsys is a CMS built on NodeJS. This tool was created to fulfill the need for a frontend interface for Cloud Firestore. Acsys allows developers to configure a database through the Acsys web app. Once this is done users can use Acsys as a headless content management system that also configures RESTful APIs (no coding involved). Acsys serves as a simple interface for Firestore, MySQL and SQLite databases. Since this project is maintained and used by Aeon it will receive continuous updates.
+Acsys is a CMS built on NodeJS. This tool was created to fulfill the need for a frontend interface for Cloud Firestore. Acsys allows developers to configure a database through the Acsys web app. Once this is done users can use Acsys as a headless content management system that also configures RESTful APIs (no coding involved). Acsys serves as a simple interface for Firestore, MySQL and SQLite databases.
 
 ## Getting Started
 
@@ -61,22 +59,22 @@ Run project in production mode by running `npm run start` (executing this after 
 Pull the Docker image by using this command:
 
 ```bash
-docker pull acsysio/acsys
+docker pull cbridges1/acsys
 ```
 
 Then run using:
 
 ```bash
-docker run -p 8080:8080 acsysio/acsys
+docker run -p 8080:8080 cbridges1/acsys
 ```
 
 With environment variable file:
 
 ```bash
-docker run -p 8080:8080 --env-file .env acsysio/acsys
+docker run -p 8080:8080 --env-file .env cbridges1/acsys
 ```
 
-Official Docker Image can be found [here](https://hub.docker.com/r/acsysio/acsys).
+Official Docker Image can be found [here](https://hub.docker.com/r/cbridges1/acsys).
 
 ## Configuration
 
@@ -176,8 +174,8 @@ There are many ways in which you can participate in the project, for example:
 - Review source code changes
 - Review the documentation
 
-We encourage you to tell us what you want out of this project! Please read [CONTRIBUTING.md](https://github.com/aeon-software/acsys/blob/master/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+We encourage you to tell us what you want out of this project! Please read [CONTRIBUTING.md](https://github.com/cbridges1/acsys/blob/master/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/aeon-software/acsys/blob/master/LICENSE.md) file for details.
+This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/cbridges1/acsys/blob/master/LICENSE.md) file for details.
